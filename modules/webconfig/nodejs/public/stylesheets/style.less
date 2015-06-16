@@ -761,24 +761,30 @@ button .caret {
   display: table;
   table-layout: fixed;
   margin-bottom: 20px;
+
+  td {
+    padding-left: 18px;
+  }
+
+  .active a {
+    color: #ec1c24;
+    font-weight: bold;
+  }
+
+  a:hover {
+    color: #950d12;
+  }
+
+  a {
+    color: #666;
+  }
 }
 
-.theme-line .links table td {
-  padding-left: 18px;
-}
-
-.theme-line .links table a {
-  color: #666;
-}
-
-.theme-line .links table a:hover {
-  color: #950d12;
-}
-
-.theme-line .links table .active a {
-  //font-weight: bold;
-  color: #ec1c24;
-  font-weight: bold;
+.theme-line .links-edit table:extend(.theme-line .links table all) {
+  label {
+    line-height: @input-height;
+    color: #666;
+  }
 }
 
 .btn {

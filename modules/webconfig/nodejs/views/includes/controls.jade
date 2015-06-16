@@ -121,15 +121,19 @@ mixin form-row
             div
                 label {{field.tableLabel}}: {{#{tblMdl}.length}}
                 +tipLabel('field.tip')
-            .links(nh-show='#{tblMdl}.length > 0')
+            .links-edit(ng-show='#{tblMdl}.length > 0')
                 table.col-sm-12(st-table=tblMdl)
                     tbody
                         tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                             td.col-sm-6
-                                a.vcenter2(ng-show='field.editIdx != $index' ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item}}
-                                input.form-control(ng-show='field.editIdx == $index' type='text' ng-model='curValue' placeholder='SQL function class name')
-                                i.tipField.fa.fa-remove(ng-show='field.editIdx != $index' ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
-                                i.tipField.fa.fa-floppy-o(ng-show='field.editIdx == $index' ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
+                                div(ng-show='field.editIdx != {{$index}}')
+                                    a(ng-click='field.editIdx = $index; inplaceSqlFx = backupItem.sqlFunctionClasses[$index]') {{$index + 1}}. {{item}}
+                                    i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
+                                div(ng-show='field.editIdx == {{$index}}')
+                                    label(style='float: left') {{$index + 1}}.&nbsp
+                                    i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
+                                    .input-tip
+                                        input.form-control(type='text' ng-model='curValue' placeholder='SQL function class name')
                             td.col-sm-1
                                 i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='field.editIdx = -1')
                                 i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='field.editIdx = -1')
