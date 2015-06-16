@@ -43,7 +43,7 @@
           "model": "backups",
           "placeholder": "0",
           "tip": [
-            "Number of nodes used to back up single partition for partitioned cache."
+            "Number of nodes used to back up single partition for partitioned cache"
           ]
         },
         {
@@ -77,7 +77,7 @@
           "type": "check",
           "model": "swapEnabled",
           "tip": [
-            "Flag indicating whether swap storage is enabled or not for this cache."
+            "Flag indicating whether swap storage is enabled or not for this cache"
           ]
         },
         {
@@ -88,7 +88,7 @@
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
-            "Cache expiration policy."
+            "Cache expiration policy"
           ],
           "details": {
             "LRU": [
@@ -104,7 +104,7 @@
                 "model": "maxMemorySize",
                 "placeholder": "0",
                 "tip": [
-                  "Maximum allowed cache size in bytes."
+                  "Maximum allowed cache size in bytes"
                 ]
               }
             ],
@@ -159,7 +159,7 @@
           "placeholder": "2",
           "tip": [
             "Size of rebalancing thread pool.<br>",
-            "Note that size serves as a hint and implementation may create more threads for rebalancing than specified here (but never less threads)."
+            "Note that size serves as a hint and implementation may create more threads for rebalancing than specified here (but never less threads)"
           ]
         },
         {
@@ -169,7 +169,7 @@
           "placeholder": "512 * 1024",
           "tip": [
             "Size (in bytes) to be loaded within a single rebalance message.<br/>",
-            "Rebalancing algorithm will split total data set on every node into multiple batches prior to sending data."
+            "Rebalancing algorithm will split total data set on every node into multiple batches prior to sending data"
           ]
         },
         {
@@ -179,7 +179,7 @@
           "placeholder": "0",
           "tip": [
             "If cache rebalance order is positive, rebalancing for this cache will be started only when rebalancing ",
-            "for all caches with smaller rebalance order (except caches with rebalance order 0) will be completed."
+            "for all caches with smaller rebalance order (except caches with rebalance order 0) will be completed"
           ]
         },
         {
@@ -188,7 +188,7 @@
           "model": "rebalanceDelay",
           "placeholder": "0",
           "tip": [
-            "Delay in milliseconds upon a node joining or leaving topology (or crash) after which rebalancing should be started automatically."
+            "Delay in milliseconds upon a node joining or leaving topology (or crash) after which rebalancing should be started automatically"
           ]
         },
         {
@@ -206,7 +206,7 @@
           "model": "rebalanceThrottle",
           "placeholder": "0",
           "tip": [
-            "Time in milliseconds to wait between rebalance messages to avoid overloading of CPU or network."
+            "Time in milliseconds to wait between rebalance messages to avoid overloading of CPU or network"
           ]
         }
       ]
@@ -219,7 +219,7 @@
           "type": "check",
           "model": "readThrough",
           "tip": [
-            "Flag indicating whether read-through caching should be used."
+            "Flag indicating whether read-through caching should be used"
           ]
         },
         {
@@ -227,7 +227,7 @@
           "type": "check",
           "model": "writeThrough",
           "tip": [
-            "Flag indicating whether write-through caching should be used."
+            "Flag indicating whether write-through caching should be used"
           ]
         }
       ]
@@ -240,7 +240,7 @@
           "type": "check",
           "model": "writeBehindEnabled",
           "tip": [
-            "Flag indicating whether Ignite should use write-behind behaviour for the cache store."
+            "Flag indicating whether Ignite should use write-behind behaviour for the cache store"
           ]
         },
         {
@@ -250,7 +250,7 @@
           "placeholder": "512",
           "tip": [
             "Maximum batch size for write-behind cache store operations.<br/>",
-            "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
+            "Store operations (get or remove) are combined in a batch of this size to be passed to cache store"
           ]
         },
         {
@@ -260,7 +260,7 @@
           "placeholder": "10240",
           "tip": [
             "Maximum size of the write-behind cache.<br>",
-            "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
+            "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared"
           ]
         },
         {
@@ -269,7 +269,7 @@
           "model": "writeBehindFlushFrequency",
           "placeholder": "5000",
           "tip": [
-            "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
+            "Frequency with which write-behind cache is flushed to the cache store in milliseconds"
           ]
         },
         {
@@ -278,7 +278,7 @@
           "model": "writeBehindFlushThreadCount",
           "placeholder": "1",
           "tip": [
-            "Number of threads that will perform cache flushing."
+            "Number of threads that will perform cache flushing"
           ]
         }
       ]
@@ -292,7 +292,7 @@
           "model": "invalidate",
           "tip": [
             "Invalidation flag for near cache entries in transaction.<br/>",
-            "If set then values will be invalidated (nullified) upon commit in near cache."
+            "If set then values will be invalidated (nullified) upon commit in near cache"
           ]
         },
         {
@@ -302,7 +302,7 @@
           "placeholder": "1",
           "tip": [
             "Default lock acquisition timeout.<br/>",
-            "If 0 then lock acquisition will never timeout."
+            "If 0 then lock acquisition will never timeout"
           ]
         },
         {
@@ -310,7 +310,7 @@
           "type": "text",
           "model": "transactionManagerLookupClassName",
           "tip": [
-            "Class name of transaction manager finder for integration for JEE app servers."
+            "Class name of transaction manager finder for integration for JEE app servers"
           ]
         }
       ]
@@ -324,7 +324,7 @@
           "model": "sqlEscapeAll",
           "tip": [
             "If set then all the SQL table and field names will be escaped with double quotes.<br/>",
-            "This enforces case sensitivity for field names and also allows having special characters in table and field names."
+            "This enforces case sensitivity for field names and also allows having special characters in table and field names"
           ]
         },
         {
@@ -333,7 +333,7 @@
           "model": "sqlOnheapRowCacheSize",
           "placeholder": "10240",
           "tip": [
-            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access."
+            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access"
           ]
         },
         {
@@ -342,7 +342,7 @@
           "model": "longQueryWarningTimeout",
           "placeholder": "3000",
           "tip": [
-            "Timeout in milliseconds after which long query warning will be printed."
+            "Timeout in milliseconds after which long query warning will be printed"
           ]
         },
         {
@@ -357,8 +357,9 @@
           "label": "SQL function",
           "type": "zzz",
           "model": "sqlFunctionClasses",
+          "editIdx": -1,
           "tip": [
-            "Classes with user-defined functions for SQL queries."
+            "Classes with user-defined functions for SQL queries"
           ]
         }
       ]
@@ -373,7 +374,7 @@
           "model": "nearStartSize",
           "placeholder": "375000",
           "tip": [
-            "Initial cache size for near cache which will be used to pre-create internal hash table after start."
+            "Initial cache size for near cache which will be used to pre-create internal hash table after start"
           ]
         },
         {
@@ -383,7 +384,7 @@
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
-            "Cache expiration policy."
+            "Cache expiration policy"
           ]
         }
       ]
@@ -396,7 +397,7 @@
           "type": "check",
           "model": "statisticsEnabled",
           "tip": [
-            "Flag indicating whether statistics gathering is enabled on a cache."
+            "Flag indicating whether statistics gathering is enabled on a cache"
           ]
         },
         {
@@ -404,7 +405,7 @@
           "type": "check",
           "model": "managementEnabled",
           "tip": [
-            "Flag indicating whether management is enabled on this cache."
+            "Flag indicating whether management is enabled on this cache"
           ]
         },
         {
@@ -413,7 +414,7 @@
           "model": "readFromBackup",
           "tip": [
             "Flag indicating whether data can be read from backup.<br/>",
-            "If not set then always get data from primary node (never from backup)."
+            "If not set then always get data from primary node (never from backup)"
           ]
         },
         {
@@ -422,7 +423,7 @@
           "model": "copyOnRead",
           "tip": [
             "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.<br/>",
-            " Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
+            " Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor"
           ]
         },
         {
@@ -432,7 +433,7 @@
           "placeholder": "500",
           "tip": [
             "Maximum number of allowed concurrent asynchronous operations.<br/>",
-            "If 0 returned then number of concurrent asynchronous operations is unlimited."
+            "If 0 returned then number of concurrent asynchronous operations is unlimited"
           ]
         }
       ]

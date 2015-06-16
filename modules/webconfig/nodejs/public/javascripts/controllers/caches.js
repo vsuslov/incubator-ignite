@@ -110,17 +110,6 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
             $scope.backupItem.indexedTypes.splice(idx, 1);
         };
 
-        $scope.editSqlFunction = function (idx) {
-            $scope.sqlFunctionIdx = idx;
-
-            if (idx < 0) {
-                $scope.currSqlFx = '';
-            }
-            else {
-                $scope.currSqlFx = $scope.backupItem.sqlFunctionClasses[idx];
-            }
-        };
-
         $scope.addSqlFunction = function (v) {
             if (undefined == $scope.backupItem.sqlFunctionClasses)
                 $scope.backupItem.sqlFunctionClasses = [v];
