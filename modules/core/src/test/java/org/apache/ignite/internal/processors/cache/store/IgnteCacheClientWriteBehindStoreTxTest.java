@@ -15,21 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.interop;
+package org.apache.ignite.internal.processors.cache.store;
 
-import org.apache.ignite.configuration.*;
+import org.apache.ignite.cache.*;
+
+import static org.apache.ignite.cache.CacheAtomicityMode.*;
 
 /**
- * Interop bootstrap. Responsible for starting Ignite node in interop mode.
+ *
  */
-public interface InteropBootstrap {
-    /**
-     * Start Ignite node.
-     *
-     * @param cfg Configuration.
-     * @param envPtr Environment pointer.
-     * @param dataPtr Optional pointer to additional data required for startup.
-     * @return Ignite node.
-     */
-    public InteropProcessor start(IgniteConfiguration cfg, long envPtr, long dataPtr);
+public class IgnteCacheClientWriteBehindStoreTxTest extends IgnteCacheClientWriteBehindStoreAbstractTest {
+    /** {@inheritDoc} */
+    @Override protected CacheAtomicityMode atomicityMode() {
+        return TRANSACTIONAL;
+    }
 }
