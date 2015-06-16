@@ -14,12 +14,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-mixin tip(lines)
-    i.tip.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
-    i.tip.fa.fa-question-circle.blank(ng-if='!#{lines}')
+mixin tipField(lines)
+    i.tipField.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
+    i.tipField.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
-mixin tipCheck(lines)
-    i.tipCheck.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
+mixin tipLabel(lines)
+    i.tipLabel.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
+    i.tipLabel.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
@@ -31,24 +32,24 @@ mixin details-row
             label
                 input(type='checkbox' ng-model=detailMdl)
                 |{{detail.label}}
-                +tipCheck('detail.tip')
+                +tipLabel('detail.tip')
         div(ng-switch-when='text')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
-                +tip('detail.tip')
+                +tipField('detail.tip')
                 .input-tip
                     input.form-control(type='text' style='' ng-model=detailMdl placeholder='{{detail.placeholder}}')
         div(ng-switch-when='dropdown')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
-                +tip('detail.tip')
+                +tipField('detail.tip')
                 .input-tip
                     button.form-control(bs-select ng-model=detailMdl data-template='/select' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
                 button.form-control(bs-select ng-model=detailMdl data-multiple='1' data-template='/select' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
-            +tip('detail.tip')
+            +tipField('detail.tip')
         div(ng-switch-when='table-simple')
             .details-label
                 button.btn.btn-primary(ng-click='createSimpleItem(detail, #{detailMdl})') Add {{detail.label}}
@@ -71,31 +72,31 @@ mixin form-row
                 input(type='checkbox' ng-if='!group.model' ng-model='backupItem[field.model]')
                 input(type='checkbox' ng-if='group.model' ng-model='backupItem[group.model][field.model]')
                 | {{field.label}}
-                +tipCheck('field.tip')
+                +tipLabel('field.tip')
         div(ng-switch-when='text')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
-                +tip('field.tip')
+                +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
                     input.form-control(type='text' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
         div(ng-switch-when='dropdown')
             label(class=lblClasses) {{field.label}}:
             .col-sm-4
-                +tip('field.tip')
+                +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-if='!group.model' ng-model='backupItem[field.model]' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
                     button.form-control(bs-select ng-if='group.model' ng-model='backupItem[group.model][field.model]' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
         div(ng-switch-when='dropdown-multiple')
             label(class=lblClasses) {{field.label}}:
             .col-sm-4
-                +tip('field.tip')
+                +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-model='backupItem[field.model]' data-multiple='1' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
         div(ng-switch-when='dropdown-details')
             label(class=lblClasses) {{field.label}}:
             .col-sm-4
-                +tip('field.tip')
+                +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-model=masterMdl data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
             a.customize(ng-if='field.customizable' ng-show=masterMdl ng-init='lbl="Show settings"' ng-click='field.expanded = !field.expanded; lbl = field.expanded ? "Hide settings" : lbl="Show settings"') {{lbl}}
@@ -105,7 +106,7 @@ mixin form-row
         div(ng-switch-when='table-simple')
             div
                 label {{field.tableLabel}}
-                +tip('field.tip')
+                +tipLabel('field.tip')
             button.btn.btn-primary(style='margin-left: 18px;' ng-click='createSimpleItem(field, #{masterMdl})') Add {{field.label}}
             .col-sm-10.links.details-row(style='margin-bottom: 0px;' nh-show='#{masterMdl}[field.model].length > 0')
                 table(st-table=masterMdl)
@@ -117,7 +118,7 @@ mixin form-row
         div(ng-switch-when='indexedTypes')
             div
                 label Indexed types: {{backupItem.indexedTypes.length}}
-                +tip('field.tip')
+                +tipLabel('field.tip')
             button.btn.btn-primary(style='margin-left: 18px; margin-top: 10px; margin-bottom: 10px' ng-click='editIndexedTypes(-1)') Add indexed type
             .col-sm-10.links(nh-show='backupItem.indexedTypes.length > 0')
                 -var idxTypes = 'backupItem.indexedTypes'
@@ -130,7 +131,7 @@ mixin form-row
         div(ng-switch-when='zzz' ng-init='editSqlFunction=false')
             div
                 label SQL functions: {{backupItem.sqlFunctionClasses.length}}
-                    +tip('field.tip')
+                +tipLabel('field.tip')
             .links(nh-show='backupItem.sqlFunctionClasses.length > 0')
                 -var sqlFunctions = 'backupItem.sqlFunctionClasses'
                 table.col-sm-6(st-table=sqlFunctions)
