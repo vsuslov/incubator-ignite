@@ -355,7 +355,7 @@
         {
           "tableLabel": "SQL functions",
           "label": "SQL function",
-          "type": "table-simple2",
+          "type": "table-simple",
           "model": "sqlFunctionClasses",
           "editIdx": -1,
           "placeholder": "Some placeholder",

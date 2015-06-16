@@ -66,61 +66,6 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
                 $scope.advanced = data.advanced;
             });
 
-        $scope.editIndexedTypes = function (idx) {
-            $scope.indexedTypeIdx = idx;
-
-            if (idx < 0) {
-                $scope.currKeyCls = '';
-                $scope.currValCls = '';
-            }
-            else {
-                var idxType = $scope.backupItem.indexedTypes[idx];
-
-                $scope.currKeyCls = idxType.keyClass;
-                $scope.currValCls = idxType.valueClass;
-            }
-
-            $scope.indexedTypesModal = $modal({scope: $scope, template: '/indexedTypes', show: true});
-        };
-
-        $scope.saveIndexedType = function (k, v) {
-            var idxTypes = $scope.backupItem.indexedTypes;
-
-            var idx = $scope.indexedTypeIdx;
-
-            if (idx < 0) {
-                var newItem = {keyClass: k, valueClass: v};
-
-                if (undefined == idxTypes)
-                    $scope.backupItem.indexedTypes = [newItem];
-                else
-                    idxTypes.push(newItem);
-            }
-            else {
-                var idxType = idxTypes[idx];
-
-                idxType.keyClass = k;
-                idxType.valueClass = v;
-            }
-
-            $scope.indexedTypesModal.hide();
-        };
-
-        $scope.removeIndexedType = function (idx) {
-            $scope.backupItem.indexedTypes.splice(idx, 1);
-        };
-
-        $scope.addSqlFunction = function (v) {
-            if (undefined == $scope.backupItem.sqlFunctionClasses)
-                $scope.backupItem.sqlFunctionClasses = [v];
-            else
-                $scope.backupItem.sqlFunctionClasses.push(v);
-        };
-
-        $scope.removeSqlFunction = function (idx) {
-            $scope.backupItem.sqlFunctionClasses.splice(idx, 1);
-        };
-
         $scope.caches = [];
 
         // When landing on the page, get caches and show them.
@@ -189,42 +134,55 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
                 });
         };
 
-        $scope.createSimpleItem = function(desc, rows) {
-            $scope.simplePopup = {
-                rows: rows,
-                desc: desc
-            };
-
-            $scope.pupup = $modal({scope: $scope, template: '/simplePopup', show: true});
-        };
-
-        $scope.saveSimpleItem = function(row) {
-            var popup = $scope.simplePopup;
-            var rows = popup.rows;
-
-            if (popup.index)
-                angular.extend(rows[popup.index], row);
-            else if (undefined == rows)
-                popup.rows = [row];
+        $scope.addSimpleItem = function(mdl, item) {
+            if (undefined == $scope.backupItem[mdl])
+                $scope.backupItem[mdl] = [item];
             else
-                popup.rows.push(row);
-
-            $scope.pupup.hide();
+                $scope.backupItem[mdl].push(item);
         };
 
-        $scope.editSimpleItem = function(desc, rows, idx) {
-            $scope.simplePopup = {
-                desc: desc,
-                rows: rows,
-                index: idx,
-                row: angular.copy(rows[idx])
-            };
+        $scope.editIndexedTypes = function (idx) {
+            $scope.indexedTypeIdx = idx;
 
-            $modal({scope: $scope, template: '/simplePopup', show: true});
+            if (idx < 0) {
+                $scope.currKeyCls = '';
+                $scope.currValCls = '';
+            }
+            else {
+                var idxType = $scope.backupItem.indexedTypes[idx];
+
+                $scope.currKeyCls = idxType.keyClass;
+                $scope.currValCls = idxType.valueClass;
+            }
+
+            $scope.indexedTypesModal = $modal({scope: $scope, template: '/indexedTypes', show: true});
         };
 
-        $scope.removeSimpleItem = function(rows, idx) {
-            rows.splice(idx, 1);
+        $scope.saveIndexedType = function (k, v) {
+            var idxTypes = $scope.backupItem.indexedTypes;
+
+            var idx = $scope.indexedTypeIdx;
+
+            if (idx < 0) {
+                var newItem = {keyClass: k, valueClass: v};
+
+                if (undefined == idxTypes)
+                    $scope.backupItem.indexedTypes = [newItem];
+                else
+                    idxTypes.push(newItem);
+            }
+            else {
+                var idxType = idxTypes[idx];
+
+                idxType.keyClass = k;
+                idxType.valueClass = v;
+            }
+
+            $scope.indexedTypesModal.hide();
+        };
+
+        $scope.removeIndexedType = function (idx) {
+            $scope.backupItem.indexedTypes.splice(idx, 1);
         };
     }]
 );
