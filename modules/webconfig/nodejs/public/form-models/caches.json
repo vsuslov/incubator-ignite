@@ -355,9 +355,10 @@
         {
           "tableLabel": "SQL functions",
           "label": "SQL function",
-          "type": "zzz",
+          "type": "table-simple2",
           "model": "sqlFunctionClasses",
           "editIdx": -1,
+          "placeholder": "Some placeholder",
           "tip": [
             "Classes with user-defined functions for SQL queries"
           ]
