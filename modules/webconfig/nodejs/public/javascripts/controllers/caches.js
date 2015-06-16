@@ -110,6 +110,28 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
             $scope.backupItem.indexedTypes.splice(idx, 1);
         };
 
+        $scope.editSqlFunction = function (idx) {
+            $scope.sqlFunctionIdx = idx;
+
+            if (idx < 0) {
+                $scope.currSqlFx = '';
+            }
+            else {
+                $scope.currSqlFx = $scope.backupItem.sqlFunctionClasses[idx];
+            }
+        };
+
+        $scope.addSqlFunction = function (v) {
+            if (undefined == $scope.backupItem.sqlFunctionClasses)
+                $scope.backupItem.sqlFunctionClasses = [v];
+            else
+                $scope.backupItem.sqlFunctionClasses.push(v);
+        };
+
+        $scope.removeSqlFunction = function (idx) {
+            $scope.backupItem.sqlFunctionClasses.splice(idx, 1);
+        };
+
         $scope.caches = [];
 
         // When landing on the page, get caches and show them.

@@ -833,14 +833,20 @@ label {
   table-layout:fixed;
 }
 
-.table-nowrap td {
-  white-space: nowrap;
+.td-overflow {
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fa-edit {
+  cursor: pointer;
 }
 
 .fa-remove {
   margin-left: 10px;
+  cursor: pointer;
 }
 
 .required {
