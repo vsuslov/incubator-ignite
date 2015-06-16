@@ -127,17 +127,17 @@ mixin form-row
                         tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                             td.col-sm-6
                                 div(ng-show='field.editIdx != {{$index}}')
-                                    a(ng-click='field.editIdx = $index; inplaceSqlFx = backupItem.sqlFunctionClasses[$index]') {{$index + 1}}. {{item}}
+                                    a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item}}
                                     i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                                 div(ng-show='field.editIdx == {{$index}}')
                                     label(style='float: left') {{$index + 1}}.&nbsp
                                     i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
                                     .input-tip
-                                        input.form-control(type='text' ng-model='curValue' placeholder='SQL function class name')
+                                        input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
                             td.col-sm-1
                                 i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='field.editIdx = -1')
                                 i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='field.editIdx = -1')
             .col-sm-5
-                input.form-control(type='text' ng-model='newValue' placeholder='SQL function class name')
+                input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
             button.btn.btn-primary(style='margin-left: 10px;' ng-click='field.editIdx = -1; addSimpleItem(field.model, newValue)') Add {{field.label}}
 

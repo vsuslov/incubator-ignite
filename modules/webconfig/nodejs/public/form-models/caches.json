@@ -358,7 +358,7 @@
           "type": "table-simple",
           "model": "sqlFunctionClasses",
           "editIdx": -1,
-          "placeholder": "Some placeholder",
+          "placeholder": "SQL function full class name",
           "tip": [
             "Classes with user-defined functions for SQL queries"
           ]

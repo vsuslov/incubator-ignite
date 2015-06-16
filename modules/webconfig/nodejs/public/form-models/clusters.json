@@ -22,9 +22,12 @@
       "details": {
         "Vm": [
           {
+            "tableLabel": "Addresses",
             "label": "address",
             "type": "table-simple",
             "model": "addresses",
+            "editIdx": -1,
+            "placeholder": "IP address",
             "tip": [
               "Addresses may be represented as follows:",
               "<ul>",

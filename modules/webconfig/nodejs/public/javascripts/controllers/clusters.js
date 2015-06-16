@@ -85,39 +85,6 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$http'
                 $scope.advanced = data.advanced;
             });
 
-        $scope.createSimpleItem = function(desc, rows) {
-            $scope.simplePopup = {
-                rows: rows,
-                desc: desc
-            };
-
-            $scope.pupup = $modal({scope: $scope, template: '/simplePopup', show: true});
-        };
-
-        $scope.saveSimpleItem = function(row) {
-            if ($scope.simplePopup.index)
-                angular.extend($scope.simplePopup.rows[$scope.simplePopup.index], row);
-            else
-                $scope.simplePopup.rows.push(row);
-
-            $scope.pupup.hide();
-        };
-
-        $scope.editSimpleItem = function(desc, rows, idx) {
-            $scope.simplePopup = {
-                desc: desc,
-                rows: rows,
-                index: idx,
-                row: angular.copy(rows[idx])
-            };
-
-            $modal({scope: $scope, template: '/simplePopup', show: true});
-        };
-
-        $scope.removeSimpleItem = function(rows, idx) {
-            rows.splice(idx, 1);
-        };
-
         // When landing on the page, get clusters and show them.
         $http.get('/rest/clusters')
             .success(function(data) {
@@ -183,6 +150,13 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$http'
                 .error(function(errorMessage) {
                     console.log('Error: ' + errorMessage);
                 });
+        };
+
+        $scope.addSimpleItem = function(mdl, item) {
+            if (undefined == $scope.backupItem[mdl])
+                $scope.backupItem[mdl] = [item];
+            else
+                $scope.backupItem[mdl].push(item);
         };
     }]
 );
