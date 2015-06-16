@@ -127,4 +127,30 @@ mixin form-row
                             td
                                 a(ng-click='editIndexedTypes($index)') {{$index + 1}}. {{idxType.keyClass}}, {{idxType.valueClass}}
                                 label.fa.fa-remove(ng-click='removeIndexedType($index)')
+        div(ng-switch-when='zzz' ng-init='editSqlFunction=false')
+            div
+                label SQL functions: {{backupItem.sqlFunctionClasses.length}}
+                    +tip('field.tip')
+            .links(nh-show='backupItem.sqlFunctionClasses.length > 0')
+                -var sqlFunctions = 'backupItem.sqlFunctionClasses'
+                table.col-sm-6(st-table=sqlFunctions)
+                    col(width='10%')
+                    col(width='70%')
+                    col(width='20%')
+                    tbody
+                        tr(ng-repeat='sqlFunction in #{sqlFunctions}')
+                            td
+                                label {{$index + 1}}.
+                            td.td-overflow
+                                label(ng-show='!editSqlFunction' ng-click='editSqlFunction($index)') {{sqlFunction}}
+                                input.form-control(ng-show='editSqlFunction' type='text' ng-model='currSqlFx' placeholder='SQL function class name')
+                            td
+                                div(ng-show='!editSqlFunction')
+                                    i.fa.fa-edit(ng-click='editSqlFunction = !editSqlFunction')
+                                    i.fa.fa-remove(ng-click='removeSqlFunction($index)')
+                                div(ng-show='editSqlFunction')
+                                    i.fa.fa-floppy-o(ng-click='editSqlFunction=!editSqlFunction')
+            .col-sm-5
+                input.form-control(type='text' ng-model='currSqlFx' placeholder='SQL function class name')
+            button.btn.btn-primary(style='margin-left: 10px;' ng-click='addSqlFunction(currSqlFx)') Add SQL function
 
