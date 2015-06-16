@@ -236,7 +236,7 @@
           "label": "Cache mode",
           "type": "dropdown",
           "model": "cacheMode",
-          "placeholder": "partitioned",
+          "placeholder": "PARTITIONED",
           "items": "cacheModes",
           "tip": [
             "Cache modes:",
@@ -326,7 +326,7 @@
           "label": "Mode",
           "type": "dropdown",
           "model": "deploymentMode",
-          "placeholder": "shared",
+          "placeholder": "SHARED",
           "items": "deploymentModes",
           "tip": [
             "Task classes and resources sharing mode."
@@ -556,7 +556,7 @@
           "label": "Cache concurrency",
           "type": "dropdown",
           "model": "defaultTxConcurrency",
-          "placeholder": "pessimistic",
+          "placeholder": "PESSIMISTIC",
           "items": "transactionConcurrency",
           "tip": [
             "Cache transaction concurrency to use when one is not explicitly specified."
@@ -566,7 +566,7 @@
           "label": "Isolation",
           "type": "dropdown",
           "model": "transactionIsolation",
-          "placeholder": "repeatable_read",
+          "placeholder": "REPEATABLE_READ",
           "items": "transactionIsolation",
           "tip": [
             "Default transaction isolation."
@@ -617,7 +617,7 @@
           "label": "Policy",
           "type": "dropdown",
           "model": "segmentationPolicy",
-          "placeholder": "stop",
+          "placeholder": "STOP",
           "items": "segmentationPolicy"
         },
         {

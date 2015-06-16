@@ -17,25 +17,25 @@
 
 configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', function ($scope, $modal, $http) {
         $scope.templates = [
-            {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'Partitioned'},
-            {value: {mode: 'REPLICATED', atomicityMode: 'ATOMIC'}, label: 'Replicated'},
-            {value: {mode: 'LOCAL', atomicityMode: 'ATOMIC'}, label: 'Local'}
+            {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},
+            {value: {mode: 'REPLICATED', atomicityMode: 'ATOMIC'}, label: 'replicated'},
+            {value: {mode: 'LOCAL', atomicityMode: 'ATOMIC'}, label: 'local'}
         ];
 
         $scope.atomicities = [
-            {value: 'ATOMIC', label: 'Atomic'},
-            {value: 'TRANSACTIONAL', label: 'Transactional'}
+            {value: 'ATOMIC', label: 'ATOMIC'},
+            {value: 'TRANSACTIONAL', label: 'TRANSACTIONAL'}
         ];
 
         $scope.modes = [
-            {value: 'PARTITIONED', label: 'Partitioned'},
-            {value: 'REPLICATED', label: 'Replicated'},
-            {value: 'LOCAL', label: 'Local'}
+            {value: 'PARTITIONED', label: 'PARTITIONED'},
+            {value: 'REPLICATED', label: 'REPLICATED'},
+            {value: 'LOCAL', label: 'LOCAL'}
         ];
 
         $scope.atomicWriteOrderModes = [
-            {value: 'CLOCK', label: 'Clock'},
-            {value: 'PRIMARY', label: 'Primary'}
+            {value: 'CLOCK', label: 'CLOCK'},
+            {value: 'PRIMARY', label: 'PRIMARY'}
         ];
 
         $scope.memoryModes = [
@@ -52,9 +52,9 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
         ];
 
         $scope.rebalanceModes = [
-            {value: 'SYNC', label: 'Synchronous'},
-            {value: 'ASYNC', label: 'Asynchronous'},
-            {value: 'NONE', label: 'None'}
+            {value: 'SYNC', label: 'SYNC'},
+            {value: 'ASYNC', label: 'ASYNC'},
+            {value: 'NONE', label: 'NONE'}
         ];
 
         $scope.general = [];

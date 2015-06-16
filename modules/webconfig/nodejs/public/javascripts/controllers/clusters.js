@@ -33,48 +33,48 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$http'
         ];
 
         $scope.events = [
-            {value: 'EVTS_CHECKPOINT', label: 'evts_checkpoint'},
-            {value: 'EVTS_DEPLOYMENT', label: 'evts_deployment'},
-            {value: 'EVTS_ERROR', label: 'evts_error'},
-            {value: 'EVTS_DISCOVERY', label: 'evts_discovery'},
-            {value: 'EVTS_JOB_EXECUTION', label: 'evts_job_execution'},
-            {value: 'EVTS_TASK_EXECUTION', label: 'evts_task_execution'},
-            {value: 'EVTS_CACHE', label: 'evts_cache'},
-            {value: 'EVTS_CACHE_REBALANCE', label: 'evts_cache_rebalance'},
-            {value: 'EVTS_CACHE_LIFECYCLE', label: 'evts_cache_lifecycle'},
-            {value: 'EVTS_CACHE_QUERY', label: 'evts_cache_query'},
-            {value: 'EVTS_SWAPSPACE', label: 'evts_swapspace'},
-            {value: 'EVTS_IGFS', label: 'evts_igfs'}
+            {value: 'EVTS_CHECKPOINT', label: 'EVTS_CHECKPOINT'},
+            {value: 'EVTS_DEPLOYMENT', label: 'EVTS_DEPLOYMENT'},
+            {value: 'EVTS_ERROR', label: 'EVTS_ERROR'},
+            {value: 'EVTS_DISCOVERY', label: 'EVTS_DISCOVERY'},
+            {value: 'EVTS_JOB_EXECUTION', label: 'EVTS_JOB_EXECUTION'},
+            {value: 'EVTS_TASK_EXECUTION', label: 'EVTS_TASK_EXECUTION'},
+            {value: 'EVTS_CACHE', label: 'EVTS_CACHE'},
+            {value: 'EVTS_CACHE_REBALANCE', label: 'EVTS_CACHE_REBALANCE'},
+            {value: 'EVTS_CACHE_LIFECYCLE', label: 'EVTS_CACHE_LIFECYCLE'},
+            {value: 'EVTS_CACHE_QUERY', label: 'EVTS_CACHE_QUERY'},
+            {value: 'EVTS_SWAPSPACE', label: 'EVTS_SWAPSPACE'},
+            {value: 'EVTS_IGFS', label: 'EVTS_IGFS'}
         ];
 
         $scope.cacheModes = [
-            {value: 'LOCAL', label: 'local'},
-            {value: 'REPLICATED', label: 'replicated'},
-            {value: 'PARTITIONED', label: 'partitioned'}
+            {value: 'LOCAL', label: 'LOCAL'},
+            {value: 'REPLICATED', label: 'REPLICATED'},
+            {value: 'PARTITIONED', label: 'PARTITIONED'}
         ];
 
         $scope.deploymentModes = [
-            {value: 'PRIVATE', label: 'private'},
-            {value: 'ISOLATED', label: 'isolated'},
-            {value: 'SHARED', label: 'shared'},
-            {value: 'CONTINUOUS', label: 'continuous'}
+            {value: 'PRIVATE', label: 'PRIVATE'},
+            {value: 'ISOLATED', label: 'ISOLATED'},
+            {value: 'SHARED', label: 'SHARED'},
+            {value: 'CONTINUOUS', label: 'CONTINUOUS'}
         ];
 
         $scope.transactionConcurrency = [
-            {value: 'OPTIMISTIC', label: 'optimistic'},
-            {value: 'PESSIMISTIC', label: 'pessimistic'}
+            {value: 'OPTIMISTIC', label: 'OPTIMISTIC'},
+            {value: 'PESSIMISTIC', label: 'PESSIMISTIC'}
         ];
 
         $scope.transactionIsolation = [
-            {value: 'READ_COMMITTED', label: 'read_committed'},
-            {value: 'REPEATABLE_READ', label: 'repeatable_read'},
-            {value: 'SERIALIZABLE', label: 'serializable'}
+            {value: 'READ_COMMITTED', label: 'READ_COMMITTED'},
+            {value: 'REPEATABLE_READ', label: 'REPEATABLE_READ'},
+            {value: 'SERIALIZABLE', label: 'SERIALIZABLE'}
         ];
 
         $scope.segmentationPolicy = [
-            {value: 'RESTART_JVM', label: 'restart_jvm'},
-            {value: 'STOP', label: 'stop'},
-            {value: 'NOOP', label: 'noop'}
+            {value: 'RESTART_JVM', label: 'RESTART_JVM'},
+            {value: 'STOP', label: 'STOP'},
+            {value: 'NOOP', label: 'NOOP'}
         ];
 
         $scope.clusters = [];

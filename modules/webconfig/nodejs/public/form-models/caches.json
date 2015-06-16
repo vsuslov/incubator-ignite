@@ -11,7 +11,7 @@
       "label": "Mode",
       "type": "dropdown",
       "model": "mode",
-      "placeholder": "Choose mode",
+      "placeholder": "PARTITIONED",
       "items": "modes",
       "tip": [
         "Cache modes:",
@@ -24,7 +24,7 @@
       "label": "Atomicity",
       "type": "dropdown",
       "model": "atomicityMode",
-      "placeholder": "Choose atomicity",
+      "placeholder": "ATOMIC",
       "items": "atomicities",
       "tip": [
         "Atomicity:",
@@ -50,7 +50,7 @@
           "label": "Mode",
           "type": "dropdown",
           "model": "memoryMode",
-          "placeholder": "Choose mode",
+          "placeholder": "ONHEAP_TIERED",
           "items": "memoryModes",
           "tip": [
             "Memory modes:",
@@ -143,7 +143,7 @@
           "label": "Mode",
           "type": "dropdown",
           "model": "rebalanceMode",
-          "placeholder": "Choose mode",
+          "placeholder": "ASYNC",
           "items": "rebalanceModes",
           "tip": [
             "Rebalance modes:",
