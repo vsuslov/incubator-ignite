@@ -67,7 +67,7 @@ mixin form-row
     - var masterMdl = 'backupItem[field.group][field.model]'
 
     div(ng-switch='field.type')
-        div.checkbox(ng-switch-when='check')
+        div.checkbox.col-sm-6(ng-switch-when='check')
             label
                 input(type='checkbox' ng-if='!group.model' ng-model='backupItem[field.model]')
                 input(type='checkbox' ng-if='group.model' ng-model='backupItem[group.model][field.model]')
