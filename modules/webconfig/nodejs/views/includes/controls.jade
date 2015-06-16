@@ -128,21 +128,23 @@ mixin form-row
                             td
                                 a(ng-click='editIndexedTypes($index)') {{$index + 1}}. {{idxType.keyClass}}, {{idxType.valueClass}}
                                 label.fa.fa-remove(ng-click='removeIndexedType($index)')
-        div(ng-switch-when='zzz')
+        div(ng-switch-when='zzz' )
             div
                 label SQL functions: {{backupItem.sqlFunctionClasses.length}}
                 +tipLabel('field.tip')
             .links(nh-show='backupItem.sqlFunctionClasses.length > 0')
                 -var sqlFunctions = 'backupItem.sqlFunctionClasses'
-                table.col-sm-6(st-table=sqlFunctions)
+                table.col-sm-12(st-table=sqlFunctions)
                     tbody
-                        tr(ng-repeat='sqlFunction in #{sqlFunctions}')
-                            td.col-sm-12
-                                a(ng-show='field.editIdx != {{$index}}' ng-click='field.editIdx = $index; inplaceSqlFx = backupItem.sqlFunctionClasses[$index]') {{$index + 1}}. {{sqlFunction}}
+                        tr.col-sm-12(ng-repeat='sqlFunction in #{sqlFunctions}')
+                            td.col-sm-6
+                                a.vcenter2(ng-show='field.editIdx != {{$index}}' ng-click='field.editIdx = $index; inplaceSqlFx = backupItem.sqlFunctionClasses[$index]') {{$index + 1}}. {{sqlFunction}}
                                 input.form-control(ng-show='field.editIdx == {{$index}}' type='text' ng-model='inplaceSqlFx' placeholder='SQL function class name')
                                 i.tipField.fa.fa-remove(ng-show='field.editIdx != {{$index}}' ng-click='field.editIdx = -1; removeSqlFunction($index)')
                                 i.tipField.fa.fa-floppy-o(ng-show='field.editIdx == {{$index}}' ng-click='field.editIdx = -1; backupItem.sqlFunctionClasses[$index]=inplaceSqlFx')
-                            td
+                            td.col-sm-1
+                                i.fa.fa-arrow-up
+                                i.fa.fa-arrow-down
             .col-sm-5
                 input.form-control(type='text' ng-model='newSqlFx' placeholder='SQL function class name')
             button.btn.btn-primary(style='margin-left: 10px;' ng-click='addSqlFunction(newSqlFx)') Add SQL function

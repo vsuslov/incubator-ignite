@@ -640,6 +640,7 @@ h1.ignite-logo {
 .details-row, .settings-row {
   display: block;
   margin: 0.65em 0;
+  line-height: @input-height;
 
   [class*="col-"] {
     display: inline-block;
@@ -752,9 +753,11 @@ button .caret {
 }
 
 .theme-line .links table {
+  display: table;
   table-layout: fixed;
   margin-bottom: 20px;
 }
+
 .theme-line .links table td {
   padding-left: 18px;
 }
@@ -797,10 +800,6 @@ button .caret {
   max-width: 400px;
   text-align: left;
   background-color: #ec1c24;
-}
-
-.checkbox label {
-  line-height: @input-height;
 }
 
 label {
