@@ -130,7 +130,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                     $scope.selectItem(item);
                 })
                 .error(function(errorMessage) {
-                    $alert({type: 'error', title: errorMessage});
+                    $alert({title: errorMessage});
                 });
         };
 
@@ -151,7 +151,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                     }
                 })
                 .error(function(errorMessage) {
-                    $alert({type: 'error', title: errorMessage});
+                    $alert({title: errorMessage});
                 });
         };
     }]
