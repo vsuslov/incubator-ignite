@@ -40,7 +40,8 @@ configuratorModule.config(function($alertProvider) {
     angular.extend($alertProvider.defaults, {
         container: 'body',
         placement: 'top-right',
-        duration: '5'
+        duration: '5',
+        type: 'danger'
     });
 });
 
@@ -74,7 +75,7 @@ configuratorModule.controller('activeLink', ['$scope', function($scope) {
     };
 }]);
 
-configuratorModule.controller('auth', ['$scope', '$modal', '$http', '$window', function($scope, $modal, $http, $window) {
+configuratorModule.controller('auth', ['$scope', '$modal', '$alert', '$http', '$window', function($scope, $modal, $alert, $http, $window) {
     $scope.action = 'login';
 
     $scope.errorMessage = '';
@@ -97,7 +98,9 @@ configuratorModule.controller('auth', ['$scope', '$modal', '$http', '$window', f
                 $window.location = '/clusters';
             })
             .error(function (data) {
-                $scope.errorMessage = data;
+                console.log(data);
+
+                $alert({placement: 'top', container:'#errors-container', title: data});
             });
     };
 }]);

@@ -18,15 +18,15 @@
     .modal-dialog
         .modal-content
             .modal-header.header
+                div(id='errors-container')
                 button.close(type='button', ng-click='$hide()', aria-hidden='true') &times;
                 h1.navbar-brand.pull-left
                     a(href='/') Apache Ignite Web Configurator
                 h4.modal-title Authentication
                 p Log in or register in order to collaborate
+
             form.form-horizontal(name='loginForm')
                 .modal-body.row
-                    div(ng-show='errorMessage')
-                        p.text-center.error-message {{errorMessage}}
                     .col-sm-9.login.col-sm-offset-1
                         .form-group(ng-show='action == "register"')
                             label.col-sm-3.control-label Full Name:

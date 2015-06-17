@@ -109,7 +109,7 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert',
                     $scope.selectItem(item);
                 })
                 .error(function(errorMessage) {
-                    $alert({type: 'error', title: errorMessage});
+                    $alert({title: errorMessage});
                 });
         };
 
@@ -130,7 +130,7 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert',
                     }
                 })
                 .error(function(errorMessage) {
-                    $alert({type: 'error', title: errorMessage});
+                    $alert({title: errorMessage});
                 });
         };
 
