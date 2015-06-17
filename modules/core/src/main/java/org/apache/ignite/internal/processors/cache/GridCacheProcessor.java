@@ -1072,6 +1072,8 @@ public class GridCacheProcessor extends GridProcessorAdapter {
     {
         assert cfg != null;
 
+        prepare(cfg, cfg.getCacheStoreFactory(), false);
+
         CacheStore cfgStore = cfg.getCacheStoreFactory() != null ? cfg.getCacheStoreFactory().create() : null;
 
         validate(ctx.config(), cfg, cacheType, cfgStore);
@@ -1106,7 +1108,8 @@ public class GridCacheProcessor extends GridProcessorAdapter {
 
         GridCacheAffinityManager affMgr = new GridCacheAffinityManager();
         GridCacheEventManager evtMgr = new GridCacheEventManager();
-        GridCacheSwapManager swapMgr = new GridCacheSwapManager(cfg.getCacheMode() == LOCAL || !GridCacheUtils.isNearEnabled(cfg));
+        GridCacheSwapManager swapMgr = new GridCacheSwapManager(cfg.getCacheMode() == LOCAL ||
+            !GridCacheUtils.isNearEnabled(cfg));
         GridCacheEvictionManager evictMgr = new GridCacheEvictionManager();
         GridCacheQueryManager qryMgr = queryManager(cfg);
         CacheContinuousQueryManager contQryMgr = new CacheContinuousQueryManager();
@@ -1874,6 +1877,8 @@ public class GridCacheProcessor extends GridProcessorAdapter {
         CacheType cacheType,
         boolean failIfExists
     ) {
+        checkEmptyTransactions();
+
         assert ccfg != null || nearCfg != null;
 
         DynamicCacheDescriptor desc = registeredCaches.get(maskNull(cacheName));
@@ -1883,6 +1888,13 @@ public class GridCacheProcessor extends GridProcessorAdapter {
         req.failIfExists(failIfExists);
 
         if (ccfg != null) {
+            try {
+                checkSerializable(ccfg);
+            }
+            catch (IgniteCheckedException e) {
+                return new GridFinishedFuture<>(e);
+            }
+
             if (desc != null && !desc.cancelled()) {
                 if (failIfExists)
                     return new GridFinishedFuture<>(new CacheExistsException("Failed to start cache " +
@@ -1964,6 +1976,8 @@ public class GridCacheProcessor extends GridProcessorAdapter {
      * @return Future that will be completed when cache is stopped.
      */
     public IgniteInternalFuture<?> dynamicStopCache(String cacheName) {
+        checkEmptyTransactions();
+
         DynamicCacheChangeRequest t = new DynamicCacheChangeRequest(cacheName, ctx.localNodeId(), true);
 
         return F.first(initiateCacheChanges(F.asList(t), false));
@@ -2274,16 +2288,7 @@ public class GridCacheProcessor extends GridProcessorAdapter {
             CU.checkAttributeMismatch(log, rmtAttr.cacheName(), rmt, "cachePreloadMode",
                 "Cache preload mode", locAttr.cacheRebalanceMode(), rmtAttr.cacheRebalanceMode(), true);
 
-            boolean checkStore;
-
-            if (!isLocAff && isRmtAff && locCfg.getAtomicityMode() == TRANSACTIONAL) {
-                checkStore = locAttr.storeFactoryClassName() != null;
-
-                if (locAttr.storeFactoryClassName() == null && rmtAttr.storeFactoryClassName() != null)
-                    desc.updatesAllowed(false);
-            }
-            else
-                checkStore = isLocAff && isRmtAff;
+            boolean checkStore = isLocAff && isRmtAff;
 
             if (checkStore)
                 CU.checkAttributeMismatch(log, rmtAttr.cacheName(), rmt, "storeFactory", "Store factory",
@@ -2647,6 +2652,8 @@ public class GridCacheProcessor extends GridProcessorAdapter {
      * @throws IgniteCheckedException If failed.
      */
     private IgniteCacheProxy startJCache(String cacheName, boolean failIfNotStarted) throws IgniteCheckedException {
+        checkEmptyTransactions();
+
         String masked = maskNull(cacheName);
 
         DynamicCacheDescriptor desc = registeredCaches.get(masked);
@@ -2944,12 +2951,34 @@ public class GridCacheProcessor extends GridProcessorAdapter {
     }
 
     /**
+     * @throws IgniteException If transaction exist.
+     */
+    private void checkEmptyTransactions() throws IgniteException {
+        if (transactions().tx() != null)
+            throw new IgniteException("Cannot start/stop cache within transaction.");
+
+        if (sharedCtx.mvcc().lastExplicitLockTopologyVersion(Thread.currentThread().getId()) != null)
+            throw new IgniteException("Cannot start/stop cache within lock.");
+    }
+
+    /**
      * @param val Object to check.
      * @throws IgniteCheckedException If validation failed.
      */
     private void checkSerializable(CacheConfiguration val) throws IgniteCheckedException {
         if (val == null)
             return;
+
+        if (val.getCacheStoreFactory() != null) {
+            try {
+                marshaller.unmarshal(marshaller.marshal(val.getCacheStoreFactory()),
+                    val.getCacheStoreFactory().getClass().getClassLoader());
+            }
+            catch (IgniteCheckedException e) {
+                throw new IgniteCheckedException("Failed to validate cache configuration. " +
+                    "Cache store factory is not serializable. Cache name: " + U.maskName(val.getName()), e);
+            }
+        }
 
         try {
             marshaller.unmarshal(marshaller.marshal(val), val.getClass().getClassLoader());
