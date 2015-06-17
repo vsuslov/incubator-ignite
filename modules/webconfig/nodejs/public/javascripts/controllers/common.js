@@ -17,6 +17,27 @@
 
 var configuratorModule =  angular.module('ignite-web-configurator', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
 
+configuratorModule.service('commonFunctions', function() {
+   return {
+       addSimpleItem: function(backupItem, mdl, item) {
+           if (undefined == backupItem[mdl])
+               backupItem[mdl] = [item];
+           else
+               backupItem[mdl].push(item);
+       },
+       addDetailSimpleItem: function(backupItem, field, detailMdl, item) {
+           var master = backupItem[field.group][backupItem[field.group][field.model]];
+
+           var detailRows = master[detailMdl];
+
+           if (undefined == detailRows)
+               master[detailMdl] = [item];
+           else
+               detailRows.push(item);
+       }
+   }
+});
+
 configuratorModule.config(function($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {
         placement: 'right',

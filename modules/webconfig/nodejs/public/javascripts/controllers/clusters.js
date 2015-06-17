@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('clustersController', ['$scope', '$modal', '$alert', '$http', function($scope, $modal, $alert, $http) {
+configuratorModule.controller('clustersController', ['$scope', '$alert', '$http', 'commonFunctions', function($scope, $alert, $http, commonFunctions) {
+        $scope.addSimpleItem = commonFunctions.addSimpleItem;
+        $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
+
         $scope.templates = [
             {value: {}, label: 'none'},
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
@@ -150,13 +153,6 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$alert
                 .error(function(errorMessage) {
                     $alert({type: 'error', title: errorMessage});
                 });
-        };
-
-        $scope.addSimpleItem = function(mdl, item) {
-            if (undefined == $scope.backupItem[mdl])
-                $scope.backupItem[mdl] = [item];
-            else
-                $scope.backupItem[mdl].push(item);
         };
     }]
 );

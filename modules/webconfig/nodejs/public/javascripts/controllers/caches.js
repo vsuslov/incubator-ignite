@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert', '$http', function ($scope, $modal, $alert, $http) {
+configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+        $scope.addSimpleItem = commonFunctions.addSimpleItem;
+        $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
+
         $scope.templates = [
             {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},
             {value: {mode: 'REPLICATED', atomicityMode: 'ATOMIC'}, label: 'replicated'},
@@ -134,13 +137,6 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert',
                 });
         };
 
-        $scope.addSimpleItem = function(mdl, item) {
-            if (undefined == $scope.backupItem[mdl])
-                $scope.backupItem[mdl] = [item];
-            else
-                $scope.backupItem[mdl].push(item);
-        };
-
         $scope.editIndexedTypes = function (idx) {
             $scope.indexedTypeIdx = idx;
 
@@ -154,8 +150,6 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert',
                 $scope.currKeyCls = idxType.keyClass;
                 $scope.currValCls = idxType.valueClass;
             }
-
-            $scope.indexedTypesModal = $modal({scope: $scope, template: '/indexedTypes', show: true});
         };
 
         $scope.saveIndexedType = function (k, v) {
@@ -177,8 +171,6 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert',
                 idxType.keyClass = k;
                 idxType.valueClass = v;
             }
-
-            $scope.indexedTypesModal.hide();
         };
 
         $scope.removeIndexedType = function (idx) {
