@@ -64,7 +64,7 @@ mixin details-row
                                     i.tipField.fa.fa-floppy-o(ng-click='detail.editIdx = -1; #{detailMdl}[$index]=curValue')
                                     .input-tip
                                         input.form-control(type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')
-                            td.col-sm-1
+                            td.col-sm-1(ng-if='detail.reordering')
                                 i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='detail.editIdx = -1')
                                 i.fa.fa-arrow-down(ng-show='$index < #{detailMdl}.length - 1' ng-click='detail.editIdx = -1')
             .details-label
@@ -147,7 +147,7 @@ mixin form-row
                                     i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
                                     .input-tip
                                         input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
-                            td.col-sm-1
+                            td.col-sm-1(ng-if='field.reordering')
                                 i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='field.editIdx = -1')
                                 i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='field.editIdx = -1')
             .col-sm-5
