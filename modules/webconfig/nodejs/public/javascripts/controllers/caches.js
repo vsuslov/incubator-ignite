@@ -18,6 +18,7 @@
 configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.addSimpleItem = commonFunctions.addSimpleItem;
         $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
+        $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
 
         $scope.templates = [
             {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},

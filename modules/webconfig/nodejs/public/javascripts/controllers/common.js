@@ -34,6 +34,12 @@ configuratorModule.service('commonFunctions', function() {
                master[detailMdl] = [item];
            else
                detailRows.push(item);
+       },
+       swapSimpleItems: function(a, ix1, ix2) {
+           var tmp = a[ix1];
+
+           a[ix1] = a[ix2];
+           a[ix2] = tmp;
        }
    }
 });
@@ -80,13 +86,6 @@ configuratorModule.filter('displayValue', function () {
             return dflt;
 
         return 'Unknown value';
-    }
-});
-
-// Capitalize first char.
-configuratorModule.filter('capitalize', function() {
-    return function(input, all) {
-        return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) : '';
     }
 });
 
