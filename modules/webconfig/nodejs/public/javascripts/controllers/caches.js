@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', function ($scope, $modal, $http) {
+configuratorModule.controller('cachesController', ['$scope', '$modal', '$alert', '$http', function ($scope, $modal, $alert, $http) {
         $scope.templates = [
             {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},
             {value: {mode: 'REPLICATED', atomicityMode: 'ATOMIC'}, label: 'replicated'},
@@ -109,7 +109,7 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
                     $scope.selectItem(item);
                 })
                 .error(function(errorMessage) {
-                    console.log('Error: ' + errorMessage);
+                    $alert({type: 'error', title: errorMessage});
                 });
         };
 
@@ -130,7 +130,7 @@ configuratorModule.controller('cachesController', ['$scope', '$modal', '$http', 
                     }
                 })
                 .error(function(errorMessage) {
-                    console.log('Error: ' + errorMessage);
+                    $alert({type: 'error', title: errorMessage});
                 });
         };
 

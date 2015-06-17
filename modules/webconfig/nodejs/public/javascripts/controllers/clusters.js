@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('clustersController', ['$scope', '$modal', '$http', function($scope, $modal, $http) {
+configuratorModule.controller('clustersController', ['$scope', '$modal', '$alert', '$http', function($scope, $modal, $alert, $http) {
         $scope.templates = [
             {value: {}, label: 'none'},
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
@@ -127,7 +127,7 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$http'
                     $scope.selectItem(item);
                 })
                 .error(function(errorMessage) {
-                    console.log('Error: ' + errorMessage);
+                    $alert({type: 'error', title: errorMessage});
                 });
         };
 
@@ -148,7 +148,7 @@ configuratorModule.controller('clustersController', ['$scope', '$modal', '$http'
                     }
                 })
                 .error(function(errorMessage) {
-                    console.log('Error: ' + errorMessage);
+                    $alert({type: 'error', title: errorMessage});
                 });
         };
 

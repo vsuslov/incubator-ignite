@@ -35,6 +35,15 @@ configuratorModule.config(function($selectProvider) {
     });
 });
 
+// Alert settings
+configuratorModule.config(function($alertProvider) {
+    angular.extend($alertProvider.defaults, {
+        container: 'body',
+        placement: 'top-right',
+        duration: '5'
+    });
+});
+
 // Decode name using map(value, label).
 configuratorModule.filter('displayValue', function () {
     return function (v, m, dflt) {
