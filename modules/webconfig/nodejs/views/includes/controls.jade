@@ -141,5 +141,5 @@ mixin form-row
                                 i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='field.editIdx = -1')
             .col-sm-5
                 input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
-            button.btn.btn-primary(style='margin-left: 10px;' ng-disabled='!newValue' ng-click='field.editIdx = -1; addSimpleItem(field.model, newValue)') Add {{field.label}}
+            button.btn.btn-primary(style='margin-left: 10px;' ng-disabled='!newValue || #{tblMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; addSimpleItem(field.model, newValue)') Add {{field.label}}
 
