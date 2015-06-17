@@ -62,4 +62,4 @@ block content
                     h3
                         a(bs-collapse-toggle ng-init='expanded=false; lbl="Show advanced settings..."' ng-click='expanded = !expanded; lbl=expanded ? "Hide advanced settings... " : "Show advanced settings..."') {{lbl}}
             button.btn.btn-primary(ng-disabled='clustersForm.$invalid' ng-click='saveItem()') Save
-            button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove

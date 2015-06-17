@@ -61,22 +61,6 @@
   transform: translateX(-50%) translateY(-50%);
 }
 
-.ng-table th.text-right {
-  text-align: right;
-}
-
-.ng-table th.text-left {
-  text-align: left;
-}
-
-.ng-table th.text-center {
-  text-align: center;
-}
-
-.fa.fa-remove {
-  color: red;
-}
-
 .border-left {
   -webkit-box-shadow: 1px 0 0 0 #eee inset;
   box-shadow: 1px 0 0 0 #eee inset;
@@ -642,6 +626,14 @@ h1.ignite-logo {
   }
 }
 
+.details-row {
+  padding-left: 1.3em;
+}
+
+.details-table-row  {
+  padding: 0;
+}
+
 .details-row, .settings-row {
   display: block;
   margin: 0.65em 0;
@@ -665,10 +657,6 @@ h1.ignite-logo {
     line-height: 20px;
     vertical-align: middle;
   }
-}
-
-.details-row {
-  padding-left: 1.3em;
 }
 
 button {
@@ -793,7 +781,12 @@ button .caret {
 }
 
 .btn {
+  margin-right: 0;
   padding: 3px 6px;
+}
+
+.btn-second {
+  margin-left: 10px;
 }
 
 .panel-title a {
@@ -843,7 +836,7 @@ label {
 .tipField {
   float: right;
   line-height: @input-height;
-  margin-right: 18px;
+  margin-right: 5px;
 }
 
 .tipLabel {
@@ -866,7 +859,9 @@ label {
 }
 
 .fa-remove {
-  margin-left: 10px;
+  color: red;
+  margin-left: 5px;
+  margin-right: 5px;
   cursor: pointer;
 }
 
