@@ -149,6 +149,130 @@
       ]
     },
     {
+      "label": "Misc",
+      "fields": [
+        {
+          "label": "Statistics enabled",
+          "type": "check",
+          "model": "statisticsEnabled",
+          "tip": [
+            "Flag indicating whether statistics gathering is enabled on a cache"
+          ]
+        },
+        {
+          "label": "Management enabled",
+          "type": "check",
+          "model": "managementEnabled",
+          "tip": [
+            "Flag indicating whether management is enabled on this cache"
+          ]
+        },
+        {
+          "label": "Read from backup",
+          "type": "check",
+          "model": "readFromBackup",
+          "tip": [
+            "Flag indicating whether data can be read from backup.<br/>",
+            "If not set then always get data from primary node (never from backup)"
+          ]
+        },
+        {
+          "label": "Copy on read",
+          "type": "check",
+          "model": "copyOnRead",
+          "tip": [
+            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.<br/>",
+            " Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor"
+          ]
+        },
+        {
+          "label": "Max concurreny",
+          "type": "text",
+          "model": "maxConcurrentAsyncOperations",
+          "placeholder": "500",
+          "tip": [
+            "Maximum number of allowed concurrent asynchronous operations.<br/>",
+            "If 0 returned then number of concurrent asynchronous operations is unlimited"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Near cache",
+      "model": "nearConfiguration",
+      "fields": [
+        {
+          "label": "Start size",
+          "type": "text",
+          "model": "nearStartSize",
+          "placeholder": "375000",
+          "tip": [
+            "Initial cache size for near cache which will be used to pre-create internal hash table after start"
+          ]
+        },
+        {
+          "label": "Eviction policy",
+          "type": "dropdown",
+          "model": "nearEvictionPolicy",
+          "placeholder": "Choose eviction policy",
+          "items": "evictionPolicies",
+          "tip": [
+            "Cache expiration policy"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Query",
+      "fields": [
+        {
+          "label": "Escape all",
+          "type": "check",
+          "model": "sqlEscapeAll",
+          "tip": [
+            "If set then all the SQL table and field names will be escaped with double quotes.<br/>",
+            "This enforces case sensitivity for field names and also allows having special characters in table and field names"
+          ]
+        },
+        {
+          "label": "Cached rows",
+          "type": "text",
+          "model": "sqlOnheapRowCacheSize",
+          "placeholder": "10240",
+          "tip": [
+            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access"
+          ]
+        },
+        {
+          "label": "Long query timeout",
+          "type": "text",
+          "model": "longQueryWarningTimeout",
+          "placeholder": "3000",
+          "tip": [
+            "Timeout in milliseconds after which long query warning will be printed"
+          ]
+        },
+        {
+          "type": "indexedTypes",
+          "model": "indexedTypes",
+          "tip": [
+            "Collection of types to index"
+          ]
+        },
+        {
+          "tableLabel": "SQL functions",
+          "label": "SQL function",
+          "type": "table-simple",
+          "model": "sqlFunctionClasses",
+          "editIdx": -1,
+          "placeholder": "SQL function full class name",
+          "tip": [
+            "Classes with user-defined functions for SQL queries"
+          ]
+        }
+      ]
+    },
+    {
       "label": "Rebalance",
       "fields": [
         {
@@ -245,6 +369,38 @@
       ]
     },
     {
+      "label": "Transaction",
+      "fields": [
+        {
+          "label": "Invalidate",
+          "type": "check",
+          "model": "invalidate",
+          "tip": [
+            "Invalidation flag for near cache entries in transaction.<br/>",
+            "If set then values will be invalidated (nullified) upon commit in near cache"
+          ]
+        },
+        {
+          "label": "Default lock timeout",
+          "type": "text",
+          "model": "defaultLockTimeout",
+          "placeholder": "1",
+          "tip": [
+            "Default lock acquisition timeout.<br/>",
+            "If 0 then lock acquisition will never timeout"
+          ]
+        },
+        {
+          "label": "Manager finder",
+          "type": "text",
+          "model": "transactionManagerLookupClassName",
+          "tip": [
+            "Class name of transaction manager finder for integration for JEE app servers"
+          ]
+        }
+      ]
+    },
+    {
       "label": "Write behind",
       "fields": [
         {
@@ -291,162 +447,6 @@
           "placeholder": "1",
           "tip": [
             "Number of threads that will perform cache flushing"
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Transaction",
-      "fields": [
-        {
-          "label": "Invalidate",
-          "type": "check",
-          "model": "invalidate",
-          "tip": [
-            "Invalidation flag for near cache entries in transaction.<br/>",
-            "If set then values will be invalidated (nullified) upon commit in near cache"
-          ]
-        },
-        {
-          "label": "Default lock timeout",
-          "type": "text",
-          "model": "defaultLockTimeout",
-          "placeholder": "1",
-          "tip": [
-            "Default lock acquisition timeout.<br/>",
-            "If 0 then lock acquisition will never timeout"
-          ]
-        },
-        {
-          "label": "Manager finder",
-          "type": "text",
-          "model": "transactionManagerLookupClassName",
-          "tip": [
-            "Class name of transaction manager finder for integration for JEE app servers"
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Query",
-      "fields": [
-        {
-          "label": "Escape all",
-          "type": "check",
-          "model": "sqlEscapeAll",
-          "tip": [
-            "If set then all the SQL table and field names will be escaped with double quotes.<br/>",
-            "This enforces case sensitivity for field names and also allows having special characters in table and field names"
-          ]
-        },
-        {
-          "label": "Cached rows",
-          "type": "text",
-          "model": "sqlOnheapRowCacheSize",
-          "placeholder": "10240",
-          "tip": [
-            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access"
-          ]
-        },
-        {
-          "label": "Long query timeout",
-          "type": "text",
-          "model": "longQueryWarningTimeout",
-          "placeholder": "3000",
-          "tip": [
-            "Timeout in milliseconds after which long query warning will be printed"
-          ]
-        },
-        {
-          "type": "indexedTypes",
-          "model": "indexedTypes",
-          "tip": [
-            "Collection of types to index"
-          ]
-        },
-        {
-          "tableLabel": "SQL functions",
-          "label": "SQL function",
-          "type": "table-simple",
-          "model": "sqlFunctionClasses",
-          "editIdx": -1,
-          "placeholder": "SQL function full class name",
-          "tip": [
-            "Classes with user-defined functions for SQL queries"
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Near cache",
-      "model": "nearConfiguration",
-      "fields": [
-        {
-          "label": "Start size",
-          "type": "text",
-          "model": "nearStartSize",
-          "placeholder": "375000",
-          "tip": [
-            "Initial cache size for near cache which will be used to pre-create internal hash table after start"
-          ]
-        },
-        {
-          "label": "Eviction policy",
-          "type": "dropdown",
-          "model": "nearEvictionPolicy",
-          "placeholder": "Choose eviction policy",
-          "items": "evictionPolicies",
-          "tip": [
-            "Cache expiration policy"
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Misc",
-      "fields": [
-        {
-          "label": "Statistics enabled",
-          "type": "check",
-          "model": "statisticsEnabled",
-          "tip": [
-            "Flag indicating whether statistics gathering is enabled on a cache"
-          ]
-        },
-        {
-          "label": "Management enabled",
-          "type": "check",
-          "model": "managementEnabled",
-          "tip": [
-            "Flag indicating whether management is enabled on this cache"
-          ]
-        },
-        {
-          "label": "Read from backup",
-          "type": "check",
-          "model": "readFromBackup",
-          "tip": [
-            "Flag indicating whether data can be read from backup.<br/>",
-            "If not set then always get data from primary node (never from backup)"
-          ]
-        },
-        {
-          "label": "Copy on read",
-          "type": "check",
-          "model": "copyOnRead",
-          "tip": [
-            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.<br/>",
-            " Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor"
-          ]
-        },
-        {
-          "label": "Max concurreny",
-          "type": "text",
-          "model": "maxConcurrentAsyncOperations",
-          "placeholder": "500",
-          "tip": [
-            "Maximum number of allowed concurrent asynchronous operations.<br/>",
-            "If 0 returned then number of concurrent asynchronous operations is unlimited"
           ]
         }
       ]
