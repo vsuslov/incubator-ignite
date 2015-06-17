@@ -44,11 +44,11 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model=detailMdl data-template='/select' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
+                    button.form-control(bs-select ng-model=detailMdl data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
-                button.form-control(bs-select ng-model=detailMdl data-multiple='1' data-template='/select' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
+                button.form-control(bs-select ng-model=detailMdl data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
             +tipField('detail.tip')
         div(ng-switch-when='table-simple')
             .details-label
@@ -81,27 +81,29 @@ mixin form-row
                     input.form-control(type='text' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
                     input.form-control(type='text' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
         div(ng-switch-when='dropdown')
-            label(class=lblClasses) {{field.label}}:
+            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-if='!group.model' ng-model='backupItem[field.model]' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-                    button.form-control(bs-select ng-if='group.model' ng-model='backupItem[group.model][field.model]' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+                    button.form-control(bs-select ng-if='!group.model' ng-model='backupItem[field.model]' ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' )
+                    button.form-control(bs-select ng-if='group.model' ng-model='backupItem[group.model][field.model]' ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
         div(ng-switch-when='dropdown-multiple')
-            label(class=lblClasses) {{field.label}}:
+            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model='backupItem[field.model]' data-multiple='1' data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+                    button.form-control(bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
         div(ng-switch-when='dropdown-details')
-            label(class=lblClasses) {{field.label}}:
+            - var expanded = 'field.details[backupItem[field.group][field.model]].expanded'
+
+            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model=masterMdl data-template='/select' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-            a.customize(ng-if='field.customizable' ng-show=masterMdl ng-init='lbl="Show settings"' ng-click='field.expanded = !field.expanded; lbl = field.expanded ? "Hide settings" : lbl="Show settings"') {{lbl}}
-            .col-sm-6.panel-details(ng-show='field.expanded && #{masterMdl}')
-                .details-row(ng-repeat='detail in field.details[#{masterMdl}]')
+                    button.form-control(bs-select ng-model=masterMdl ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+            a.customize(ng-show=masterMdl ng-init='' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
+            .col-sm-6.panel-details(ng-show='#{expanded} && #{masterMdl}')
+                .details-row(ng-repeat='detail in field.details[#{masterMdl}].fields')
                     +details-row
         div(ng-switch-when='indexedTypes')
             div
@@ -130,7 +132,7 @@ mixin form-row
                                     a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item}}
                                     i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                                 div(ng-show='field.editIdx == {{$index}}')
-                                    label(style='float: left') {{$index + 1}}.&nbsp
+                                    label.labelField {{$index + 1}}.
                                     i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
                                     .input-tip
                                         input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')

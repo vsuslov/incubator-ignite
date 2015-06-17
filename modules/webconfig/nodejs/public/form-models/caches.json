@@ -91,47 +91,59 @@
             "Cache expiration policy"
           ],
           "details": {
-            "LRU": [
-              {
-                "label": "Batch size",
-                "type": "text",
-                "model": "batchSize",
-                "placeholder": "1"
-              },
-              {
-                "label": "Max memory size",
-                "type": "text",
-                "model": "maxMemorySize",
-                "placeholder": "0",
-                "tip": [
-                  "Maximum allowed cache size in bytes"
-                ]
-              }
-            ],
-            "RND": [
-              {
-                "label": "Batch size",
-                "type": "text",
-                "model": "batchSize",
-                "placeholder": "1"
-              }
-            ],
-            "FIFO": [
-              {
-                "label": "Batch size",
-                "type": "text",
-                "model": "batchSize",
-                "placeholder": "1"
-              }
-            ],
-            "SORTED": [
-              {
-                "label": "Batch size",
-                "type": "text",
-                "model": "batchSize",
-                "placeholder": "1"
-              }
-            ]
+            "LRU": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "text",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes"
+                  ]
+                }
+              ]
+            },
+            "RND": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                }
+              ]
+            },
+            "FIFO": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                }
+              ]
+            },
+            "SORTED": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                }
+              ]
+            }
           }
         }
       ]

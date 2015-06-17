@@ -10,204 +10,224 @@
     {
       "label": "Discovery",
       "type": "dropdown-details",
-      "customizable": true,
-      "expanded": false,
       "group": "discovery",
       "model": "kind",
+      "required": true,
       "placeholder": "Choose discovery",
       "items": "discoveries",
       "tip": [
         "Discovery allows to discover remote nodes in grid."
       ],
       "details": {
-        "Vm": [
-          {
-            "tableLabel": "Addresses",
-            "label": "address",
-            "type": "table-simple",
-            "model": "addresses",
-            "editIdx": -1,
-            "placeholder": "IP address",
-            "tip": [
-              "Addresses may be represented as follows:",
-              "<ul>",
-              "    <li>IP address (e.g. 127.0.0.1, 9.9.9.9, etc);</li>",
-              "    <li>IP address and port (e.g. 127.0.0.1:47500, 9.9.9.9:47501, etc);</li>",
-              "    <li>IP address and port range (e.g. 127.0.0.1:47500..47510, 9.9.9.9:47501..47504, etc);</li>",
-              "    <li>Hostname (e.g. host1.com, host2, etc);</li>",
-              "    <li>Hostname and port (e.g. host1.com:47500, host2:47502, etc).</li>",
-              "    <li>Hostname and port range (e.g. host1.com:47500..47510, host2:47502..47508, etc).</li>",
-              "</ul>",
-              "<p>",
-              "If port is 0 or not provided then default port will be used (depends on",
-              "discovery SPI configuration).",
-              "<p>",
-              "If port range is provided (e.g. host:port1..port2) the following should be considered:",
-              "<ul>",
-              "    <li>port1 < port2 should be true;</li>",
-              "    <li>Both port1 and port2 should be greater than 0.</li>",
-              "</ul>"
-            ]
-          }
-        ],
-        "Multicast": [
-          {
-            "label": "IP address",
-            "type": "text",
-            "model": "multicastGroup",
-            "placeholder": "228.1.2.4",
-            "tip": [
-              "IP address of multicast group."
-            ]
-          },
-          {
-            "label": "Port number",
-            "type": "text",
-            "model": "multicastPort",
-            "placeholder": "47400",
-            "tip": [
-              "Port number which multicast messages are sent to."
-            ]
-          },
-          {
-            "label": "Waits for reply ",
-            "type": "text",
-            "model": "responseWaitTime",
-            "placeholder": "500",
-            "tip": [
-              "Time in milliseconds IP finder waits for reply to multicast address request."
-            ]
-          },
-          {
-            "label": "Attempts count",
-            "type": "text",
-            "model": "addressRequestAttempts",
-            "placeholder": "2",
-            "tip": [
-              "Number of attempts to send multicast address request. ",
-              "IP finder re-sends request only in case if no reply for previous request is received."
-            ]
-          },
-          {
-            "label": "Local address",
-            "type": "text",
-            "model": "localAddress",
-            "tip": [
-              "Local host address used by this IP finder.",
-              "If provided address is non-loopback then multicast socket is bound to this interface.",
-              "If local address is not set or is any local address then",
-              "IP finder creates multicast sockets for all found non-loopback addresses"
-            ]
-          }
-        ],
-        "S3": [
-          {
-            "label": "Bucket name",
-            "type": "text",
-            "model": "bucketName",
-            "placeholder": ""
-          }
-        ],
-        "Cloud": [
-          {
-            "label": "Credential",
-            "type": "text",
-            "model": "credential",
-            "placeholder": "",
-            "tip": [
-              "Credential that is used during authentication on the cloud.",
-              "Depending on a cloud platform it can be a password or access key."
-            ]
-          },
-          {
-            "label": "Path to credential",
-            "type": "text",
-            "model": "credentialPath",
-            "placeholder": "",
-            "tip": [
-              "Path to a credential that is used during authentication on the cloud.",
-              "Access key or private key should be stored in a plain or PEM file without a passphrase."
-            ]
-          },
-          {
-            "label": "Identity",
-            "type": "text",
-            "model": "identity",
-            "placeholder": "",
-            "tip": [
-              "Identity that is used as a user name during a connection to the cloud.",
-              "Depending on a cloud platform it can be an email address, user name, etc."
-            ]
-          },
-          {
-            "label": "Provider",
-            "type": "text",
-            "model": "provider",
-            "placeholder": "",
-            "tip": [
-              "Cloud provider to use."
-            ]
-          }
-        ],
-        "GoogleStorage": [
-          {
-            "label": "Project name",
-            "type": "text",
-            "model": "projectName",
-            "placeholder": "",
-            "tip": [
-              "Google Cloud Platforms project name.",
-              "Usually this is an auto generated project number (ex. 208709979073) that can be found in 'Overview' section of Google Developer Console."
-            ]
-          },
-          {
-            "label": "Bucket name",
-            "type": "text",
-            "model": "bucketName",
-            "placeholder": "",
-            "tip": [
-              "Google Cloud Storage bucket name.",
-              "If the bucket doesn't exist Ignite will automatically create it.",
-              "However the name must be unique across whole Google Cloud Storage and Service Account Id must be authorized to perform this operation."
-            ]
-          },
-          {
-            "label": "Private key path",
-            "type": "text",
-            "model": "serviceAccountP12FilePath",
-            "placeholder": "",
-            "tip": [
-              "Full path to the private key in PKCS12 format of the Service Account."
-            ]
-          },
-          {
-            "label": "Account id",
-            "type": "text",
-            "model": "accountId",
-            "placeholder": "",
-            "tip": [
-              "Service account ID (typically an e-mail address)."
-            ]
-          }
-        ],
-        "Jdbc": [
-          {
-            "label": "DB schema should be initialized by Ignite",
-            "type": "check",
-            "model": "initSchema",
-            "tip": [
-              "Flag indicating whether DB schema should be initialized by Ignite or was explicitly created by user."
-            ]
-          }
-        ],
-        "SharedFs": [
-          {
-            "label": "File path",
-            "type": "text",
-            "model": "path",
-            "placeholder": "disco/tcp"
-          }
-        ]
+        "Vm": {
+          "expanded": true,
+          "fields": [
+            {
+              "tableLabel": "Addresses",
+              "label": "address",
+              "type": "table-simple",
+              "model": "addresses",
+              "editIdx": -1,
+              "placeholder": "IP address",
+              "tip": [
+                "Addresses may be represented as follows:",
+                "<ul>",
+                "    <li>IP address (e.g. 127.0.0.1, 9.9.9.9, etc);</li>",
+                "    <li>IP address and port (e.g. 127.0.0.1:47500, 9.9.9.9:47501, etc);</li>",
+                "    <li>IP address and port range (e.g. 127.0.0.1:47500..47510, 9.9.9.9:47501..47504, etc);</li>",
+                "    <li>Hostname (e.g. host1.com, host2, etc);</li>",
+                "    <li>Hostname and port (e.g. host1.com:47500, host2:47502, etc).</li>",
+                "    <li>Hostname and port range (e.g. host1.com:47500..47510, host2:47502..47508, etc).</li>",
+                "</ul>",
+                "<p>",
+                "If port is 0 or not provided then default port will be used (depends on",
+                "discovery SPI configuration).",
+                "<p>",
+                "If port range is provided (e.g. host:port1..port2) the following should be considered:",
+                "<ul>",
+                "    <li>port1 < port2 should be true;</li>",
+                "    <li>Both port1 and port2 should be greater than 0.</li>",
+                "</ul>"
+              ]
+            }
+          ]
+        },
+        "Multicast": {
+            "expanded": false,
+            "fields": [
+            {
+              "label": "IP address",
+              "type": "text",
+              "model": "multicastGroup",
+              "placeholder": "228.1.2.4",
+              "tip": [
+                "IP address of multicast group."
+              ]
+            },
+            {
+              "label": "Port number",
+              "type": "text",
+              "model": "multicastPort",
+              "placeholder": "47400",
+              "tip": [
+                "Port number which multicast messages are sent to."
+              ]
+            },
+            {
+              "label": "Waits for reply ",
+              "type": "text",
+              "model": "responseWaitTime",
+              "placeholder": "500",
+              "tip": [
+                "Time in milliseconds IP finder waits for reply to multicast address request."
+              ]
+            },
+            {
+              "label": "Attempts count",
+              "type": "text",
+              "model": "addressRequestAttempts",
+              "placeholder": "2",
+              "tip": [
+                "Number of attempts to send multicast address request. ",
+                "IP finder re-sends request only in case if no reply for previous request is received."
+              ]
+            },
+            {
+              "label": "Local address",
+              "type": "text",
+              "model": "localAddress",
+              "tip": [
+                "Local host address used by this IP finder.",
+                "If provided address is non-loopback then multicast socket is bound to this interface.",
+                "If local address is not set or is any local address then",
+                "IP finder creates multicast sockets for all found non-loopback addresses"
+              ]
+            }
+          ]
+        },
+        "S3": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Bucket name",
+              "type": "text",
+              "model": "bucketName",
+              "placeholder": ""
+            }
+          ]
+        },
+        "Cloud": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Credential",
+              "type": "text",
+              "model": "credential",
+              "placeholder": "",
+              "tip": [
+                "Credential that is used during authentication on the cloud.",
+                "Depending on a cloud platform it can be a password or access key."
+              ]
+            },
+            {
+              "label": "Path to credential",
+              "type": "text",
+              "model": "credentialPath",
+              "placeholder": "",
+              "tip": [
+                "Path to a credential that is used during authentication on the cloud.",
+                "Access key or private key should be stored in a plain or PEM file without a passphrase."
+              ]
+            },
+            {
+              "label": "Identity",
+              "type": "text",
+              "model": "identity",
+              "placeholder": "",
+              "tip": [
+                "Identity that is used as a user name during a connection to the cloud.",
+                "Depending on a cloud platform it can be an email address, user name, etc."
+              ]
+            },
+            {
+              "label": "Provider",
+              "type": "text",
+              "model": "provider",
+              "placeholder": "",
+              "tip": [
+                "Cloud provider to use."
+              ]
+            }
+          ]
+        },
+        "GoogleStorage": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Project name",
+              "type": "text",
+              "model": "projectName",
+              "placeholder": "",
+              "tip": [
+                "Google Cloud Platforms project name.",
+                "Usually this is an auto generated project number (ex. 208709979073) that can be found in 'Overview' section of Google Developer Console."
+              ]
+            },
+            {
+              "label": "Bucket name",
+              "type": "text",
+              "model": "bucketName",
+              "placeholder": "",
+              "tip": [
+                "Google Cloud Storage bucket name.",
+                "If the bucket doesn't exist Ignite will automatically create it.",
+                "However the name must be unique across whole Google Cloud Storage and Service Account Id must be authorized to perform this operation."
+              ]
+            },
+            {
+              "label": "Private key path",
+              "type": "text",
+              "model": "serviceAccountP12FilePath",
+              "placeholder": "",
+              "tip": [
+                "Full path to the private key in PKCS12 format of the Service Account."
+              ]
+            },
+            {
+              "label": "Account id",
+              "type": "text",
+              "model": "accountId",
+              "placeholder": "",
+              "tip": [
+                "Service account ID (typically an e-mail address)."
+              ]
+            }
+          ]
+        },
+        "Jdbc": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "DB schema should be initialized by Ignite",
+              "type": "check",
+              "model": "initSchema",
+              "tip": [
+                "Flag indicating whether DB schema should be initialized by Ignite or was explicitly created by user."
+              ]
+            }
+          ]
+        },
+        "SharedFs": {
+          "expanded": false,
+          "fields": [
+            {
+              "label": "File path",
+              "type": "text",
+              "model": "path",
+              "placeholder": "disco/tcp"
+            }
+          ]
+        }
       }
     },
     {

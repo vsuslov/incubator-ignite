@@ -30,7 +30,8 @@ configuratorModule.config(function($selectProvider) {
     angular.extend($selectProvider.defaults, {
         maxLength: '1',
         allText: 'Select All',
-        noneText: 'Clear All'
+        noneText: 'Clear All',
+        template: '/select'
     });
 });
 
