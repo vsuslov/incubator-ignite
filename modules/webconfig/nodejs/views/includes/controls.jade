@@ -51,11 +51,11 @@ mixin details-row
                 button.form-control(bs-select ng-model=detailMdl data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
             +tipField('detail.tip')
         div(ng-switch-when='table-simple')
-            .col-sm-10.links.details-row(style='margin-bottom: 0px;')
-                table(st-table=detailMdl)
+            .links-edit.details-row(style='margin-bottom: 0px;')
+                table.col-sm-12(st-table=detailMdl)
                     tbody
                         tr(ng-repeat='item in #{detailMdl}')
-                            td.col-sm-12
+                            td.col-sm-11
                                 div(ng-show='detail.editIdx != {{$index}}')
                                     a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}. {{item}}
                                     i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
