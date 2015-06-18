@@ -53,7 +53,7 @@ mixin details-row
         div(ng-switch-when='table-simple' style='margin-right: 5px; margin-top: -0.65em')
             table.col-sm-12.links-edit(st-table=detailMdl)
                 tbody
-                    tr(ng-repeat='item in #{detailMdl}')
+                    tr(ng-repeat='item in #{detailMdl} track by $index')
                         td.col-sm-11
                             div(ng-show='detail.editIdx != {{$index}}')
                                 a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
@@ -121,7 +121,7 @@ mixin form-row
                 +tipLabel('field.tip')
             table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
                 tbody
-                    tr.col-sm-12(ng-repeat='item in #{tblMdl}')
+                    tr.col-sm-12(ng-repeat='item in #{tblMdl} track by $index')
                         td.col-sm-6
                             div(ng-show='field.editIdx != {{$index}}')
                                 a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item | compact}}
