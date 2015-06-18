@@ -27,21 +27,6 @@ router.get('/login', function(req, res) {
     res.render('login');
 });
 
-/* GET page for discovery advanced settings. */
-router.get('/simplePopup', function(req, res) {
-    res.render('simplePopup');
-});
-
-/* GET page for indexedTypes popup. */
-router.get('/indexedTypes', function(req, res) {
-    res.render('indexedTypes');
-});
-
-/* GET register page. */
-router.get('/register', function(req, res) {
-    res.render('register');
-});
-
 /* GET home page. */
 router.get('/', function(req, res) {
     if (req.isAuthenticated())
@@ -53,16 +38,6 @@ router.get('/', function(req, res) {
 /* GET clusters page. */
 router.get('/clusters', function(req, res) {
     res.render('clusters', { user: req.user });
-});
-
-/* GET advanced options for TcpDiscoveryVmIpFinder page. */
-router.get('/tcpDiscoveryVmIpFinder', function(req, res) {
-    res.render('tcpDiscoveryVmIpFinder');
-});
-
-/* GET advanced options for TcpDiscoveryMulticastIpFinder page. */
-router.get('/tcpDiscoveryMulticastIpFinder', function(req, res) {
-    res.render('tcpDiscoveryMulticastIpFinder');
 });
 
 /* GET caches page. */
@@ -83,6 +58,11 @@ router.get('/sql', function(req, res) {
 /* GET clients page. */
 router.get('/clients', function(req, res) {
     res.render('clients', { user: req.user });
+});
+
+/* GET summary page. */
+router.get('/summary', function(req, res) {
+    res.render('summary', { user: req.user });
 });
 
 module.exports = router;
