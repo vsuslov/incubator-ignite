@@ -14,7 +14,7 @@
       "placeholder": "Choose caches",
       "items": "caches",
       "tip": [
-        "Select caches to start in cluster"
+        "Select caches to start in cluster."
       ]
     },
     {
@@ -43,21 +43,19 @@
               "tip": [
                 "Addresses may be represented as follows:",
                 "<ul>",
-                "    <li>IP address (e.g. 127.0.0.1, 9.9.9.9, etc);</li>",
-                "    <li>IP address and port (e.g. 127.0.0.1:47500, 9.9.9.9:47501, etc);</li>",
-                "    <li>IP address and port range (e.g. 127.0.0.1:47500..47510, 9.9.9.9:47501..47504, etc);</li>",
-                "    <li>Hostname (e.g. host1.com, host2, etc);</li>",
-                "    <li>Hostname and port (e.g. host1.com:47500, host2:47502, etc).</li>",
-                "    <li>Hostname and port range (e.g. host1.com:47500..47510, host2:47502..47508, etc).</li>",
+                "  <li>IP address (e.g. 127.0.0.1, 9.9.9.9, etc);</li>",
+                "  <li>IP address and port (e.g. 127.0.0.1:47500, 9.9.9.9:47501, etc);</li>",
+                "  <li>IP address and port range (e.g. 127.0.0.1:47500..47510, 9.9.9.9:47501..47504, etc);</li>",
+                "  <li>Hostname (e.g. host1.com, host2, etc);</li>",
+                "  <li>Hostname and port (e.g. host1.com:47500, host2:47502, etc).</li>",
+                "  <li>Hostname and port range (e.g. host1.com:47500..47510, host2:47502..47508, etc).</li>",
                 "</ul>",
-                "<p>",
-                "If port is 0 or not provided then default port will be used (depends on",
-                "discovery SPI configuration).",
+                "If port is 0 or not provided then default port will be used (depends on discovery SPI configuration).",
                 "<p>",
                 "If port range is provided (e.g. host:port1..port2) the following should be considered:",
                 "<ul>",
-                "    <li>port1 < port2 should be true;</li>",
-                "    <li>Both port1 and port2 should be greater than 0.</li>",
+                "  <li>port1 < port2 should be true;</li>",
+                "  <li>Both port1 and port2 should be greater than 0.</li>",
                 "</ul>"
               ]
             }
@@ -99,7 +97,7 @@
               "model": "addressRequestAttempts",
               "placeholder": "2",
               "tip": [
-                "Number of attempts to send multicast address request. ",
+                "Number of attempts to send multicast address request.<br/>",
                 "IP finder re-sends request only in case if no reply for previous request is received."
               ]
             },
@@ -108,10 +106,9 @@
               "type": "text",
               "model": "localAddress",
               "tip": [
-                "Local host address used by this IP finder.",
-                "If provided address is non-loopback then multicast socket is bound to this interface.",
-                "If local address is not set or is any local address then",
-                "IP finder creates multicast sockets for all found non-loopback addresses"
+                "Local host address used by this IP finder.<br/>",
+                "If provided address is non-loopback then multicast socket is bound to this interface.<br/>",
+                "If local address is not set or is any local address then IP finder creates multicast sockets for all found non-loopback addresses."
               ]
             }
           ]
@@ -136,7 +133,7 @@
               "model": "credential",
               "placeholder": "",
               "tip": [
-                "Credential that is used during authentication on the cloud.",
+                "Credential that is used during authentication on the cloud.<br/>",
                 "Depending on a cloud platform it can be a password or access key."
               ]
             },
@@ -146,7 +143,7 @@
               "model": "credentialPath",
               "placeholder": "",
               "tip": [
-                "Path to a credential that is used during authentication on the cloud.",
+                "Path to a credential that is used during authentication on the cloud.<br/>",
                 "Access key or private key should be stored in a plain or PEM file without a passphrase."
               ]
             },
@@ -156,7 +153,7 @@
               "model": "identity",
               "placeholder": "",
               "tip": [
-                "Identity that is used as a user name during a connection to the cloud.",
+                "Identity that is used as a user name during a connection to the cloud.<br/>",
                 "Depending on a cloud platform it can be an email address, user name, etc."
               ]
             },
@@ -180,7 +177,7 @@
               "model": "projectName",
               "placeholder": "",
               "tip": [
-                "Google Cloud Platforms project name.",
+                "Google Cloud Platforms project name.<br/>",
                 "Usually this is an auto generated project number (ex. 208709979073) that can be found in 'Overview' section of Google Developer Console."
               ]
             },
@@ -190,8 +187,8 @@
               "model": "bucketName",
               "placeholder": "",
               "tip": [
-                "Google Cloud Storage bucket name.",
-                "If the bucket doesn't exist Ignite will automatically create it.",
+                "Google Cloud Storage bucket name.<br/>",
+                "If the bucket doesn't exist Ignite will automatically create it.<br/>",
                 "However the name must be unique across whole Google Cloud Storage and Service Account Id must be authorized to perform this operation."
               ]
             },
@@ -253,7 +250,7 @@
           "model": "backups",
           "placeholder": "0",
           "tip": [
-            "Number of backup nodes"
+            "Number of backup nodes."
           ]
         },
         {
@@ -264,9 +261,11 @@
           "items": "cacheModes",
           "tip": [
             "Cache modes:",
-            "<ul><li>Partitioned - in this mode the overall key set will be divided into partitions and all partitions will be split equally between participating nodes.</li>",
-            "<li>Replicated - in this mode all the keys are distributed to all participating nodes.</li>",
-            "<li>Local - in this mode caches residing on different grid nodes will not know about each other.</li></ul>"
+            "<ul>",
+            "  <li>Partitioned - in this mode the overall key set will be divided into partitions and all partitions will be split equally between participating nodes.</li>",
+            "  <li>Replicated - in this mode all the keys are distributed to all participating nodes.</li>",
+            "  <li>Local - in this mode caches residing on different grid nodes will not know about each other.</li>",
+            "</ul>"
           ]
         },
         {
@@ -275,7 +274,7 @@
           "model": "atomicSequenceReserveSize",
           "placeholder": "1,000",
           "tip": [
-            "Default number of sequence values reserved for IgniteAtomicSequence instances.",
+            "Default number of sequence values reserved for IgniteAtomicSequence instances.<br/>",
             "After a certain number has been reserved, consequent increments of sequence will happen locally, without communication with other nodes, until the next reservation has to be made."
           ]
         }
@@ -317,7 +316,7 @@
           "model": "segmentCheckFrequency",
           "placeholder": "10,000",
           "tip": [
-            "Network segment check frequency in milliseconds.",
+            "Network segment check frequency in milliseconds.<br/>",
             "If 0, periodic segment check is disabled and segment is checked only on topology changes (if segmentation resolvers are configured)."
           ]
         },
@@ -327,9 +326,11 @@
           "model": "waitForSegmentOnStart",
           "tip": [
             "Wait for segment on start flag.",
-            "If enabled, node should wait for correct segment on start.",
-            "If node detects that segment is incorrect on startup and enabled, node waits until segment becomes correct.",
-            "If segment is incorrect on startup and disabled, exception is thrown."
+            "<ul>",
+            "  <li>If enabled, node should wait for correct segment on start.</li>",
+            "  <li>If node detects that segment is incorrect on startup and enabled, node waits until segment becomes correct.</li>",
+            "  <li>If segment is incorrect on startup and disabled, exception is thrown.</li>",
+            "</ul>"
           ]
         },
         {
@@ -368,7 +369,7 @@
           "placeholder": "Choose recorded event types",
           "items": "events",
           "tip": [
-            "Array of event types, which will be recorded by GridEventStorageManager#record(Event).",
+            "Array of event types, which will be recorded by GridEventStorageManager#record(Event).<br/>",
             "Note, that either the include event types or the exclude event types can be established."
           ]
         }
@@ -437,10 +438,11 @@
           "placeholder": "60,000",
           "tip": [
             "Job metrics update frequency in milliseconds.",
-            "<p>",
-            "If set to -1 job metrics are never updated.",
-            "If set to 0 job metrics are updated on each job start and finish.",
-            "Positive value defines the actual update frequency."
+            "<ul>",
+            "  <li>If set to -1 job metrics are never updated.</li>",
+            "  <li>If set to 0 job metrics are updated on each job start and finish.</li>",
+            "  <li>Positive value defines the actual update frequency.</li>",
+            "</ul>"
           ]
         }
       ]
@@ -462,7 +464,7 @@
           "model": "peerClassLoadingLocalClassPathExclude",
           "placeholder": "[]",
           "tip": [
-            "List of packages separated by comma from the system classpath that need to be peer-to-peer loaded from task originating node.",
+            "List of packages separated by comma from the system classpath that need to be peer-to-peer loaded from task originating node.<br/>",
             "'*' is supported at the end of the package name which means that all sub-packages and their classes are included like in Java package import clause."
           ]
         },
@@ -472,7 +474,7 @@
           "model": "peerClassLoadingMissedResourcesCacheSize",
           "placeholder": "100",
           "tip": [
-            "If size greater than 0, missed resources will be cached and next resource request ignored.",
+            "If size greater than 0, missed resources will be cached and next resource request ignored.<br/>",
             "If size is 0, then request for the resource will be sent to the remote node every time this resource is requested."
           ]
         },
@@ -496,7 +498,7 @@
           "model": "clockSyncSamples",
           "placeholder": "8",
           "tip": [
-            "Number of samples used to synchronize clocks between different nodes.",
+            "Number of samples used to synchronize clocks between different nodes.<br/>",
             "Clock synchronization is used for cache version assignment in CLOCK order mode."
           ]
         },
@@ -506,7 +508,7 @@
           "model": "clockSyncFrequency",
           "placeholder": "120,000",
           "tip": [
-            "frequency at which clock is synchronized between nodes, in milliseconds.",
+            "Frequency at which clock is synchronized between nodes, in milliseconds.<br/>",
             "Clock synchronization is used for cache version assignment in CLOCK order mode."
           ]
         },
@@ -516,7 +518,7 @@
           "model": "timeServerPortBase",
           "placeholder": "31100",
           "tip": [
-            "Time server provides clock synchronization between nodes.",
+            "Time server provides clock synchronization between nodes.<br/>",
             "Base UPD port number for grid time server. Time server will be started on one of free ports in range."
           ]
         },
@@ -628,7 +630,7 @@
           "type": "check",
           "model": "txSerializableEnabled",
           "tip": [
-            "Flag to enable/disable isolation level for cache transactions.",
+            "Flag to enable/disable isolation level for cache transactions.<br/>",
             "Serializable level does carry certain overhead and if not used, should be disabled."
           ]
         }
@@ -659,9 +661,10 @@
           "model": "allSegmentationResolversPassRequired",
           "tip": [
             "All segmentation resolvers pass required flag.",
-            "<p>",
-            "If enabled all segmentation resolvers should succeed for node to be in correct segment.",
-            "If disabled at least one segmentation resolver should succeed for node to be in correct segment."
+            "<ul>",
+            "  <li>If enabled all segmentation resolvers should succeed for node to be in correct segment.</li>",
+            "  <li>If disabled at least one segmentation resolver should succeed for node to be in correct segment.</li>",
+            "</ul>"
           ]
         }
       ]
