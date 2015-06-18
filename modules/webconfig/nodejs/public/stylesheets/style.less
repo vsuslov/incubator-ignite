@@ -167,6 +167,11 @@
 
 .theme-line .btn-primary {
   border: 0 none;
+  background-color: #ec1c24;
+}
+
+.theme-line .btn-primary:hover {
+  background-color: #950d12;
 }
 
 .theme-line .main-content .nav-horizontal a {
@@ -416,14 +421,6 @@
 
 .theme-line .sidebar-nav ul li a:hover, .theme-line .sidebar-nav ul li a.active:hover {
   color: #950d12;
-}
-
-.theme-line .btn-primary {
-  background-color: #ec1c24;
-}
-
-.theme-line .btn-primary:hover {
-  background-color: #950d12;
 }
 
 .theme-line .main-content .nav-horizontal a.active {
@@ -773,7 +770,7 @@ button .caret {
   }
 }
 
-.theme-line .links-edit table:extend(.theme-line .links table all) {
+.theme-line table.links-edit:extend(.theme-line .links table all) {
   label {
     line-height: @input-height;
     color: #666;
@@ -781,12 +778,7 @@ button .caret {
 }
 
 .btn {
-  margin-right: 0;
   padding: 3px 6px;
-}
-
-.btn-second {
-  margin-left: 10px;
 }
 
 .panel-title a {
@@ -841,6 +833,12 @@ label {
 
 .tipLabel {
   margin-left: 4px;
+}
+
+.fieldButton {
+  float: right;
+  margin-left: 4px;
+  margin-right: 0;
 }
 
 .table-nowrap {
