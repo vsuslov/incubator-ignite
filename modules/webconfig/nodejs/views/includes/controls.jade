@@ -110,7 +110,7 @@ mixin form-row
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-model=masterMdl ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-            a.customize(ng-show=masterMdl ng-init='' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
+            a.customize(ng-show=masterMdl ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
             .col-sm-6.panel-details(ng-show='#{expanded} && #{masterMdl}')
                 .details-row(ng-repeat='detail in field.details[#{masterMdl}].fields')
                     +details-row

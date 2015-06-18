@@ -48,6 +48,9 @@ block content
                             .settings-row(ng-repeat='field in general')
                                 +form-row
             div(bs-collapse data-start-collapsed='true')
+                .panel-title(ng-show='expanded')
+                    h3
+                        a(bs-collapse-toggle='0' ng-click='expanded = !expanded;') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
                 .panel-collapse(bs-collapse-target)
                     .span(bs-collapse data-start-collapsed='true' data-allow-multiple='true')
                         .panel.panel-default(ng-repeat='group in advanced')
@@ -60,6 +63,6 @@ block content
                                         +form-row
                 .panel-title
                     h3
-                        a(bs-collapse-toggle ng-init='expanded=false; lbl="Show advanced settings..."' ng-click='expanded = !expanded; lbl=expanded ? "Hide advanced settings... " : "Show advanced settings..."') {{lbl}}
+                        a(bs-collapse-toggle='0' ng-click='expanded = !expanded;') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
             button.btn.btn-primary(ng-disabled='clustersForm.$invalid' ng-click='saveItem()') Save
             button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove
