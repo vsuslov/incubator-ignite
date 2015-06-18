@@ -8,6 +8,16 @@
       "placeholder": "Input name"
     },
     {
+      "label": "Caches",
+      "type": "dropdown-multiple",
+      "model": "caches",
+      "placeholder": "Choose caches",
+      "items": "caches",
+      "tip": [
+        "Select caches to start in cluster"
+      ]
+    },
+    {
       "label": "Discovery",
       "type": "dropdown-details",
       "group": "discovery",
@@ -29,7 +39,7 @@
               "model": "addresses",
               "editIdx": -1,
               "reordering": true,
-              "placeholder": "IP address",
+              "placeholder": "IP address:port",
               "tip": [
                 "Addresses may be represented as follows:",
                 "<ul>",
@@ -230,16 +240,6 @@
           ]
         }
       }
-    },
-    {
-      "label": "Caches",
-      "type": "dropdown-multiple",
-      "model": "caches",
-      "placeholder": "Choose caches",
-      "items": "caches",
-      "tip": [
-        "Select caches to start in cluster"
-      ]
     }
   ],
   "advanced": [
