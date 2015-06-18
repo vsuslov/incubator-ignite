@@ -133,8 +133,7 @@ mixin form-row
                                     input.form-control.settings-row(type='text' ng-model='curKeyClass' placeholder='Key class full name')
                                     input.form-control.settings-row(type='text' ng-model='curValueClass' placeholder='Value class full name')
             .col-sm-6
-                .settings-row
-                    input.form-control(type='text' ng-model='newKeyClass' placeholder='Key class full name')
+                input.form-control(type='text' ng-model='newKeyClass' placeholder='Key class full name')
                 .settings-row
                     input.form-control(type='text' ng-model='newValueClass' placeholder='Value class full name')
                 button.btn.btn-primary.fieldButton(ng-click='field.editIdx = -1; addIndexedTypes(newKeyClass, newValueClass)') Add
