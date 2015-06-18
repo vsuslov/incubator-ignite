@@ -18,6 +18,7 @@
 package org.apache.ignite.examples;
 
 import org.apache.ignite.*;
+import org.apache.ignite.configuration.*;
 
 /**
  * Starts up an empty node with example compute configuration.
@@ -29,7 +30,15 @@ public class ExampleNodeStartup {
      * @param args Command line arguments, none required.
      * @throws IgniteException If failed.
      */
-    public static void main(String[] args) throws IgniteException {
-        Ignition.start("examples/config/example-ignite.xml");
+    public static void main(String[] args) throws Exception {
+        try (Ignite ignite = Ignition.start("C:\\Users\\gridgain\\ignite\\apache\\incubator-ignite\\work\\test-client.xml")) {
+            ignite.destroyCache(null);
+
+            try (IgniteCache cache = ignite.createCache(new CacheConfiguration())) {
+                cache.put(1, 1);
+            }
+
+            Thread.sleep(Long.MAX_VALUE);
+        }
     }
 }

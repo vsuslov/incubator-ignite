@@ -435,20 +435,29 @@ class ServerImpl extends TcpDiscoveryImpl {
                 return false;
         }
 
-        for (InetSocketAddress addr : spi.getNodeAddresses(node, U.sameMacs(locNode, node))) {
-            try {
-                // ID returned by the node should be the same as ID of the parameter for ping to succeed.
-                IgniteBiTuple<UUID, Boolean> t = pingNode(addr, clientNodeId);
+        log.info("Start ping node [node=" + node + ']');
 
-                return node.id().equals(t.get1()) && (clientNodeId == null || t.get2());
-            }
-            catch (IgniteCheckedException e) {
-                if (log.isDebugEnabled())
-                    log.debug("Failed to ping node [node=" + node + ", err=" + e.getMessage() + ']');
+        long start = U.currentTimeMillis();
 
-                onException("Failed to ping node [node=" + node + ", err=" + e.getMessage() + ']', e);
-                // continue;
+        try {
+            for (InetSocketAddress addr : spi.getNodeAddresses(node, U.sameMacs(locNode, node))) {
+                try {
+                    // ID returned by the node should be the same as ID of the parameter for ping to succeed.
+                    IgniteBiTuple<UUID, Boolean> t = pingNode(addr, clientNodeId);
+
+                    return node.id().equals(t.get1()) && (clientNodeId == null || t.get2());
+                }
+                catch (IgniteCheckedException e) {
+                    if (log.isDebugEnabled())
+                        log.debug("Failed to ping node [node=" + node + ", err=" + e.getMessage() + ']');
+
+                    onException("Failed to ping node [node=" + node + ", err=" + e.getMessage() + ']', e);
+                    // continue;
+                }
             }
+        }
+        finally {
+            log.info("End ping node [time=" + (U.currentTimeMillis() - start) + ", node=" + node + ']');
         }
 
         return false;
@@ -463,102 +472,117 @@ class ServerImpl extends TcpDiscoveryImpl {
      */
     private IgniteBiTuple<UUID, Boolean> pingNode(InetSocketAddress addr, @Nullable UUID clientNodeId)
         throws IgniteCheckedException {
-        assert addr != null;
+        log.info("Start ping address [addr=" + addr + ", clientNodeId=" + clientNodeId + ']');
 
-        UUID locNodeId = getLocalNodeId();
+        long start0 = U.currentTimeMillis();
 
-        if (F.contains(spi.locNodeAddrs, addr)) {
-            if (clientNodeId == null)
-                return F.t(getLocalNodeId(), false);
+        try {
+            assert addr != null;
 
-            ClientMessageWorker clientWorker = clientMsgWorkers.get(clientNodeId);
+            UUID locNodeId = getLocalNodeId();
 
-            if (clientWorker == null)
-                return F.t(getLocalNodeId(), false);
+            if (F.contains(spi.locNodeAddrs, addr)) {
+                if (clientNodeId == null)
+                    return F.t(getLocalNodeId(), false);
 
-            boolean clientPingRes;
+                ClientMessageWorker clientWorker = clientMsgWorkers.get(clientNodeId);
 
-            try {
-                clientPingRes = clientWorker.ping();
+                if (clientWorker == null)
+                    return F.t(getLocalNodeId(), false);
+
+                boolean clientPingRes;
+
+                try {
+                    clientPingRes = clientWorker.ping();
+                }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+
+                    throw new IgniteInterruptedCheckedException(e);
+                }
+
+                return F.t(getLocalNodeId(), clientPingRes);
             }
-            catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
 
-                throw new IgniteInterruptedCheckedException(e);
-            }
+            GridFutureAdapter<IgniteBiTuple<UUID, Boolean>> fut = new GridFutureAdapter<>();
 
-            return F.t(getLocalNodeId(), clientPingRes);
-        }
+            IgniteInternalFuture<IgniteBiTuple<UUID, Boolean>> oldFut = pingMap.putIfAbsent(addr, fut);
 
-        GridFutureAdapter<IgniteBiTuple<UUID, Boolean>> fut = new GridFutureAdapter<>();
+            if (oldFut != null)
+                return oldFut.get();
+            else {
+                Collection<Throwable> errs = null;
 
-        IgniteInternalFuture<IgniteBiTuple<UUID, Boolean>> oldFut = pingMap.putIfAbsent(addr, fut);
+                try {
+                    Socket sock = null;
 
-        if (oldFut != null)
-            return oldFut.get();
-        else {
-            Collection<Throwable> errs = null;
+                    for (int i = 0; i < spi.reconCnt; i++) {
+                        long start1 = U.currentTimeMillis();
 
-            try {
-                Socket sock = null;
+                        try {
+                            log.info("Ping address [iter=" + i + ", addr=" + addr + ", clientNodeId=" + clientNodeId + ']');
 
-                for (int i = 0; i < spi.reconCnt; i++) {
-                    try {
-                        if (addr.isUnresolved())
-                            addr = new InetSocketAddress(InetAddress.getByName(addr.getHostName()), addr.getPort());
+                            if (addr.isUnresolved())
+                                addr = new InetSocketAddress(InetAddress.getByName(addr.getHostName()), addr.getPort());
 
-                        long tstamp = U.currentTimeMillis();
+                            long tstamp = U.currentTimeMillis();
 
-                        sock = spi.openSocket(addr);
+                            sock = spi.openSocket(addr);
 
-                        spi.writeToSocket(sock, new TcpDiscoveryPingRequest(locNodeId, clientNodeId));
+                            spi.writeToSocket(sock, new TcpDiscoveryPingRequest(locNodeId, clientNodeId));
 
-                        TcpDiscoveryPingResponse res = spi.readMessage(sock, null, spi.netTimeout);
+                            TcpDiscoveryPingResponse res = spi.readMessage(sock, null, spi.netTimeout);
 
-                        if (locNodeId.equals(res.creatorNodeId())) {
-                            if (log.isDebugEnabled())
-                                log.debug("Ping response from local node: " + res);
+                            if (locNodeId.equals(res.creatorNodeId())) {
+                                if (log.isDebugEnabled())
+                                    log.debug("Ping response from local node: " + res);
 
-                            break;
+                                break;
+                            }
+
+                            spi.stats.onClientSocketInitialized(U.currentTimeMillis() - tstamp);
+
+                            IgniteBiTuple<UUID, Boolean> t = F.t(res.creatorNodeId(), res.clientExists());
+
+                            fut.onDone(t);
+
+                            return t;
                         }
+                        catch (IOException | IgniteCheckedException e) {
+                            if (errs == null)
+                                errs = new ArrayList<>();
 
-                        spi.stats.onClientSocketInitialized(U.currentTimeMillis() - tstamp);
+                            errs.add(e);
+                        }
+                        finally {
+                            U.closeQuiet(sock);
 
-                        IgniteBiTuple<UUID, Boolean> t = F.t(res.creatorNodeId(), res.clientExists());
-
-                        fut.onDone(t);
-
-                        return t;
-                    }
-                    catch (IOException | IgniteCheckedException e) {
-                        if (errs == null)
-                            errs = new ArrayList<>();
-
-                        errs.add(e);
-                    }
-                    finally {
-                        U.closeQuiet(sock);
+                            log.info("Ping address end [iter=" + i + ", time=" + (U.currentTimeMillis() - start1) + ", addr=" + addr + ", clientNodeId=" + clientNodeId + ']');
+                        }
                     }
                 }
+                catch (Throwable t) {
+                    fut.onDone(t);
+
+                    if (t instanceof Error)
+                        throw t;
+
+                    throw U.cast(t);
+                }
+                finally {
+                    if (!fut.isDone())
+                        fut.onDone(U.exceptionWithSuppressed("Failed to ping node by address: " + addr, errs));
+
+                    boolean b = pingMap.remove(addr, fut);
+
+                    assert b;
+                }
+
+                return fut.get();
             }
-            catch (Throwable t) {
-                fut.onDone(t);
-
-                if (t instanceof Error)
-                    throw t;
-
-                throw U.cast(t);
-            }
-            finally {
-                if (!fut.isDone())
-                    fut.onDone(U.exceptionWithSuppressed("Failed to ping node by address: " + addr, errs));
-
-                boolean b = pingMap.remove(addr, fut);
-
-                assert b;
-            }
-
-            return fut.get();
+        }
+        finally {
+            log.info("End ping address [time=" + (U.currentTimeMillis() - start0) + ", addr=" + addr + ", clientNodeId=" + clientNodeId + ']');
         }
     }
 
@@ -1596,6 +1620,10 @@ class ServerImpl extends TcpDiscoveryImpl {
                             Boolean res = pingResMap.get(addr);
 
                             if (res == null) {
+                                log.info("Cleaner start ping node [addr=" + addr + ']');
+
+                                long start = U.currentTimeMillis();
+
                                 try {
                                     res = pingNode(addr, null).get1() != null;
                                 }
@@ -1608,6 +1636,8 @@ class ServerImpl extends TcpDiscoveryImpl {
                                 }
                                 finally {
                                     pingResMap.put(addr, res);
+
+                                    log.info("Cleaner end ping node [time=" + (U.currentTimeMillis() - start) + ", addr=" + addr + ']');
                                 }
                             }
 

@@ -267,23 +267,19 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
                         if (!isNodeStopping()) {
                             GridNioRecoveryDescriptor recoveryData = ses.recoveryDescriptor();
 
-                            if (!getSpiContext().tryFailNode(id)) {
-                                if (recoveryData != null) {
-                                    if (recoveryData.nodeAlive(getSpiContext().node(id))) {
-                                        if (!recoveryData.messagesFutures().isEmpty()) {
-                                            if (log.isDebugEnabled())
-                                                log.debug("Session was closed but there are unacknowledged messages, " +
-                                                    "will try to reconnect [rmtNode=" + recoveryData.node().id() + ']');
+                            if (recoveryData != null) {
+                                if (recoveryData.nodeAlive(getSpiContext().node(id))) {
+                                    if (!recoveryData.messagesFutures().isEmpty()) {
+                                        if (log.isDebugEnabled())
+                                            log.debug("Session was closed but there are unacknowledged messages, " +
+                                                "will try to reconnect [rmtNode=" + recoveryData.node().id() + ']');
 
-                                            commWorker.addReconnectRequest(recoveryData);
-                                        }
+                                        commWorker.addReconnectRequest(recoveryData);
                                     }
-                                    else
-                                        recoveryData.onNodeLeft();
                                 }
+                                else
+                                    recoveryData.onNodeLeft();
                             }
-                            else
-                                recoveryData.onNodeLeft();
                         }
                     }
 
@@ -1876,6 +1872,13 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
         Integer boundPort = node.attribute(createSpiAttributeName(ATTR_PORT));
         Collection<InetSocketAddress> extAddrs = node.attribute(createSpiAttributeName(ATTR_EXT_ADDRS));
 
+        log.info("Start connect [timeout=" + connTimeout +
+            ", rmtAddrs0=" + rmtAddrs0 +
+            ", rmtHostNames0=" + rmtHostNames0 +
+            ", port=" + boundPort +
+            ", extAddrs=" + extAddrs +
+            ", node=" + node + ']');
+
         boolean isRmtAddrsExist = (!F.isEmpty(rmtAddrs0) && boundPort != null);
         boolean isExtAddrsExist = !F.isEmpty(extAddrs);
 
@@ -1884,18 +1887,20 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
                 "TCP communication addresses or mapped external addresses. Check configuration and make sure " +
                 "that you use the same communication SPI on all nodes. Remote node id: " + node.id());
 
-        List<InetSocketAddress> addrs;
+        LinkedHashSet<InetSocketAddress> addrs;
 
         // Try to connect first on bound addresses.
         if (isRmtAddrsExist) {
-            addrs = new ArrayList<>(U.toSocketAddresses(rmtAddrs0, rmtHostNames0, boundPort));
+            List<InetSocketAddress> addrs0 = new ArrayList<>(U.toSocketAddresses(rmtAddrs0, rmtHostNames0, boundPort));
 
             boolean sameHost = U.sameMacs(getSpiContext().localNode(), node);
 
-            Collections.sort(addrs, U.inetAddressesComparator(sameHost));
+            Collections.sort(addrs0, U.inetAddressesComparator(sameHost));
+
+            addrs = new LinkedHashSet<>(addrs0);
         }
         else
-            addrs = new ArrayList<>();
+            addrs = new LinkedHashSet<>();
 
         // Then on mapped external addresses.
         if (isExtAddrsExist)
@@ -1907,12 +1912,20 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
 
         int connectAttempts = 1;
 
+        log.info("Try connect [timeout=" + connTimeout + ", nodeAddrs=" + addrs + ", node=" + node + ']');
+
+        long start = U.currentTimeMillis();
+
         for (InetSocketAddress addr : addrs) {
             long connTimeout0 = connTimeout;
 
             int attempt = 1;
 
             while (!conn) { // Reconnection on handshake timeout.
+                long start0 = U.currentTimeMillis();
+
+                log.info("Try connect to address [timeout=" + connTimeout0 + ", addr=" + addr + ", node=" + node + ']');
+
                 try {
                     SocketChannel ch = SocketChannel.open();
 
@@ -2048,11 +2061,22 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
 
                     break;
                 }
+                finally {
+                    log.info("End connect to address [time=" + (U.currentTimeMillis() - start0) +
+                        ", connected=" + (client != null) +
+                        ", node=" + node +
+                        ", addr=" + addr + ']');
+                }
             }
 
             if (conn)
                 break;
         }
+
+        log.info("End connect [time=" + (U.currentTimeMillis() - start) +
+            ", connected=" + (client != null) +
+            ", node=" + node +
+            ", addrs=" + addrs + ']');
 
         if (client == null) {
             assert errs != null;
@@ -2610,7 +2634,9 @@ public class TcpCommunicationSpi extends IgniteSpiAdapter
         private void processRecovery(GridNioRecoveryDescriptor recoveryDesc) {
             ClusterNode node = recoveryDesc.node();
 
-            if (clients.containsKey(node.id()) || !recoveryDesc.nodeAlive(getSpiContext().node(node.id())))
+            if (clients.containsKey(node.id()) ||
+                !recoveryDesc.nodeAlive(getSpiContext().node(node.id())) ||
+                !getSpiContext().pingNode(node.id()))
                 return;
 
             try {
