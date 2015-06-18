@@ -115,18 +115,29 @@ mixin form-row
                 .details-row(ng-repeat='detail in field.details[#{masterMdl}].fields')
                     +details-row
         div(ng-switch-when='indexedTypes')
+            - var tblMdl = 'backupItem.indexedTypes'
             div
-                label Indexed types: {{backupItem.indexedTypes.length}}
+                label Indexed types: {{#{tblMdl}.length}}
                 +tipLabel('field.tip')
-            button.btn.btn-primary(style='margin-left: 18px; margin-top: 10px; margin-bottom: 10px' ng-click='editIndexedTypes(-1)') Add indexed type
-            .col-sm-10.links(nh-show='backupItem.indexedTypes.length > 0')
-                -var idxTypes = 'backupItem.indexedTypes'
-                table(st-table=idxTypes)
-                    tbody
-                        tr(ng-repeat='idxType in #{idxTypes}')
-                            td
-                                a(ng-click='editIndexedTypes($index)') {{$index + 1}}. {{idxType.keyClass}}, {{idxType.valueClass}}
-                                label.fa.fa-remove(ng-click='removeIndexedType($index)')
+            table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
+                tbody
+                    tr.col-sm-12(ng-repeat='item in #{tblMdl}')
+                        td.col-sm-6
+                            div(ng-show='field.editIdx != {{$index}}')
+                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item.keyClass}}, {{item.valueClass}}
+                                i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
+                            div(ng-show='field.editIdx == {{$index}}')
+                                label.labelField {{$index + 1}}.
+                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
+                                .input-tip
+                                    input.form-control.settings-row(type='text' ng-model='curKeyClass' placeholder='Key class full name')
+                                    input.form-control.settings-row(type='text' ng-model='curValueClass' placeholder='Value class full name')
+            .col-sm-6
+                .settings-row
+                    input.form-control(type='text' ng-model='newKeyClass' placeholder='Key class full name')
+                .settings-row
+                    input.form-control(type='text' ng-model='newValueClass' placeholder='Value class full name')
+                button.btn.btn-primary.fieldButton(ng-click='field.editIdx = -1; addIndexedTypes(newKeyClass, newValueClass)') Add
         div(ng-switch-when='table-simple')
             - var tblMdl = 'backupItem[field.model]'
             div

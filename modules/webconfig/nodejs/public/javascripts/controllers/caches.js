@@ -138,6 +138,17 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 });
         };
 
+        $scope.addIndexedTypes = function (keyCls, valCls) {
+            var idxTypes = $scope.backupItem.indexedTypes;
+
+            var newItem = {keyClass: keyCls, valueClass: valCls};
+
+            if (undefined == idxTypes)
+                $scope.backupItem.indexedTypes = [newItem];
+            else
+                idxTypes.push(newItem)
+        };
+
         $scope.editIndexedTypes = function (idx) {
             $scope.indexedTypeIdx = idx;
 
@@ -172,10 +183,6 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 idxType.keyClass = k;
                 idxType.valueClass = v;
             }
-        };
-
-        $scope.removeIndexedType = function (idx) {
-            $scope.backupItem.indexedTypes.splice(idx, 1);
         };
     }]
 );
