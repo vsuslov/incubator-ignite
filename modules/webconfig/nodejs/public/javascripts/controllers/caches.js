@@ -20,12 +20,6 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
 
-        $scope.templates = [
-            {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},
-            {value: {mode: 'REPLICATED', atomicityMode: 'ATOMIC'}, label: 'replicated'},
-            {value: {mode: 'LOCAL', atomicityMode: 'ATOMIC'}, label: 'local'}
-        ];
-
         $scope.atomicities = [
             {value: 'ATOMIC', label: 'ATOMIC'},
             {value: 'TRANSACTIONAL', label: 'TRANSACTIONAL'}
@@ -87,8 +81,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
         // Add new cache.
         $scope.createItem = function() {
-            $scope.backupItem = angular.copy($scope.create.template);
-
+            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
