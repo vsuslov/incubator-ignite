@@ -15,11 +15,11 @@
     limitations under the License.
 
 mixin tipField(lines)
-    i.tipField.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
+    i.tipField.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
     i.tipField.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
 mixin tipLabel(lines)
-    i.tipLabel.fa.fa-question-circle(ng-if=lines data-container='body' bs-tooltip='#{lines}.join("")' type='button')
+    i.tipLabel.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
     i.tipLabel.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
 mixin details-row
@@ -67,6 +67,7 @@ mixin details-row
                             i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
                             i.fa.fa-arrow-down(ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
             button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; addDetailSimpleItem(backupItem, field, detail.model, newValue)') Add
+            +tipField('detail.tip')
             .input-tip
                 input.form-control(type='text' ng-model='newValue' ng-focus='detail.editIdx = -1' placeholder='{{detail.placeholder}}')
 
@@ -136,6 +137,7 @@ mixin form-row
                             i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='swapSimpleItems(#{tblMdl}, $index, $index + 1); field.editIdx = -1;')
             .col-sm-6
                 button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{tblMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; addSimpleItem(backupItem, field.model, newValue)') Add
+                +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
         div(ng-switch-when='indexedTypes')

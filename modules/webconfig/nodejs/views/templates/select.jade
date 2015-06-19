@@ -16,6 +16,7 @@
 
 ul.select.dropdown-menu(tabindex='-1', ng-show='$isVisible()', role='select')
     li(role='presentation', ng-repeat='match in $matches')
+        hr(ng-if='!match.value' style='margin: 5px 0')
         a(style='cursor: default;', role='menuitem', tabindex='-1', ng-class='{active: $isActive($index)}' ng-click='$select($index, $event)')
             i.pull-right(class='{{$iconCheckmark}}', ng-if='$isMultiple && $isActive($index)' ng-class='{active: $isActive($index)}' style='margin-left: 15px')
             span(ng-bind='match.label')

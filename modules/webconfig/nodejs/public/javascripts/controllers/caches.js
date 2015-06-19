@@ -19,6 +19,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.addSimpleItem = commonFunctions.addSimpleItem;
         $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
+        $scope.joinTip = commonFunctions.joinTip;
 
         $scope.templates = [
             {value: {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'}, label: 'partitioned'},
@@ -52,7 +53,8 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             {value: 'LRU', label: 'Least Recently Used'},
             {value: 'RND', label: 'Random'},
             {value: 'FIFO', label: 'FIFO'},
-            {value: 'SORTED', label: 'Sorted'}
+            {value: 'SORTED', label: 'Sorted'},
+            {value: undefined, label: 'Not set'}
         ];
 
         $scope.rebalanceModes = [

@@ -71,7 +71,7 @@
           "model": "offHeapMaxMemory",
           "placeholder": "-1",
           "tip": [
-            "Sets maximum amount of memory available to off-heap storage.<br/>",
+            "Sets maximum amount of memory available to off-heap storage.",
             "Possible values are:",
             "<ul>",
             "  <li>-1 - means that off-heap storage is disabled.</li>",
@@ -189,7 +189,7 @@
           "type": "check",
           "model": "sqlEscapeAll",
           "tip": [
-            "If set then all the SQL table and field names will be escaped with double quotes.<br/>",
+            "If set then all the SQL table and field names will be escaped with double quotes.",
             "This enforces case sensitivity for field names and also allows having special characters in table and field names."
           ]
         },
@@ -265,7 +265,7 @@
           "model": "rebalanceBatchSize",
           "placeholder": "512 * 1024",
           "tip": [
-            "Size (in bytes) to be loaded within a single rebalance message.<br/>",
+            "Size (in bytes) to be loaded within a single rebalance message.",
             "Rebalancing algorithm will split total data set on every node into multiple batches prior to sending data."
           ]
         },
@@ -337,7 +337,7 @@
           "type": "check",
           "model": "invalidate",
           "tip": [
-            "Invalidation flag for near cache entries in transaction.<br/>",
+            "Invalidation flag for near cache entries in transaction.",
             "If set then values will be invalidated (nullified) upon commit in near cache."
           ]
         },
@@ -347,7 +347,7 @@
           "model": "defaultLockTimeout",
           "placeholder": "1",
           "tip": [
-            "Default lock acquisition timeout.<br/>",
+            "Default lock acquisition timeout.",
             "If 0 then lock acquisition will never timeout."
           ]
         },
@@ -378,7 +378,7 @@
           "model": "writeBehindBatchSize",
           "placeholder": "512",
           "tip": [
-            "Maximum batch size for write-behind cache store operations.<br/>",
+            "Maximum batch size for write-behind cache store operations.",
             "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
           ]
         },
@@ -436,7 +436,7 @@
           "type": "check",
           "model": "readFromBackup",
           "tip": [
-            "Flag indicating whether data can be read from backup.<br/>",
+            "Flag indicating whether data can be read from backup.",
             "If not set then always get data from primary node (never from backup)."
           ]
         },
@@ -445,7 +445,7 @@
           "type": "check",
           "model": "copyOnRead",
           "tip": [
-            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.<br/>",
+            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
             "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
           ]
         },
@@ -455,7 +455,7 @@
           "model": "maxConcurrentAsyncOperations",
           "placeholder": "500",
           "tip": [
-            "Maximum number of allowed concurrent asynchronous operations.<br/>",
+            "Maximum number of allowed concurrent asynchronous operations.",
             "If 0 returned then number of concurrent asynchronous operations is unlimited."
           ]
         }

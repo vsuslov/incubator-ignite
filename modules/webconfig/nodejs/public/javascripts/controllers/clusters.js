@@ -19,9 +19,10 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.addSimpleItem = commonFunctions.addSimpleItem;
         $scope.addDetailSimpleItem = commonFunctions.addDetailSimpleItem;
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
+        $scope.joinTip = commonFunctions.joinTip;
 
         $scope.templates = [
-            {value: {}, label: 'none'},
+            {value: {}, label: 'blank'},
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
             {value: {discovery: {kind: 'Multicast', Multicast: {}}}, label: 'multicast'}
         ];
@@ -85,6 +86,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
         $http.get('/form-models/clusters.json')
             .success(function(data) {
+                $scope.templateTip = data.templateTip;
+
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             });

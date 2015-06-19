@@ -40,12 +40,25 @@ configuratorModule.service('commonFunctions', function() {
 
            a[ix1] = a[ix2];
            a[ix2] = tmp;
+       },
+       joinTip: function(arr) {
+           var lines = arr.map(function(line) {
+               var rtrimmed = line.replace(/\s+$/g, '');
+
+               if(rtrimmed.indexOf('>', this.length - 1) == -1)
+                   rtrimmed = rtrimmed + '<br/>';
+
+               return rtrimmed;
+           });
+
+           return lines.join("");
        }
    }
 });
 
 configuratorModule.config(function($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {
+        container: 'body',
         placement: 'right',
         html: 'true',
         trigger: 'click hover',
