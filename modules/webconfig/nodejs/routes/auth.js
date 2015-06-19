@@ -51,7 +51,7 @@ router.post('/login', function(req, res, next) {
             return res.status(401).send(err.message);
 
         if (!user)
-            return res.status(401).send('Account with this email not exist.');
+            return res.status(401).send('Invalid email or password');
 
         req.logIn(user, {}, function(err) {
             if (err)
