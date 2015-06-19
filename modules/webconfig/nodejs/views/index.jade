@@ -17,27 +17,13 @@
 extends layout
 block container
     .row
-        .col-sm-2.border-right.section-left
-            .sidebar-nav
-                ul.menu(ng-controller='activeLink')
-                    li
-                        a(ng-class='{active: isActive("/clusters")}' href='/clusters') Clusters
-                    li
-                        a(ng-class='{active: isActive("/caches")}' href='/caches') Caches
-                    li
-                        a(ng-class='{active: isActive("/persistence")}' href='/persistence') Persistence
-                    li
-                        a(ng-class='{active: isActive("/sql")}' href='/sql') SQL
-                    li
-                        a(ng-class='{active: isActive("/clients")}' href='/clients') Clients
-        .col-sm-10.border-left.section-right
-            .docs-content
-                div
-                    p
-                        | Apache Ignite<sup>tm</sup> In-Memory Data Fabric is a high-performance,
-                        | integrated and distributed in-memory platform for computing and transacting on large-scale data
-                        | sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.
-            .block-image.block-display-image
-                    img(ng-src='https://www.filepicker.io/api/file/lydEeGB6Rs9hwbpcQxiw' alt='Apache Ignite stack')
-            .text-center(ng-controller='auth')
-                button.btn.btn-primary(ng-click='login()' href='#') Configure Now
+        .docs-content
+            div
+                p
+                    | Apache Ignite<sup>tm</sup> In-Memory Data Fabric is a high-performance,
+                    | integrated and distributed in-memory platform for computing and transacting on large-scale data
+                    | sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.
+        .block-image.block-display-image
+                img(ng-src='https://www.filepicker.io/api/file/lydEeGB6Rs9hwbpcQxiw' alt='Apache Ignite stack')
+        .text-center(ng-controller='auth')
+            button.btn.btn-primary(ng-click='login()' href='#') Configure Now

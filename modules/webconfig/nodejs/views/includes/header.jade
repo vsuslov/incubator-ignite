@@ -19,9 +19,11 @@ header.header(id='header')
         h1.navbar-brand
             a(href='/') Apache Ignite Web Configurator
         .navbar-collapse.collapse(ng-controller='auth')
-            ul.nav.navbar-nav
+            ul.nav.navbar-nav(ng-controller='activeLink')
                 li
-                    a.active(href='/') Home
+                    a(ng-class="{active: isActive('/clusters')}" href='/clusters') Configure
+                li
+                    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
             ul.nav.navbar-nav.pull-right(ng-init='user = #{JSON.stringify(user)}')
                 li(ng-show='user')
                     a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{user.username}}

@@ -150,7 +150,7 @@ mixin form-row
                     tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                         td.col-sm-6
                             div(ng-show='field.editIdx != {{$index}}')
-                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item.keyClass}}, {{item.valueClass}}
+                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item.keyClass}} / {{item.valueClass}}
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}}.
