@@ -14,13 +14,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-extends layout-sidebar
-block head
-block content
+extends layout
+
+block container
     .docs-header
         h1 SQL
-        p Create and configure Ignite SQL settings.
+        p Connect to Zeppelin and execute SQL queries.
         hr
-    .docs-body(ng-controller='sqlRouter')
-block body
-    script(src='/javascripts/controllers/sql.js')
