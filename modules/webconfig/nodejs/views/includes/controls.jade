@@ -125,10 +125,10 @@ mixin form-row
                     tr.col-sm-12(ng-repeat='item in #{tblMdl} track by $index')
                         td.col-sm-6
                             div(ng-show='field.editIdx != {{$index}}')
-                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item | compact}}
+                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}) {{item | compact}}
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
-                                label.labelField {{$index + 1}}.
+                                label.labelField {{$index + 1}})
                                 i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
@@ -150,14 +150,16 @@ mixin form-row
                     tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                         td.col-sm-6
                             div(ng-show='field.editIdx != {{$index}}')
-                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}. {{item.keyClass}} / {{item.valueClass}}
+                                a(ng-click='field.editIdx = $index; curKeyClass = #{tblMdl}[$index].keyClass; curValueClass = #{tblMdl}[$index].valueClass') {{$index + 1}}) {{item.keyClass}} / {{item.valueClass}}
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
-                                label.labelField {{$index + 1}}.
-                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
+                                label.labelField {{$index + 1}})
+                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]={keyClass: curKeyClass, valueClass: curValueClass}')
                                 .input-tip
-                                    input.form-control.settings-row(type='text' ng-model='curKeyClass' placeholder='Key class full name')
-                                    input.form-control.settings-row(type='text' ng-model='curValueClass' placeholder='Value class full name')
+                                    .col-sm-12
+                                        input.form-control.table-form-control(type='text' ng-model='curKeyClass' placeholder='Key class full name')
+                                        label &nbsp;/&nbsp;
+                                        input.form-control.table-form-control(type='text' ng-model='curValueClass' placeholder='Value class full name')
             .col-sm-6
                 input.form-control(type='text' ng-model='newKeyClass' ng-focus='field.editIdx = -1' placeholder='Key class full name')
                 .settings-row
