@@ -29,6 +29,7 @@ var pageRoutes = require('./routes/pages');
 var clustersRouter = require('./routes/clusters');
 var cachesRouter = require('./routes/caches');
 var authRouter = require('./routes/auth');
+var configGenerator = require('./routes/configGenerator');
 
 var passport = require('passport');
 
@@ -88,6 +89,7 @@ app.use('/', pageRoutes);
 app.use('/rest/clusters', clustersRouter);
 app.use('/rest/caches', cachesRouter);
 app.use('/rest/auth', authRouter);
+app.use('/rest/configGenerator', configGenerator);
 
 // catch 404 and forward to error handler
 //app.use(function (req, res, next) {

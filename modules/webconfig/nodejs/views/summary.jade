@@ -33,12 +33,19 @@ block content
         div(ng-hide='clusters.length == 0')
             p Following cluster configurations are created, you can download its as xml, java code or as docker file
 
-            div(ng-repeat='row in clusters', style='padding-left: 20px') {{row.name}}
+            div(ng-repeat='row in clusters', style='padding-left: 20px')
                 span.clusterName {{row.name}}
                 |&nbsp;
-                a(href='#') .xml
-                | &nbsp;
-                a(href='#') java code
-                | &nbsp;
-                a(href='#') docker
+                a(href, ng-click='setSelectedCluster(row)') Generate configuration
 
+            #cfgResult.configBox(ng-show='currCluster && !generateError && !loading', style='margin-top: 20px')
+                ul.nav.nav-tabs
+                    li(ng-class="{active: cfgLang=='xml'}")
+                        a(href, ng-click='setCfgLang("xml")') XML
+                    li(ng-class="{active: cfgLang=='java'}")
+                        a(href, ng-click='setCfgLang("java")') Java
+                
+                textarea(style='width: 100%', rows=30, readonly=true)
+                    | {{resultCfg}}
+                
+            div(ng-show='generateError') {{generateError}}

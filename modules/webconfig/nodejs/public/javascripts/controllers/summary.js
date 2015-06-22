@@ -16,18 +16,39 @@
  */
 
 configuratorModule.controller('clustersList', ['$scope', '$http', function ($scope, $http) {
-    $http.get('/rest/clusters')
-        .success(function(data) {
-            $scope.caches = data.caches;
-            $scope.spaces = data.spaces;
-            $scope.clusters = data.clusters;
-        });
-}]);
+    $http.get('/rest/clusters').success(function (data) {
+        $scope.caches = data.caches;
+        $scope.spaces = data.spaces;
+        $scope.clusters = data.clusters;
+    });
 
-configuratorModule.service('configGenerator', function(){
-    return {
-        generateXml: function(cluster) {
-            
-        }
+    $scope.cfgLang = 'xml';
+
+    $scope.generateConfig = function(cluster) {
+        $scope.loading = true;
+
+        $http.get('/rest/configGenerator', {params: {name: cluster.name, lang: $scope.cfgLang}}).success(
+            function (data) {
+            $scope.resultCfg = data;
+
+            $scope.loading = false;
+        }).error(function (data) {
+            $scope.generateError = "Failed to generate config: " + data;
+
+            $scope.loading = false;
+        });
+    };
+    
+    $scope.setSelectedCluster = function(cluster) {
+        $scope.currCluster = cluster;
+
+        $scope.generateConfig(cluster)
+    };
+    
+    $scope.setCfgLang = function(lang) {
+        $scope.cfgLang = lang;
+
+        if ($scope.currCluster)
+            $scope.generateConfig($scope.currCluster)
     }
-});
+}]);
