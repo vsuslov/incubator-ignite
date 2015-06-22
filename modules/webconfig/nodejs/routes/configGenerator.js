@@ -72,10 +72,6 @@ function generateJava(cluster) {
     return "java";
 }
 
-function multicast(res, multicast) {
-    
-}
-
 function builder() {
     var res = [];
 
@@ -128,11 +124,88 @@ function builder() {
         return this;
     };
     
+    res.emptyLineIfNeeded = function() {
+        if (this.needEmptyLine) {
+            this.line();
+
+            this.needEmptyLine = false;
+        }
+    };
+    
     return res;
 }
 
+function addProperty(res, obj, propName, newLine) {
+    var val = obj[propName];
+    
+    if (val) {
+        res.emptyLineIfNeeded();
+        
+        res.line('<property name="' + propName + '" value="' + escapeAttr(val) + '"/>');
+    }
+}
+
+function addBeanWithProperties(res, obj, beanPropName, beanClass, props) {
+    var bean = obj[beanPropName];
+
+    if (bean) {
+        var hasProp = false;
+        
+        for (var i = 0; i < props.length; i++) {
+            if (bean[props[i]]) {
+                hasProp = true;
+                
+                break;
+            } 
+        }
+        
+        if (hasProp) {
+            res.emptyLineIfNeeded();
+
+            res.startBlock('<property name="' + beanPropName + '">');
+            res.startBlock('<bean class="' + beanClass + '">');
+
+            for (i = 0; i < props.length; i++) {
+                addProperty(res, bean, props[i]);
+            }
+
+            res.endBlock('</bean>');
+            res.endBlock('</property>');
+        }
+    }
+}
+
+function addListProperty(res, obj, propName) {
+    var val = obj[propName];
+    
+    if (val && val.length > 0) {
+        res.emptyLineIfNeeded();
+        
+        res.startBlock('<property name="' + propName + '">');
+        res.startBlock('<list>');
+        
+        for (var i = 0; i < val.length; i++)
+            res.line('<value>' + escape(val[i]) + '</value>');
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+    }
+}
+
+
+
 function escapeAttr(s) {
+    if (typeof(s) != 'string')
+        return s;
+    
     return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function escape(s) {
+    if (typeof(s) != 'string')
+        return s;
+    
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function generateXml(cluster) {
@@ -159,24 +232,13 @@ function generateXml(cluster) {
         
         switch (d.kind) {
             case 'Multicast':
-                var m = d.Multicast;
-                
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
-                
-                if (m.multicastGroup)
-                    res.line('<property name="multicastGroup" value="' + escapeAttr(m.multicastGroup) + '"/>');
-                
-                if (m.multicastPort)
-                    res.line('<property name="multicastPort" value="' + m.multicastPort + '"/>');
-                
-                if (m.responseWaitTime)
-                    res.line('<property name="responseWaitTime" value="' + m.responseWaitTime + '"/>');
-                
-                if (m.addressRequestAttempts)
-                    res.line('<property name="addressRequestAttempts" value="' + m.addressRequestAttempts + '"/>');
-                
-                if (m.localAddress)
-                    res.line('<property name="localAddress" value="' + escapeAttr(m.localAddress) + '"/>');
+
+                addProperty(res, d.Multicast, 'multicastGroup');
+                addProperty(res, d.Multicast, 'multicastPort');
+                addProperty(res, d.Multicast, 'responseWaitTime');
+                addProperty(res, d.Multicast, 'addressRequestAttempts');
+                addProperty(res, d.Multicast, 'localAddress');
                 
                 res.endBlock('</bean>');
                 
@@ -186,15 +248,7 @@ function generateXml(cluster) {
                 if (d.Vm.addresses.length > 0) {
                     res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
 
-                    res.line('<property name="addresses">');
-                    res.line('    <list>');
-
-                    for (var i = 0; i < d.Vm.addresses.length; i++) {
-                        res.line('<value>' + escapeAttr(d.Vm.addresses[i]) + '</value>');
-                    }
-                    
-                    res.line('    </list>');
-                    res.line('</property>');
+                    addListProperty(res, d.Vm, 'addresses');
 
                     res.endBlock('</bean>');
                 }
@@ -217,17 +271,10 @@ function generateXml(cluster) {
             case 'Cloud':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder">');
 
-                if (d.Cloud.credential)
-                    res.line('<property name="credential" value="' + escapeAttr(d.Cloud.credential) + '"/>');
-
-                if (d.Cloud.credentialPath)
-                    res.line('<property name="credentialPath" value="' + escapeAttr(d.Cloud.credentialPath) + '"/>');
-
-                if (d.Cloud.identity)
-                    res.line('<property name="identity" value="' + escapeAttr(d.Cloud.identity) + '"/>');
-
-                if (d.Cloud.provider)
-                    res.line('<property name="provider" value="' + escapeAttr(d.Cloud.provider) + '"/>');
+                addProperty(res, d.Cloud, 'credential');
+                addProperty(res, d.Cloud, 'credentialPath');
+                addProperty(res, d.Cloud, 'identity');
+                addProperty(res, d.Cloud, 'provider');
                 
                 res.endBlock('</bean>');
 
@@ -236,14 +283,9 @@ function generateXml(cluster) {
             case 'GoogleStorage':
                 res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder">');
 
-                if (d.GoogleStorage.projectName)
-                    res.line('<property name="projectName" value="' + escapeAttr(d.GoogleStorage.projectName) + '"/>');
-
-                if (d.GoogleStorage.bucketName)
-                    res.line('<property name="bucketName" value="' + escapeAttr(d.GoogleStorage.bucketName) + '"/>');
-
-                if (d.GoogleStorage.serviceAccountP12FilePath)
-                    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.serviceAccountP12FilePath) + '"/>');
+                addProperty(res, d.GoogleStorage, 'projectName');
+                addProperty(res, d.GoogleStorage, 'bucketName');
+                addProperty(res, d.GoogleStorage, 'serviceAccountP12FilePath');
 
                 //if (d.GoogleStorage.addrReqAttempts) todo ????
                 //    res.line('<property name="serviceAccountP12FilePath" value="' + escapeAttr(d.GoogleStorage.addrReqAttempts) + '"/>');
@@ -262,7 +304,7 @@ function generateXml(cluster) {
             case 'SharedFs':
                 if (d.SharedFs.initSchema != null) {
                     res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
-                    res.line('<property name="path" value="' + escapeAttr(d.SharedFs.path) + '"/>');
+                    addProperty(res, d.SharedFs, 'path');
                     res.endBlock('</bean>');
                 }
                 else {
@@ -278,8 +320,87 @@ function generateXml(cluster) {
         res.endBlock('</property>');
         res.endBlock('</bean>');
         res.endBlock('</property>');
+        
+        res.needEmptyLine = true
     }
 
+    addBeanWithProperties(res, cluster, 'atomicConfiguration', 'org.apache.ignite.configuration.AtomicConfiguration',
+        ['backups', 'cacheMode', 'atomicSequenceReserveSize']);
+    res.needEmptyLine = true;
+
+    addProperty(res, cluster, 'clockSyncSamples');
+    addProperty(res, cluster, 'clockSyncFrequency');
+    res.needEmptyLine = true;
+    addListProperty(res, cluster, 'includeEventTypes');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'igfsThreadPoolSize');
+    addProperty(res, cluster, 'publicThreadPoolSize');
+    addProperty(res, cluster, 'systemThreadPoolSize');
+    addProperty(res, cluster, 'utilityCachePoolSize');
+    addProperty(res, cluster, 'managementThreadPoolSize');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'marshalLocalJobs');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'marshCacheKeepAliveTime');
+    addProperty(res, cluster, 'marshCachePoolSize');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'cacheSanityCheckEnabled');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'metricsExpireTime');
+    addProperty(res, cluster, 'metricsHistorySize');
+    addProperty(res, cluster, 'metricsLogFrequency');
+    addProperty(res, cluster, 'metricsUpdateFrequency');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'networkTimeout');
+    addProperty(res, cluster, 'networkSendRetryDelay');
+    addProperty(res, cluster, 'networkSendRetryCount');
+    addProperty(res, cluster, 'discoveryStartupDelay');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'deploymentMode');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'peerClassLoadingEnabled');
+    addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
+    addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
+    addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'segmentCheckFrequency');
+    addProperty(res, cluster, 'segmentationPolicy');
+    addProperty(res, cluster, 'allSegmentationResolversPassRequired');
+    addProperty(res, cluster, 'segmentationResolveAttempts');
+    addProperty(res, cluster, 'waitForSegmentOnStart');
+    res.needEmptyLine = true;
+
+    //addBeanWithProperties(res, cluster, 'swapSpaceSpi', 'org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi',
+    //['baseDirectory', 'readStripesNumber', 'maximumSparsity', 'maxWriteQueueSize', 'writeBufferSize']);
+    //res.emptyLineIfNeeded();
+    
+    if (cluster.swapSpaceSpi) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="swapSpaceSpi">');
+        res.startBlock('<bean class="org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi">');
+
+        addProperty(res, cluster.swapSpaceSpi, 'baseDirectory');
+        addProperty(res, cluster.swapSpaceSpi, 'readStripesNumber');
+        addProperty(res, cluster.swapSpaceSpi, 'maximumSparsity');
+        addProperty(res, cluster.swapSpaceSpi, 'maxWriteQueueSize');
+        addProperty(res, cluster.swapSpaceSpi, 'writeBufferSize');
+
+        res.endBlock('</bean>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+    
+    addBeanWithProperties(res, cluster, 'transactionConfiguration', 'org.apache.ignite.configuration.TransactionConfiguration',
+    ['defaultTxConcurrency', 'transactionIsolation', 'defaultTxTimeout', 'pessimisticTxLogLinger', 
+        'pessimisticTxLogSize', 'txSerializableEnabled']);
+
+    addProperty(res, cluster, 'timeServerPortBase');
+    addProperty(res, cluster, 'timeServerPortRange');
+    res.needEmptyLine = true;
+    addProperty(res, cluster, 'utilityCacheKeepAliveTime');
+    
     res.push('    </bean>\n');
     res.push('</beans>');
 
