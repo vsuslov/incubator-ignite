@@ -37,6 +37,10 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
             {value: 'SharedFs', label: 'shared filesystem'}
         ];
 
+        $scope.swapSpaceSpis = [
+            {value: 'FileSwapSpaceSpi', label: 'File-based swap'}
+        ];
+
         $scope.events = [
             {value: 'EVTS_CHECKPOINT', label: 'EVTS_CHECKPOINT'},
             {value: 'EVTS_DEPLOYMENT', label: 'EVTS_DEPLOYMENT'},

@@ -172,11 +172,13 @@ var ClusterSchema = new Schema({
     clockSyncFrequency: Number,
     deploymentMode: {type: String, enum: ['PRIVATE', 'ISOLATED', 'SHARED', 'CONTINUOUS']},
     discoveryStartupDelay: Number,
+    igfsThreadPoolSize: Number,
     includeEventTypes: [{
         type: String, enum: ['EVTS_CHECKPOINT', 'EVTS_DEPLOYMENT', 'EVTS_ERROR', 'EVTS_DISCOVERY',
             'EVTS_JOB_EXECUTION', 'EVTS_TASK_EXECUTION', 'EVTS_CACHE', 'EVTS_CACHE_REBALANCE', 'EVTS_CACHE_LIFECYCLE',
             'EVTS_CACHE_QUERY', 'EVTS_SWAPSPACE', 'EVTS_IGFS']
     }],
+    managementThreadPoolSize: Number,
     marshalLocalJobs: Boolean,
     marshCacheKeepAliveTime: Number,
     marshCachePoolSize: Number,
@@ -184,22 +186,30 @@ var ClusterSchema = new Schema({
     metricsHistorySize: Number,
     metricsLogFrequency: Number,
     metricsUpdateFrequency: Number,
-    localHost: String,
     networkTimeout: Number,
     networkSendRetryDelay: Number,
     networkSendRetryCount: Number,
-    segmentCheckFrequency: Number,
-    waitForSegmentOnStart: Boolean,
     peerClassLoadingEnabled: Boolean,
     peerClassLoadingLocalClassPathExclude: [String],
     peerClassLoadingMissedResourcesCacheSize: Number,
     peerClassLoadingThreadPoolSize: Number,
+    publicThreadPoolSize: Number,
+    segmentCheckFrequency: Number,
+    segmentationPolicy: {type: String, enum: ['RESTART_JVM', 'STOP', 'NOOP']},
+    allSegmentationResolversPassRequired: Boolean,
+    segmentationResolveAttempts: Number,
+    swapSpaceSpi: {kind: {type: String, enum: ['FileSwapSpaceSpi']},
+        FileSwapSpaceSpi: {
+            baseDirectory: String,
+            readStripesNumber: Number,
+            maximumSparsity: Number,
+            maxWriteQueueSize: Number,
+            writeBufferSize: Number
+        }
+    },
+    systemThreadPoolSize: Number,
     timeServerPortBase: Number,
     timeServerPortRange: Number,
-    publicThreadPoolSize: Number,
-    systemThreadPoolSize: Number,
-    managementThreadPoolSize: Number,
-    igfsThreadPoolSize: Number,
     transactionConfiguration: {
         defaultTxConcurrency: {type: String, enum: ['OPTIMISTIC', 'PESSIMISTIC']},
         transactionIsolation: {type: String, enum: ['READ_COMMITTED', 'REPEATABLE_READ', 'SERIALIZABLE']},
@@ -208,11 +218,9 @@ var ClusterSchema = new Schema({
         pessimisticTxLogSize: Number,
         txSerializableEnabled: Boolean
     },
-    segmentationPolicy: {type: String, enum: ['RESTART_JVM', 'STOP', 'NOOP']},
-    allSegmentationResolversPassRequired: Boolean,
-    segmentationResolveAttempts: Number,
     utilityCacheKeepAliveTime: Number,
-    utilityCachePoolSize: Number
+    utilityCachePoolSize: Number,
+    waitForSegmentOnStart: Boolean
 });
 
 // Define cluster model.
