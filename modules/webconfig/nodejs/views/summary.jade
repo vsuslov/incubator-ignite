@@ -15,12 +15,30 @@
     limitations under the License.
 
 extends layout-sidebar
-block head
+
+append scripts
+    script(src='/javascripts/controllers/summary.js')
+
 block content
     .docs-header
         h1 Summary
         p Configurations summary.
         hr
-    .docs-body(ng-controller='summaryRouter')
-block body
-    script(src='/javascripts/controllers/summary.js')
+    .docs-body(ng-controller='clustersList')
+        div(ng-hide='clusters.length > 0')
+            | No cluster configured. You can&nbsp;
+            a(href='clusters') configure
+            |  it.
+
+        div(ng-hide='clusters.length == 0')
+            p Following cluster configurations are created, you can download its as xml, java code or as docker file
+
+            div(ng-repeat='row in clusters', style='padding-left: 20px') {{row.name}}
+                span.clusterName {{row.name}}
+                |&nbsp;
+                a(href='#') .xml
+                | &nbsp;
+                a(href='#') java code
+                | &nbsp;
+                a(href='#') docker
+
