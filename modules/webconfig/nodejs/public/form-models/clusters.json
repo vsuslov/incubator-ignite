@@ -1,5 +1,5 @@
 {
-  "templateTip" : [
+  "templateTip": [
     "Use following template for add cluster:",
     "<ul>",
     "  <li>blank - Empty configuration.</li>",
@@ -69,8 +69,8 @@
           ]
         },
         "Multicast": {
-            "expanded": false,
-            "fields": [
+          "expanded": false,
+          "fields": [
             {
               "label": "IP address",
               "type": "text",
@@ -386,6 +386,46 @@
       "label": "Marshaller",
       "fields": [
         {
+          "label": "Marshaller",
+          "type": "dropdown-details",
+          "group": "marshaller",
+          "model": "kind",
+          "placeholder": "Choose marshaller",
+          "items": "marshallers",
+          "tip": [
+            "Cache expiration policy."
+          ],
+          "details": {
+            "OptimizedMarshaller": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Streams pool size",
+                  "type": "text",
+                  "model": "poolSize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Specifies size of cached object streams used by marshaller.",
+                    "Object streams are cached for performance reason to avoid costly recreation for every serialization routine.",
+                    "If 0 (default), pool is not used and each thread has its own cached object stream which it keeps reusing.",
+                    "Since each stream has an internal buffer, creating a stream for each thread can lead to high memory consumption if many large messages are marshalled or unmarshalled concurrently.",
+                    "Consider using pool in this case. This will limit number of streams that can be created and, therefore, decrease memory consumption.",
+                    "NOTE: Using streams pool can decrease performance since streams will be shared between different threads which will lead to more frequent context switching."
+                  ]
+                },
+                {
+                  "label": "Require serializable",
+                  "type": "check",
+                  "model": "requireSerializable",
+                  "tip": [
+                    "Whether marshaller should require Serializable interface or not."
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
           "label": "Marshal local jobs",
           "type": "check",
           "model": "marshalLocalJobs",
@@ -397,14 +437,20 @@
         {
           "label": "Keep alive time",
           "type": "text",
-          "model": "marshCacheKeepAliveTime",
-          "placeholder": "10,000"
+          "model": "marshallerCacheKeepAliveTime",
+          "placeholder": "10,000",
+          "tip": [
+            "Keep alive time of thread pool that is in charge of processing marshaller messages."
+          ]
         },
         {
           "label": "Pool size",
           "type": "text",
-          "model": "marshCachePoolSize",
-          "placeholder": "max(8, availableProcessors) * 2"
+          "model": "marshallerCacheThreadPoolSize",
+          "placeholder": "max(8, availableProcessors) * 2",
+          "tip": [
+            "Default size of thread pool that is in charge of processing marshaller messages."
+          ]
         }
       ]
     },

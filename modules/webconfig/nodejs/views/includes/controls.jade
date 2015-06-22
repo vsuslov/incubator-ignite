@@ -102,7 +102,8 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+                    button.form-control(disabled='{{field.items}}.length == 0' bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+            a.customize(ng-click='if (saveItem()) Redirect()') Add cache(s)
         div(ng-switch-when='dropdown-details')
             - var expanded = 'field.details[backupItem[field.group][field.model]].expanded'
 
@@ -111,7 +112,7 @@ mixin form-row
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-model=masterMdl ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-            a.customize(ng-show=masterMdl ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
+            a.customize(ng-show='#{masterMdl} && field.details[#{masterMdl}].fields' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
             .col-sm-6.panel-details(ng-show='#{expanded} && #{masterMdl}')
                 .details-row(ng-repeat='detail in field.details[#{masterMdl}].fields')
                     +details-row

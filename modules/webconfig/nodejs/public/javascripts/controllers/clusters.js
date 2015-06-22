@@ -82,6 +82,11 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
             {value: 'NOOP', label: 'NOOP'}
         ];
 
+        $scope.marshallers = [
+            {value: 'JdkMarshaller', label: 'JdkMarshaller'},
+            {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'}
+        ];
+
         $scope.clusters = [];
 
         $http.get('/form-models/clusters.json')

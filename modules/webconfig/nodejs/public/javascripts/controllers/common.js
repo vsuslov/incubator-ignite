@@ -42,6 +42,9 @@ configuratorModule.service('commonFunctions', function() {
            a[ix2] = tmp;
        },
        joinTip: function(arr) {
+           if (!arr)
+            return arr;
+
            var lines = arr.map(function(line) {
                var rtrimmed = line.replace(/\s+$/g, '');
 
