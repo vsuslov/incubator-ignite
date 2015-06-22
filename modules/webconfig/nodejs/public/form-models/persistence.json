@@ -1,0 +1,14 @@
+{
+  "general": [
+    {
+      "label": "Database",
+      "type": "dropdown",
+      "model": "db",
+      "placeholder": "Choose database",
+      "items": "databases",
+      "tip": [
+        "Select database to connect and generate cache type metadata"
+      ]
+    }
+  ]
+}

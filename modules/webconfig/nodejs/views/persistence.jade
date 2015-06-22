@@ -15,12 +15,25 @@
     limitations under the License.
 
 extends layout-sidebar
-block head
+
+append scripts
+    script(src='/javascripts/controllers/persistence.js')
+
+include includes/controls
+
 block content
     .docs-header
         h1 Persistence
         p Create and configure Ignite persistence.
         hr
-    .docs-body(ng-controller='persistentRouter')
-block body
-    script(src='/javascripts/controllers/persistent.js')
+    .docs-body(ng-controller='persistenceController')
+        form.form-horizontal(name='persistenceForm')
+            div(bs-collapse data-start-collapsed='false')
+                .panel.panel-default
+                    .panel-heading
+                        h3
+                            a(bs-collapse-toggle) General
+                    .panel-collapse(bs-collapse-target)
+                        .panel-body
+                            .settings-row(ng-repeat='field in general')
+                                +form-row

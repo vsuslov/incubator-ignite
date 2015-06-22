@@ -603,7 +603,8 @@
                   "model": "writeBufferSize",
                   "placeholder": "Available CPU cores",
                   "tip": [
-                    "Write buffer size in bytes.", "Write to disk occurs only when this buffer is full."
+                    "Write buffer size in bytes.",
+                    "Write to disk occurs only when this buffer is full."
                   ]
                 }
               ]
