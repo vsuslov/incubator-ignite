@@ -317,6 +317,56 @@
       "label": "Store",
       "fields": [
         {
+          "label": "Store factory",
+          "type": "dropdown-details",
+          "group": "cacheStoreFactory",
+          "model": "kind",
+          "placeholder": "Choose store factory",
+          "items": "cacheStoreFactories",
+          "tip": [
+            "Factory for persistent storage for cache data."
+          ],
+          "details": {
+            "CacheJdbcPojoStoreFactory": {
+              "expanded": true,
+              "fields": [
+                {
+                  "label": "Data source bean",
+                  "type": "text",
+                  "model": "dataSourceBean",
+                  "required": true,
+                  "placeholder": "Data surce bean"
+                },
+                {
+                  "label": "Dialect",
+                  "type": "dropdown",
+                  "model": "dialect",
+                  "placeholder": "Choose JDBC dialect",
+                  "items": "dialects",
+                  "tip": [
+                    "Dialect of SQL implemented by a particular RDBMS:",
+                    "<ul>",
+                    "  <li>Generic JDBC dialect.</li>",
+                    "  <li>Oracle.</li>",
+                    "  <li>IBM DB2.</li>",
+                    "  <li>My SQL.</li>",
+                    "  <li>H2 database.</li>",
+                    "</ul>"
+                  ]
+                }
+              ]
+            },
+            "CacheJdbcBlobStoreFactory": {
+              "expanded": true,
+              "fields": []
+            },
+            "CacheHibernateBlobStoreFactory": {
+              "expanded": true,
+              "fields": []
+            }
+          }
+        },
+        {
           "label": "Read-through",
           "type": "check",
           "model": "readThrough",

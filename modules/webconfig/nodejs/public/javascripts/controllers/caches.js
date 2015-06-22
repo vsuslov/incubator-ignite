@@ -57,6 +57,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             {value: 'NONE', label: 'NONE'}
         ];
 
+        $scope.cacheStoreFactories = [
+            {value: 'CacheJdbcPojoStoreFactory', label: 'JDBC POJO store factory'},
+            {value: 'CacheJdbcBlobStoreFactory', label: 'JDBC BLOB store factory'},
+            {value: 'CacheHibernateBlobStoreFactory', label: 'Hibernate BLOB store factory'}
+        ];
+
         $scope.general = [];
         $scope.advanced = [];
 
