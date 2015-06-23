@@ -94,7 +94,11 @@ exports.builder = function () {
             this.line();
 
             this.needEmptyLine = false;
+            
+            return true;
         }
+
+        return false;
     };
 
     return res;

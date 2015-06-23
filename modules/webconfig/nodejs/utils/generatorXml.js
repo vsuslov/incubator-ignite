@@ -135,83 +135,89 @@ exports.generate = function(cluster) {
         res.needEmptyLine = true
     }
 
-    addBeanWithProperties(res, cluster, 'atomicConfiguration', 'org.apache.ignite.configuration.AtomicConfiguration',
-        ['backups', 'cacheMode', 'atomicSequenceReserveSize']);
+    addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration', 
+        'org.apache.ignite.configuration.AtomicConfiguration', ['backups', 'cacheMode', 'atomicSequenceReserveSize']);
     res.needEmptyLine = true;
 
-    addProperty(res, cluster, 'clockSyncSamples');
-    addProperty(res, cluster, 'clockSyncFrequency');
+    addProperty(res, cluster, 'networkTimeout');
+    addProperty(res, cluster, 'networkSendRetryDelay');
+    addProperty(res, cluster, 'networkSendRetryCount');
+    addProperty(res, cluster, 'segmentCheckFrequency');
+    addProperty(res, cluster, 'waitForSegmentOnStart');
+    addProperty(res, cluster, 'discoveryStartupDelay');
+    
     res.needEmptyLine = true;
+    
+    addProperty(res, cluster, 'deploymentMode');
+
+    res.needEmptyLine = true;
+
     addListProperty(res, cluster, 'includeEventTypes');
+
     res.needEmptyLine = true;
-    addProperty(res, cluster, 'igfsThreadPoolSize');
-    addProperty(res, cluster, 'publicThreadPoolSize');
-    addProperty(res, cluster, 'systemThreadPoolSize');
-    addProperty(res, cluster, 'utilityCachePoolSize');
-    addProperty(res, cluster, 'managementThreadPoolSize');
-    res.needEmptyLine = true;
+
     addProperty(res, cluster, 'marshalLocalJobs');
-    res.needEmptyLine = true;
     addProperty(res, cluster, 'marshCacheKeepAliveTime');
     addProperty(res, cluster, 'marshCachePoolSize');
+
     res.needEmptyLine = true;
-    addProperty(res, cluster, 'cacheSanityCheckEnabled');
-    res.needEmptyLine = true;
+
     addProperty(res, cluster, 'metricsExpireTime');
     addProperty(res, cluster, 'metricsHistorySize');
     addProperty(res, cluster, 'metricsLogFrequency');
     addProperty(res, cluster, 'metricsUpdateFrequency');
+
     res.needEmptyLine = true;
-    addProperty(res, cluster, 'networkTimeout');
-    addProperty(res, cluster, 'networkSendRetryDelay');
-    addProperty(res, cluster, 'networkSendRetryCount');
-    addProperty(res, cluster, 'discoveryStartupDelay');
-    res.needEmptyLine = true;
-    addProperty(res, cluster, 'deploymentMode');
-    res.needEmptyLine = true;
+
     addProperty(res, cluster, 'peerClassLoadingEnabled');
     addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
     addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
     addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
+    
     res.needEmptyLine = true;
-    addProperty(res, cluster, 'segmentCheckFrequency');
+
+    addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
+        'org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', ['baseDirectory', 'readStripesNumber',
+            'maximumSparsity', 'maxWriteQueueSize', 'writeBufferSize'], true);
+
+    res.needEmptyLine = true;
+    
+    addProperty(res, cluster, 'clockSyncSamples');
+    addProperty(res, cluster, 'clockSyncFrequency');
+    addProperty(res, cluster, 'timeServerPortBase');
+    addProperty(res, cluster, 'timeServerPortRange');
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cluster, 'publicThreadPoolSize');
+    addProperty(res, cluster, 'systemThreadPoolSize');
+    addProperty(res, cluster, 'managementThreadPoolSize');
+    addProperty(res, cluster, 'igfsThreadPoolSize');
+
+    res.needEmptyLine = true;
+    
+    addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
+        'org.apache.ignite.configuration.TransactionConfiguration', ['defaultTxConcurrency', 'transactionIsolation',
+            'defaultTxTimeout', 'pessimisticTxLogLinger',
+            'pessimisticTxLogSize', 'txSerializableEnabled']);
+
+
+    res.needEmptyLine = true;
+
     addProperty(res, cluster, 'segmentationPolicy');
     addProperty(res, cluster, 'allSegmentationResolversPassRequired');
     addProperty(res, cluster, 'segmentationResolveAttempts');
-    addProperty(res, cluster, 'waitForSegmentOnStart');
+    
     res.needEmptyLine = true;
 
-    //addBeanWithProperties(res, cluster, 'swapSpaceSpi', 'org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi',
-    //['baseDirectory', 'readStripesNumber', 'maximumSparsity', 'maxWriteQueueSize', 'writeBufferSize']);
-    //res.emptyLineIfNeeded();
+    addProperty(res, cluster, 'cacheSanityCheckEnabled');
+    
+    res.needEmptyLine = true;
 
-    if (cluster.swapSpaceSpi) {
-        res.emptyLineIfNeeded();
-
-        res.startBlock('<property name="swapSpaceSpi">');
-        res.startBlock('<bean class="org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi">');
-
-        addProperty(res, cluster.swapSpaceSpi, 'baseDirectory');
-        addProperty(res, cluster.swapSpaceSpi, 'readStripesNumber');
-        addProperty(res, cluster.swapSpaceSpi, 'maximumSparsity');
-        addProperty(res, cluster.swapSpaceSpi, 'maxWriteQueueSize');
-        addProperty(res, cluster.swapSpaceSpi, 'writeBufferSize');
-
-        res.endBlock('</bean>');
-        res.endBlock('</property>');
-
-        res.needEmptyLine = true;
-    }
-
-    addBeanWithProperties(res, cluster, 'transactionConfiguration', 'org.apache.ignite.configuration.TransactionConfiguration',
-        ['defaultTxConcurrency', 'transactionIsolation', 'defaultTxTimeout', 'pessimisticTxLogLinger',
-            'pessimisticTxLogSize', 'txSerializableEnabled']);
-
-    addProperty(res, cluster, 'timeServerPortBase');
-    addProperty(res, cluster, 'timeServerPortRange');
     res.needEmptyLine = true;
     addProperty(res, cluster, 'utilityCacheKeepAliveTime');
-
+    addProperty(res, cluster, 'utilityCachePoolSize');
+    
     res.push('    </bean>\n');
     res.push('</beans>');
 
@@ -229,36 +235,35 @@ function addProperty(res, obj, propName) {
     }
 }
 
-function addBeanWithProperties(res, obj, beanPropName, beanClass, props) {
-    var bean = obj[beanPropName];
+function addBeanWithProperties(res, bean, beanPropName, beanClass, props, alwaysCreateBean) {
+    if (!bean)
+        return;
 
-    if (bean) {
-        var hasProp = false;
-
-        for (var i = 0; i < props.length; i++) {
-            if (bean[props[i]]) {
-                hasProp = true;
-
-                break;
-            }
-        }
-
-        if (hasProp) {
-            res.emptyLineIfNeeded();
-
-            res.startBlock('<property name="' + beanPropName + '">');
-            res.startBlock('<bean class="' + beanClass + '">');
-
-            for (i = 0; i < props.length; i++) {
-                addProperty(res, bean, props[i]);
-            }
-
-            res.endBlock('</bean>');
-            res.endBlock('</property>');
+    var hasProp = false;
+    for (var i = 0; i < props.length; i++) {
+        if (bean[props[i]]) {
+            hasProp = true;
+            break;
         }
     }
+    
+    if (hasProp) {
+        res.emptyLineIfNeeded();
+        res.startBlock('<property name="' + beanPropName + '">');
+        res.startBlock('<bean class="' + beanClass + '">');
+        for (i = 0; i < props.length; i++) {
+            addProperty(res, bean, props[i]);
+        }
+        res.endBlock('</bean>');
+        res.endBlock('</property>');
+    }
+    else if (alwaysCreateBean) {
+        res.emptyLineIfNeeded();
+        res.line('<property name="' + beanPropName + '">');
+        res.line('    <bean class="' + beanClass + '"/>');
+        res.line('</property>');
+    }
 }
-
 function addListProperty(res, obj, propName) {
     var val = obj[propName];
 
