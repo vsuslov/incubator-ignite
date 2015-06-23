@@ -108,10 +108,10 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                 $scope.spaces = data.spaces;
                 $scope.clusters = data.clusters;
 
-                $scope.backupItem = angular.fromJson(sessionStorage.backupItem);
+                $scope.backupItem = angular.fromJson(sessionStorage.clusterBackupItem);
 
                 $scope.$watch('backupItem', function (val) {
-                    sessionStorage.backupItem = angular.toJson(val);
+                    sessionStorage.clusterBackupItem = angular.toJson(val);
                 }, true);
             });
 

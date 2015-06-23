@@ -89,10 +89,10 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
 
-                $scope.backupItem = angular.fromJson(sessionStorage.backupItem);
+                $scope.backupItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
                 $scope.$watch('backupItem', function (val) {
-                    sessionStorage.backupItem = angular.toJson(val);
+                    sessionStorage.cacheBackupItem = angular.toJson(val);
                 }, true);
             });
 
