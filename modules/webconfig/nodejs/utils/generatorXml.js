@@ -57,14 +57,14 @@ exports.generate = function(cluster) {
 
             case 'Vm':
                 if (d.Vm.addresses.length > 0) {
-                    res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">');
+                    res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">');
 
                     addListProperty(res, d.Vm, 'addresses');
 
                     res.endBlock('</bean>');
                 }
                 else {
-                    res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder"/>');
+                    res.line('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder"/>');
                 }
 
                 break;
