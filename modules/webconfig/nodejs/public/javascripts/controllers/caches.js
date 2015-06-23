@@ -79,6 +79,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
+
+                $scope.backupItem = angular.fromJson(sessionStorage.backupItem);
+
+                $scope.$watch('backupItem', function (val) {
+                    sessionStorage.backupItem = angular.toJson(val);
+                }, true);
             });
 
         $scope.selectItem = function (item) {
