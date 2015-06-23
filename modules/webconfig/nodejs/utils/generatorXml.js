@@ -113,7 +113,7 @@ exports.generate = function(cluster) {
                 break;
 
             case 'SharedFs':
-                if (d.SharedFs.path != null) {
+                if (d.SharedFs.path) {
                     res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder">');
                     addProperty(res, d.SharedFs, 'path');
                     res.endBlock('</bean>');
