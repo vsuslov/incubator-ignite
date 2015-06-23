@@ -17,7 +17,7 @@
 
 var generatorUtils = require("./generatorUtils");
 
-exports.generate = function(cluster) {
+exports.generateClusterConfiguration = function(cluster) {
     var res = generatorUtils.builder();
 
     res.push('' +
@@ -223,7 +223,6 @@ exports.generate = function(cluster) {
 
     return res.join('');
 };
-
 
 function addProperty(res, obj, propName) {
     var val = obj[propName];

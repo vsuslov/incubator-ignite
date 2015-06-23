@@ -51,11 +51,11 @@ router.get('/', function(req, res) {
 
             switch (lang) {
                 case 'xml':
-                    res.send(generatorXml.generate(cluster));
+                    res.send(generatorXml.generateClusterConfiguration(cluster));
                     break;
 
                 case 'java':
-                    res.send(generatorJava.generate(cluster));
+                    res.send(generatorJava.generateClusterConfiguration(cluster));
                     break;
 
                 default:
