@@ -57,6 +57,21 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             {value: 'NONE', label: 'NONE'}
         ];
 
+        $scope.cacheStoreFactories = [
+            {value: 'CacheJdbcPojoStoreFactory', label: 'JDBC POJO store factory'},
+            {value: 'CacheJdbcBlobStoreFactory', label: 'JDBC BLOB store factory'},
+            {value: 'CacheHibernateBlobStoreFactory', label: 'Hibernate BLOB store factory'}
+        ];
+
+        $scope.cacheStoreJdbcDialects = [
+            {value: 'BasicJdbcDialect', label: 'Generic JDBC dialect'},
+            {value: 'OracleDialect', label: 'Oracle'},
+            {value: 'DB2Dialect', label: 'IBM DB2'},
+            {value: 'SQLServerDialect', label: 'Microsoft SQL Server'},
+            {value: 'MySQLDialect', label: 'My SQL'},
+            {value: 'H2Dialect', label: 'H2 database'}
+        ];
+
         $scope.general = [];
         $scope.advanced = [];
 
@@ -73,6 +88,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
+
+                $scope.backupItem = angular.fromJson(sessionStorage.cacheBackupItem);
+
+                $scope.$watch('backupItem', function (val) {
+                    sessionStorage.cacheBackupItem = angular.toJson(val);
+                }, true);
             });
 
         $scope.selectItem = function (item) {

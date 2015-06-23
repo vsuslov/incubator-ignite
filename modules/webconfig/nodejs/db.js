@@ -89,6 +89,23 @@ var CacheSchema = new Schema({
     rebalanceTimeout: Number,
     rebalanceThrottle: Number,
 
+    store: {
+        kind: {type: String, enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']},
+        CacheJdbcPojoStoreFactory: {
+            dataSourceBean: String,
+            dialect: {type: String, enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']}
+        },
+        CacheJdbcBlobStoreFactory: {
+            multicastGroup: String,
+            multicastPort: Number,
+            responseWaitTime: Number,
+            addressRequestAttempts: Number,
+            localAddress: String
+        },
+        CacheHibernateBlobStoreFactory: {
+            hibernateProperties: [String]
+        }
+    },
     readThrough: Boolean,
     writeThrough: Boolean,
 
@@ -179,9 +196,15 @@ var ClusterSchema = new Schema({
             'EVTS_CACHE_QUERY', 'EVTS_SWAPSPACE', 'EVTS_IGFS']
     }],
     managementThreadPoolSize: Number,
+    marshaller: {kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
+        OptimizedMarshaller: {
+            poolSize: Number,
+            requireSerializable: Boolean
+        }
+    },
     marshalLocalJobs: Boolean,
-    marshCacheKeepAliveTime: Number,
-    marshCachePoolSize: Number,
+    marshallerCacheKeepAliveTime: Number,
+    marshallerCacheThreadPoolSize: Number,
     metricsExpireTime: Number,
     metricsHistorySize: Number,
     metricsLogFrequency: Number,

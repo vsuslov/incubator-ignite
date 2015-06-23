@@ -38,7 +38,7 @@ block content
         button.btn.btn-default(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose cluster template' bs-options='item.value as item.label for item in templates' bs-select)
         i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
-        form.form-horizontal(name='clustersForm' ng-if='backupItem')
+        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     .panel-heading
