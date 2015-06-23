@@ -64,8 +64,8 @@ configuratorModule.config(function($tooltipProvider) {
         container: 'body',
         placement: 'right',
         html: 'true',
-        trigger: 'click hover',
-        delay: { hide: 600 }
+        trigger: 'click hover'
+        //,delay: { hide: 600 }
     });
 });
 

@@ -851,7 +851,7 @@ label {
 }
 
 .fa-remove {
-  color: red;
+  color: #ec1c24;
   margin-left: 5px;
   margin-right: 5px;
   cursor: pointer;
@@ -932,4 +932,29 @@ label.required:after {
 #cfgResult textarea {
   font-family: monospace;
   font-size: 12px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input.ng-dirty.ng-invalid {
+  border-color: #ec1c24;
+
+  :focus {
+    border-color: #ec1c24;
+  }
+}
+
+.form-control-feedback {
+  display: inline-block;
+  color: #ec1c24;
+  right: 18px;
+  line-height: @input-height;
+  pointer-events: initial;
 }

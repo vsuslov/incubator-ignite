@@ -38,7 +38,16 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(type='text' style='' ng-model=detailMdl placeholder='{{detail.placeholder}}')
+                    input.form-control(type='text' ng-model=detailMdl placeholder='{{detail.placeholder}}')
+        div(ng-switch-when='number' )
+            label(class=lblDetailClasses) {{detail.label}}:
+            .col-sm-8
+                +tipField('detail.tip')
+                .input-tip
+                    input.form-control(name='{{detail.model}}' type='number' ng-model=detailMdl min='{{detail.min ? detail.min : 0}}' placeholder='{{detail.placeholder}}')
+                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.min' bs-tooltip data-title='Min' type='button')
+                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.min' bs-tooltip data-title='Min' type='button')
+                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.number' bs-tooltip data-title='Invalid value' type='button')
         div(ng-switch-when='dropdown')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
@@ -90,6 +99,13 @@ mixin form-row
                 .input-tip
                     input.form-control(type='text' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
                     input.form-control(type='text' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
+        div(ng-switch-when='number')
+            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+            .col-sm-4
+                +tipField('field.tip')
+                .input-tip
+                    input.form-control(type='number' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    input.form-control(type='number' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
         div(ng-switch-when='dropdown')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
@@ -102,8 +118,8 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(disabled='{{field.items}}.length == 0' bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-            a.customize(ng-click='if (saveItem()) Redirect()') Add cache(s)
+                    button.form-control(ng-disabled='{{field.items}}.length == 0' bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+            a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
         div(ng-switch-when='dropdown-details')
             - var expanded = 'field.details[backupItem[field.group][field.model]].expanded'
 

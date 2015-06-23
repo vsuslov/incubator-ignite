@@ -23,7 +23,11 @@
       "items": "caches",
       "tip": [
         "Select caches to start in cluster."
-      ]
+      ],
+      "addLink": {
+        "label": "Add cache(s)",
+        "ref": "/caches"
+      }
     },
     {
       "label": "Discovery",
@@ -82,7 +86,7 @@
             },
             {
               "label": "Port number",
-              "type": "text",
+              "type": "number",
               "model": "multicastPort",
               "placeholder": "47400",
               "tip": [
@@ -90,8 +94,8 @@
               ]
             },
             {
-              "label": "Waits for reply ",
-              "type": "text",
+              "label": "Waits for reply",
+              "type": "number",
               "model": "responseWaitTime",
               "placeholder": "500",
               "tip": [
@@ -100,7 +104,7 @@
             },
             {
               "label": "Attempts count",
-              "type": "text",
+              "type": "number",
               "model": "addressRequestAttempts",
               "placeholder": "2",
               "tip": [
@@ -253,7 +257,7 @@
       "fields": [
         {
           "label": "Backups",
-          "type": "text",
+          "type": "number",
           "model": "backups",
           "placeholder": "0",
           "tip": [
@@ -393,7 +397,7 @@
           "placeholder": "Choose marshaller",
           "items": "marshallers",
           "tip": [
-            "Cache expiration policy."
+            "Instance of marshaller to use in grid. If not provided, OptimizedMarshaller will be used on Java HotSpot VM, and JdkMarshaller} will be used on other VMs."
           ],
           "details": {
             "OptimizedMarshaller": {

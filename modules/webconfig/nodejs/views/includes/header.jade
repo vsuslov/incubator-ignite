@@ -21,7 +21,7 @@ header.header(id='header')
         .navbar-collapse.collapse(ng-controller='auth')
             ul.nav.navbar-nav(ng-controller='activeLink')
                 li
-                    a(ng-class="{active: isActive('/clusters')}" href='/clusters') Configure
+                    a(ng-class="{active: isActive('/clusters')}" href='/clusters') Configuration
                 li
                     a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
             ul.nav.navbar-nav.pull-right(ng-init='user = #{JSON.stringify(user)}')

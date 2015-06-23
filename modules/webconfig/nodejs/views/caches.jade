@@ -35,7 +35,7 @@ block content
                             a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}, {{row.atomicityMode | displayValue:atomicities:'Cache atomicity not set'}}
         button.btn.btn-primary(ng-click='createItem()') Add cache
         hr
-        form.form-horizontal(name='cachesForm' ng-if='backupItem')
+        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     .panel-heading
