@@ -405,7 +405,7 @@
               "fields": [
                 {
                   "label": "Streams pool size",
-                  "type": "text",
+                  "type": "number",
                   "model": "poolSize",
                   "placeholder": "0",
                   "tip": [

@@ -179,9 +179,15 @@ var ClusterSchema = new Schema({
             'EVTS_CACHE_QUERY', 'EVTS_SWAPSPACE', 'EVTS_IGFS']
     }],
     managementThreadPoolSize: Number,
+    marshaller: {kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
+        OptimizedMarshaller: {
+            poolSize: Number,
+            requireSerializable: Boolean
+        }
+    },
     marshalLocalJobs: Boolean,
-    marshCacheKeepAliveTime: Number,
-    marshCachePoolSize: Number,
+    marshallerCacheKeepAliveTime: Number,
+    marshallerCacheThreadPoolSize: Number,
     metricsExpireTime: Number,
     metricsHistorySize: Number,
     metricsLogFrequency: Number,
