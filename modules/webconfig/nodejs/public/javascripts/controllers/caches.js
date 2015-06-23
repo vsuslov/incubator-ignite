@@ -63,6 +63,15 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             {value: 'CacheHibernateBlobStoreFactory', label: 'Hibernate BLOB store factory'}
         ];
 
+        $scope.cacheStoreJdbcDialects = [
+            {value: 'BasicJdbcDialect', label: 'Generic JDBC dialect'},
+            {value: 'OracleDialect', label: 'Oracle'},
+            {value: 'DB2Dialect', label: 'IBM DB2'},
+            {value: 'SQLServerDialect', label: 'Microsoft SQL Server'},
+            {value: 'MySQLDialect', label: 'My SQL'},
+            {value: 'H2Dialect', label: 'H2 database'}
+        ];
+
         $scope.general = [];
         $scope.advanced = [];
 

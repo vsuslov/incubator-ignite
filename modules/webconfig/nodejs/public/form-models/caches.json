@@ -335,20 +335,24 @@
                   "type": "text",
                   "model": "dataSourceBean",
                   "required": true,
-                  "placeholder": "Data surce bean"
+                  "placeholder": "Bean name in Spring context",
+                  "tip": [
+                    "Name of the data source bean in Spring context."
+                  ]
                 },
                 {
                   "label": "Dialect",
                   "type": "dropdown",
                   "model": "dialect",
                   "placeholder": "Choose JDBC dialect",
-                  "items": "dialects",
+                  "items": "cacheStoreJdbcDialects",
                   "tip": [
                     "Dialect of SQL implemented by a particular RDBMS:",
                     "<ul>",
                     "  <li>Generic JDBC dialect.</li>",
-                    "  <li>Oracle.</li>",
+                    "  <li>Oracle database.</li>",
                     "  <li>IBM DB2.</li>",
+                    "  <li>Microsoft SQL Server.</li>",
                     "  <li>My SQL.</li>",
                     "  <li>H2 database.</li>",
                     "</ul>"
@@ -358,7 +362,33 @@
             },
             "CacheJdbcBlobStoreFactory": {
               "expanded": true,
-              "fields": []
+              "fields": [
+                {
+                  "label": "user",
+                  "type": "text",
+                  "model": "user",
+                  "tip": [
+                    "User name for database access."
+                  ]
+                },
+                {
+                  "label": "Data source bean",
+                  "type": "text",
+                  "model": "dataSourceBean",
+                  "placeholder": "Bean name in Spring context",
+                  "tip": [
+                    "Name of the data source bean in Spring context."
+                  ]
+                },
+                {
+                  "label": "Init schema",
+                  "type": "check",
+                  "model": "initSchema",
+                  "tip": [
+                    "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
+                  ]
+                }
+              ]
             },
             "CacheHibernateBlobStoreFactory": {
               "expanded": true,
