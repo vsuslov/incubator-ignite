@@ -89,6 +89,23 @@ var CacheSchema = new Schema({
     rebalanceTimeout: Number,
     rebalanceThrottle: Number,
 
+    store: {
+        kind: {type: String, enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']},
+        CacheJdbcPojoStoreFactory: {
+            dataSourceBean: String,
+            dialect: {type: String, enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']}
+        },
+        CacheJdbcBlobStoreFactory: {
+            multicastGroup: String,
+            multicastPort: Number,
+            responseWaitTime: Number,
+            addressRequestAttempts: Number,
+            localAddress: String
+        },
+        CacheHibernateBlobStoreFactory: {
+            hibernateProperties: [String]
+        }
+    },
     readThrough: Boolean,
     writeThrough: Boolean,
 

@@ -387,12 +387,75 @@
                   "tip": [
                     "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
                   ]
+                },
+                {
+                  "label": "Create query",
+                  "type": "text",
+                  "model": "ñreateTableQuery",
+                  "placeholder": "create table if not exists ENTRIES (key binary primary key, val binary)",
+                  "tip": [
+                    "Default query for table creation in underlying database.",
+                    "create table if not exists ENTRIES (key binary primary key, val binary)"
+                  ]
+                },
+                {
+                  "label": "Load query",
+                  "type": "text",
+                  "model": "loadQuery",
+                  "placeholder": "select * from ENTRIES where key=?",
+                  "tip": [
+                    "Default load entry query from underlying database.",
+                    "select * from ENTRIES where key=?"
+                  ]
+                },
+                {
+                  "label": "insert query",
+                  "type": "text",
+                  "model": "insertQuery",
+                  "placeholder": "insert into ENTRIES (key, val) values (?, ?)",
+                  "tip": [
+                    "Default insert entry query to underlying database.",
+                    "insert into ENTRIES (key, val) values (?, ?)"
+                  ]
+                },
+                {
+                  "label": "Update query",
+                  "type": "text",
+                  "model": "updateQuery",
+                  "placeholder": "update ENTRIES set val=? where key=?",
+                  "tip": [
+                    "Default update entry query to underlying database.",
+                    "update ENTRIES set val=? where key=?"
+                  ]
+                },
+                {
+                  "label": "Delete query",
+                  "type": "text",
+                  "model": "deleteQuery",
+                  "placeholder": "delete from ENTRIES where key=?",
+                  "tip": [
+                    "Default delete entry query to underlying database.",
+                    "delete from ENTRIES where key=?"
+                  ]
                 }
               ]
             },
             "CacheHibernateBlobStoreFactory": {
               "expanded": true,
-              "fields": []
+              "fields": [
+                {
+                  "tableLabel": "Hibernate properties",
+                  "label": "Hibernate property",
+                  "type": "table-simple",
+                  "model": "hibernateProperties",
+                  "editIdx": -1,
+                  "placeholder": "key=value",
+                  "tip": [
+                    "List of Hibernate properties.",
+                    "For example: connection.url=jdbc:h2:mem:"
+                  ]
+                }
+              ]
             }
           }
         },
