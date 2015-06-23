@@ -202,12 +202,159 @@ exports.generateClusterConfiguration = function(cluster) {
     return res.join('');
 };
 
+var evictionPolicies = {
+    'LRU': {shortClassName: 'LruEvictionPolicy', fields: {batchSize: null, maxMemorySize: null}},
+    'RND': {shortClassName: 'RandomEvictionPolicy', fields: {batchSize: null}},
+    'FIFO': {shortClassName: 'FifoEvictionPolicy', fields: {batchSize: null}},
+    'SORTED': {shortClassName: 'SortedEvictionPolicy', fields: {batchSize: null}}
+};
+
+exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+    if (!res)
+        res = generatorUtils.builder();
+    
+    res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
+    
+    res.needEmptyLine = true;
+
+    if (cacheCfg.mode) {
+        res.emptyLineIfNeeded();
+
+        res.line(varName + '.setCacheMode(CacheMode.' + cacheCfg.mode  + ');');
+    }
+
+    addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');
+    addProperty(res, cacheCfg, varName, 'backups');
+    
+    res.needEmptyLine = true;
+    
+    addProperty(res, cacheCfg, varName, 'memoryMode', 'CacheMemoryMode');
+    addProperty(res, cacheCfg, varName, 'offHeapMaxMemory');
+    addProperty(res, cacheCfg, varName, 'swapEnabled');
+
+    res.needEmptyLine = true;
+    
+    if (cacheCfg.evictionPolicy) {
+        var e = evictionPolicies[cacheCfg.evictionPolicy.kind];
+
+        addBeanWithProperties(res, cacheCfg.evictionPolicy[cacheCfg.evictionPolicy.kind.toUpperCase()], varName, 
+            'evictionPolicy', 'evictionPolicy', e.shortClassName, e.fields, true);
+    }
+
+    res.needEmptyLine = true;
+    
+    addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
+        'NearCacheConfiguration', {nearStartSize: null, atomicSequenceReserveSize: null}, true);
+    
+    if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy) {
+        res.line('nearConfiguration.setNearEvictionPolicy(new ' 
+            + evictionPolicies[cacheCfg.nearConfiguration.nearEvictionPolicy].shortClassName + '());');
+    }
+
+    res.needEmptyLine = true;
+    
+    addProperty(res, cacheCfg, varName, 'sqlEscapeAll');
+    addProperty(res, cacheCfg, varName, 'sqlOnheapRowCacheSize');
+    addProperty(res, cacheCfg, varName, 'longQueryWarningTimeout');
+    
+    if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
+        res.emptyLineIfNeeded();
+        
+        res.append(varName + '.setIndexedTypes(');
+        
+        for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
+            if (i > 0)
+                res.append(', ');
+
+            var pair = cacheCfg.indexedTypes[i];
+            
+            res.append(toJavaCode(pair.keyClass, 'class')).append(', ').append(toJavaCode(pair.valueClass, 'class'))
+        }
+        
+        res.line(');');
+    }
+
+    addMultiparamProperty(res, cacheCfg, varName, 'sqlFunctionClasses', 'class');
+    
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, varName, 'rebalanceMode', 'CacheRebalanceMode');
+    addProperty(res, cacheCfg, varName, 'rebalanceThreadPoolSize');
+    addProperty(res, cacheCfg, varName, 'rebalanceBatchSize');
+    addProperty(res, cacheCfg, varName, 'rebalanceOrder');
+    addProperty(res, cacheCfg, varName, 'rebalanceDelay');
+    addProperty(res, cacheCfg, varName, 'rebalanceTimeout');
+    addProperty(res, cacheCfg, varName, 'rebalanceThrottle');
+
+    res.needEmptyLine = true;
+    
+    if (cacheCfg.store) {
+        switch (cacheCfg.store.kind) {
+            case 'CacheJdbcPojoStoreFactory':
+                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
+                    'cacheStoreFactory', 'CacheJdbcPojoStoreFactory', {
+                        dataSourceBean: null,
+                        dialect: null
+                    }, true);
+        
+                break;
+
+            case 'CacheJdbcBlobStoreFactory':
+                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
+                    'cacheStoreFactory', 'CacheJdbcBlobStoreFactory', {
+                        multicastGroup: null,
+                        multicastPort: null,
+                        responseWaitTime: null,
+                        addressRequestAttempts: null,
+                        localAddress: null
+                    }, true);
+        
+                break;
+            
+            case 'CacheHibernateBlobStoreFactory':
+                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
+                    'cacheStoreFactory', 'CacheHibernateBlobStoreFactory', {
+                        hibernateProperties: 'list'
+                    }, true);
+        
+                break;
+        }
+    }
+
+    res.needEmptyLine = true;
+    
+    addProperty(res, cacheCfg, varName, 'invalidate');
+    addProperty(res, cacheCfg, varName, 'defaultLockTimeout');
+    addProperty(res, cacheCfg, varName, 'transactionManagerLookupClassName');
+    
+    res.needEmptyLine = true;
+    
+    addProperty(res, cacheCfg, varName, 'writeBehindEnabled');
+    addProperty(res, cacheCfg, varName, 'writeBehindBatchSize');
+    addProperty(res, cacheCfg, varName, 'writeBehindFlushSize');
+    addProperty(res, cacheCfg, varName, 'writeBehindFlushFrequency');
+    addProperty(res, cacheCfg, varName, 'writeBehindFlushThreadCount');
+    
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, varName, 'statisticsEnabled');
+    addProperty(res, cacheCfg, varName, 'managementEnabled');
+    addProperty(res, cacheCfg, varName, 'readFromBackup');
+    addProperty(res, cacheCfg, varName, 'copyOnRead');
+    addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
+    
+    return res;
+};
+
 function toJavaCode(val, type) {
     if (val == null)
        return 'null';
 
     if (type == 'f')
         return val + 'f';
+    
+    if (type == 'class')
+        return val + '.class';
     
     if (type)
         return type + '.' + val;
@@ -254,7 +401,7 @@ function addListProperty(res, obj, objVariableName, propName, enumType) {
     }
 }
 
-function addMultiparamProperty(res, obj, objVariableName, propName, enumType) {
+function addMultiparamProperty(res, obj, objVariableName, propName, type) {
     var val = obj[propName];
     
     if (val && val.length > 0) {
@@ -266,7 +413,7 @@ function addMultiparamProperty(res, obj, objVariableName, propName, enumType) {
             if (i > 0)
                 res.append(', ');
             
-            res.append(toJavaCode(val[i], enumType));
+            res.append(toJavaCode(val[i], type));
         }
         
         res.line(');');

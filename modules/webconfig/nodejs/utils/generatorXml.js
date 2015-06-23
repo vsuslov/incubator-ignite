@@ -224,6 +224,15 @@ exports.generateClusterConfiguration = function(cluster) {
     return res.join('');
 };
 
+exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+    if (!res)
+        res = generatorUtils.builder();
+
+    res.line('cache');
+    
+    return res;
+}
+
 function addProperty(res, obj, propName) {
     var val = obj[propName];
 
