@@ -40,6 +40,7 @@ import java.net.*;
 import java.util.*;
 import java.util.Queue;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import static org.apache.ignite.internal.processors.hadoop.HadoopUtils.*;
 import static org.apache.ignite.internal.processors.hadoop.fs.HadoopFileSystemCacheUtils.*;
@@ -84,6 +85,8 @@ public class HadoopV2Job implements HadoopJob {
 
     /** Serialized JobConf. */
     private volatile byte[] jobConfData;
+
+    private final AtomicBoolean disposed = new AtomicBoolean();
 
     /**
      * @param jobId Job ID.
@@ -271,6 +274,11 @@ public class HadoopV2Job implements HadoopJob {
     /** {@inheritDoc} */
     @SuppressWarnings("ThrowFromFinallyBlock")
     @Override public void dispose(boolean external) throws IgniteCheckedException {
+        boolean dsp = disposed.compareAndSet(false, true);
+
+        if (!dsp)
+            throw new AssertionError("Attempt to dispose Job 2nd time: " + S.toString(HadoopV2Job.class, this));
+
         try {
             if (rsrcMgr != null && !external) {
                 File jobLocDir = jobLocalDir(locNodeId, jobId);
@@ -398,5 +406,12 @@ public class HadoopV2Job implements HadoopJob {
      */
     public FileSystem fileSystem(@Nullable URI uri, Configuration cfg) throws IOException {
         return fileSystemForMrUserWithCaching(uri, cfg, fsMap);
+    }
+
+    @Override protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (!disposed.get())
+            throw new AssertionError("Job was not disposed: " + S.toString(HadoopV2Job.class, this));
     }
 }
