@@ -103,11 +103,14 @@ var CacheSchema = new Schema({
             dialect: {type: String, enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']}
         },
         CacheJdbcBlobStoreFactory: {
-            multicastGroup: String,
-            multicastPort: Number,
-            responseWaitTime: Number,
-            addressRequestAttempts: Number,
-            localAddress: String
+            user: String,
+            dataSourceBean: String,
+            initSchema: Boolean,
+            createTableQuery: String,
+            loadQuery: String,
+            insertQuery: String,
+            updateQuery: String,
+            deleteQuery: String
         },
         CacheHibernateBlobStoreFactory: {
             hibernateProperties: [String]
