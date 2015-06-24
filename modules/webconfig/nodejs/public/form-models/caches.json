@@ -115,11 +115,20 @@
                 },
                 {
                   "label": "Max memory size",
-                  "type": "text",
+                  "type": "number",
                   "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
                   ]
                 }
               ]
@@ -128,10 +137,13 @@
               "expanded": false,
               "fields": [
                 {
-                  "label": "Batch size",
-                  "type": "text",
-                  "model": "batchSize",
-                  "placeholder": "1"
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             },
@@ -143,6 +155,24 @@
                   "type": "text",
                   "model": "batchSize",
                   "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             },
@@ -154,6 +184,24 @@
                   "type": "text",
                   "model": "batchSize",
                   "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             }
@@ -176,13 +224,117 @@
         },
         {
           "label": "Eviction policy",
-          "type": "dropdown",
-          "model": "nearEvictionPolicy",
+          "type": "dropdown-details",
+          "group": "nearEvictionPolicy",
+          "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
             "Cache expiration policy."
-          ]
+          ],
+          "details": {
+            "LRU": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "RND": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "FIFO": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "SORTED": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            }
+          }
         }
       ]
     },

@@ -52,6 +52,28 @@ var DiscoveryObj = {
     addresses: [String]
 };
 
+var evictionPolicyType = {
+    kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+    LRU: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    },
+    RND: {
+        maxSize: Number
+    },
+    FIFO: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    },
+    SORTED: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    }
+};
+
 // Define cache model.
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
@@ -64,22 +86,7 @@ var CacheSchema = new Schema({
     offHeapMaxMemory: Number,
     swapEnabled: Boolean,
 
-    evictionPolicy: {
-        kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
-        LRU: {
-            batchSize: Number,
-            maxMemorySize: Number
-        },
-        RND: {
-            batchSize: Number
-        },
-        FIFO: {
-            batchSize: Number
-        },
-        SORTED: {
-            batchSize: Number
-        }
-    },
+    evictionPolicy: evictionPolicyType,
 
     rebalanceMode: {type: String, enum: ['SYNC', 'ASYNC', 'NONE']},
     rebalanceThreadPoolSize: Number,
@@ -120,7 +127,7 @@ var CacheSchema = new Schema({
     transactionManagerLookupClassName: String,
 
     sqlEscapeAll: Boolean,
-    sqlOnheapRowCacheSize: Boolean,
+    sqlOnheapRowCacheSize: Number,
     longQueryWarningTimeout: Number,
     indexedTypes: [{keyClass: String, valueClass: String}],
     sqlFunctionClasses: [String],
@@ -131,7 +138,7 @@ var CacheSchema = new Schema({
     maxConcurrentAsyncOperations: Number,
     nearConfiguration: {
         nearStartSize: Number,
-        nearEvictionPolicy: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+        nearEvictionPolicy: evictionPolicyType,
         atomicSequenceReserveSize: Number
     }
 });
