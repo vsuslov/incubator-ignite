@@ -97,10 +97,16 @@ var CacheSchema = new Schema({
     rebalanceThrottle: Number,
 
     store: {
-        kind: {type: String, enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']},
+        kind: {
+            type: String,
+            enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']
+        },
         CacheJdbcPojoStoreFactory: {
             dataSourceBean: String,
-            dialect: {type: String, enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']}
+            dialect: {
+                type: String,
+                enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']
+            }
         },
         CacheJdbcBlobStoreFactory: {
             user: String,
@@ -151,6 +157,7 @@ exports.Cache = mongoose.model('Cache', CacheSchema);
 // Define discovery model.
 exports.Discovery = mongoose.model('Discovery', new Schema(DiscoveryObj));
 
+// Define cluster schema.
 var ClusterSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -206,7 +213,8 @@ var ClusterSchema = new Schema({
             'EVTS_CACHE_QUERY', 'EVTS_SWAPSPACE', 'EVTS_IGFS']
     }],
     managementThreadPoolSize: Number,
-    marshaller: {kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
+    marshaller: {
+        kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
         OptimizedMarshaller: {
             poolSize: Number,
             requireSerializable: Boolean
@@ -231,7 +239,8 @@ var ClusterSchema = new Schema({
     segmentationPolicy: {type: String, enum: ['RESTART_JVM', 'STOP', 'NOOP']},
     allSegmentationResolversPassRequired: Boolean,
     segmentationResolveAttempts: Number,
-    swapSpaceSpi: {kind: {type: String, enum: ['FileSwapSpaceSpi']},
+    swapSpaceSpi: {
+        kind: {type: String, enum: ['FileSwapSpaceSpi']},
         FileSwapSpaceSpi: {
             baseDirectory: String,
             readStripesNumber: Number,
@@ -258,6 +267,33 @@ var ClusterSchema = new Schema({
 
 // Define cluster model.
 exports.Cluster = mongoose.model('Cluster', ClusterSchema);
+
+// Define persistence schema.
+var PersistenceSchema = new Schema({
+    space: {type: ObjectId, ref: 'Space'},
+    name: String,
+    database: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
+    user: String,
+    tables: [{
+        use: Boolean,
+        schemaName: String,
+        tableName: String,
+        keyClass: String,
+        valueClass: String,
+        columns: [{
+            use: Boolean,
+            pk: Boolean,
+            ak: Boolean,
+            dbName: String,
+            dbType: Number,
+            javaName: String,
+            javaType: String
+        }]
+    }]
+});
+
+// Define persistence model.
+exports.Persistence = mongoose.model('Persistence', PersistenceSchema);
 
 exports.upsert = function (model, data, cb) {
     if (data._id) {

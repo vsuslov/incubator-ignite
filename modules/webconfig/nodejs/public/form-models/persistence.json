@@ -1,5 +1,5 @@
 {
-  "general": [
+  "connection": [
     {
       "label": "Database",
       "type": "dropdown",
@@ -8,6 +8,24 @@
       "items": "databases",
       "tip": [
         "Select database to connect and generate cache type metadata"
+      ]
+    },
+    {
+      "label": "User",
+      "type": "text",
+      "model": "user",
+      "placeholder": "",
+      "tip": [
+        "User name for connecting to database"
+      ]
+    },
+    {
+      "label": "Password",
+      "type": "password",
+      "model": "user",
+      "placeholder": "",
+      "tip": [
+        "User name for connecting to database"
       ]
     }
   ]
