@@ -202,12 +202,15 @@ exports.generateClusterConfiguration = function(cluster) {
     return res.join('');
 };
 
-var evictionPolicies = {
-    'LRU': {shortClassName: 'LruEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
-    'RND': {shortClassName: 'RandomEvictionPolicy', fields: {maxSize: null}},
-    'FIFO': {shortClassName: 'FifoEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
-    'SORTED': {shortClassName: 'SortedEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}}
-};
+function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
+    if (evictionPolicy && evictionPolicy.kind) {
+        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
+
+        var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
+
+        addBeanWithProperties(res, obj, varName, propertyName, propertyName, e.shortClassName, e.fields, true);
+    }
+}
 
 exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     if (!res)
@@ -233,13 +236,8 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     addProperty(res, cacheCfg, varName, 'swapEnabled');
 
     res.needEmptyLine = true;
-    
-    if (cacheCfg.evictionPolicy && cacheCfg.evictionPolicy.kind) {
-        var e = evictionPolicies[cacheCfg.evictionPolicy.kind];
 
-        addBeanWithProperties(res, cacheCfg.evictionPolicy[cacheCfg.evictionPolicy.kind.toUpperCase()], varName, 
-            'evictionPolicy', 'evictionPolicy', e.shortClassName, e.fields, true);
-    }
+    createEvictionPolicy(res, cacheCfg.evictionPolicy, varName, 'evictionPolicy');
 
     res.needEmptyLine = true;
     
@@ -247,11 +245,7 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
         'NearCacheConfiguration', {nearStartSize: null, atomicSequenceReserveSize: null}, true);
     
     if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
-        var evictionPolicy = cacheCfg.nearConfiguration.nearEvictionPolicy;
-        e = evictionPolicies[evictionPolicy.kind];
-        
-        addBeanWithProperties(res, evictionPolicy[evictionPolicy.kind.toUpperCase()], 'nearConfiguration',
-            'nearEvictionPolicy', 'nearEvictionPolicy', e.shortClassName, e.fields, true);
+        createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
     }
 
     res.needEmptyLine = true;

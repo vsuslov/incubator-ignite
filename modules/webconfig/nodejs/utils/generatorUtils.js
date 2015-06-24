@@ -104,6 +104,14 @@ exports.builder = function () {
     return res;
 };
 
+exports.evictionPolicies = {
+    'LRU': {shortClassName: 'LruEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
+    'RND': {shortClassName: 'RandomEvictionPolicy', fields: {maxSize: null}},
+    'FIFO': {shortClassName: 'FifoEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
+    'SORTED': {shortClassName: 'SortedEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}}
+};
+
+
 exports.writeProperties = function(writer, cluster) {
     
 };
