@@ -135,6 +135,25 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true
     }
 
+    if (cluster.caches && cluster.caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="cacheConfiguration">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < cluster.caches.length; i++) {
+            if (i > 0)
+                res.line();
+
+            generateCacheConfiguration(cluster.caches[i], res);
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+
     addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
         generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
 
@@ -233,7 +252,7 @@ function createEvictionPolicy(res, evictionPolicy, propertyName) {
     }
 }
 
-exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+function generateCacheConfiguration(cacheCfg, res) {
     if (!res)
         res = generatorUtils.builder();
 
@@ -273,9 +292,9 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'sqlEscapeAll');
-    addProperty(res, cacheCfg, varName, 'sqlOnheapRowCacheSize');
-    addProperty(res, cacheCfg, varName, 'longQueryWarningTimeout');
+    addProperty(res, cacheCfg, 'sqlEscapeAll');
+    addProperty(res, cacheCfg, 'sqlOnheapRowCacheSize');
+    addProperty(res, cacheCfg, 'longQueryWarningTimeout');
 
     if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
         res.startBlock('<property name="indexedTypes">');
@@ -338,7 +357,9 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     res.endBlock('</bean>');
 
     return res;
-};
+}
+
+exports.generateCacheConfiguration = generateCacheConfiguration;
 
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];

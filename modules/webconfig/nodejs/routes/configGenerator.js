@@ -37,7 +37,7 @@ router.get('/', function(req, res) {
         });
 
         // Get all clusters for spaces.
-        db.Cluster.find({name: name, space: {$in: space_ids}}, function (err, clusters) {
+        db.Cluster.find({name: name, space: {$in: space_ids}}).populate('caches').exec(function (err, clusters) {
             if (err)
                 return res.status(500).send(err.message);
 

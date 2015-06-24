@@ -107,6 +107,42 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true;
     }
 
+    if (cluster.caches && cluster.caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        var names = [];
+
+        for (var i = 0; i < cluster.caches.length; i++) {
+            res.emptyLineIfNeeded();
+
+            var cache = cluster.caches[i];
+
+            var cacheName = cache.name.replace(/[^A-Za-z_0-9]+/, '_');
+            cacheName = 'cache' + cacheName.charAt(0).toLocaleUpperCase() + cacheName.slice(1);
+
+            names.push(cacheName);
+
+            generateCacheConfiguration(cache, cacheName, res);
+
+            res.needEmptyLine = true;
+        }
+
+        res.emptyLineIfNeeded();
+
+        res.append('cfg.setCacheConfiguration(');
+
+        for (i = 0; i < names.length; i++) {
+            if (i > 0)
+                res.append(', ');
+
+            res.append(names[i]);
+        }
+
+        res.line(');');
+
+        res.needEmptyLine = true;
+    }
+
     addBeanWithProperties(res, cluster.atomicConfiguration, 'cfg', 'atomicConfiguration', 'atomicCfg',
         generatorUtils.atomicConfiguration.shortClassName, generatorUtils.atomicConfiguration.fields);
 
@@ -199,10 +235,14 @@ function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
     }
 }
 
-exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+exports.generateCacheConfiguration = generateCacheConfiguration;
+
+function generateCacheConfiguration(cacheCfg, varName, res) {
     if (!res)
         res = generatorUtils.builder();
-    
+
+    res.emptyLineIfNeeded();
+
     res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
     
     res.needEmptyLine = true;
@@ -324,7 +364,7 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
     
     return res;
-};
+}
 
 function toJavaCode(val, type) {
     if (val == null)
