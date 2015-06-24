@@ -104,14 +104,73 @@ exports.builder = function () {
     return res;
 };
 
+function ClassDescriptor(className, fields) {
+    this.className = className;
+
+    this.shortClassName = className.substr(className.lastIndexOf('.') + 1);
+
+    this.fields = fields;
+}
+
 exports.evictionPolicies = {
-    'LRU': {shortClassName: 'LruEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
-    'RND': {shortClassName: 'RandomEvictionPolicy', fields: {maxSize: null}},
-    'FIFO': {shortClassName: 'FifoEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}},
-    'SORTED': {shortClassName: 'SortedEvictionPolicy', fields: {batchSize: null, maxMemorySize: null, maxSize: null}}
+    'LRU': new ClassDescriptor('org.apache.ignite.cache.eviction.lru.LruEvictionPolicy',
+        {batchSize: null, maxMemorySize: null, maxSize: null}),
+    'RND': new ClassDescriptor('org.apache.ignite.cache.eviction.random.RandomEvictionPolicy', {maxSize: null}),
+    'FIFO': new ClassDescriptor('org.apache.ignite.cache.eviction.fifo.FifoEvictionPolicy',
+        {batchSize: null, maxMemorySize: null, maxSize: null}),
+    'SORTED': new ClassDescriptor('org.apache.ignite.cache.eviction.sorted.SortedEvictionPolicy',
+        {batchSize: null, maxMemorySize: null, maxSize: null})
 };
 
+exports.storeFactories = {
+    CacheJdbcPojoStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.CacheJdbcPojoStoreFactory', {
+        dataSourceBean: null,
+        dialect: null
+    }),
 
-exports.writeProperties = function(writer, cluster) {
-    
+    CacheJdbcBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.CacheJdbcBlobStoreFactory', {
+        multicastGroup: null,
+        multicastPort: null,
+        responseWaitTime: null,
+        addressRequestAttempts: null,
+        localAddress: null
+    }),
+
+    CacheHibernateBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.hibernate.CacheHibernateBlobStoreFactory', {
+        hibernateProperties: 'list'
+    })
+};
+
+exports.atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
+    backups: null,
+    cacheMode: 'CacheMode',
+    atomicSequenceReserveSize: null
+});
+
+exports.swapSpaceSpi = new ClassDescriptor('org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', {
+    baseDirectory: null,
+    readStripesNumber: null,
+    maximumSparsity: 'f',
+    maxWriteQueueSize: null,
+    writeBufferSize: null
+});
+
+exports.transactionConfiguration = new ClassDescriptor('org.apache.ignite.configuration.TransactionConfiguration', {
+    defaultTxConcurrency: 'TransactionConcurrency',
+    transactionIsolation: {type: 'TransactionIsolation', setterName: 'defaultTxIsolation'},
+    defaultTxTimeout: null,
+    pessimisticTxLogLinger: null,
+    pessimisticTxLogSize: null,
+    txSerializableEnabled: null
+});
+
+exports.hasProperty = function(obj, props) {
+    for (var propName in props) {
+        if (props.hasOwnProperty(propName)) {
+            if (obj[propName])
+                return true;
+        }
+    }
+
+    return false;
 };
