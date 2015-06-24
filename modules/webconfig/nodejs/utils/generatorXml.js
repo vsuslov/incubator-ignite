@@ -37,8 +37,6 @@ exports.generateClusterConfiguration = function(cluster) {
         res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
         res.startBlock('<property name="ipFinder">');
 
-        var className;
-
         var d = cluster.discovery;
 
         switch (d.kind) {
@@ -231,7 +229,7 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     res.line('cache');
     
     return res;
-}
+};
 
 function addProperty(res, obj, propName) {
     var val = obj[propName];
