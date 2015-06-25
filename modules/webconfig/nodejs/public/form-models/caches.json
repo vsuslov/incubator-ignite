@@ -38,7 +38,7 @@
     },
     {
       "label": "Backups",
-      "type": "text",
+      "type": "number",
       "model": "backups",
       "placeholder": "0",
       "tip": [
@@ -72,7 +72,7 @@
         },
         {
           "label": "Off-heap max memory",
-          "type": "text",
+          "type": "number",
           "model": "offHeapMaxMemory",
           "placeholder": "-1",
           "tip": [
@@ -109,7 +109,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -152,7 +152,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -181,7 +181,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -215,7 +215,7 @@
       "fields": [
         {
           "label": "Start size",
-          "type": "text",
+          "type": "number",
           "model": "nearStartSize",
           "placeholder": "375000",
           "tip": [
@@ -238,7 +238,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -281,7 +281,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -310,7 +310,7 @@
               "fields": [
                 {
                   "label": "Batch size",
-                  "type": "text",
+                  "type": "number",
                   "model": "batchSize",
                   "placeholder": "1"
                 },
@@ -352,7 +352,7 @@
         },
         {
           "label": "Cached rows",
-          "type": "text",
+          "type": "number",
           "model": "sqlOnheapRowCacheSize",
           "placeholder": "10240",
           "tip": [
@@ -361,7 +361,7 @@
         },
         {
           "label": "Long query timeout",
-          "type": "text",
+          "type": "number",
           "model": "longQueryWarningTimeout",
           "placeholder": "3000",
           "tip": [
@@ -408,7 +408,7 @@
         },
         {
           "label": "Pool size",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceThreadPoolSize",
           "placeholder": "2",
           "tip": [
@@ -418,7 +418,7 @@
         },
         {
           "label": "Batch size",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceBatchSize",
           "placeholder": "512 * 1024",
           "tip": [
@@ -428,7 +428,7 @@
         },
         {
           "label": "Order",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceOrder",
           "placeholder": "0",
           "tip": [
@@ -438,7 +438,7 @@
         },
         {
           "label": "Delay",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceDelay",
           "placeholder": "0",
           "tip": [
@@ -447,7 +447,7 @@
         },
         {
           "label": "Timeout",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceTimeout",
           "placeholder": "10000",
           "tip": [
@@ -456,7 +456,7 @@
         },
         {
           "label": "Throttle",
-          "type": "text",
+          "type": "number",
           "model": "rebalanceThrottle",
           "placeholder": "0",
           "tip": [
@@ -643,7 +643,7 @@
         },
         {
           "label": "Default lock timeout",
-          "type": "text",
+          "type": "number",
           "model": "defaultLockTimeout",
           "placeholder": "1",
           "tip": [
@@ -674,7 +674,7 @@
         },
         {
           "label": "Batch size",
-          "type": "text",
+          "type": "number",
           "model": "writeBehindBatchSize",
           "placeholder": "512",
           "tip": [
@@ -684,7 +684,7 @@
         },
         {
           "label": "Flush size",
-          "type": "text",
+          "type": "number",
           "model": "writeBehindFlushSize",
           "placeholder": "10240",
           "tip": [
@@ -694,7 +694,7 @@
         },
         {
           "label": "Flush frequency",
-          "type": "text",
+          "type": "number",
           "model": "writeBehindFlushFrequency",
           "placeholder": "5000",
           "tip": [
@@ -703,7 +703,7 @@
         },
         {
           "label": "Flush threads count",
-          "type": "text",
+          "type": "number",
           "model": "writeBehindFlushThreadCount",
           "placeholder": "1",
           "tip": [
@@ -751,7 +751,7 @@
         },
         {
           "label": "Max async concurrency",
-          "type": "text",
+          "type": "number",
           "model": "maxConcurrentAsyncOperations",
           "placeholder": "500",
           "tip": [

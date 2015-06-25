@@ -22,6 +22,9 @@ mixin tipLabel(lines)
     i.tipLabel.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')
     i.tipLabel.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
+mixin exclamation(mdl, err, msg)
+    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[#{mdl}].$error.#{err}' bs-tooltip data-title='#{msg}' type='button')
+
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
 
@@ -44,10 +47,10 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' ng-model=detailMdl min='{{detail.min ? detail.min : 0}}' placeholder='{{detail.placeholder}}')
-                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.min' bs-tooltip data-title='Min' type='button')
-                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.min' bs-tooltip data-title='Min' type='button')
-                    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[detail.model].$error.number' bs-tooltip data-title='Invalid value' type='button')
+                    input.form-control(name='{{detail.model}}' type='number' ng-model=detailMdl min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}' placeholder='{{detail.placeholder}}')
+                    +exclamation('detail.model', 'min', 'Value is less than allowable minimum.')
+                    +exclamation('detail.model', 'max', 'Value is more than allowable maximum.')
+                    +exclamation('detail.model', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
@@ -111,8 +114,11 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='number' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
-                    input.form-control(type='number' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    input.form-control(name='{{field.model}}' type='number' ng-if='!group.model' ng-model='backupItem[field.model]' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    input.form-control(name='{{field.model}}' type='number' ng-if='group.model' ng-model='backupItem[group.model][field.model]' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    +exclamation('field.model', 'min', 'Value is less than allowable minimum.')
+                    +exclamation('field.model', 'max', 'Value is more than allowable maximum.')
+                    +exclamation('field.model', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
