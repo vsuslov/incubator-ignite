@@ -25,18 +25,43 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
     $scope.cfgLang = 'xml';
 
     $scope.generateConfig = function(cluster) {
+        var lang = $scope.cfgLang;
+
+        if (lang == 'docker')
+            lang = 'xml';
+        
         $scope.loading = true;
 
-        $http.get('/rest/configGenerator', {params: {name: cluster.name, lang: $scope.cfgLang}}).success(
+        $http.get('/rest/configGenerator', {params: {name: cluster.name, lang: lang}}).success(
             function (data) {
-            $scope.resultCfg = data;
+                if (lang == 'java') {
+                    $scope.resultJava = data;
+                }
+                else if (lang == 'xml') {
+                    $scope.resultXml = data;
+                }
 
-            $scope.loading = false;
-        }).error(function (data) {
-            $scope.generateError = "Failed to generate config: " + data;
+                $scope.loading = false;
+            }).error(function (data) {
+                $scope.generateError = "Failed to generate config: " + data;
 
-            $scope.loading = false;
-        });
+                $scope.loading = false;
+            });
+    };
+
+    $scope.dockerArg = {
+        os: 'debian:8',
+        igniteVersion: '1.1.0'
+    };
+    
+    $scope.dockerFile = function() {
+        if (!$scope.currCluster || !$scope.dockerArg) {
+            return '';
+        }
+        
+        return 'OS: ' + $scope.dockerArg.os + '\n' +
+                'IG ver: ' + $scope.dockerArg.igniteVersion + '\n\n' +
+                'cfg: ' + $scope.currCluster._id
     };
     
     $scope.setSelectedCluster = function(cluster) {
@@ -46,9 +71,13 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
     };
     
     $scope.setCfgLang = function(lang) {
+        $scope.resultJava = '';
+        $scope.resultXml = '';
+        $scope.resultDocker = '';
+        
         $scope.cfgLang = lang;
 
         if ($scope.currCluster)
-            $scope.generateConfig($scope.currCluster)
+            $scope.generateConfig($scope.currCluster, lang)
     }
 }]);

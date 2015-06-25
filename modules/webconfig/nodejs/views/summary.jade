@@ -44,8 +44,36 @@ block content
                         a(href, ng-click='setCfgLang("xml")') XML
                     li(ng-class="{active: cfgLang=='java'}")
                         a(href, ng-click='setCfgLang("java")') Java
+                    li(ng-class="{active: cfgLang=='docker'}")
+                        a(href, ng-click='setCfgLang("docker")') Docker
+
+                div(style='padding-top: 10px')        
+                    #xmlResult(ng-show="cfgLang == 'xml'")
+                        textarea.form-control(rows=30, readonly=true)
+                            | {{resultXml}}
                 
-                textarea(style='width: 100%', rows=30, readonly=true)
-                    | {{resultCfg}}
-                
-            div(ng-show='generateError') {{generateError}}
+                    #javaResult(ng-show="cfgLang == 'java'")
+                        textarea.form-control(rows=30, readonly=true)
+                            | {{resultJava}}
+                    
+                    #dockerResult(ng-show="cfgLang == 'docker'")
+                        form.form-horizontal
+                            .form-group
+                                label.control-label.col-sm-3(for='os') Operation System
+                                .col-sm-6
+                                    select#os.form-control(ng-model='dockerArg.os')
+                                        option(value='debian:8') debian:8
+                                        option(value='ubuntu:12.04') ubuntu:12.04
+                                
+                            .form-group
+                                label.control-label.col-sm-3(for='igniteVersion') Ignite version
+                                .col-sm-6
+                                    select#igniteVersion.form-control(ng-model='dockerArg.igniteVersion')
+                                        option(value='1.1.0') 1.1.0
+                                        option(value='1.0.0') 1.0.0
+                                
+                            .form-group
+                                textarea.form-control(rows=30, readonly=true)
+                                    | {{ dockerFile() }}
+
+                div(ng-show='generateError') {{generateError}}
