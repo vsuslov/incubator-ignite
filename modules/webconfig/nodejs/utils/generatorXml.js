@@ -156,7 +156,10 @@ exports.generateClusterConfiguration = function(cluster) {
     }
 
     if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
+        res.emptyLineIfNeeded();
+        
         res.startBlock('<property name="includeEventTypes">');
+        
         if (cluster.includeEventTypes.length == 1) {
             res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>')
         }
