@@ -129,11 +129,14 @@ exports.storeFactories = {
     }),
 
     CacheJdbcBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.CacheJdbcBlobStoreFactory', {
-        multicastGroup: null,
-        multicastPort: null,
-        responseWaitTime: null,
-        addressRequestAttempts: null,
-        localAddress: null
+        user: null,
+        dataSourceBean: null,
+        initSchema: null,
+        createTableQuery: null,
+        loadQuery: null,
+        insertQuery: null,
+        updateQuery: null,
+        deleteQuery: null
     }),
 
     CacheHibernateBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.hibernate.CacheHibernateBlobStoreFactory', {
