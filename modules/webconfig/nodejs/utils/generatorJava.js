@@ -355,11 +355,14 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
             case 'CacheJdbcBlobStoreFactory':
                 addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
                     'cacheStoreFactory', 'CacheJdbcBlobStoreFactory', {
-                        multicastGroup: null,
-                        multicastPort: null,
-                        responseWaitTime: null,
-                        addressRequestAttempts: null,
-                        localAddress: null
+                        user: null,
+                        dataSourceBean: null,
+                        initSchema: null,
+                        createTableQuery: null,
+                        loadQuery: null,
+                        insertQuery: null,
+                        updateQuery: null,
+                        deleteQuery: null
                     }, true);
         
                 break;
