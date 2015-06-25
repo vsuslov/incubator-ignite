@@ -467,6 +467,8 @@
     },
     {
       "label": "Store",
+      "group": "store",
+      "model": "kind",
       "fields": [
         {
           "label": "Store factory",
