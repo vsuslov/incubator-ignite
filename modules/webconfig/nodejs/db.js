@@ -45,28 +45,6 @@ exports.Space = mongoose.model('Space', new Schema({
     }]
 }));
 
-var evictionPolicyType = {
-    kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
-    LRU: {
-        batchSize: Number,
-        maxMemorySize: Number,
-        maxSize: Number
-    },
-    RND: {
-        maxSize: Number
-    },
-    FIFO: {
-        batchSize: Number,
-        maxMemorySize: Number,
-        maxSize: Number
-    },
-    SORTED: {
-        batchSize: Number,
-        maxMemorySize: Number,
-        maxSize: Number
-    }
-};
-
 // Define cache model.
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
@@ -79,7 +57,27 @@ var CacheSchema = new Schema({
     offHeapMaxMemory: Number,
     swapEnabled: Boolean,
 
-    evictionPolicy: evictionPolicyType,
+    evictionPolicy: {
+        kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+        LRU: {
+            batchSize: Number,
+            maxMemorySize: Number,
+            maxSize: Number
+        },
+        RND: {
+            maxSize: Number
+        },
+        FIFO: {
+            batchSize: Number,
+            maxMemorySize: Number,
+            maxSize: Number
+        },
+        SORTED: {
+            batchSize: Number,
+            maxMemorySize: Number,
+            maxSize: Number
+        }
+    },
 
     rebalanceMode: {type: String, enum: ['SYNC', 'ASYNC', 'NONE']},
     rebalanceThreadPoolSize: Number,
@@ -140,7 +138,27 @@ var CacheSchema = new Schema({
     maxConcurrentAsyncOperations: Number,
     nearConfiguration: {
         nearStartSize: Number,
-        nearEvictionPolicy: evictionPolicyType,
+        nearEvictionPolicy: {
+            kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+            LRU: {
+                batchSize: Number,
+                maxMemorySize: Number,
+                maxSize: Number
+            },
+            RND: {
+                maxSize: Number
+            },
+            FIFO: {
+                batchSize: Number,
+                maxMemorySize: Number,
+                maxSize: Number
+            },
+            SORTED: {
+                batchSize: Number,
+                maxMemorySize: Number,
+                maxSize: Number
+            }
+        },
         atomicSequenceReserveSize: Number
     }
 });
