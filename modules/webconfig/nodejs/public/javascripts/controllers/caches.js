@@ -160,10 +160,10 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
             var newItem = {keyClass: keyCls, valueClass: valCls};
 
-            if (undefined == idxTypes)
-                $scope.backupItem.indexedTypes = [newItem];
+            if (idxTypes)
+                idxTypes.push(newItem);
             else
-                idxTypes.push(newItem)
+                $scope.backupItem.indexedTypes = [newItem];
         };
 
         $scope.editIndexedTypes = function (idx) {
@@ -189,10 +189,10 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             if (idx < 0) {
                 var newItem = {keyClass: k, valueClass: v};
 
-                if (undefined == idxTypes)
-                    $scope.backupItem.indexedTypes = [newItem];
-                else
+                if (idxTypes)
                     idxTypes.push(newItem);
+                else
+                    $scope.backupItem.indexedTypes = [newItem];
             }
             else {
                 var idxType = idxTypes[idx];
