@@ -161,7 +161,40 @@ exports.generateClusterConfiguration = function(cluster) {
 
     res.needEmptyLine = true;
 
-    addMultiparamProperty(res, cluster, 'cfg', 'includeEventTypes', 'EventType');
+    if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
+        res.emptyLineIfNeeded();
+        
+        if (cluster.includeEventTypes.length == 1) {
+            res.line('cfg.setIncludeEventTypes(EventType.' + cluster.includeEventTypes[0] + ');');
+        }
+        else {
+            res.append('int[] events = new int[EventType.' + cluster.includeEventTypes[0] + '.length');
+            
+            for (i = 1; i < cluster.includeEventTypes.length; i++) {
+                res.line();
+                
+                res.append('    + EventType.' + cluster.includeEventTypes[i] + '.length');
+            }
+            
+            res.line('];');
+            res.line();
+            res.line('int k = 0;');
+
+            for (i = 0; i < cluster.includeEventTypes.length; i++) {
+                res.line();
+
+                var e = cluster.includeEventTypes[i];
+                
+                res.line('System.arraycopy(EventType.' + e + ', 0, events, k, EventType.' + e + '.length);');
+                res.line('k += EventType.' + e + '.length;');
+            }
+            
+            res.line();
+            res.line('cfg.setIncludeEventTypes(events);');
+        }
+
+        res.needEmptyLine = true;
+    }
 
     res.needEmptyLine = true;
 

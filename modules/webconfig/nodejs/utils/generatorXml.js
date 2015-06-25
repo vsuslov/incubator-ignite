@@ -16,6 +16,7 @@
  */
 
 var generatorUtils = require("./generatorUtils");
+var dataStructures = require("../public/javascripts/dataStructures.js");
 
 exports.generateClusterConfiguration = function(cluster) {
     var res = generatorUtils.builder();
@@ -154,6 +155,40 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true;
     }
 
+    if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
+        res.emptyLineIfNeeded();
+        
+        res.startBlock('<property name="includeEventTypes">');
+        
+        if (cluster.includeEventTypes.length == 1) {
+            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>')
+        }
+        else {
+            res.startBlock('<array>');
+
+            for (i = 0; i < cluster.includeEventTypes.length; i++) {
+                if (i > 0)
+                    res.line();
+
+                var eventGroup = cluster.includeEventTypes[i];
+
+                res.line('<!-- EventType.' + eventGroup + ' -->');
+
+                var eventList = dataStructures.eventGroups[eventGroup];
+
+                for (var k = 0; k < eventList.length; k++) {
+                    res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + eventList[k] + '"/>')
+                }
+            }
+
+            res.endBlock('</array>');
+        }
+        
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+    
     addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
         generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
 
@@ -169,12 +204,6 @@ exports.generateClusterConfiguration = function(cluster) {
     res.needEmptyLine = true;
     
     addProperty(res, cluster, 'deploymentMode');
-
-    res.needEmptyLine = true;
-
-    addListProperty(res, cluster, 'includeEventTypes', 'list', function(val) {
-        return '<util:constant static-field="org.apache.ignite.events.EventType.' + val + '"/>'
-    });
 
     res.needEmptyLine = true;
 
