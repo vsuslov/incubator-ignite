@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('persistenceController', ['$scope', '$alert', '$http', function ($scope, $alert, $http) {
+configuratorModule.controller('persistenceController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+        $scope.joinTip = commonFunctions.joinTip;
+
         $scope.databases = [
             {value: 'oracle', label: 'Oracle database'},
             {value: 'db2', label: 'IBM DB2'},
