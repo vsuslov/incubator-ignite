@@ -227,10 +227,12 @@ exports.generateClusterConfiguration = function(cluster) {
     
     res.needEmptyLine = true;
 
-    addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
-        generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
+    if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
+        addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
+            generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
 
-    res.needEmptyLine = true;
+        res.needEmptyLine = true;
+    }
     
     addProperty(res, cluster, 'clockSyncSamples');
     addProperty(res, cluster, 'clockSyncFrequency');

@@ -218,10 +218,12 @@ exports.generateClusterConfiguration = function(cluster) {
     addProperty(res, cluster, 'cfg', 'peerClassLoadingThreadPoolSize');
     res.needEmptyLine = true;
 
-    addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'cfg', 'swapSpaceSpi', 'swapSpi',
-        generatorUtils.swapSpaceSpi.shortClassName, generatorUtils.swapSpaceSpi.fields, true);
+    if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
+        addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'cfg', 'swapSpaceSpi', 'swapSpi',
+            generatorUtils.swapSpaceSpi.shortClassName, generatorUtils.swapSpaceSpi.fields, true);
 
-    res.needEmptyLine = true;
+        res.needEmptyLine = true;
+    }
 
     addProperty(res, cluster, 'cfg', 'clockSyncSamples');
     addProperty(res, cluster, 'cfg', 'clockSyncFrequency');
@@ -469,6 +471,10 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
                         
                         case 'enum':
                             addProperty(res, bean, beanVarName, propName, descr.enumClass, descr.setterName);
+                            break;
+                        
+                        case 'float':
+                            addProperty(res, bean, beanVarName, propName, 'float', descr.setterName);
                             break;
                         
                         case 'className':
