@@ -41,20 +41,13 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
             {value: 'FileSwapSpaceSpi', label: 'File-based swap'}
         ];
 
-        $scope.events = [
-            {value: 'EVTS_CHECKPOINT', label: 'EVTS_CHECKPOINT'},
-            {value: 'EVTS_DEPLOYMENT', label: 'EVTS_DEPLOYMENT'},
-            {value: 'EVTS_ERROR', label: 'EVTS_ERROR'},
-            {value: 'EVTS_DISCOVERY', label: 'EVTS_DISCOVERY'},
-            {value: 'EVTS_JOB_EXECUTION', label: 'EVTS_JOB_EXECUTION'},
-            {value: 'EVTS_TASK_EXECUTION', label: 'EVTS_TASK_EXECUTION'},
-            {value: 'EVTS_CACHE', label: 'EVTS_CACHE'},
-            {value: 'EVTS_CACHE_REBALANCE', label: 'EVTS_CACHE_REBALANCE'},
-            {value: 'EVTS_CACHE_LIFECYCLE', label: 'EVTS_CACHE_LIFECYCLE'},
-            {value: 'EVTS_CACHE_QUERY', label: 'EVTS_CACHE_QUERY'},
-            {value: 'EVTS_SWAPSPACE', label: 'EVTS_SWAPSPACE'},
-            {value: 'EVTS_IGFS', label: 'EVTS_IGFS'}
-        ];
+        $scope.events = [];
+
+        for (var eventGroupName in eventGroups) {
+            if (eventGroups.hasOwnProperty(eventGroupName)) {
+                $scope.events.push({value: eventGroupName, label: eventGroupName});
+            }
+        }
 
         $scope.cacheModes = [
             {value: 'LOCAL', label: 'LOCAL'},
