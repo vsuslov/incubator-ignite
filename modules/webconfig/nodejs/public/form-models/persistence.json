@@ -1,9 +1,16 @@
 {
   "connection": [
     {
+      "label": "Name",
+      "type": "text",
+      "model": "name",
+      "required": true,
+      "placeholder": "Input name"
+    },
+    {
       "label": "Database",
       "type": "dropdown",
-      "model": "db",
+      "model": "database",
       "placeholder": "Choose database",
       "items": "databases",
       "tip": [
@@ -22,7 +29,7 @@
     {
       "label": "Password",
       "type": "password",
-      "model": "user",
+      "model": "password",
       "placeholder": "",
       "tip": [
         "User name for connecting to database"
