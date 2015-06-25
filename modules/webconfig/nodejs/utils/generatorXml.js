@@ -425,6 +425,13 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                     if (descr.type == 'list') {
                         addListProperty(res, bean, propName, descr.setterName);
                     }
+                    else if (descr.type == 'className') {
+                        if (bean[propName]) {
+                            res.startBlock('<property name="' + propName + '">');
+                            res.line('<bean class="' + generatorUtils.knownClasses[bean[propName]].className + '"/>');
+                            res.endBlock('</property>');
+                        }
+                    }
                     else {
                         addProperty(res, bean, propName, descr.setterName);
                     }

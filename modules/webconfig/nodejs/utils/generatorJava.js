@@ -380,7 +380,7 @@ function toJavaCode(val, type) {
     if (val == null)
        return 'null';
 
-    if (type == 'f')
+    if (type == 'float')
         return val + 'f';
     
     if (type == 'class')
@@ -462,14 +462,23 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
                 var descr = props[propName];
 
                 if (descr) {
-                    if (descr.type == 'list') {
-                        addListProperty(res, bean, beanVarName, propName, descr.elementsType, descr.setterName);
-                    }
-                    else if (descr.type == 'enum') {
-                        addProperty(res, bean, beanVarName, propName, descr.enumClass, descr.setterName);
-                    }
-                    else {
-                        addProperty(res, bean, beanVarName, propName, null, descr.setterName);
+                    switch (descr.type) {
+                        case 'list':
+                            addListProperty(res, bean, beanVarName, propName, descr.elementsType, descr.setterName);
+                            break;
+                        
+                        case 'enum':
+                            addProperty(res, bean, beanVarName, propName, descr.enumClass, descr.setterName);
+                            break;
+                        
+                        case 'className':
+                            if (bean[propName]) {
+                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + bean[propName] + '());');
+                            }
+                            break;
+                        
+                        default:
+                            addProperty(res, bean, beanVarName, propName, null, descr.setterName);
                     }
                 }
                 else {

@@ -122,10 +122,21 @@ exports.evictionPolicies = {
         {batchSize: null, maxMemorySize: null, maxSize: null})
 };
 
+exports.knownClasses = {
+    
+    
+    OracleDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
+    BasicJdbcDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
+    DB2Dialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
+    SQLServerDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
+    MySQLDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.MySQLDialect', {}),
+    H2Dialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.H2Dialect', {})
+};
+
 exports.storeFactories = {
     CacheJdbcPojoStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.CacheJdbcPojoStoreFactory', {
         dataSourceBean: null,
-        dialect: null
+        dialect: {type: 'className'}
     }),
 
     CacheJdbcBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.CacheJdbcBlobStoreFactory', {
