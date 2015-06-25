@@ -111,7 +111,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                 $scope.backupItem = angular.fromJson(sessionStorage.clusterBackupItem);
 
                 $scope.$watch('backupItem', function (val) {
-                    sessionStorage.clusterBackupItem = angular.toJson(val);
+                    if (val)
+                        sessionStorage.clusterBackupItem = angular.toJson(val);
                 }, true);
             });
 

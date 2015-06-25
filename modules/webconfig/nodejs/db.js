@@ -45,13 +45,6 @@ exports.Space = mongoose.model('Space', new Schema({
     }]
 }));
 
-var DiscoveryObj = {
-    className: String, enum: ['TcpDiscoveryVmIpFinder', 'TcpDiscoveryMulticastIpFinder', 'TcpDiscoveryS3IpFinder',
-        'TcpDiscoveryCloudIpFinder', 'TcpDiscoveryGoogleStorageIpFinder', 'TcpDiscoveryJdbcIpFinder',
-        'TcpDiscoverySharedFsIpFinder'],
-    addresses: [String]
-};
-
 var evictionPolicyType = {
     kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
     LRU: {
@@ -153,9 +146,6 @@ var CacheSchema = new Schema({
 });
 
 exports.Cache = mongoose.model('Cache', CacheSchema);
-
-// Define discovery model.
-exports.Discovery = mongoose.model('Discovery', new Schema(DiscoveryObj));
 
 // Define cluster schema.
 var ClusterSchema = new Schema({

@@ -88,4 +88,28 @@ router.post('/remove', function(req, res) {
     })
 });
 
+//
+router.post('/pg', function(req, res) {
+    var pg = require('pg');
+
+    //var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/ggmonitor';
+
+    pg.connect(req.body.connectionString, function(err, client, done) {
+        if(err)
+            res.status(500).send(err.message);
+
+        client.query('select * from information_schema.tables', function(err, result) {
+            //call `done()` to release the client back to the pool
+            done();
+
+            if(err)
+                res.status(500).send(err.message);
+
+            console.log(result.rows[0]);
+
+            res.sendStatus(200);
+        });
+    });
+});
+
 module.exports = router;

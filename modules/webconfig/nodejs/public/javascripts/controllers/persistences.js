@@ -43,7 +43,8 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                 $scope.backupItem = angular.fromJson(sessionStorage.persistenceBackupItem);
 
                 $scope.$watch('backupItem', function (val) {
-                    sessionStorage.persistenceBackupItem = angular.toJson(val);
+                    if (val)
+                        sessionStorage.persistenceBackupItem = angular.toJson(val);
                 }, true);
             });
 
