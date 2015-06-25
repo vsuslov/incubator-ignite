@@ -17,7 +17,7 @@
 extends layout-sidebar
 
 append scripts
-    script(src='/javascripts/controllers/persistence.js')
+    script(src='/javascripts/controllers/persistences.js')
 
 include includes/controls
 
@@ -35,7 +35,7 @@ block content
                             a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}, {{row.database | displayValue:databases:'Database not set'}}
         button.btn.btn-primary(ng-click='createItem()') Add
         hr
-        form.form-horizontal(name='inputForm')
+        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     .panel-heading
@@ -45,3 +45,5 @@ block content
                         .panel-body
                             .settings-row(ng-repeat='field in connection')
                                 +form-row
+            button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
+            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove

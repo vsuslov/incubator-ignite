@@ -103,18 +103,18 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         };
 
         // Add new cache.
-        $scope.createItem = function() {
+        $scope.createItem = function () {
             $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
         // Save cache in db.
-        $scope.saveItem = function() {
+        $scope.saveItem = function () {
             var item = $scope.backupItem;
 
             $http.post('/rest/caches/save', item)
-                .success(function(_id) {
-                    var i = _.findIndex($scope.caches, function(cache) {
+                .success(function (_id) {
+                    var i = _.findIndex($scope.caches, function (cache) {
                         return cache._id == _id;
                     });
 
@@ -128,17 +128,17 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
                     $scope.selectItem(item);
                 })
-                .error(function(errorMessage) {
+                .error(function (errorMessage) {
                     $alert({title: errorMessage});
                 });
         };
 
-        $scope.removeItem = function() {
+        $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
             $http.post('/rest/caches/remove', {_id: _id})
-                .success(function() {
-                    var i = _.findIndex($scope.caches, function(cache) {
+                .success(function () {
+                    var i = _.findIndex($scope.caches, function (cache) {
                         return cache._id == _id;
                     });
 
@@ -149,7 +149,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                         $scope.backupItem = undefined;
                     }
                 })
-                .error(function(errorMessage) {
+                .error(function (errorMessage) {
                     $alert({title: errorMessage});
                 });
         };

@@ -28,6 +28,7 @@ var mongoStore = require('connect-mongo')(session);
 var pageRoutes = require('./routes/pages');
 var clustersRouter = require('./routes/clusters');
 var cachesRouter = require('./routes/caches');
+var persistencesRouter = require('./routes/persistences');
 var authRouter = require('./routes/auth');
 var configGenerator = require('./routes/configGenerator');
 
@@ -37,11 +38,11 @@ var db = require('./db');
 
 var app = express();
 
-// view engine setup
+// Views engine setup.
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-// Site favicon
+// Site favicon.
 app.use(favicon(__dirname + '/public/favicon.ico'));
 
 app.use(logger('dev'));
@@ -88,22 +89,22 @@ app.all('/caches', mustAuthenticated);
 app.use('/', pageRoutes);
 app.use('/rest/clusters', clustersRouter);
 app.use('/rest/caches', cachesRouter);
+app.use('/rest/persistences', persistencesRouter);
 app.use('/rest/auth', authRouter);
 app.use('/rest/configGenerator', configGenerator);
 
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler.
 //app.use(function (req, res, next) {
 //    var err = new Error('Not Found');
 //    err.status = 404;
 //    next(err);
 //});
 
-// error handlers
+// Error handlers.
 
-// development error handler
-// will print stacktrace
+// Development error handler: will print stacktrace.
 if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
+    app.use(function (err, req, res) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -112,9 +113,8 @@ if (app.get('env') === 'development') {
     });
 }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function (err, req, res, next) {
+// Production error handler: no stacktraces leaked to user.
+app.use(function (err, req, res) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
