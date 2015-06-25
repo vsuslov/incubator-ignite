@@ -42,7 +42,9 @@ exports.generateClusterConfiguration = function(cluster) {
 
             case 'Vm':
                 addBeanWithProperties(res, d.Vm, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryVmIpFinder', {addresses: 'list'}, true);
+                    'TcpDiscoveryVmIpFinder', {
+                        addresses: {type: 'list'}
+                    }, true);
 
                 break;
 
@@ -341,40 +343,12 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     res.needEmptyLine = true;
     
-    if (cacheCfg.store) {
-        switch (cacheCfg.store.kind) {
-            case 'CacheJdbcPojoStoreFactory':
-                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
-                    'cacheStoreFactory', 'CacheJdbcPojoStoreFactory', {
-                        dataSourceBean: null,
-                        dialect: null
-                    }, true);
-        
-                break;
+    if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
+        var obj = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
+        var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
-            case 'CacheJdbcBlobStoreFactory':
-                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
-                    'cacheStoreFactory', 'CacheJdbcBlobStoreFactory', {
-                        user: null,
-                        dataSourceBean: null,
-                        initSchema: null,
-                        createTableQuery: null,
-                        loadQuery: null,
-                        insertQuery: null,
-                        updateQuery: null,
-                        deleteQuery: null
-                    }, true);
-        
-                break;
-            
-            case 'CacheHibernateBlobStoreFactory':
-                addBeanWithProperties(res, cacheCfg.store[cacheCfg.store.kind], varName, 'cacheStoreFactory',
-                    'cacheStoreFactory', 'CacheHibernateBlobStoreFactory', {
-                        hibernateProperties: 'list'
-                    }, true);
-        
-                break;
-        }
+        addBeanWithProperties(res, obj, varName, 'cacheStoreFactory', 'cacheStoreFactory', data.shortClassName,
+            data.fields, true);
     }
 
     res.needEmptyLine = true;
@@ -485,30 +459,25 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
         res.line(beanClass + ' ' + beanVarName + ' = new ' + beanClass + '();');
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
-                var setterName = null;
-                var type = null;
-
                 var descr = props[propName];
 
                 if (descr) {
-                    if (typeof(descr) == 'string') {
-                        type = descr;
+                    if (descr.type == 'list') {
+                        addListProperty(res, bean, beanVarName, propName, descr.elementsType, descr.setterName);
                     }
-                    if (typeof(descr) == 'object') {
-                        type = descr.type;
-
-                        setterName = descr.setterName
+                    else if (descr.type == 'enum') {
+                        addProperty(res, bean, beanVarName, propName, descr.enumClass, descr.setterName);
                     }
-                }
-
-                if (type == 'list') {
-                    addListProperty(res, bean, beanVarName, propName, type, setterName);
+                    else {
+                        addProperty(res, bean, beanVarName, propName, null, descr.setterName);
+                    }
                 }
                 else {
-                    addProperty(res, bean, beanVarName, propName, type, setterName);
+                    addProperty(res, bean, beanVarName, propName);
                 }
             }
         }
+        
         res.line(objVarName + '.' + getSetterName(beanPropName) + '(' + beanVarName + ');');
         
         res.needEmptyLine = true;

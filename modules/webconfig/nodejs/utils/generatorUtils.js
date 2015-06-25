@@ -140,26 +140,26 @@ exports.storeFactories = {
     }),
 
     CacheHibernateBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.hibernate.CacheHibernateBlobStoreFactory', {
-        hibernateProperties: 'list'
+        hibernateProperties: {type: 'list'}
     })
 };
 
 exports.atomicConfiguration = new ClassDescriptor('org.apache.ignite.configuration.AtomicConfiguration', {
     backups: null,
-    cacheMode: 'CacheMode',
+    cacheMode: {type: 'enum', enumClass: 'CacheMode'},
     atomicSequenceReserveSize: null
 });
 
 exports.swapSpaceSpi = new ClassDescriptor('org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', {
     baseDirectory: null,
     readStripesNumber: null,
-    maximumSparsity: 'f',
+    maximumSparsity: {type: 'float'},
     maxWriteQueueSize: null,
     writeBufferSize: null
 });
 
 exports.transactionConfiguration = new ClassDescriptor('org.apache.ignite.configuration.TransactionConfiguration', {
-    defaultTxConcurrency: 'TransactionConcurrency',
+    defaultTxConcurrency: {type: 'enum', enumClass: 'TransactionConcurrency'},
     transactionIsolation: {type: 'TransactionIsolation', setterName: 'defaultTxIsolation'},
     defaultTxTimeout: null,
     pessimisticTxLogLinger: null,

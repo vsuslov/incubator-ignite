@@ -354,9 +354,9 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     res.needEmptyLine = true;
 
-    if (cacheCfg.store && cacheCfg.store.kind) {
-        var obj = cacheCfg.store[cacheCfg.store.kind];
-        var data = generatorUtils.storeFactories[cacheCfg.store.kind];
+    if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
+        var obj = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
+        var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
         addBeanWithProperties(res, obj, 'cacheStoreFactory', data.className, data.fields, true);
     }
@@ -419,26 +419,18 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
 
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
-                var setterName = null;
-
                 var descr = props[propName];
 
                 if (descr) {
-                    if (typeof(descr) == 'string') {
-                        var type = descr;
+                    if (descr.type == 'list') {
+                        addListProperty(res, bean, propName, descr.setterName);
                     }
-                    else if (typeof(descr) == 'object') {
-                        type = descr.type;
-
-                        setterName = descr.setterName
+                    else {
+                        addProperty(res, bean, propName, descr.setterName);
                     }
-                }
-
-                if (type == 'list') {
-                    addListProperty(res, bean, propName, setterName);
                 }
                 else {
-                    addProperty(res, bean, propName, setterName);
+                    addProperty(res, bean, propName);
                 }
             }
         }
