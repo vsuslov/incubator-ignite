@@ -274,6 +274,7 @@ var PersistenceSchema = new Schema({
             use: Boolean,
             pk: Boolean,
             ak: Boolean,
+            notNull: Boolean,
             dbName: String,
             dbType: Number,
             javaName: String,
