@@ -17,18 +17,27 @@
 
 configuratorModule.controller('persistenceController', ['$scope', '$alert', '$http', function ($scope, $alert, $http) {
         $scope.databases = [
-            {value: 'oracle', label: 'Oracle'},
+            {value: 'oracle', label: 'Oracle database'},
             {value: 'db2', label: 'IBM DB2'},
             {value: 'mssql', label: 'MS SQL Server'},
             {value: 'postgre', label: 'PostgreSQL'},
-            {value: 'mysql', label: 'MySQL'}
+            {value: 'mysql', label: 'MySQL'},
+            {value: 'h2', label: 'H2 database'}
         ];
 
-        $scope.general = [];
+        $scope.connection = [];
+
+        $scope.persistences = [];
 
         $http.get('/form-models/persistence.json')
             .success(function (data) {
-                $scope.general = data.general;
+                $scope.connection = data.connection;
             });
+
+        // Add new persistence.
+        $scope.createItem = function() {
+            $scope.backupItem = {database: oracle};
+            $scope.backupItem.space = $scope.spaces[0]._id;
+        };
     }]
 );

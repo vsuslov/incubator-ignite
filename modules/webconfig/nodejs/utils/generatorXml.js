@@ -25,9 +25,11 @@ exports.generateClusterConfiguration = function(cluster) {
         '\n' +
         '<!-- ' + (generatorUtils.mainComment.replace('$date', generatorUtils.formatDate(new Date()))) + ' -->\n' +    
         '<beans xmlns="http://www.springframework.org/schema/beans"\n' +
-        '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
+        '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"\n' +
         '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n' +
-        '                           http://www.springframework.org/schema/beans/spring-beans.xsd">\n' +
+        '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n' +
+        '                           http://www.springframework.org/schema/util\n' +
+        '                           http://www.springframework.org/schema/util/spring-util.xsd">\n' +
         '    <bean class="org.apache.ignite.configuration.IgniteConfiguration">\n');
 
     res.deep = 2;
@@ -36,8 +38,6 @@ exports.generateClusterConfiguration = function(cluster) {
         res.startBlock('<property name="discoverySpi">');
         res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
         res.startBlock('<property name="ipFinder">');
-
-        var className;
 
         var d = cluster.discovery;
 
@@ -135,8 +135,28 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true
     }
 
-    addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration', 
-        'org.apache.ignite.configuration.AtomicConfiguration', ['backups', 'cacheMode', 'atomicSequenceReserveSize']);
+    if (cluster.caches && cluster.caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="cacheConfiguration">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < cluster.caches.length; i++) {
+            if (i > 0)
+                res.line();
+
+            generateCacheConfiguration(cluster.caches[i], res);
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
+    }
+
+    addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
+        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
+
     res.needEmptyLine = true;
 
     addProperty(res, cluster, 'networkTimeout');
@@ -152,7 +172,9 @@ exports.generateClusterConfiguration = function(cluster) {
 
     res.needEmptyLine = true;
 
-    addListProperty(res, cluster, 'includeEventTypes');
+    addListProperty(res, cluster, 'includeEventTypes', 'list', function(val) {
+        return '<util:constant static-field="org.apache.ignite.events.EventType.' + val + '"/>'
+    });
 
     res.needEmptyLine = true;
 
@@ -177,8 +199,7 @@ exports.generateClusterConfiguration = function(cluster) {
     res.needEmptyLine = true;
 
     addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
-        'org.apache.ignite.spi.swapspace.file.FileSwapSpaceSpi', ['baseDirectory', 'readStripesNumber',
-            'maximumSparsity', 'maxWriteQueueSize', 'writeBufferSize'], true);
+        generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
 
     res.needEmptyLine = true;
     
@@ -197,10 +218,7 @@ exports.generateClusterConfiguration = function(cluster) {
     res.needEmptyLine = true;
     
     addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
-        'org.apache.ignite.configuration.TransactionConfiguration', ['defaultTxConcurrency', 'transactionIsolation',
-            'defaultTxTimeout', 'pessimisticTxLogLinger',
-            'pessimisticTxLogSize', 'txSerializableEnabled']);
-
+        generatorUtils.transactionConfiguration.className, generatorUtils.transactionConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -224,26 +242,136 @@ exports.generateClusterConfiguration = function(cluster) {
     return res.join('');
 };
 
-exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+function createEvictionPolicy(res, evictionPolicy, propertyName) {
+    if (evictionPolicy && evictionPolicy.kind) {
+        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
+
+        var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
+
+        addBeanWithProperties(res, obj, propertyName, e.className, e.fields, true);
+    }
+}
+
+function generateCacheConfiguration(cacheCfg, res) {
     if (!res)
         res = generatorUtils.builder();
 
-    res.line('cache');
+    res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
+
+    addProperty(res, cacheCfg, 'mode', 'cacheMode');
+
+    addProperty(res, cacheCfg, 'atomicityMode');
+    addProperty(res, cacheCfg, 'backups');
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'memoryMode');
+    addProperty(res, cacheCfg, 'offHeapMaxMemory');
+    addProperty(res, cacheCfg, 'swapEnabled');
+
+    res.needEmptyLine = true;
+
+    createEvictionPolicy(res, cacheCfg.evictionPolicy, 'evictionPolicy');
+
+    res.needEmptyLine = true;
+
+    if (cacheCfg.nearConfiguration) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="nearConfiguration">');
+        res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
+
+        addProperty(res, cacheCfg.nearConfiguration, 'nearStartSize');
+        addProperty(res, cacheCfg.nearConfiguration, 'atomicSequenceReserveSize');
+
+        createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+
+        res.endBlock('</bean>');
+        res.endBlock('</property>');
+    }
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'sqlEscapeAll');
+    addProperty(res, cacheCfg, 'sqlOnheapRowCacheSize');
+    addProperty(res, cacheCfg, 'longQueryWarningTimeout');
+
+    if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
+        res.startBlock('<property name="indexedTypes">');
+        res.startBlock('<array>');
+
+        for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
+            var pair = cacheCfg.indexedTypes[i];
+
+            res.line('<value>' + escape(pair.keyClass) + '</value>');
+            res.line('<value>' + escape(pair.valueClass) + '</value>');
+        }
+
+        res.endBlock('</array>');
+        res.endBlock('</property>');
+    }
+
+    addListProperty(res, cacheCfg, 'sqlFunctionClasses', 'array');
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'rebalanceMode');
+    addProperty(res, cacheCfg, 'rebalanceThreadPoolSize');
+    addProperty(res, cacheCfg, 'rebalanceBatchSize');
+    addProperty(res, cacheCfg, 'rebalanceOrder');
+    addProperty(res, cacheCfg, 'rebalanceDelay');
+    addProperty(res, cacheCfg, 'rebalanceTimeout');
+    addProperty(res, cacheCfg, 'rebalanceThrottle');
+
+    res.needEmptyLine = true;
+
+    if (cacheCfg.store && cacheCfg.store.kind) {
+        var obj = cacheCfg.store[cacheCfg.store.kind];
+        var data = generatorUtils.storeFactories[cacheCfg.store.kind];
+
+        addBeanWithProperties(res, obj, 'cacheStoreFactory', data.className, data.fields, true);
+    }
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'invalidate');
+    addProperty(res, cacheCfg, 'defaultLockTimeout');
+    addProperty(res, cacheCfg, 'transactionManagerLookupClassName');
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'writeBehindEnabled');
+    addProperty(res, cacheCfg, 'writeBehindBatchSize');
+    addProperty(res, cacheCfg, 'writeBehindFlushSize');
+    addProperty(res, cacheCfg, 'writeBehindFlushFrequency');
+    addProperty(res, cacheCfg, 'writeBehindFlushThreadCount');
+
+    res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, 'statisticsEnabled');
+    addProperty(res, cacheCfg, 'managementEnabled');
+    addProperty(res, cacheCfg, 'readFromBackup');
+    addProperty(res, cacheCfg, 'copyOnRead');
+    addProperty(res, cacheCfg, 'maxConcurrentAsyncOperations');
     
+    res.endBlock('</bean>');
+
     return res;
 }
 
-function addProperty(res, obj, propName) {
+exports.generateCacheConfiguration = generateCacheConfiguration;
+
+function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
     if (val) {
         res.emptyLineIfNeeded();
 
-        res.line('<property name="' + propName + '" value="' + escapeAttr(val) + '"/>');
+        res.line('<property name="' + (setterName ? setterName : propName) + '" value="' + escapeAttr(val) + '"/>');
     }
 }
 
-function addBeanWithProperties(res, bean, beanPropName, beanClass, props, alwaysCreateBean) {
+function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
     if (!bean)
         return;
 
@@ -255,36 +383,66 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, always
         }
     }
     
-    if (hasProp) {
+    if (generatorUtils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
         res.startBlock('<bean class="' + beanClass + '">');
-        for (i = 0; i < props.length; i++) {
-            addProperty(res, bean, props[i]);
+
+        for (var propName in props) {
+            if (props.hasOwnProperty(propName)) {
+                var setterName = null;
+
+                var descr = props[propName];
+
+                if (descr) {
+                    if (typeof(descr) == 'string') {
+                        var type = descr;
+                    }
+                    else if (typeof(descr) == 'object') {
+                        type = descr.type;
+
+                        setterName = descr.setterName
+                    }
+                }
+
+                if (type == 'list') {
+                    addListProperty(res, bean, propName, setterName);
+                }
+                else {
+                    addProperty(res, bean, propName, setterName);
+                }
+            }
         }
+
         res.endBlock('</bean>');
         res.endBlock('</property>');
     }
-    else if (alwaysCreateBean) {
+    else if (createBeanAlthoughNoProps) {
         res.emptyLineIfNeeded();
         res.line('<property name="' + beanPropName + '">');
         res.line('    <bean class="' + beanClass + '"/>');
         res.line('</property>');
     }
 }
-function addListProperty(res, obj, propName) {
+function addListProperty(res, obj, propName, listType, rowFactory) {
     var val = obj[propName];
 
     if (val && val.length > 0) {
         res.emptyLineIfNeeded();
 
+        if (!listType)
+            listType = 'list';
+
+        if (!rowFactory)
+            rowFactory = function(val) { return '<value>' + escape(val) + '</value>' };
+
         res.startBlock('<property name="' + propName + '">');
-        res.startBlock('<list>');
+        res.startBlock('<' + listType + '>');
 
         for (var i = 0; i < val.length; i++)
-            res.line('<value>' + escape(val[i]) + '</value>');
+            res.line(rowFactory(val[i]));
 
-        res.endBlock('</list>');
+        res.endBlock('</' + listType + '>');
         res.endBlock('</property>');
     }
 }

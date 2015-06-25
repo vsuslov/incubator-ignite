@@ -52,6 +52,28 @@ var DiscoveryObj = {
     addresses: [String]
 };
 
+var evictionPolicyType = {
+    kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+    LRU: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    },
+    RND: {
+        maxSize: Number
+    },
+    FIFO: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    },
+    SORTED: {
+        batchSize: Number,
+        maxMemorySize: Number,
+        maxSize: Number
+    }
+};
+
 // Define cache model.
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
@@ -64,22 +86,7 @@ var CacheSchema = new Schema({
     offHeapMaxMemory: Number,
     swapEnabled: Boolean,
 
-    evictionPolicy: {
-        kind: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
-        LRU: {
-            batchSize: Number,
-            maxMemorySize: Number
-        },
-        RND: {
-            batchSize: Number
-        },
-        FIFO: {
-            batchSize: Number
-        },
-        SORTED: {
-            batchSize: Number
-        }
-    },
+    evictionPolicy: evictionPolicyType,
 
     rebalanceMode: {type: String, enum: ['SYNC', 'ASYNC', 'NONE']},
     rebalanceThreadPoolSize: Number,
@@ -90,17 +97,26 @@ var CacheSchema = new Schema({
     rebalanceThrottle: Number,
 
     store: {
-        kind: {type: String, enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']},
+        kind: {
+            type: String,
+            enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']
+        },
         CacheJdbcPojoStoreFactory: {
             dataSourceBean: String,
-            dialect: {type: String, enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']}
+            dialect: {
+                type: String,
+                enum: ['BasicJdbcDialect', 'OracleDialect', 'DB2Dialect', 'SQLServerDialect', 'MySQLDialect', 'H2Dialect']
+            }
         },
         CacheJdbcBlobStoreFactory: {
-            multicastGroup: String,
-            multicastPort: Number,
-            responseWaitTime: Number,
-            addressRequestAttempts: Number,
-            localAddress: String
+            user: String,
+            dataSourceBean: String,
+            initSchema: Boolean,
+            createTableQuery: String,
+            loadQuery: String,
+            insertQuery: String,
+            updateQuery: String,
+            deleteQuery: String
         },
         CacheHibernateBlobStoreFactory: {
             hibernateProperties: [String]
@@ -120,7 +136,7 @@ var CacheSchema = new Schema({
     transactionManagerLookupClassName: String,
 
     sqlEscapeAll: Boolean,
-    sqlOnheapRowCacheSize: Boolean,
+    sqlOnheapRowCacheSize: Number,
     longQueryWarningTimeout: Number,
     indexedTypes: [{keyClass: String, valueClass: String}],
     sqlFunctionClasses: [String],
@@ -131,7 +147,7 @@ var CacheSchema = new Schema({
     maxConcurrentAsyncOperations: Number,
     nearConfiguration: {
         nearStartSize: Number,
-        nearEvictionPolicy: {type: String, enum: ['LRU', 'RND', 'FIFO', 'Sorted']},
+        nearEvictionPolicy: evictionPolicyType,
         atomicSequenceReserveSize: Number
     }
 });
@@ -141,6 +157,7 @@ exports.Cache = mongoose.model('Cache', CacheSchema);
 // Define discovery model.
 exports.Discovery = mongoose.model('Discovery', new Schema(DiscoveryObj));
 
+// Define cluster schema.
 var ClusterSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
@@ -196,7 +213,8 @@ var ClusterSchema = new Schema({
             'EVTS_CACHE_QUERY', 'EVTS_SWAPSPACE', 'EVTS_IGFS']
     }],
     managementThreadPoolSize: Number,
-    marshaller: {kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
+    marshaller: {
+        kind: {type: String, enum: ['OptimizedMarshaller', 'JdkMarshaller']},
         OptimizedMarshaller: {
             poolSize: Number,
             requireSerializable: Boolean
@@ -221,7 +239,8 @@ var ClusterSchema = new Schema({
     segmentationPolicy: {type: String, enum: ['RESTART_JVM', 'STOP', 'NOOP']},
     allSegmentationResolversPassRequired: Boolean,
     segmentationResolveAttempts: Number,
-    swapSpaceSpi: {kind: {type: String, enum: ['FileSwapSpaceSpi']},
+    swapSpaceSpi: {
+        kind: {type: String, enum: ['FileSwapSpaceSpi']},
         FileSwapSpaceSpi: {
             baseDirectory: String,
             readStripesNumber: Number,
@@ -248,6 +267,33 @@ var ClusterSchema = new Schema({
 
 // Define cluster model.
 exports.Cluster = mongoose.model('Cluster', ClusterSchema);
+
+// Define persistence schema.
+var PersistenceSchema = new Schema({
+    space: {type: ObjectId, ref: 'Space'},
+    name: String,
+    database: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
+    user: String,
+    tables: [{
+        use: Boolean,
+        schemaName: String,
+        tableName: String,
+        keyClass: String,
+        valueClass: String,
+        columns: [{
+            use: Boolean,
+            pk: Boolean,
+            ak: Boolean,
+            dbName: String,
+            dbType: Number,
+            javaName: String,
+            javaType: String
+        }]
+    }]
+});
+
+// Define persistence model.
+exports.Persistence = mongoose.model('Persistence', PersistenceSchema);
 
 exports.upsert = function (model, data, cb) {
     if (data._id) {

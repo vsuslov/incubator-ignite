@@ -115,11 +115,20 @@
                 },
                 {
                   "label": "Max memory size",
-                  "type": "text",
+                  "type": "number",
                   "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
                   ]
                 }
               ]
@@ -128,10 +137,13 @@
               "expanded": false,
               "fields": [
                 {
-                  "label": "Batch size",
-                  "type": "text",
-                  "model": "batchSize",
-                  "placeholder": "1"
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             },
@@ -143,6 +155,24 @@
                   "type": "text",
                   "model": "batchSize",
                   "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             },
@@ -154,6 +184,24 @@
                   "type": "text",
                   "model": "batchSize",
                   "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
                 }
               ]
             }
@@ -176,13 +224,117 @@
         },
         {
           "label": "Eviction policy",
-          "type": "dropdown",
-          "model": "nearEvictionPolicy",
+          "type": "dropdown-details",
+          "group": "nearEvictionPolicy",
+          "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
             "Cache expiration policy."
-          ]
+          ],
+          "details": {
+            "LRU": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "RND": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "FIFO": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            },
+            "SORTED": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Batch size",
+                  "type": "text",
+                  "model": "batchSize",
+                  "placeholder": "1"
+                },
+                {
+                  "label": "Max memory size",
+                  "type": "number",
+                  "model": "maxMemorySize",
+                  "placeholder": "0",
+                  "tip": [
+                    "Maximum allowed cache size in bytes."
+                  ]
+                },
+                {
+                  "label": "Max size",
+                  "type": "number",
+                  "model": "maxSize",
+                  "placeholder": "100000",
+                  "tip": [
+                    "Maximum allowed size of cache before entry will start getting evicted."
+                  ]
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -391,51 +543,51 @@
                 {
                   "label": "Create query",
                   "type": "text",
-                  "model": "ñreateTableQuery",
-                  "placeholder": "create table if not exists ENTRIES (key binary primary key, val binary)",
+                  "model": "createTableQuery",
+                  "placeholder": "SQL for table creation",
                   "tip": [
-                    "Default query for table creation in underlying database.",
-                    "create table if not exists ENTRIES (key binary primary key, val binary)"
+                    "Query for table creation in underlying database.",
+                    "Default value: create table if not exists ENTRIES (key binary primary key, val binary)"
                   ]
                 },
                 {
                   "label": "Load query",
                   "type": "text",
                   "model": "loadQuery",
-                  "placeholder": "select * from ENTRIES where key=?",
+                  "placeholder": "SQL for load entry",
                   "tip": [
-                    "Default load entry query from underlying database.",
-                    "select * from ENTRIES where key=?"
+                    "Query for entry load from underlying database.",
+                    "Default value: select * from ENTRIES where key=?"
                   ]
                 },
                 {
                   "label": "insert query",
                   "type": "text",
                   "model": "insertQuery",
-                  "placeholder": "insert into ENTRIES (key, val) values (?, ?)",
+                  "placeholder": "SQL for insert entry",
                   "tip": [
-                    "Default insert entry query to underlying database.",
-                    "insert into ENTRIES (key, val) values (?, ?)"
+                    "Query for insert entry into underlying database.",
+                    "Default value: insert into ENTRIES (key, val) values (?, ?)"
                   ]
                 },
                 {
                   "label": "Update query",
                   "type": "text",
                   "model": "updateQuery",
-                  "placeholder": "update ENTRIES set val=? where key=?",
+                  "placeholder": "SQL for update entry",
                   "tip": [
-                    "Default update entry query to underlying database.",
-                    "update ENTRIES set val=? where key=?"
+                    "Query fpr update entry in underlying database.",
+                    "Default value: update ENTRIES set val=? where key=?"
                   ]
                 },
                 {
                   "label": "Delete query",
                   "type": "text",
                   "model": "deleteQuery",
-                  "placeholder": "delete from ENTRIES where key=?",
+                  "placeholder": "SQL for delete entry",
                   "tip": [
-                    "Default delete entry query to underlying database.",
-                    "delete from ENTRIES where key=?"
+                    "Query for delete entry from underlying database.",
+                    "Default value: delete from ENTRIES where key=?"
                   ]
                 }
               ]

@@ -107,10 +107,44 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true;
     }
 
-    addBeanWithProperties(res, cluster.atomicConfiguration, 'cfg', 'atomicConfiguration', 'atomicCfg', 'AtomicConfiguration', {
-        backups: null,
-        cacheMode: 'CacheMode',
-        atomicSequenceReserveSize: null});
+    if (cluster.caches && cluster.caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        var names = [];
+
+        for (var i = 0; i < cluster.caches.length; i++) {
+            res.emptyLineIfNeeded();
+
+            var cache = cluster.caches[i];
+
+            var cacheName = cache.name.replace(/[^A-Za-z_0-9]+/, '_');
+            cacheName = 'cache' + cacheName.charAt(0).toLocaleUpperCase() + cacheName.slice(1);
+
+            names.push(cacheName);
+
+            generateCacheConfiguration(cache, cacheName, res);
+
+            res.needEmptyLine = true;
+        }
+
+        res.emptyLineIfNeeded();
+
+        res.append('cfg.setCacheConfiguration(');
+
+        for (i = 0; i < names.length; i++) {
+            if (i > 0)
+                res.append(', ');
+
+            res.append(names[i]);
+        }
+
+        res.line(');');
+
+        res.needEmptyLine = true;
+    }
+
+    addBeanWithProperties(res, cluster.atomicConfiguration, 'cfg', 'atomicConfiguration', 'atomicCfg',
+        generatorUtils.atomicConfiguration.shortClassName, generatorUtils.atomicConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -127,7 +161,7 @@ exports.generateClusterConfiguration = function(cluster) {
 
     res.needEmptyLine = true;
 
-    addListProperty(res, cluster, 'cfg', 'includeEventTypes');
+    addMultiparamProperty(res, cluster, 'cfg', 'includeEventTypes', 'EventType');
 
     res.needEmptyLine = true;
 
@@ -149,13 +183,8 @@ exports.generateClusterConfiguration = function(cluster) {
     addProperty(res, cluster, 'cfg', 'peerClassLoadingThreadPoolSize');
     res.needEmptyLine = true;
 
-    addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'cfg', 'swapSpaceSpi', 'swapSpi', 'FileSwapSpaceSpi', {
-        baseDirectory: null,
-        readStripesNumber: null,
-        maximumSparsity: 'f',
-        maxWriteQueueSize: null,
-        writeBufferSize: null
-    }, true);
+    addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'cfg', 'swapSpaceSpi', 'swapSpi',
+        generatorUtils.swapSpaceSpi.shortClassName, generatorUtils.swapSpaceSpi.fields, true);
 
     res.needEmptyLine = true;
 
@@ -174,14 +203,8 @@ exports.generateClusterConfiguration = function(cluster) {
     res.needEmptyLine = true;
 
     addBeanWithProperties(res, cluster.transactionConfiguration, 'cfg', 'transactionConfiguration',
-        'transactionConfiguration', 'TransactionConfiguration', {
-            defaultTxConcurrency: 'TransactionConcurrency',
-            transactionIsolation: 'TransactionIsolation',
-            defaultTxTimeout: null,
-            pessimisticTxLogLinger: null,
-            pessimisticTxLogSize: null,
-            txSerializableEnabled: null
-        });
+        'transactionConfiguration', generatorUtils.transactionConfiguration.shortClassName,
+        generatorUtils.transactionConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -202,26 +225,29 @@ exports.generateClusterConfiguration = function(cluster) {
     return res.join('');
 };
 
-var evictionPolicies = {
-    'LRU': {shortClassName: 'LruEvictionPolicy', fields: {batchSize: null, maxMemorySize: null}},
-    'RND': {shortClassName: 'RandomEvictionPolicy', fields: {batchSize: null}},
-    'FIFO': {shortClassName: 'FifoEvictionPolicy', fields: {batchSize: null}},
-    'SORTED': {shortClassName: 'SortedEvictionPolicy', fields: {batchSize: null}}
-};
+function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
+    if (evictionPolicy && evictionPolicy.kind) {
+        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
 
-exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
+        var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
+
+        addBeanWithProperties(res, obj, varName, propertyName, propertyName, e.shortClassName, e.fields, true);
+    }
+}
+
+exports.generateCacheConfiguration = generateCacheConfiguration;
+
+function generateCacheConfiguration(cacheCfg, varName, res) {
     if (!res)
         res = generatorUtils.builder();
-    
+
+    res.emptyLineIfNeeded();
+
     res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
     
     res.needEmptyLine = true;
 
-    if (cacheCfg.mode) {
-        res.emptyLineIfNeeded();
-
-        res.line(varName + '.setCacheMode(CacheMode.' + cacheCfg.mode  + ');');
-    }
+    addProperty(res, cacheCfg, varName, 'mode', 'CacheMode', 'cacheMode');
 
     addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');
     addProperty(res, cacheCfg, varName, 'backups');
@@ -233,22 +259,16 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     addProperty(res, cacheCfg, varName, 'swapEnabled');
 
     res.needEmptyLine = true;
-    
-    if (cacheCfg.evictionPolicy) {
-        var e = evictionPolicies[cacheCfg.evictionPolicy.kind];
 
-        addBeanWithProperties(res, cacheCfg.evictionPolicy[cacheCfg.evictionPolicy.kind.toUpperCase()], varName, 
-            'evictionPolicy', 'evictionPolicy', e.shortClassName, e.fields, true);
-    }
+    createEvictionPolicy(res, cacheCfg.evictionPolicy, varName, 'evictionPolicy');
 
     res.needEmptyLine = true;
     
     addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
         'NearCacheConfiguration', {nearStartSize: null, atomicSequenceReserveSize: null}, true);
     
-    if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy) {
-        res.line('nearConfiguration.setNearEvictionPolicy(new ' 
-            + evictionPolicies[cacheCfg.nearConfiguration.nearEvictionPolicy].shortClassName + '());');
+    if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
+        createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
     }
 
     res.needEmptyLine = true;
@@ -344,7 +364,7 @@ exports.generateCacheConfiguration = function(cacheCfg, varName, res) {
     addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
     
     return res;
-};
+}
 
 function toJavaCode(val, type) {
     if (val == null)
@@ -368,13 +388,14 @@ function toJavaCode(val, type) {
     throw "Unknown type: " + typeof(val) + ' (' + val + ')';
 }
 
-function addProperty(res, obj, objVariableName, propName, enumType) {
+function addProperty(res, obj, objVariableName, propName, enumType, setterName) {
     var val = obj[propName];
     
     if (val) {
         res.emptyLineIfNeeded();
-        
-        res.line(objVariableName + '.' + getSetterName(propName) + '(' + toJavaCode(val, enumType)  + ');');
+
+        res.line(objVariableName + '.' + getSetterName(setterName ? setterName : propName)
+            + '(' + toJavaCode(val, enumType)  + ');');
     }
 }
 
@@ -382,13 +403,11 @@ function getSetterName(propName) {
     return 'set' + propName.charAt(0).toLocaleUpperCase() + propName.slice(1);
 }
 
-function addListProperty(res, obj, objVariableName, propName, enumType) {
+function addListProperty(res, obj, objVariableName, propName, enumType, setterName) {
     var val = obj[propName];
     
     if (val && val.length > 0) {
-        var setterName = getSetterName(propName);
-        
-        res.append(objVariableName + '.' + setterName + '(Arrays.asList(');
+        res.append(objVariableName + '.' + getSetterName(setterName ? setterName : propName) + '(Arrays.asList(');
 
         for (var i = 0; i < val.length; i++) {
             if (i > 0)
@@ -401,13 +420,11 @@ function addListProperty(res, obj, objVariableName, propName, enumType) {
     }
 }
 
-function addMultiparamProperty(res, obj, objVariableName, propName, type) {
+function addMultiparamProperty(res, obj, objVariableName, propName, type, setterName) {
     var val = obj[propName];
     
     if (val && val.length > 0) {
-        var setterName = getSetterName(propName);
-        
-        res.append(objVariableName + '.' + setterName + '(');
+        res.append(objVariableName + '.' + getSetterName(setterName ? setterName : propName) + '(');
 
         for (var i = 0; i < val.length; i++) {
             if (i > 0)
@@ -420,38 +437,39 @@ function addMultiparamProperty(res, obj, objVariableName, propName, type) {
     }
 }
 
-function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName, beanClass, props, alwaysCreateBean) {
+function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
     if (!bean)
         return;
     
-    var hasProps = false;
-    for (var propName in props) {
-        if (props.hasOwnProperty(propName)) {
-            if (bean[propName]) {
-                hasProps = true;
-                break;
-            }
-        }
-    }
-    
-    if (hasProps) {
+    if (generatorUtils.hasProperty(bean, props)) {
         if (!res.emptyLineIfNeeded()) {
             res.line();
         }
         
         res.line(beanClass + ' ' + beanVarName + ' = new ' + beanClass + '();');
-        for (propName in props) {
+        for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
-                var val = bean[propName];
-                if (val) {
-                    var type = props[propName];
-                    
-                    if (type == 'list') {
-                        addListProperty(res, bean, beanVarName, propName);
+                var setterName = null;
+                var type = null;
+
+                var descr = props[propName];
+
+                if (descr) {
+                    if (typeof(descr) == 'string') {
+                        type = descr;
                     }
-                    else {
-                        addProperty(res, bean, beanVarName, propName, type);
+                    if (typeof(descr) == 'object') {
+                        type = descr.type;
+
+                        setterName = descr.setterName
                     }
+                }
+
+                if (type == 'list') {
+                    addListProperty(res, bean, beanVarName, propName, type, setterName);
+                }
+                else {
+                    addProperty(res, bean, beanVarName, propName, type, setterName);
                 }
             }
         }
@@ -459,7 +477,7 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
         
         res.needEmptyLine = true;
     }
-    else if (alwaysCreateBean) {
+    else if (createBeanAlthoughNoProps) {
         res.emptyLineIfNeeded();
         
         res.line(objVarName + '.' + getSetterName(beanPropName) + '(new ' + beanClass + '());');

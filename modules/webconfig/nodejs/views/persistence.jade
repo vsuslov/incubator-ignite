@@ -27,13 +27,21 @@ block content
         p Create and configure Ignite persistence.
         hr
     .docs-body(ng-controller='persistenceController')
-        form.form-horizontal(name='persistenceForm')
+        .links(ng-hide='persistences.length == 0')
+            table.col-sm-12(st-table='persistences')
+                tbody
+                    tr(ng-repeat='row in persistences track by row._id')
+                        td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                            a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}, {{row.database | displayValue:databases:'Database not set'}}
+        button.btn.btn-primary(ng-click='createItem()') Add
+        hr
+        form.form-horizontal(name='inputForm')
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     .panel-heading
                         h3
-                            a(bs-collapse-toggle) General
+                            a(bs-collapse-toggle) Connection
                     .panel-collapse(bs-collapse-target)
                         .panel-body
-                            .settings-row(ng-repeat='field in general')
+                            .settings-row(ng-repeat='field in connection')
                                 +form-row
