@@ -281,9 +281,11 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
     res.emptyLineIfNeeded();
 
     res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
-    
+
     res.needEmptyLine = true;
 
+    addProperty(res, cacheCfg, varName, 'name');
+    
     addProperty(res, cacheCfg, varName, 'mode', 'CacheMode', 'cacheMode');
 
     addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');

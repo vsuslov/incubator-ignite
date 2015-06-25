@@ -289,6 +289,10 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
 
+    addProperty(res, cacheCfg, 'name');
+
+    res.needEmptyLine = true;
+
     addProperty(res, cacheCfg, 'mode', 'cacheMode');
 
     addProperty(res, cacheCfg, 'atomicityMode');
