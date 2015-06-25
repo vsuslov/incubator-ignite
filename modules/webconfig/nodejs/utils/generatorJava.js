@@ -479,6 +479,28 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
                             addProperty(res, bean, beanVarName, propName, 'float', descr.setterName);
                             break;
                         
+                        case 'propertiesAsList':
+                            var val = bean[propName];
+                            
+                            if (val && val.length > 0) {
+                                res.line('Properties ' + descr.propVarName + ' = new Properties();');
+                                
+                                for (var i = 0; i < val.length; i++) {
+                                    var nameAndValue = val[i];
+                                    
+                                    var eqIndex = nameAndValue.indexOf('=');
+                                    if (eqIndex >= 0) {
+                                        res.line(descr.propVarName + '.setProperty(' 
+                                            + nameAndValue.substring(0, eqIndex) + ', ' 
+                                            + nameAndValue.substr(eqIndex + 1) + ');');
+                                    }
+
+                                }
+                                
+                                res.line(beanVarName + '.' + getSetterName(propName) + '(' + descr.propVarName + ');');
+                            }
+                            break;
+                        
                         case 'className':
                             if (bean[propName]) {
                                 res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + bean[propName] + '());');

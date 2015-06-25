@@ -151,7 +151,7 @@ exports.storeFactories = {
     }),
 
     CacheHibernateBlobStoreFactory: new ClassDescriptor('org.apache.ignite.cache.store.hibernate.CacheHibernateBlobStoreFactory', {
-        hibernateProperties: {type: 'list'}
+        hibernateProperties: {type: 'propertiesAsList', propVarName: 'props'}
     })
 };
 

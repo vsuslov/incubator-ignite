@@ -410,14 +410,6 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
     if (!bean)
         return;
 
-    var hasProp = false;
-    for (var i = 0; i < props.length; i++) {
-        if (bean[props[i]]) {
-            hasProp = true;
-            break;
-        }
-    }
-    
     if (generatorUtils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
@@ -435,6 +427,27 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                         if (bean[propName]) {
                             res.startBlock('<property name="' + propName + '">');
                             res.line('<bean class="' + generatorUtils.knownClasses[bean[propName]].className + '"/>');
+                            res.endBlock('</property>');
+                        }
+                    }
+                    else if (descr.type == 'propertiesAsList') {
+                        var val = bean[propName];
+
+                        if (val && val.length > 0) {
+                            res.startBlock('<property name="' + propName + '">');
+                            res.startBlock('<props>');
+
+                            for (var i = 0; i < val.length; i++) {
+                                var nameAndValue = val[i];
+
+                                var eqIndex = nameAndValue.indexOf('=');
+                                if (eqIndex >= 0) {
+                                    res.line('<prop key="' + escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
+                                            + escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
+                                }
+                            }
+
+                            res.endBlock('</props>');
                             res.endBlock('</property>');
                         }
                     }
