@@ -87,7 +87,7 @@ var CacheSchema = new Schema({
     rebalanceTimeout: Number,
     rebalanceThrottle: Number,
 
-    store: {
+    cacheStoreFactory: {
         kind: {
             type: String,
             enum: ['CacheJdbcPojoStoreFactory', 'CacheJdbcBlobStoreFactory', 'CacheHibernateBlobStoreFactory']
