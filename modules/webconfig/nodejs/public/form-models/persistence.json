@@ -4,8 +4,7 @@
       "label": "Name",
       "type": "text",
       "model": "name",
-      "required": true,
-      "placeholder": "Input name"
+      "required": true
     },
     {
       "label": "Database",
@@ -14,7 +13,25 @@
       "placeholder": "Choose database",
       "items": "databases",
       "tip": [
-        "Select database to connect and generate cache type metadata"
+        "Select database to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Host",
+      "type": "text",
+      "model": "host",
+      "placeholder": "IP address or host",
+      "tip": [
+        "IP address or host name where database server deployed."
+      ]
+    },
+    {
+      "label": "Port",
+      "type": "number",
+      "model": "port",
+      "placeholder": "",
+      "tip": [
+        "Port number for connecting to database."
       ]
     },
     {
@@ -23,7 +40,7 @@
       "model": "user",
       "placeholder": "",
       "tip": [
-        "User name for connecting to database"
+        "User name for connecting to database."
       ]
     },
     {
@@ -32,7 +49,8 @@
       "model": "password",
       "placeholder": "",
       "tip": [
-        "User name for connecting to database"
+        "Password for connecting to database.",
+        "Note, password would not be saved."
       ]
     }
   ]
