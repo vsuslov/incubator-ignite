@@ -60,7 +60,8 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.cacheStoreFactories = [
             {value: 'CacheJdbcPojoStoreFactory', label: 'JDBC POJO store factory'},
             {value: 'CacheJdbcBlobStoreFactory', label: 'JDBC BLOB store factory'},
-            {value: 'CacheHibernateBlobStoreFactory', label: 'Hibernate BLOB store factory'}
+            {value: 'CacheHibernateBlobStoreFactory', label: 'Hibernate BLOB store factory'},
+            {value: undefined, label: 'Not set'}
         ];
 
         $scope.cacheStoreJdbcDialects = [
