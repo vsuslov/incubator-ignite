@@ -17,15 +17,36 @@
 
 var configuratorModule = angular.module('ignite-web-configurator', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
 
-configuratorModule.service('commonFunctions', function() {
-   return {
-       swapSimpleItems: function(a, ix1, ix2) {
-           var tmp = a[ix1];
+configuratorModule.service('commonFunctions', function () {
+    return {
+        getModel: function(obj, path) {
+            if (!path)
+                return obj;
+
+            path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+            path = path.replace(/^\./, '');           // strip a leading dot
+
+            var segs = path.split('.');
+            var root = obj;
+
+            while (segs.length > 0) {
+                var pathStep = segs.shift();
+
+                if (typeof root[pathStep] === 'undefined')
+                    root[pathStep] = {};
+
+                root = root[pathStep];
+            }
+
+            return root;
+        },
+        swapSimpleItems: function (a, ix1, ix2) {
+            var tmp = a[ix1];
 
             a[ix1] = a[ix2];
             a[ix2] = tmp;
         },
-        joinTip: function (arr) {
+        joinTip: function(arr) {
             if (!arr) {
                 return arr;
             }
@@ -42,7 +63,7 @@ configuratorModule.service('commonFunctions', function() {
 
             return lines.join("");
         },
-        getFldMdl: function (obj, path) {
+        getFldMdl: function(obj, path) {
             path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
             path = path.replace(/^\./, '');           // strip a leading dot
 
@@ -51,15 +72,17 @@ configuratorModule.service('commonFunctions', function() {
             for (var i = 0; i < a.length; ++i) {
                 var k = a[i];
 
-                if (k in obj)
+                if (k in obj) {
                     obj = obj[k];
-                else
+                }
+                else {
                     return;
+                }
             }
 
             return obj;
         },
-        setFldMdl: function (obj, path, value) {
+        setFldMdl: function(obj, path, value) {
             path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
             path = path.replace(/^\./, '');           // strip a leading dot
 
@@ -69,19 +92,23 @@ configuratorModule.service('commonFunctions', function() {
                 var k = a[i];
 
                 if (k in obj) {
-                    if (!obj[k])
+                    if (!obj[k]) {
                         obj[k] = {};
+                    }
                 }
-                else
+                else {
                     obj[k] = {};
+                }
 
                 obj = obj[k];
             }
 
-            if (value)
+            if (value) {
                 obj[a[a.length - 1]] = value;
-            else
+            }
+            else {
                 delete obj[a[a.length - 1]];
+            }
 
             //
             //if (group && group.model && field.group)
@@ -132,11 +159,13 @@ configuratorModule.filter('displayValue', function () {
             return item.value == v;
         });
 
-        if (i >= 0)
+        if (i >= 0) {
             return m[i].label;
+        }
 
-        if (dflt)
+        if (dflt) {
             return dflt;
+        }
 
         return 'Unknown value';
     }
