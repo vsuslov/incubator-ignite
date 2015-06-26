@@ -92,9 +92,17 @@ router.post('/remove', function(req, res) {
 router.post('/pg', function(req, res) {
     var pg = require('pg');
 
-    //var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/ggmonitor';
+    var host = req.body.host;
+    var port = req.body.port;
 
-    pg.connect(req.body.connectionString, function(err, client, done) {
+    var username = req.body.username;
+    var password = req.body.password;
+
+    var dbName = req.body.dbName;
+
+    var connectionString = sprintf('postgres://%s:%s@%s:%d/%s', username, password, host, port, dbName);
+
+    pg.connect(connectionString, function(err, client, done) {
         if(err)
             res.status(500).send(err.message);
 

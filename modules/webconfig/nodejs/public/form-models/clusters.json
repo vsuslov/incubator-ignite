@@ -32,8 +32,7 @@
     {
       "label": "Discovery",
       "type": "dropdown-details",
-      "group": "discovery",
-      "model": "kind",
+      "model": "discovery.kind",
       "required": true,
       "placeholder": "Choose discovery",
       "items": "discoveries",
@@ -48,7 +47,7 @@
               "tableLabel": "Addresses",
               "label": "address",
               "type": "table-simple",
-              "model": "addresses",
+              "model": "discovery.Vm.addresses",
               "editIdx": -1,
               "reordering": true,
               "placeholder": "IP address:port",
@@ -78,7 +77,7 @@
             {
               "label": "IP address",
               "type": "text",
-              "model": "multicastGroup",
+              "model": "discovery.Multicast.multicastGroup",
               "placeholder": "228.1.2.4",
               "tip": [
                 "IP address of multicast group."
@@ -87,7 +86,7 @@
             {
               "label": "Port number",
               "type": "number",
-              "model": "multicastPort",
+              "model": "discovery.Multicast.multicastPort",
               "max": 65535,
               "placeholder": "47400",
               "tip": [
@@ -97,7 +96,7 @@
             {
               "label": "Waits for reply",
               "type": "number",
-              "model": "responseWaitTime",
+              "model": "discovery.Multicast.responseWaitTime",
               "placeholder": "500",
               "tip": [
                 "Time in milliseconds IP finder waits for reply to multicast address request."
@@ -106,7 +105,7 @@
             {
               "label": "Attempts count",
               "type": "number",
-              "model": "addressRequestAttempts",
+              "model": "discovery.Multicast.addressRequestAttempts",
               "placeholder": "2",
               "tip": [
                 "Number of attempts to send multicast address request.",
@@ -116,7 +115,7 @@
             {
               "label": "Local address",
               "type": "text",
-              "model": "localAddress",
+              "model": "discovery.Multicast.localAddress",
               "tip": [
                 "Local host address used by this IP finder.",
                 "If provided address is non-loopback then multicast socket is bound to this interface.",
@@ -131,7 +130,7 @@
             {
               "label": "Bucket name",
               "type": "text",
-              "model": "bucketName",
+              "model": "discovery.S3.bucketName",
               "placeholder": ""
             }
           ]
@@ -142,7 +141,7 @@
             {
               "label": "Credential",
               "type": "text",
-              "model": "credential",
+              "model": "discovery.Cloud.credential",
               "placeholder": "",
               "tip": [
                 "Credential that is used during authentication on the cloud.",
@@ -152,7 +151,7 @@
             {
               "label": "Path to credential",
               "type": "text",
-              "model": "credentialPath",
+              "model": "discovery.Cloud.credentialPath",
               "placeholder": "",
               "tip": [
                 "Path to a credential that is used during authentication on the cloud.",
@@ -162,7 +161,7 @@
             {
               "label": "Identity",
               "type": "text",
-              "model": "identity",
+              "model": "discovery.Cloud.identity",
               "placeholder": "",
               "tip": [
                 "Identity that is used as a user name during a connection to the cloud.",
@@ -172,7 +171,7 @@
             {
               "label": "Provider",
               "type": "text",
-              "model": "provider",
+              "model": "discovery.Cloud.provider",
               "placeholder": "",
               "tip": [
                 "Cloud provider to use."
@@ -186,7 +185,7 @@
             {
               "label": "Project name",
               "type": "text",
-              "model": "projectName",
+              "model": "discovery.GoogleStorage.projectName",
               "placeholder": "",
               "tip": [
                 "Google Cloud Platforms project name.",
@@ -196,7 +195,7 @@
             {
               "label": "Bucket name",
               "type": "text",
-              "model": "bucketName",
+              "model": "discovery.GoogleStorage.bucketName",
               "placeholder": "",
               "tip": [
                 "Google Cloud Storage bucket name.",
@@ -207,7 +206,7 @@
             {
               "label": "Private key path",
               "type": "text",
-              "model": "serviceAccountP12FilePath",
+              "model": "discovery.GoogleStorage.serviceAccountP12FilePath",
               "placeholder": "",
               "tip": [
                 "Full path to the private key in PKCS12 format of the Service Account."
@@ -216,7 +215,7 @@
             {
               "label": "Account id",
               "type": "text",
-              "model": "accountId",
+              "model": "discovery.GoogleStorage.accountId",
               "placeholder": "",
               "tip": [
                 "Service account ID (typically an e-mail address)."
@@ -230,7 +229,7 @@
             {
               "label": "DB schema should be initialized by Ignite",
               "type": "check",
-              "model": "initSchema",
+              "model": "discovery.Jdbc.initSchema",
               "tip": [
                 "Flag indicating whether DB schema should be initialized by Ignite or was explicitly created by user."
               ]
@@ -243,7 +242,7 @@
             {
               "label": "File path",
               "type": "text",
-              "model": "path",
+              "model": "discovery.SharedFs.path",
               "placeholder": "disco/tcp"
             }
           ]
@@ -254,12 +253,11 @@
   "advanced": [
     {
       "label": "Atomic configuration",
-      "model": "atomicConfiguration",
       "fields": [
         {
           "label": "Backups",
           "type": "number",
-          "model": "backups",
+          "model": "atomicConfiguration.backups",
           "placeholder": "0",
           "tip": [
             "Number of backup nodes."
@@ -268,7 +266,7 @@
         {
           "label": "Cache mode",
           "type": "dropdown",
-          "model": "cacheMode",
+          "model": "atomicConfiguration.cacheMode",
           "placeholder": "PARTITIONED",
           "items": "cacheModes",
           "tip": [
@@ -283,7 +281,7 @@
         {
           "label": "Sequence reserve",
           "type": "number",
-          "model": "atomicSequenceReserveSize",
+          "model": "atomicConfiguration.atomicSequenceReserveSize",
           "placeholder": "1,000",
           "tip": [
             "Default number of sequence values reserved for IgniteAtomicSequence instances.",
@@ -393,8 +391,7 @@
         {
           "label": "Marshaller",
           "type": "dropdown-details",
-          "group": "marshaller",
-          "model": "kind",
+          "model": "marshaller.kind",
           "placeholder": "Choose marshaller",
           "items": "marshallers",
           "tip": [
@@ -407,7 +404,7 @@
                 {
                   "label": "Streams pool size",
                   "type": "number",
-                  "model": "poolSize",
+                  "model": "marshaller.OptimizedMarshaller.poolSize",
                   "placeholder": "0",
                   "tip": [
                     "Specifies size of cached object streams used by marshaller.",
@@ -421,7 +418,7 @@
                 {
                   "label": "Require serializable",
                   "type": "check",
-                  "model": "requireSerializable",
+                  "model": "marshaller.OptimizedMarshaller.requireSerializable",
                   "tip": [
                     "Whether marshaller should require Serializable interface or not."
                   ]
@@ -553,8 +550,7 @@
         {
           "label": "Swap space SPI",
           "type": "dropdown-details",
-          "group": "swapSpaceSpi",
-          "model": "kind",
+          "model": "swapSpaceSpi.kind",
           "items": "swapSpaceSpis",
           "placeholder": "Choose swap SPI",
           "tip": [
@@ -567,7 +563,7 @@
                 {
                   "label": "Base directory",
                   "type": "text",
-                  "model": "baseDirectory",
+                  "model": "swapSpaceSpi.baseDirectory",
                   "placeholder": "swapspace",
                   "tip": [
                     "Base directory where to write files."
@@ -576,7 +572,7 @@
                 {
                   "label": "Read stripe size",
                   "type": "number",
-                  "model": "readStripesNumber",
+                  "model": "swapSpaceSpi.readStripesNumber",
                   "placeholder": "available CPU cores",
                   "tip": [
                     "Read stripe size defines number of file channels to be used concurrently."
@@ -585,7 +581,7 @@
                 {
                   "label": "Maximum sparsity",
                   "type": "number",
-                  "model": "maximumSparsity",
+                  "model": "swapSpaceSpi.maximumSparsity",
                   "placeholder": "0.5",
                   "tip": [
                     "This property defines maximum acceptable wasted file space to whole file size ratio.",
@@ -595,7 +591,7 @@
                 {
                   "label": "Max write queue size",
                   "type": "number",
-                  "model": "maxWriteQueueSize",
+                  "model": "swapSpaceSpi.maxWriteQueueSize",
                   "placeholder": "1024 * 1024",
                   "tip": [
                     "Max write queue size in bytes.",
@@ -605,7 +601,7 @@
                 {
                   "label": "Write buffer size",
                   "type": "number",
-                  "model": "writeBufferSize",
+                  "model": "swapSpaceSpi.writeBufferSize",
                   "placeholder": "Available CPU cores",
                   "tip": [
                     "Write buffer size in bytes.",
@@ -706,12 +702,11 @@
     },
     {
       "label": "Transactions",
-      "model": "transactionConfiguration",
       "fields": [
         {
           "label": "Cache concurrency",
           "type": "dropdown",
-          "model": "defaultTxConcurrency",
+          "model": "transactionConfiguration.defaultTxConcurrency",
           "placeholder": "PESSIMISTIC",
           "items": "transactionConcurrency",
           "tip": [
@@ -721,7 +716,7 @@
         {
           "label": "Isolation",
           "type": "dropdown",
-          "model": "transactionIsolation",
+          "model": "transactionConfiguration.transactionIsolation",
           "placeholder": "REPEATABLE_READ",
           "items": "transactionIsolation",
           "tip": [
@@ -731,7 +726,7 @@
         {
           "label": "Default timeout",
           "type": "number",
-          "model": "defaultTxTimeout",
+          "model": "transactionConfiguration.defaultTxTimeout",
           "placeholder": "0",
           "tip": [
             "Default transaction timeout."
@@ -740,7 +735,7 @@
         {
           "label": "Pessimistic log cleanup delay",
           "type": "number",
-          "model": "pessimisticTxLogLinger",
+          "model": "transactionConfiguration.pessimisticTxLogLinger",
           "placeholder": "10,000",
           "tip": [
             "Cache transaction concurrency to use when one is not explicitly specified."
@@ -749,7 +744,7 @@
         {
           "label": "Pessimistic log size",
           "type": "number",
-          "model": "pessimisticTxLogSize",
+          "model": "transactionConfiguration.pessimisticTxLogSize",
           "placeholder": "0",
           "tip": [
             "Cache transaction concurrency to use when one is not explicitly specified."
@@ -758,7 +753,7 @@
         {
           "label": "Enable serializable cache transactions",
           "type": "check",
-          "model": "txSerializableEnabled",
+          "model": "transactionConfiguration.txSerializableEnabled",
           "tip": [
             "Flag to enable/disable isolation level for cache transactions.",
             "Serializable level does carry certain overhead and if not used, should be disabled."

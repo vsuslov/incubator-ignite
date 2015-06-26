@@ -23,17 +23,17 @@ mixin tipLabel(lines)
     i.tipLabel.fa.fa-question-circle.blank(ng-if='!#{lines}')
 
 mixin exclamation(mdl, err, msg)
-    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm[#{mdl}].$error.#{err}' bs-tooltip data-title='#{msg}' type='button')
+    i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm["#{mdl}"].$error.#{err}' bs-tooltip data-title='#{msg}' type='button')
 
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
 
-    - var detailMdl = 'backupItem[field.group][backupItem[field.group][field.model]][detail.model]'
+    - var detailModel = {'ng-init': 'detailMdl=getFldMdl(backupItem, detail.model)', 'ng-change': 'setFldMdl(backupItem, detail.model, detailMdl)', 'ng-model': 'detailMdl'};
 
     div(ng-switch='detail.type')
         div.checkbox(ng-switch-when='check')
             label
-                input(type='checkbox' ng-model=detailMdl)
+                input(type='checkbox')&attributes(detailModel)
                 |{{detail.label}}
                 +tipLabel('detail.tip')
         div(ng-switch-when='text')
@@ -41,13 +41,13 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(type='text' ng-model=detailMdl placeholder='{{detail.placeholder}}')
+                    input.form-control(type='text' placeholder='{{detail.placeholder}}')&attributes(detailModel)
         div(ng-switch-when='number' )
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' ng-model=detailMdl min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}' placeholder='{{detail.placeholder}}')
+                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{detail.placeholder}}' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE')&attributes(detailModel)
                     +exclamation('detail.model', 'min', 'Value is less than allowable minimum.')
                     +exclamation('detail.model', 'max', 'Value is more than allowable maximum.')
                     +exclamation('detail.model', 'number', 'Invalid value. Only numbers allowed.')
@@ -56,29 +56,29 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model=detailMdl data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
+                    button.form-control(bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailModel)
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
-                button.form-control(bs-select ng-model=detailMdl data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')
+                button.form-control(bs-select data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailModel)
             +tipField('detail.tip')
-        div(ng-switch-when='table-simple' style='margin-right: 5px; margin-top: -0.65em')
-            table.col-sm-12.links-edit(st-table=detailMdl)
+        div(ng-switch-when='table-simple' style='margin-right: 5px; margin-top: -0.65em')&attributes(detailModel)
+            table.col-sm-12.links-edit(st-table='detailMdl')
                 tbody
-                    tr(ng-repeat='item in #{detailMdl} track by $index')
+                    tr(ng-repeat='item in detailMdl track by $index')
                         td.col-sm-11
                             div(ng-show='detail.editIdx != {{$index}}')
-                                a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
-                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
+                                a(ng-click='detail.editIdx = $index; curValue = detailMdl[$index]') {{$index + 1}}) {{item}}
+                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; detailMdl.splice($index, 1)')
                             div(ng-show='detail.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.tipField.fa.fa-floppy-o(ng-click='detail.editIdx = -1; #{detailMdl}[$index]=curValue')
+                                i.tipField.fa.fa-floppy-o(ng-click='detail.editIdx = -1; detailMdl[$index]=curValue')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')
                         td.col-sm-1(ng-if='detail.reordering')
-                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
-                            i.fa.fa-arrow-down(ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
-            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; addDetailSimpleItem(backupItem, field, detail.model, newValue)') Add
+                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(detailMdl, $index, $index - 1); detail.editIdx = -1;')
+                            i.fa.fa-arrow-down(ng-show='$index < detailMdl.length - 1' ng-click='swapSimpleItems(detailMdl, $index, $index + 1); detail.editIdx = -1;')
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || detailMdl.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; detailMdl ? detailMdl.push(newValue) : detailMdl = [newValue]; setFldMdl(backupItem, detail.model, detailMdl);') Add
             +tipField('detail.tip')
             .input-tip
                 input.form-control(type='text' ng-model='newValue' ng-focus='detail.editIdx = -1' placeholder='{{detail.placeholder}}')
@@ -86,13 +86,12 @@ mixin details-row
 mixin form-row
     - var lblClasses = ['col-sm-2']
 
-    - var masterMdl = 'backupItem[field.group][field.model]'
+    - var fieldModel = {'ng-init': 'fieldMdl=getFldMdl(backupItem, field.model)', 'ng-change': 'setFldMdl(backupItem, field.model, fieldMdl)', 'ng-model': 'fieldMdl'};
 
     div(ng-switch='field.type')
         div.checkbox.col-sm-6(ng-switch-when='check')
             label
-                input(type='checkbox' ng-if='!group.model' ng-model='backupItem[field.model]')
-                input(type='checkbox' ng-if='group.model' ng-model='backupItem[group.model][field.model]')
+                input(type='checkbox')&attributes(fieldModel)
                 | {{field.label}}
                 +tipLabel('field.tip')
         div(ng-switch-when='text')
@@ -100,38 +99,34 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='text' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
-                    input.form-control(type='text' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    input.form-control(type='text' placeholder='{{field.placeholder}}' ng-required='field.required')&attributes(fieldModel)
         div(ng-switch-when='password')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='password' ng-if='!group.model' ng-model='backupItem[field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
-                    input.form-control(type='password' ng-if='group.model' ng-model='backupItem[group.model][field.model]' placeholder='{{field.placeholder}}' ng-required='field.required')
+                    input.form-control(type='password' placeholder='{{field.placeholder}}' ng-required='field.required')&attributes(fieldModel)
         div(ng-switch-when='number')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' ng-if='!group.model' ng-model='backupItem[field.model]' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE' placeholder='{{field.placeholder}}' ng-required='field.required')
-                    input.form-control(name='{{field.model}}' type='number' ng-if='group.model' ng-model='backupItem[group.model][field.model]' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}' placeholder='{{field.placeholder}}' ng-required='field.required')
-                    +exclamation('field.model', 'min', 'Value is less than allowable minimum.')
-                    +exclamation('field.model', 'max', 'Value is more than allowable maximum.')
-                    +exclamation('field.model', 'number', 'Invalid value. Only numbers allowed.')
+                    input.form-control(name='{{field.model}}' type='number' placeholder='{{field.placeholder}}' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE' ng-required='field.required')&attributes(fieldModel)
+                    +exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
+                    +exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
+                    +exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-if='!group.model' ng-model='backupItem[field.model]' ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}' )
-                    button.form-control(bs-select ng-if='group.model' ng-model='backupItem[group.model][field.model]' ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+                    button.form-control(bs-select ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldModel)
         div(ng-switch-when='dropdown-multiple')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(ng-disabled='{{field.items}}.length == 0' bs-select ng-model='backupItem[field.model]' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
+                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldModel)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
         div(ng-switch-when='dropdown-details')
             - var expanded = 'field.details[backupItem[field.group][field.model]].expanded'
@@ -140,33 +135,32 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-model=masterMdl ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')
-            a.customize(ng-show='#{masterMdl} && field.details[#{masterMdl}].fields' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
-            .col-sm-6.panel-details(ng-show='#{expanded} && #{masterMdl}')
-                .details-row(ng-repeat='detail in field.details[#{masterMdl}].fields')
+                    button.form-control(bs-select ng-required='field.required' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldModel)
+            a.customize(ng-show='fieldMdl && field.details[fieldMdl].fields' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
+            .col-sm-6.panel-details(ng-show='#{expanded} && fieldMdl')
+                .details-row(ng-repeat='detail in field.details[fieldMdl].fields')
                     +details-row
-        div(ng-switch-when='table-simple')
-            - var tblMdl = 'backupItem[field.model]'
+        div(ng-switch-when='table-simple')&attributes(fieldModel)
             div
-                label {{field.tableLabel}}: {{#{tblMdl}.length}}
+                label {{field.tableLabel}}: {{fieldMdl.length}}
                 +tipLabel('field.tip')
-            table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
+            table.links-edit.col-sm-12(st-table='fieldMdl' ng-show='fieldMdl.length > 0')
                 tbody
-                    tr.col-sm-12(ng-repeat='item in #{tblMdl} track by $index')
+                    tr.col-sm-12(ng-repeat='item in fieldMdl track by $index')
                         td.col-sm-6
                             div(ng-show='field.editIdx != {{$index}}')
-                                a(ng-click='field.editIdx = $index; curValue = #{tblMdl}[$index]') {{$index + 1}}) {{item | compact}}
-                                i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
+                                a(ng-click='field.editIdx = $index; curValue = fieldMdl[$index]') {{$index + 1}}) {{item | compact}}
+                                i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; fieldMdl.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]=curValue')
+                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; fieldMdl[$index]=curValue')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
                         td.col-sm-1(ng-if='field.reordering')
-                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{tblMdl}, $index, $index - 1); field.editIdx = -1;')
-                            i.fa.fa-arrow-down(ng-show='$index < #{tblMdl}.length - 1' ng-click='swapSimpleItems(#{tblMdl}, $index, $index + 1); field.editIdx = -1;')
+                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(fieldMdl, $index, $index - 1); field.editIdx = -1;')
+                            i.fa.fa-arrow-down(ng-show='$index < fieldMdl.length - 1' ng-click='swapSimpleItems(fieldMdl, $index, $index + 1); field.editIdx = -1;')
             .col-sm-6
-                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{tblMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; addSimpleItem(backupItem, field.model, newValue)') Add
+                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || fieldMdl.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; addSimpleItem(backupItem, field.model, newValue)') Add
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')

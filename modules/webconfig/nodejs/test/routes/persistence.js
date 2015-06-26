@@ -1,7 +1,7 @@
 var request = require('supertest'),
     should = require('should'),
     express = require('express'),
-    persistenceRouter = require('../../routes/persistence');
+    persistenceRouter = require('../../routes/persistences');
 
 var app = express();
 
@@ -15,7 +15,13 @@ describe('request.persistence', function(){
     it('should return 200', function(done){
         agent
             .post('/rest/persistence/pg')
-            .send({ connectionString: 'postgres://localhost:5432/ggmonitor' })
+            .send({
+                    username: 'nva',
+                    password: 'nva.141',
+                    host: 'localhost',
+                    port: '5432',
+                    dbName: 'ggmonitor'
+                })
             .end(function(err, res) {
                 if (err)
                     throw err;
