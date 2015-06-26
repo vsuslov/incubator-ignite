@@ -89,7 +89,18 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
 
-                $scope.backupItem = angular.fromJson(sessionStorage.cacheBackupItem);
+                var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
+
+                if (restoredItem) {
+                    var idx = _.findIndex($scope.caches, function (cache) {
+                        return cache._id == restoredItem._id;
+                    });
+
+                    if (idx >= 0)
+                        $scope.selectedItem = $scope.caches[idx];
+
+                    $scope.backupItem = restoredItem;
+                }
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
@@ -115,12 +126,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
             $http.post('/rest/caches/save', item)
                 .success(function (_id) {
-                    var i = _.findIndex($scope.caches, function (cache) {
+                    var idx = _.findIndex($scope.caches, function (cache) {
                         return cache._id == _id;
                     });
 
-                    if (i >= 0)
-                        angular.extend($scope.caches[i], item);
+                    if (idx >= 0)
+                        angular.extend($scope.caches[idx], item);
                     else {
                         item._id = _id;
 
@@ -129,7 +140,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cache saved.', duration: 1, placement: "top", container: '#save-btn'});
+                    $alert({type: "success", title: 'Cache saved.', duration: 2, container: '#save-btn'});
                 })
                 .error(function (errorMessage) {
                     $alert({title: errorMessage});

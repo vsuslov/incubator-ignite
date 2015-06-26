@@ -101,7 +101,18 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                 $scope.spaces = data.spaces;
                 $scope.clusters = data.clusters;
 
-                $scope.backupItem = angular.fromJson(sessionStorage.clusterBackupItem);
+                var restoredItem = angular.fromJson(sessionStorage.clusterBackupItem);
+
+                if (restoredItem) {
+                    var idx = _.findIndex($scope.clusters, function (cluster) {
+                        return cluster._id == restoredItem._id;
+                    });
+
+                    if (idx >= 0)
+                        $scope.selectedItem = $scope.clusters[idx];
+
+                    $scope.backupItem = restoredItem;
+                }
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
@@ -128,12 +139,12 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
             $http.post('/rest/clusters/save', item)
                 .success(function(_id) {
-                    var i = _.findIndex($scope.clusters, function(cluster) {
+                    var idx = _.findIndex($scope.clusters, function(cluster) {
                         return cluster._id == _id;
                     });
 
-                    if (i >= 0)
-                        angular.extend($scope.clusters[i], item);
+                    if (idx >= 0)
+                        angular.extend($scope.clusters[idx], item);
                     else {
                         item._id = _id;
 
@@ -142,7 +153,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cluster saved.', duration: 1, placement: "top", container: '#save-btn'});
+                    $alert({type: "success", title: 'Cluster saved.', duration: 2, container: '#save-btn'});
                 })
                 .error(function(errorMessage) {
                     $alert({title: errorMessage});

@@ -42,7 +42,18 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                 $scope.spaces = data.spaces;
                 $scope.persistences = data.persistences;
 
-                $scope.backupItem = angular.fromJson(sessionStorage.persistenceBackupItem);
+                var restoredItem = angular.fromJson(sessionStorage.persistenceBackupItem);
+
+                if (restoredItem) {
+                    var idx = _.findIndex($scope.persistences, function (persistence) {
+                        return persistence._id == restoredItem._id;
+                    });
+
+                    if (idx >= 0)
+                        $scope.selectedItem = $scope.persistences[idx];
+
+                    $scope.backupItem = restoredItem;
+                }
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
