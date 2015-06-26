@@ -154,7 +154,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cache saved.', duration: 2, container: '#save-btn'});
+                    $alert({type: "success", title: 'Cache "' + item.name  + '" saved.', duration: 2, container: '#save-btn'});
                 })
                 .error(function (errorMessage) {
                     $alert({title: errorMessage});
