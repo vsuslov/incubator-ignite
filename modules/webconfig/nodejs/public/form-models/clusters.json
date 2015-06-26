@@ -463,7 +463,7 @@
           "label": "Elapsed time",
           "type": "number",
           "model": "metricsExpireTime",
-          "placeholder": "0",
+          "placeholder": "Long.MAX_VALUE",
           "min": 1,
           "tip": [
             "Time in milliseconds after which a certain metric value is considered expired."
