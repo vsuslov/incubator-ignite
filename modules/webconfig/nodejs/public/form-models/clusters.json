@@ -253,6 +253,9 @@
   "advanced": [
     {
       "label": "Atomic configuration",
+      "tip": [
+        "Configuration for atomic data structures."
+      ],
       "fields": [
         {
           "label": "Backups",
