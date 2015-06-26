@@ -59,9 +59,42 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             return '';
         }
         
-        return 'OS: ' + $scope.dockerArg.os + '\n' +
-                'IG ver: ' + $scope.dockerArg.igniteVersion + '\n\n' +
-                'cfg: ' + $scope.currCluster._id
+        return "" +
+            "# Start from a Debian image.\n"+
+            "FROM " + $scope.dockerArg.os + "\n"+
+            "\n"+
+            "# Install tools.\n"+
+            "RUN apt-get update && apt-get install -y --fix-missing \\\n"+
+            "  wget \\\n"+
+            "  dstat \\\n"+
+            "  maven \\\n"+
+            "  git\n"+
+            "\n"+
+            "# Intasll Oracle JDK.\n"+
+            "RUN mkdir /opt/jdk\n"+
+            "\n"+
+            "RUN wget --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \\\n"+
+            "  http://download.oracle.com/otn-pub/java/jdk/7u76-b13/jdk-7u76-linux-x64.tar.gz\n"+
+            "\n"+
+            "RUN tar -zxf jdk-7u76-linux-x64.tar.gz -C /opt/jdk\n"+
+            "\n"+
+            "RUN rm jdk-7u76-linux-x64.tar.gz\n"+
+            "\n"+
+            "RUN update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.7.0_76/bin/java 100\n"+
+            "\n"+
+            "RUN update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.7.0_76/bin/javac 100\n"+
+            "\n"+
+            "# Sets java variables.\n"+
+            "ENV JAVA_HOME /opt/jdk/jdk1.7.0_76/\n"+
+            "\n"+
+            "# Create working directory\n"+
+            "WORKDIR /home\n"+
+            "\n"+
+            "RUN wget -O ignite.zip http://tiny.cc/updater/download_ignite.php ; unzip ignite.zip ; rm ignite.zip\n"+
+            "\n"+
+            "COPY ignite-configuration.xml /tmp/ignite-configuration.xml\n"+
+            "\n"+
+            "RUN mv /tmp/ignite-configuration.xml /home/$(ls)/config";
     };
     
     $scope.setSelectedCluster = function(cluster) {
