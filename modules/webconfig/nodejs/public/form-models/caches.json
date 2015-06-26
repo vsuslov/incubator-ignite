@@ -89,7 +89,8 @@
         {
           "label": "Eviction policy",
           "type": "dropdown-details",
-          "model": "evictionPolicy.kind",
+          "path": "evictionPolicy",
+          "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
@@ -102,13 +103,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "evictionPolicy.LRU.batchSize",
+                  "path": "evictionPolicy.LRU",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "evictionPolicy.LRU.maxMemorySize",
+                  "path": "evictionPolicy.LRU",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -117,7 +120,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "evictionPolicy.LRU.maxSize",
+                  "path": "evictionPolicy.LRU",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -131,7 +135,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "evictionPolicy.RND.maxSize",
+                  "path": "evictionPolicy.RND",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -145,13 +150,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "evictionPolicy.FIFO.batchSize",
+                  "path": "evictionPolicy.FIFO",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "evictionPolicy.FIFO.maxMemorySize",
+                  "path": "evictionPolicy.FIFO",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -160,7 +167,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "evictionPolicy.FIFO.maxSize",
+                  "path": "evictionPolicy.FIFO",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -174,13 +182,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "evictionPolicy.SORTED.batchSize",
+                  "path": "evictionPolicy.SORTED",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "evictionPolicy.SORTED.maxMemorySize",
+                  "path": "evictionPolicy.SORTED",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -189,7 +199,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "evictionPolicy.SORTED.maxSize",
+                  "path": "evictionPolicy.SORTED",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -215,7 +226,8 @@
         {
           "label": "Start size",
           "type": "number",
-          "model": "nearConfiguration.nearStartSize",
+          "path": "nearConfiguration",
+          "model": "nearStartSize",
           "placeholder": "375000",
           "tip": [
             "Initial cache size for near cache which will be used to pre-create internal hash table after start."
@@ -224,7 +236,8 @@
         {
           "label": "Eviction policy",
           "type": "dropdown-details",
-          "model": "nearConfiguration.nearEvictionPolicy.kind",
+          "path": "nearConfiguration.nearEvictionPolicy",
+          "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
           "tip": [
@@ -237,13 +250,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.LRU.batchSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.LRU",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.LRU.maxMemorySize",
+                  "path": "nearConfiguration.nearEvictionPolicy.LRU",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -252,7 +267,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.LRU.maxSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.LRU",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -266,7 +282,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.RND.maxSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.RND",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -280,13 +297,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.FIFO.batchSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.FIFO",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.FIFO.maxMemorySize",
+                  "path": "nearConfiguration.nearEvictionPolicy.FIFO",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -295,7 +314,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.FIFO.maxSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.FIFO",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -309,13 +329,15 @@
                 {
                   "label": "Batch size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.SORTED.batchSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.SORTED",
+                  "model": "batchSize",
                   "placeholder": "1"
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.SORTED.maxMemorySize",
+                  "path": "nearConfiguration.nearEvictionPolicy.SORTED",
+                  "model": "maxMemorySize",
                   "placeholder": "0",
                   "tip": [
                     "Maximum allowed cache size in bytes."
@@ -324,7 +346,8 @@
                 {
                   "label": "Max size",
                   "type": "number",
-                  "model": "nearConfiguration.nearEvictionPolicy.SORTED.maxSize",
+                  "path": "nearConfiguration.nearEvictionPolicy.SORTED",
+                  "model": "maxSize",
                   "placeholder": "100000",
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
@@ -469,7 +492,8 @@
           "label": "Store factory",
           "type": "dropdown-details",
           "group": "cacheStoreFactory",
-          "model": "store.kind",
+          "path": "store",
+          "model": "kind",
           "placeholder": "Choose store factory",
           "items": "cacheStoreFactories",
           "tip": [
@@ -482,7 +506,8 @@
                 {
                   "label": "Data source bean",
                   "type": "text",
-                  "model": "store.CacheJdbcPojoStoreFactory.dataSourceBean",
+                  "path": "store.CacheJdbcPojoStoreFactory",
+                  "model": "dataSourceBean",
                   "required": true,
                   "placeholder": "Bean name in Spring context",
                   "tip": [
@@ -492,6 +517,7 @@
                 {
                   "label": "Dialect",
                   "type": "dropdown",
+                  "path": "store.CacheJdbcPojoStoreFactory",
                   "model": "dialect",
                   "placeholder": "Choose JDBC dialect",
                   "items": "store.CacheJdbcPojoStoreFactory.cacheStoreJdbcDialects",
@@ -515,7 +541,8 @@
                 {
                   "label": "user",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.user",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "user",
                   "tip": [
                     "User name for database access."
                   ]
@@ -523,7 +550,8 @@
                 {
                   "label": "Data source bean",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.dataSourceBean",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "dataSourceBean",
                   "placeholder": "Bean name in Spring context",
                   "tip": [
                     "Name of the data source bean in Spring context."
@@ -532,7 +560,8 @@
                 {
                   "label": "Init schema",
                   "type": "check",
-                  "model": "store.CacheJdbcBlobStoreFactory.initSchema",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "initSchema",
                   "tip": [
                     "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
                   ]
@@ -540,7 +569,8 @@
                 {
                   "label": "Create query",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.createTableQuery",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "createTableQuery",
                   "placeholder": "SQL for table creation",
                   "tip": [
                     "Query for table creation in underlying database.",
@@ -550,7 +580,8 @@
                 {
                   "label": "Load query",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.loadQuery",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "loadQuery",
                   "placeholder": "SQL for load entry",
                   "tip": [
                     "Query for entry load from underlying database.",
@@ -560,7 +591,8 @@
                 {
                   "label": "insert query",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.insertQuery",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "insertQuery",
                   "placeholder": "SQL for insert entry",
                   "tip": [
                     "Query for insert entry into underlying database.",
@@ -570,7 +602,8 @@
                 {
                   "label": "Update query",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.updateQuery",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "updateQuery",
                   "placeholder": "SQL for update entry",
                   "tip": [
                     "Query fpr update entry in underlying database.",
@@ -580,7 +613,8 @@
                 {
                   "label": "Delete query",
                   "type": "text",
-                  "model": "store.CacheJdbcBlobStoreFactory.deleteQuery",
+                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "model": "deleteQuery",
                   "placeholder": "SQL for delete entry",
                   "tip": [
                     "Query for delete entry from underlying database.",
@@ -596,7 +630,8 @@
                   "tableLabel": "Hibernate properties",
                   "label": "Hibernate property",
                   "type": "table-simple",
-                  "model": "store.CacheHibernateBlobStoreFactory.hibernateProperties",
+                  "path": "store.CacheHibernateBlobStoreFactory",
+                  "model": "hibernateProperties",
                   "editIdx": -1,
                   "placeholder": "key=value",
                   "tip": [
