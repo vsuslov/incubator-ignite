@@ -61,9 +61,8 @@ block content
                             .form-group
                                 label.control-label.col-sm-3(for='os') Operation System
                                 .col-sm-6
-                                    select#os.form-control(ng-model='dockerArg.os')
-                                        option(value='debian:8') debian:8
-                                        option(value='ubuntu:12.04') ubuntu:12.04
+                                    input#os.form-control(type='text', ng-model='dockerArg.os', data-provide="typeahead",
+                                    placeholder='Enter OS version', data-source='["debian:8", "ubuntu:12.04"]')
                                 
                             .form-group
                                 label.control-label.col-sm-3(for='igniteVersion') Ignite version
