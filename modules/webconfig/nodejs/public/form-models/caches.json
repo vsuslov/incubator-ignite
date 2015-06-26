@@ -74,6 +74,7 @@
           "label": "Off-heap max memory",
           "type": "number",
           "model": "offHeapMaxMemory",
+          "min": -1,
           "placeholder": "-1",
           "tip": [
             "Sets maximum amount of memory available to off-heap storage.",
@@ -83,14 +84,6 @@
             "  <li>0 - Ignite will not limit off-heap storage (it's up to user to properly add and remove entries from cache to ensure that off-heap storage does not grow infinitely.</li>",
             "  <li>Any positive value specifies the limit of off-heap storage in bytes.</li>",
             "</ul>"
-          ]
-        },
-        {
-          "label": "Swap enabled",
-          "type": "check",
-          "model": "swapEnabled",
-          "tip": [
-            "Flag indicating whether swap storage is enabled or not for this cache."
           ]
         },
         {
@@ -206,6 +199,14 @@
               ]
             }
           }
+        },
+        {
+          "label": "Swap enabled",
+          "type": "check",
+          "model": "swapEnabled",
+          "tip": [
+            "Flag indicating whether swap storage is enabled or not for this cache."
+          ]
         }
       ]
     },
@@ -401,8 +402,8 @@
             "Rebalance modes:",
             "<ul>",
             "  <li>Synchronous - in this mode distributed caches will not start until all necessary data is loaded from other available grid nodes.</li>",
-            "  <li>Asynchronous - in this mode entries never end up in heap memory and get stored in offheap memory right away.</li>",
-            "  <li>None - in this mode entry keys will be stored on heap memory, and values will be stored in offheap memory.</li>",
+            "  <li>Asynchronous - in this mode distributed caches will start immediately and will load all necessary data from other available grid nodes in the background.</li>",
+            "  <li>None - in this mode no rebalancing will take place which means that caches will be either loaded on demand from persistent store whenever data is accessed, or will be populated explicitly.</li>",
             "</ul>"
           ]
         },
@@ -645,7 +646,7 @@
           "label": "Default lock timeout",
           "type": "number",
           "model": "defaultLockTimeout",
-          "placeholder": "1",
+          "placeholder": "0",
           "tip": [
             "Default lock acquisition timeout.",
             "If 0 then lock acquisition will never timeout."

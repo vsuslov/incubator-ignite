@@ -29,6 +29,7 @@
       "label": "Port",
       "type": "number",
       "model": "port",
+      "max": 65535,
       "placeholder": "",
       "tip": [
         "Port number for connecting to database."

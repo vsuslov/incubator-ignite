@@ -141,6 +141,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                     }
 
                     $scope.selectItem(item);
+
+                    $alert({type: "success", title: 'Cluster saved.', duration: 1, placement: "top", container: '#save-btn'});
                 })
                 .error(function(errorMessage) {
                     $alert({title: errorMessage});

@@ -128,6 +128,8 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                     }
 
                     $scope.selectItem(item);
+
+                    $alert({type: "success", title: 'Cache saved.', duration: 1, placement: "top", container: '#save-btn'});
                 })
                 .error(function (errorMessage) {
                     $alert({title: errorMessage});

@@ -88,6 +88,7 @@
               "label": "Port number",
               "type": "number",
               "model": "multicastPort",
+              "max": 65535,
               "placeholder": "47400",
               "tip": [
                 "Port number which multicast messages are sent to."
@@ -644,6 +645,7 @@
           "label": "Port base",
           "type": "number",
           "model": "timeServerPortBase",
+          "max": 65535,
           "placeholder": "31100",
           "tip": [
             "Time server provides clock synchronization between nodes.",
