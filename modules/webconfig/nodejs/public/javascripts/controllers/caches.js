@@ -126,6 +126,18 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
+            if (item.cacheStoreFactory && !item.readThrough && !item.writeThrough) {
+                $alert({position: 'top', title: 'Store is configured but read/write through are not enabled!'});
+
+                return;
+            }
+
+            if ((item.readThrough || item.writeThrough) && (!item.cacheStoreFactory || !item.cacheStoreFactory.kind)) {
+                $alert({position: 'top', title: 'Read / write through are enabled but strore is not configured!'});
+
+                return;
+            }
+
             $http.post('/rest/caches/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.caches, function (cache) {
