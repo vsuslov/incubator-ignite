@@ -395,7 +395,7 @@
           "placeholder": "Choose marshaller",
           "items": "marshallers",
           "tip": [
-            "Instance of marshaller to use in grid. If not provided, OptimizedMarshaller will be used on Java HotSpot VM, and JdkMarshaller} will be used on other VMs."
+            "Instance of marshaller to use in grid. If not provided, OptimizedMarshaller will be used on Java HotSpot VM, and JdkMarshaller will be used on other VMs."
           ],
           "details": {
             "OptimizedMarshaller": {
@@ -464,6 +464,7 @@
           "type": "number",
           "model": "metricsExpireTime",
           "placeholder": "0",
+          "min": 1,
           "tip": [
             "Time in milliseconds after which a certain metric value is considered expired."
           ]
@@ -473,6 +474,7 @@
           "type": "number",
           "model": "metricsHistorySize",
           "placeholder": "10,000",
+          "min": 1,
           "tip": [
             "Number of metrics kept in history to compute totals and averages."
           ]
@@ -483,7 +485,7 @@
           "model": "metricsLogFrequency",
           "placeholder": "60,000",
           "tip": [
-            "Frequency of metrics log print out."
+            "Frequency of metrics log print out. To disable set to 0"
           ]
         },
         {
@@ -690,7 +692,7 @@
           ]
         },
         {
-          "label": "Igfs",
+          "label": "IGFS",
           "type": "number",
           "model": "igfsThreadPoolSize",
           "placeholder": "availableProcessors",
@@ -738,7 +740,7 @@
           "model": "transactionConfiguration.pessimisticTxLogLinger",
           "placeholder": "10,000",
           "tip": [
-            "Cache transaction concurrency to use when one is not explicitly specified."
+            "Delay, in milliseconds, after which pessimistic recovery entries will be cleaned up for failed node."
           ]
         },
         {
@@ -747,7 +749,7 @@
           "model": "transactionConfiguration.pessimisticTxLogSize",
           "placeholder": "0",
           "tip": [
-            "Cache transaction concurrency to use when one is not explicitly specified."
+            "Size of pessimistic transactions log stored on node in order to recover transaction commit if originating node has left grid before it has sent all messages to transaction nodes."
           ]
         },
         {
@@ -769,7 +771,10 @@
           "type": "dropdown",
           "model": "segmentationPolicy",
           "placeholder": "STOP",
-          "items": "segmentationPolicy"
+          "items": "segmentationPolicy",
+          "tip": [
+            "Policy that defines how node will react on topology segmentation."
+          ]
         },
         {
           "label": "Resolve attempts count",

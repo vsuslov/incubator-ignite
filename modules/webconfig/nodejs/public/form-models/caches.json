@@ -753,7 +753,7 @@
           "placeholder": "500",
           "tip": [
             "Maximum number of allowed concurrent asynchronous operations.",
-            "If 0 returned then number of concurrent asynchronous operations is unlimited."
+            "If 0 then number of concurrent asynchronous operations is unlimited."
           ]
         }
       ]
