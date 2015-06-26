@@ -19,30 +19,6 @@ var configuratorModule = angular.module('ignite-web-configurator', ['smart-table
 
 configuratorModule.service('commonFunctions', function() {
    return {
-       addSimpleItem: function(backupItem, mdl, item) {
-           if (backupItem[mdl])
-               backupItem[mdl].push(item);
-           else
-               backupItem[mdl] = [item];
-       },
-       addDetailSimpleItem: function(backupItem, field, detailMdl, item) {
-           var fldGrp = field.group;
-           var fldMdl = field.model;
-           var master = backupItem[fldGrp][backupItem[fldGrp][fldMdl]];
-
-           if (!master) {
-               backupItem[fldGrp][backupItem[fldGrp][fldMdl]] = {};
-
-               master = backupItem[fldGrp][backupItem[fldGrp][fldMdl]];
-           }
-
-           var detailRows = master[detailMdl];
-
-           if (detailRows)
-               detailRows.push(item);
-           else
-               master[detailMdl] = [item];
-       },
        swapSimpleItems: function(a, ix1, ix2) {
            var tmp = a[ix1];
 

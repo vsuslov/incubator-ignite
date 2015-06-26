@@ -160,7 +160,7 @@ mixin form-row
                             i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(fieldMdl, $index, $index - 1); field.editIdx = -1;')
                             i.fa.fa-arrow-down(ng-show='$index < fieldMdl.length - 1' ng-click='swapSimpleItems(fieldMdl, $index, $index + 1); field.editIdx = -1;')
             .col-sm-6
-                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || fieldMdl.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; addSimpleItem(backupItem, field.model, newValue)') Add
+                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || fieldMdl.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; fieldMdl ? fieldMdl.push(newValue) : fieldMdl = [newValue]; setFldMdl(backupItem, field.model, fieldMdl);') Add
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
