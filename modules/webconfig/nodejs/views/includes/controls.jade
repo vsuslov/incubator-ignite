@@ -28,12 +28,13 @@ mixin exclamation(mdl, err, msg)
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
 
-    - var detailModel = {'ng-model': 'getModel(backupItem, detail.path)[detail.model]'};
+    - var detailMdl = 'getModel(backupItem, detail.path)[detail.model]';
+    - var detailCommon = {'ng-model': detailMdl};
 
     div(ng-switch='detail.type')
         div.checkbox(ng-switch-when='check')
             label
-                input(type='checkbox')&attributes(detailModel)
+                input(type='checkbox')&attributes(detailCommon)
                 |{{detail.label}}
                 +tipLabel('detail.tip')
         div(ng-switch-when='text')
@@ -41,44 +42,44 @@ mixin details-row
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(type='text' placeholder='{{detail.placeholder}}')&attributes(detailModel)
+                    input.form-control(type='text' placeholder='{{detail.placeholder}}')&attributes(detailCommon)
         div(ng-switch-when='number' )
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{detail.placeholder}}' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE')&attributes(detailModel)
-                    +exclamation('detail.model', 'min', 'Value is less than allowable minimum.')
-                    +exclamation('detail.model', 'max', 'Value is more than allowable maximum.')
-                    +exclamation('detail.model', 'number', 'Invalid value. Only numbers allowed.')
+                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
+                    +exclamation('{{detail.model}}', 'min', 'Value is less than allowable minimum.')
+                    +exclamation('{{detail.model}}', 'max', 'Value is more than allowable maximum.')
+                    +exclamation('{{detail.model}}', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailModel)
+                    button.form-control(bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses) {{detail.label}}:
             .col-sm-8
-                button.form-control(bs-select data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailModel)
+                button.form-control(bs-select data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
             +tipField('detail.tip')
-        div(ng-switch-when='table-simple' style='margin-right: 5px; margin-top: -0.65em')&attributes(detailModel)
-            table.col-sm-12.links-edit(st-table='detailMdl')
+        div(ng-switch-when='table-simple' style='margin-right: 5px; margin-top: -0.65em')&attributes(detailCommon)
+            table.col-sm-12.links-edit(st-table='#{detailMdl}' ng-show='#{detailMdl}.length > 0')
                 tbody
-                    tr(ng-repeat='item in detailMdl track by $index')
+                    tr(ng-repeat='item in #{detailMdl} track by $index')
                         td.col-sm-11
                             div(ng-show='detail.editIdx != {{$index}}')
-                                a(ng-click='detail.editIdx = $index; curValue = detailMdl[$index]') {{$index + 1}}) {{item}}
-                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; detailMdl.splice($index, 1)')
+                                a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
+                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
                             div(ng-show='detail.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.tipField.fa.fa-floppy-o(ng-click='detail.editIdx = -1; detailMdl[$index]=curValue')
+                                i.tipField.fa.fa-floppy-o(ng-click='detail.editIdx = -1; #{detailMdl}[$index]=curValue')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')
                         td.col-sm-1(ng-if='detail.reordering')
                             i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(detailMdl, $index, $index - 1); detail.editIdx = -1;')
-                            i.fa.fa-arrow-down(ng-show='$index < detailMdl.length - 1' ng-click='swapSimpleItems(detailMdl, $index, $index + 1); detail.editIdx = -1;')
-            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || detailMdl.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; detailMdl ? detailMdl.push(newValue) : detailMdl = [newValue]; setFldMdl(backupItem, detail.model, detailMdl);') Add
+                            i.fa.fa-arrow-down(ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; #{detailMdl} ? #{detailMdl}.push(newValue) : #{detailMdl} = [newValue];') Add
             +tipField('detail.tip')
             .input-tip
                 input.form-control(type='text' ng-model='newValue' ng-focus='detail.editIdx = -1' placeholder='{{detail.placeholder}}')
@@ -112,7 +113,7 @@ mixin form-row
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' placeholder='{{field.placeholder}}' min='{{field.min ? field.min : 0}}' max='field.max ? field.max : Number.MAX_VALUE' ng-required='field.required')&attributes(fieldCommon)
+                    input.form-control(name='{{field.model}}' type='number' placeholder='{{field.placeholder}}' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}' ng-required='field.required')&attributes(fieldCommon)
                     +exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
