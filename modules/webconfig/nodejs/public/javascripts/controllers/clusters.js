@@ -38,7 +38,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         ];
 
         $scope.swapSpaceSpis = [
-            {value: 'FileSwapSpaceSpi', label: 'File-based swap'}
+            {value: 'FileSwapSpaceSpi', label: 'File-based swap'},
+            {value: undefined, label: 'Not set'}
         ];
 
         $scope.events = [];
