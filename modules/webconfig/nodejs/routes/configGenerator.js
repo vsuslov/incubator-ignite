@@ -55,7 +55,7 @@ router.get('/', function(req, res) {
                     break;
 
                 case 'java':
-                    res.send(generatorJava.generateClusterConfiguration(cluster, req.query.generateJavaClass));
+                    res.send(generatorJava.generateClusterConfiguration(cluster, req.query.generateJavaClass == 'true'));
                     break;
 
                 default:

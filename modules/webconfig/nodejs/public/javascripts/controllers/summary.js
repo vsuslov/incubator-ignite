@@ -40,10 +40,20 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             .success(
             function (data) {
                 if (lang == 'java') {
-                    $scope.resultJava = data;
+                    if (!$scope.javaResultEditor)
+                        $scope.javaResultEditor = installEditor("javaResultEditor", "ace/mode/java");
+
+                    $scope.javaResultEditor.setValue(data);
+                    
+                    $scope.javaResultEditor.selection.clearSelection()
                 }
                 else if (lang == 'xml') {
-                    $scope.resultXml = data;
+                    if (!$scope.xmlResultEditor)
+                        $scope.xmlResultEditor = installEditor("xmlResultEditor", "ace/mode/xml");
+
+                    $scope.xmlResultEditor.setValue(data);
+
+                    $scope.xmlResultEditor.selection.clearSelection()
                 }
 
                 $scope.loading = false;
@@ -129,5 +139,19 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
 
         $scope.generateConfig()
     };
-
 }]);
+
+function installEditor(elementId, lang) {
+    var editor = ace.edit(elementId);
+
+    editor.setOptions({
+        highlightActiveLine: false,
+        showPrintMargin: false,
+        showGutter: false,
+        theme: "ace/theme/chrome",
+        mode: lang,
+        readOnly: true
+    });
+    
+    return editor;
+}

@@ -18,7 +18,8 @@ extends layout-sidebar
 
 append scripts
     script(src='/javascripts/controllers/summary.js')
-
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js')
+        
 block content
     .docs-header
         h1 Summary
@@ -49,16 +50,19 @@ block content
 
                 div(style='padding-top: 10px')        
                     #xmlResult(ng-show="cfgLang == 'xml'")
-                        textarea.form-control(rows=30, readonly=true)
-                            | {{resultXml}}
+                        .panel.panel-default
+                            .panel-body
+                                #xmlResultEditor.generatedResult
                 
                     #javaResult(ng-show="cfgLang == 'java'")
-                        label
-                            input(type='checkbox', ng-model="generateJavaClass")
-                            | generate java class.
+                        div(style="padding-bottom: 10px")
+                            label
+                                input(type='checkbox', ng-model="generateJavaClass")
+                                | generate java class.
                         
-                        textarea.form-control(rows=30, readonly=true)
-                            | {{resultJava}}
+                        .panel.panel-default
+                            .panel-body
+                                #javaResultEditor.generatedResult
                     
                     #dockerResult(ng-show="cfgLang == 'docker'")
                         p
