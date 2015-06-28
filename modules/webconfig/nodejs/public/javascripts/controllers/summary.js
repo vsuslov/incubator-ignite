@@ -74,18 +74,18 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             "RUN mkdir /opt/jdk\n"+
             "\n"+
             "RUN wget --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \\\n"+
-            "  http://download.oracle.com/otn-pub/java/jdk/7u76-b13/jdk-7u76-linux-x64.tar.gz\n"+
+            "  http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz\n"+
             "\n"+
-            "RUN tar -zxf jdk-7u76-linux-x64.tar.gz -C /opt/jdk\n"+
+            "RUN tar -zxf jdk-7u79-linux-x64.tar.gz -C /opt/jdk\n"+
             "\n"+
-            "RUN rm jdk-7u76-linux-x64.tar.gz\n"+
+            "RUN rm jdk-7u79-linux-x64.tar.gz\n"+
             "\n"+
-            "RUN update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.7.0_76/bin/java 100\n"+
+            "RUN update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.7.0_79/bin/java 100\n"+
             "\n"+
-            "RUN update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.7.0_76/bin/javac 100\n"+
+            "RUN update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.7.0_79/bin/javac 100\n"+
             "\n"+
             "# Sets java variables.\n"+
-            "ENV JAVA_HOME /opt/jdk/jdk1.7.0_76/\n"+
+            "ENV JAVA_HOME /opt/jdk/jdk1.7.0_79/\n"+
             "\n"+
             "# Create working directory\n"+
             "WORKDIR /home\n"+
