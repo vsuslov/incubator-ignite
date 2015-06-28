@@ -53,6 +53,24 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
         os: 'debian:8'
     };
     
+    $scope.downloadDocker = function() {
+        var dockerText = $scope.dockerFile();
+        
+        if (dockerText.length == 0)
+            return;
+        
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(dockerText));
+        pom.setAttribute('download', 'Dockerfile');
+
+        pom.style.display = 'none';
+        document.body.appendChild(pom);
+
+        pom.click();
+
+        document.body.removeChild(pom);
+    };
+    
     $scope.dockerFile = function() {
         if (!$scope.currCluster || !$scope.dockerArg) {
             return '';

@@ -70,6 +70,9 @@ block content
                                     placeholder='Enter OS version', data-source='["debian:8", "ubuntu:12.04"]')
                                 
                             .form-group
+                                | Download as 
+                                a(href, ng-click='downloadDocker()') file
+                                
                                 textarea.form-control(rows=30, readonly=true)
                                     | {{ dockerFile() }}
 
