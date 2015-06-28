@@ -101,13 +101,45 @@ exports.builder = function () {
         return false;
     };
 
+    res.imports = {};
+    
+    res.importClass = function(fullClassName) {
+        var dotIdx = fullClassName.lastIndexOf('.');
+        
+        var shortName;
+        
+        if (dotIdx > 0)
+            shortName = fullClassName.substr(dotIdx + 1);
+        else 
+            shortName = fullClassName;
+        
+        if (this.imports[shortName]) {
+            if (this.imports[shortName] != fullClassName)
+                throw "Class name conflict: " + this.imports[shortName] + ' and ' + fullClassName;
+        }
+        else {
+            this.imports[shortName] = fullClassName;
+        }
+        
+        return shortName;
+    };
+    
+    res.generateImports = function() {
+        var res = [];
+        
+        for (var clsName in this.imports) {
+            if (this.imports.hasOwnProperty(clsName))
+                res.push('import ' + this.imports[clsName] + ';');
+        }
+        
+        return res.join('\n')
+    };
+    
     return res;
 };
 
 function ClassDescriptor(className, fields) {
     this.className = className;
-
-    this.shortClassName = className.substr(className.lastIndexOf('.') + 1);
 
     this.fields = fields;
 }

@@ -40,12 +40,12 @@ block content
 
             #cfgResult.configBox(ng-show='currCluster && !generateError && !loading', style='margin-top: 20px')
                 ul.nav.nav-tabs
-                    li(ng-class="{active: cfgLang=='xml'}")
-                        a(href, ng-click='setCfgLang("xml")') XML
-                    li(ng-class="{active: cfgLang=='java'}")
-                        a(href, ng-click='setCfgLang("java")') Java
+                    li(ng-class='{active: cfgLang=="xml"}')
+                        a(href, ng-click='cfgLang = "xml"') XML
+                    li(ng-class='{active: cfgLang=="java"}')
+                        a(href, ng-click='cfgLang = "java"') Java
                     li(ng-class="{active: cfgLang=='docker'}")
-                        a(href, ng-click='setCfgLang("docker")') Dockerfile
+                        a(href, ng-click='cfgLang = "docker"') Dockerfile
 
                 div(style='padding-top: 10px')        
                     #xmlResult(ng-show="cfgLang == 'xml'")
@@ -53,6 +53,10 @@ block content
                             | {{resultXml}}
                 
                     #javaResult(ng-show="cfgLang == 'java'")
+                        label
+                            input(type='checkbox', ng-model="generateJavaClass")
+                            | generate java class.
+                        
                         textarea.form-control(rows=30, readonly=true)
                             | {{resultJava}}
                     

@@ -17,20 +17,29 @@
 
 var generatorUtils = require("./generatorUtils");
 
-exports.generateClusterConfiguration = function(cluster) {
+exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     var res = generatorUtils.builder();
 
+    if (generateJavaClass) {
+        res.startBlock('public class ConfigurationFactory {');
+        res.line();
+        res.startBlock('public IgniteConfiguration createConfiguration() {');
+    }
+    
+    res.importClass('org.apache.ignite.configuration.IgniteConfiguration');
+    
     res.line('IgniteConfiguration cfg = new IgniteConfiguration();');
     res.line();
 
     if (cluster.discovery) {
         var d = cluster.discovery;
 
+        res.importClass('org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi');
         res.line('TcpDiscoverySpi discovery = new TcpDiscoverySpi();');
         switch (d.kind) {
             case 'Multicast':
                 addBeanWithProperties(res, d.Multicast, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryMulticastIpFinder', {
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder', {
                         multicastGroup: null,
                         multicastPort: null,
                         responseWaitTime: null,
@@ -42,7 +51,7 @@ exports.generateClusterConfiguration = function(cluster) {
 
             case 'Vm':
                 addBeanWithProperties(res, d.Vm, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryVmIpFinder', {
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder', {
                         addresses: {type: 'list'}
                     }, true);
 
@@ -51,9 +60,12 @@ exports.generateClusterConfiguration = function(cluster) {
             case 'S3':
                 if (d.S3) {
                     addBeanWithProperties(res, d.S3, 'discovery', 'ipFinder', 'ipFinder',
-                        'TcpDiscoveryS3IpFinder', {bucketName: null}, true);
+                        'org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder', {bucketName: null}, 
+                        true);
                 }
                 else {
+                    res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
+                    
                     res.line('discovery.setIpFinder(new TcpDiscoveryS3IpFinder());');
                 }
 
@@ -61,7 +73,7 @@ exports.generateClusterConfiguration = function(cluster) {
 
             case 'Cloud':
                 addBeanWithProperties(res, d.Cloud, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryCloudIpFinder', {
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder', {
                         credential: null,
                         credentialPath: null,
                         identity: null,
@@ -72,7 +84,7 @@ exports.generateClusterConfiguration = function(cluster) {
 
             case 'GoogleStorage':
                 addBeanWithProperties(res, d.GoogleStorage, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoveryGoogleStorageIpFinder', {
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder', {
                         projectName: null,
                         bucketName: null,
                         serviceAccountP12FilePath: null
@@ -84,6 +96,8 @@ exports.generateClusterConfiguration = function(cluster) {
                 break;
 
             case 'Jdbc':
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
+                
                 res.line();
                 res.line('TcpDiscoveryJdbcIpFinder ipFinder = new TcpDiscoveryJdbcIpFinder();');
                 res.line('ipFinder.setInitSchema(' + (d.Jdbc.initSchema != null || d.Jdbc.initSchema) + ');');
@@ -94,7 +108,8 @@ exports.generateClusterConfiguration = function(cluster) {
 
             case 'SharedFs':
                 addBeanWithProperties(res, d.SharedFs, 'discovery', 'ipFinder', 'ipFinder',
-                    'TcpDiscoverySharedFsIpFinder', {path: null}, true);
+                    'org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder', {path: null}, 
+                    true);
 
                 break;
 
@@ -146,7 +161,7 @@ exports.generateClusterConfiguration = function(cluster) {
     }
 
     addBeanWithProperties(res, cluster.atomicConfiguration, 'cfg', 'atomicConfiguration', 'atomicCfg',
-        generatorUtils.atomicConfiguration.shortClassName, generatorUtils.atomicConfiguration.fields);
+        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -167,6 +182,8 @@ exports.generateClusterConfiguration = function(cluster) {
         res.emptyLineIfNeeded();
         
         if (cluster.includeEventTypes.length == 1) {
+            res.importClass('org.apache.ignite.events.EventType');
+            
             res.line('cfg.setIncludeEventTypes(EventType.' + cluster.includeEventTypes[0] + ');');
         }
         else {
@@ -220,7 +237,7 @@ exports.generateClusterConfiguration = function(cluster) {
 
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'cfg', 'swapSpaceSpi', 'swapSpi',
-            generatorUtils.swapSpaceSpi.shortClassName, generatorUtils.swapSpaceSpi.fields, true);
+            generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
     }
@@ -240,7 +257,7 @@ exports.generateClusterConfiguration = function(cluster) {
     res.needEmptyLine = true;
 
     addBeanWithProperties(res, cluster.transactionConfiguration, 'cfg', 'transactionConfiguration',
-        'transactionConfiguration', generatorUtils.transactionConfiguration.shortClassName,
+        'transactionConfiguration', generatorUtils.transactionConfiguration.className,
         generatorUtils.transactionConfiguration.fields);
 
     res.needEmptyLine = true;
@@ -259,6 +276,14 @@ exports.generateClusterConfiguration = function(cluster) {
     addProperty(res, cluster, 'cfg', 'utilityCacheKeepAliveTime');
     addProperty(res, cluster, 'cfg', 'utilityCachePoolSize');
 
+    if (generateJavaClass) {
+        res.line('return cfg;');
+        res.endBlock('}');
+        res.endBlock('}');
+        
+        return res.generateImports() + '\n\n' + res.join('')
+    }
+    
     return res.join('');
 };
 
@@ -268,7 +293,7 @@ function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
-        addBeanWithProperties(res, obj, varName, propertyName, propertyName, e.shortClassName, e.fields, true);
+        addBeanWithProperties(res, obj, varName, propertyName, propertyName, e.className, e.fields, true);
     }
 }
 
@@ -280,6 +305,8 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     res.emptyLineIfNeeded();
 
+    res.importClass('org.apache.ignite.configuration.CacheConfiguration');
+    
     res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
 
     res.needEmptyLine = true;
@@ -304,7 +331,8 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
     res.needEmptyLine = true;
     
     addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
-        'NearCacheConfiguration', {nearStartSize: null, atomicSequenceReserveSize: null}, true);
+        'org.apache.ignite.configuration.NearCacheConfiguration', 
+        {nearStartSize: null, atomicSequenceReserveSize: null}, true);
     
     if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
         createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
@@ -351,7 +379,7 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
         var obj = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
         var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
-        addBeanWithProperties(res, obj, varName, 'cacheStoreFactory', 'cacheStoreFactory', data.shortClassName,
+        addBeanWithProperties(res, obj, varName, 'cacheStoreFactory', 'cacheStoreFactory', data.className,
             data.fields, true);
     }
 

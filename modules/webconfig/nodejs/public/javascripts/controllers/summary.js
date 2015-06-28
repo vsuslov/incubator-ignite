@@ -22,17 +22,22 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
         $scope.clusters = data.clusters;
     });
 
-    $scope.cfgLang = 'xml';
-
-    $scope.generateConfig = function(cluster) {
+    $scope.generateConfig = function() {
         var lang = $scope.cfgLang;
 
         if (lang == 'docker')
-            lang = 'xml';
+            return;
+
+        var cluster = $scope.currCluster;
+        
+        if (!cluster)
+            return;
         
         $scope.loading = true;
 
-        $http.get('/rest/configGenerator', {params: {name: cluster.name, lang: lang}}).success(
+        $http.get('/rest/configGenerator', {params: 
+        {name: cluster.name, lang: lang, generateJavaClass: $scope.generateJavaClass}})
+            .success(
             function (data) {
                 if (lang == 'java') {
                     $scope.resultJava = data;
@@ -48,6 +53,11 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
                 $scope.loading = false;
             });
     };
+
+    $scope.cfgLang = 'xml';
+
+    $scope.$watch('cfgLang', $scope.generateConfig);
+    $scope.$watch('generateJavaClass', $scope.generateConfig);
 
     $scope.dockerArg = {
         os: 'debian:8'
@@ -113,21 +123,11 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             "\n"+
             "RUN mv /tmp/*.xml /home/$(ls)/config";
     };
-    
-    $scope.setSelectedCluster = function(cluster) {
+
+    $scope.setSelectedCluster = function (cluster) {
         $scope.currCluster = cluster;
 
-        $scope.generateConfig(cluster)
+        $scope.generateConfig()
     };
-    
-    $scope.setCfgLang = function(lang) {
-        $scope.resultJava = '';
-        $scope.resultXml = '';
-        $scope.resultDocker = '';
-        
-        $scope.cfgLang = lang;
 
-        if ($scope.currCluster)
-            $scope.generateConfig($scope.currCluster, lang)
-    }
 }]);
