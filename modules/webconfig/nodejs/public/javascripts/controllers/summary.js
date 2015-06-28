@@ -50,8 +50,7 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
     };
 
     $scope.dockerArg = {
-        os: 'debian:8',
-        igniteVersion: '1.1.0'
+        os: 'debian:8'
     };
     
     $scope.dockerFile = function() {
@@ -90,11 +89,11 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             "# Create working directory\n"+
             "WORKDIR /home\n"+
             "\n"+
-            "RUN wget -O ignite.zip http://tiny.cc/updater/download_ignite.php ; unzip ignite.zip ; rm ignite.zip\n"+
+            "RUN wget -O ignite.zip http://tiny.cc/updater/download_ignite.php && unzip ignite.zip && rm ignite.zip\n"+
             "\n"+
-            "COPY ignite-configuration.xml /tmp/ignite-configuration.xml\n"+
+            "COPY *.xml /tmp/\n"+
             "\n"+
-            "RUN mv /tmp/ignite-configuration.xml /home/$(ls)/config";
+            "RUN mv /tmp/*.xml /home/$(ls)/config";
     };
     
     $scope.setSelectedCluster = function(cluster) {
