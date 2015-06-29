@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('clustersController', ['$scope', '$alert', '$http', 'commonFunctions', function($scope, $alert, $http, commonFunctions) {
+configuratorModule.controller('clustersController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -87,7 +87,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.clusters = [];
 
         $http.get('/form-models/clusters.json')
-            .success(function(data) {
+            .success(function (data) {
                 $scope.templateTip = data.templateTip;
 
                 $scope.general = data.general;
@@ -96,7 +96,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
         // When landing on the page, get clusters and show them.
         $http.get('/rest/clusters')
-            .success(function(data) {
+            .success(function (data) {
                 $scope.caches = data.caches;
                 $scope.spaces = data.spaces;
                 $scope.clusters = data.clusters;
@@ -120,26 +120,44 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                 }, true);
             });
 
-        $scope.selectItem = function(item) {
+        $scope.selectItem = function (item) {
             $scope.selectedItem = item;
 
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new cluster.
-        $scope.createItem = function() {
+        $scope.createItem = function () {
             $scope.backupItem = angular.copy($scope.create.template);
 
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
         // Save cluster in db.
-        $scope.saveItem = function() {
+        $scope.saveItem = function () {
             var item = $scope.backupItem;
 
+            if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind) {
+                for (var cacheId in item.caches) {
+                    var idx = _.findIndex($scope.caches, function (cache) {
+                        return cache._id == cacheId.value;
+                    });
+
+                    if (idx >= 0) {
+                        var cache = $scope.caches[idx];
+
+                        if (cache.swapEnabled) {
+                            $alert({title: 'Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!'});
+
+                            return;
+                        }
+                    }
+                }
+            }
+
             $http.post('/rest/clusters/save', item)
-                .success(function(_id) {
-                    var idx = _.findIndex($scope.clusters, function(cluster) {
+                .success(function (_id) {
+                    var idx = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;
                     });
 
@@ -153,19 +171,24 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cluster "' + item.name + '" saved.', duration: 2, container: '#save-btn'});
+                    $alert({
+                        type: 'success',
+                        title: 'Cluster "' + item.name + '" saved.',
+                        duration: 2,
+                        container: '#save-btn'
+                    });
                 })
-                .error(function(errorMessage) {
+                .error(function (errorMessage) {
                     $alert({title: errorMessage});
                 });
         };
 
-        $scope.removeItem = function() {
+        $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
             $http.post('/rest/clusters/remove', {_id: _id})
-                .success(function() {
-                    var i = _.findIndex($scope.clusters, function(cluster) {
+                .success(function () {
+                    var i = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;
                     });
 
@@ -176,7 +199,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                         $scope.backupItem = undefined;
                     }
                 })
-                .error(function(errorMessage) {
+                .error(function (errorMessage) {
                     $alert({title: errorMessage});
                 });
         };

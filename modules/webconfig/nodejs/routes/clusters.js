@@ -36,7 +36,7 @@ function selectAll(req, res) {
             return value._id;
         });
 
-        db.Cache.find({space: {$in: space_ids}}, '_id name', function (err, caches) {
+        db.Cache.find({space: {$in: space_ids}}, '_id name swapEnabled', function (err, caches) {
             if (err)
                 return res.status(500).send(err);
 
@@ -46,7 +46,7 @@ function selectAll(req, res) {
                     return res.status(500).send(err.message);
 
                 var cachesJson = caches.map(function(cache) {
-                    return {value: cache._id, label: cache.name};
+                    return {value: cache._id, label: cache.name, swapEnabled: cache.swapEnabled};
                 });
 
                 res.json({spaces: spaces, caches: cachesJson, clusters: clusters});
