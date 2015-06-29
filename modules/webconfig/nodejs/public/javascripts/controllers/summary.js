@@ -61,9 +61,7 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
     $scope.$watch('cfgLang', $scope.generateConfig);
     $scope.$watch('generateJavaClass', $scope.generateConfig);
 
-    $scope.dockerArg = {
-        os: 'debian:8'
-    };
+    $scope.dockerArg = {};
     
     $scope.downloadDocker = function() {
         var dockerText = $scope.dockerFile();
@@ -88,9 +86,14 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             return '';
         }
         
+        var os = $scope.dockerArg.os;
+        if (!os) {
+            os = 'debian:8'
+        }
+        
         return "" +
             "# Start from a Debian image.\n"+
-            "FROM " + $scope.dockerArg.os + "\n"+
+            "FROM " + os + "\n"+
             "\n"+
             "# Install tools.\n"+
             "RUN apt-get update && apt-get install -y --fix-missing \\\n"+
