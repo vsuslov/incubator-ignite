@@ -328,14 +328,16 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     createEvictionPolicy(res, cacheCfg.evictionPolicy, varName, 'evictionPolicy');
 
-    res.needEmptyLine = true;
-    
-    addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
-        'org.apache.ignite.configuration.NearCacheConfiguration', 
-        {nearStartSize: null, atomicSequenceReserveSize: null}, true);
-    
-    if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
-        createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
+    if (cacheCfg.nearConfiguration && (cacheCfg.nearConfiguration.nearStartSize || cacheCfg.nearConfiguration.nearEvictionPolicy.kind)) {
+        res.needEmptyLine = true;
+
+        addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
+            'org.apache.ignite.configuration.NearCacheConfiguration',
+            {nearStartSize: null, atomicSequenceReserveSize: null}, true);
+
+        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
+            createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
+        }
     }
 
     res.needEmptyLine = true;
