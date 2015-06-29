@@ -22,23 +22,38 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
         $scope.clusters = data.clusters;
     });
 
-    $scope.cfgLang = 'xml';
-
-    $scope.generateConfig = function(cluster) {
+    $scope.generateConfig = function() {
         var lang = $scope.cfgLang;
 
         if (lang == 'docker')
-            lang = 'xml';
+            return;
+
+        var cluster = $scope.currCluster;
+        
+        if (!cluster)
+            return;
         
         $scope.loading = true;
 
-        $http.get('/rest/configGenerator', {params: {name: cluster.name, lang: lang}}).success(
+        $http.get('/rest/configGenerator', {params: 
+        {name: cluster.name, lang: lang, generateJavaClass: $scope.generateJavaClass}})
+            .success(
             function (data) {
                 if (lang == 'java') {
-                    $scope.resultJava = data;
+                    if (!$scope.javaResultEditor)
+                        $scope.javaResultEditor = installEditor("javaResultEditor", "ace/mode/java");
+
+                    $scope.javaResultEditor.setValue(data);
+                    
+                    $scope.javaResultEditor.selection.clearSelection()
                 }
                 else if (lang == 'xml') {
-                    $scope.resultXml = data;
+                    if (!$scope.xmlResultEditor)
+                        $scope.xmlResultEditor = installEditor("xmlResultEditor", "ace/mode/xml");
+
+                    $scope.xmlResultEditor.setValue(data);
+
+                    $scope.xmlResultEditor.selection.clearSelection()
                 }
 
                 $scope.loading = false;
@@ -49,9 +64,31 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             });
     };
 
+    $scope.cfgLang = 'xml';
+
+    $scope.$watch('cfgLang', $scope.generateConfig);
+    $scope.$watch('generateJavaClass', $scope.generateConfig);
+
     $scope.dockerArg = {
-        os: 'debian:8',
-        igniteVersion: '1.1.0'
+        os: 'debian:8'
+    };
+    
+    $scope.downloadDocker = function() {
+        var dockerText = $scope.dockerFile();
+        
+        if (dockerText.length == 0)
+            return;
+        
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(dockerText));
+        pom.setAttribute('download', 'Dockerfile');
+
+        pom.style.display = 'none';
+        document.body.appendChild(pom);
+
+        pom.click();
+
+        document.body.removeChild(pom);
     };
     
     $scope.dockerFile = function() {
@@ -59,25 +96,62 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             return '';
         }
         
-        return 'OS: ' + $scope.dockerArg.os + '\n' +
-                'IG ver: ' + $scope.dockerArg.igniteVersion + '\n\n' +
-                'cfg: ' + $scope.currCluster._id
+        return "" +
+            "# Start from a Debian image.\n"+
+            "FROM " + $scope.dockerArg.os + "\n"+
+            "\n"+
+            "# Install tools.\n"+
+            "RUN apt-get update && apt-get install -y --fix-missing \\\n"+
+            "  wget \\\n"+
+            "  dstat \\\n"+
+            "  maven \\\n"+
+            "  git\n"+
+            "\n"+
+            "# Intasll Oracle JDK.\n"+
+            "RUN mkdir /opt/jdk\n"+
+            "\n"+
+            "RUN wget --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \\\n"+
+            "  http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz\n"+
+            "\n"+
+            "RUN tar -zxf jdk-7u79-linux-x64.tar.gz -C /opt/jdk\n"+
+            "\n"+
+            "RUN rm jdk-7u79-linux-x64.tar.gz\n"+
+            "\n"+
+            "RUN update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.7.0_79/bin/java 100\n"+
+            "\n"+
+            "RUN update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.7.0_79/bin/javac 100\n"+
+            "\n"+
+            "# Sets java variables.\n"+
+            "ENV JAVA_HOME /opt/jdk/jdk1.7.0_79/\n"+
+            "\n"+
+            "# Create working directory\n"+
+            "WORKDIR /home\n"+
+            "\n"+
+            "RUN wget -O ignite.zip http://tiny.cc/updater/download_ignite.php && unzip ignite.zip && rm ignite.zip\n"+
+            "\n"+
+            "COPY *.xml /tmp/\n"+
+            "\n"+
+            "RUN mv /tmp/*.xml /home/$(ls)/config";
     };
-    
-    $scope.setSelectedCluster = function(cluster) {
+
+    $scope.setSelectedCluster = function (cluster) {
         $scope.currCluster = cluster;
 
-        $scope.generateConfig(cluster)
+        $scope.generateConfig()
     };
-    
-    $scope.setCfgLang = function(lang) {
-        $scope.resultJava = '';
-        $scope.resultXml = '';
-        $scope.resultDocker = '';
-        
-        $scope.cfgLang = lang;
-
-        if ($scope.currCluster)
-            $scope.generateConfig($scope.currCluster, lang)
-    }
 }]);
+
+function installEditor(elementId, lang) {
+    var editor = ace.edit(elementId);
+
+    editor.setOptions({
+        highlightActiveLine: false,
+        showPrintMargin: false,
+        showGutter: false,
+        theme: "ace/theme/chrome",
+        mode: lang,
+        readOnly: true
+    });
+    
+    return editor;
+}

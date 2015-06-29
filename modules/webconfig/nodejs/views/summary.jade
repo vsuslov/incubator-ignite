@@ -18,7 +18,9 @@ extends layout-sidebar
 
 append scripts
     script(src='/javascripts/controllers/summary.js')
-
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js')
+        
 block content
     .docs-header
         h1 Summary
@@ -40,39 +42,46 @@ block content
 
             #cfgResult.configBox(ng-show='currCluster && !generateError && !loading', style='margin-top: 20px')
                 ul.nav.nav-tabs
-                    li(ng-class="{active: cfgLang=='xml'}")
-                        a(href, ng-click='setCfgLang("xml")') XML
-                    li(ng-class="{active: cfgLang=='java'}")
-                        a(href, ng-click='setCfgLang("java")') Java
+                    li(ng-class='{active: cfgLang=="xml"}')
+                        a(href, ng-click='cfgLang = "xml"') XML
+                    li(ng-class='{active: cfgLang=="java"}')
+                        a(href, ng-click='cfgLang = "java"') Java
                     li(ng-class="{active: cfgLang=='docker'}")
-                        a(href, ng-click='setCfgLang("docker")') Docker
+                        a(href, ng-click='cfgLang = "docker"') Dockerfile
 
                 div(style='padding-top: 10px')        
                     #xmlResult(ng-show="cfgLang == 'xml'")
-                        textarea.form-control(rows=30, readonly=true)
-                            | {{resultXml}}
+                        .panel.panel-default
+                            .panel-body
+                                #xmlResultEditor.generatedResult
                 
                     #javaResult(ng-show="cfgLang == 'java'")
-                        textarea.form-control(rows=30, readonly=true)
-                            | {{resultJava}}
+                        div(style="padding-bottom: 10px")
+                            label
+                                input(type='checkbox', ng-model="generateJavaClass")
+                                | generate java class.
+                        
+                        .panel.panel-default
+                            .panel-body
+                                #javaResultEditor.generatedResult
                     
                     #dockerResult(ng-show="cfgLang == 'docker'")
+                        p
+                            a(href='https://docs.docker.com/reference/builder') Dockerfile
+                            |  is a text file with instructions to create Docker image. To build image you have to
+                            | store following Docker file with your xml ignite configurations to the same directory. 
+                        
                         form.form-horizontal
                             .form-group
                                 label.control-label.col-sm-3(for='os') Operation System
                                 .col-sm-6
-                                    select#os.form-control(ng-model='dockerArg.os')
-                                        option(value='debian:8') debian:8
-                                        option(value='ubuntu:12.04') ubuntu:12.04
+                                    input#os.form-control(type='text', ng-model='dockerArg.os', data-provide="typeahead",
+                                    placeholder='Enter OS version', data-source='["debian:8", "ubuntu:12.04"]')
                                 
                             .form-group
-                                label.control-label.col-sm-3(for='igniteVersion') Ignite version
-                                .col-sm-6
-                                    select#igniteVersion.form-control(ng-model='dockerArg.igniteVersion')
-                                        option(value='1.1.0') 1.1.0
-                                        option(value='1.0.0') 1.0.0
+                                | Download as 
+                                a(href, ng-click='downloadDocker()') file
                                 
-                            .form-group
                                 textarea.form-control(rows=30, readonly=true)
                                     | {{ dockerFile() }}
 

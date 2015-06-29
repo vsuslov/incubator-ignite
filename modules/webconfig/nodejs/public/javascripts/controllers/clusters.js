@@ -18,8 +18,6 @@
 configuratorModule.controller('clustersController', ['$scope', '$alert', '$http', 'commonFunctions', function($scope, $alert, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
-        $scope.getFldMdl = commonFunctions.getFldMdl;
-        $scope.setFldMdl = commonFunctions.setFldMdl;
         $scope.getModel = commonFunctions.getModel;
 
         $scope.templates = [
@@ -155,7 +153,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cluster "' + item.name  + '" saved.', duration: 2, container: '#save-btn'});
+                    $alert({type: "success", title: 'Cluster "' + item.name + '" saved.', duration: 2, container: '#save-btn'});
                 })
                 .error(function(errorMessage) {
                     $alert({title: errorMessage});

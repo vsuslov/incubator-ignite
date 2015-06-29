@@ -18,8 +18,6 @@
 configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
-        $scope.getFldMdl = commonFunctions.getFldMdl;
-        $scope.setFldMdl = commonFunctions.setFldMdl;
         $scope.getModel = commonFunctions.getModel;
 
         $scope.atomicities = [
@@ -122,9 +120,90 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
+        var notEmpty = function (obj) {
+            for (key in obj) {
+                var p = obj[key];
+
+                if (p) {
+                    var isObj = _.isObject(p);
+                    var isArr = _.isArray(p);
+
+                    if (!isObj && !isArr) {
+                        console.log("    simple key: " + key + ", len = " + p.length);
+                        return true;
+                    }
+
+                    if (isObj) {
+                        if (notEmpty(p)) {
+                            console.log("    not empty obj key: " + key);
+                            return true;
+                        }
+                        else
+                            console.log("    empty obj key: " + key);
+                    }
+
+                    if (isArr) {
+                        if (p.length > 0) {
+                            console.log("    not empty arr key: " + key);
+                            return true;
+                        }
+                        else
+                            console.log("    empty arr key: " + key);
+                    }
+
+                    console.log("    empty key: " + key);
+                }
+                else
+                    console.log("    empty key: " + key);
+            }
+
+            return false;
+        };
+
+        $scope.doCompact = function (obj) {
+            var compacted = {};
+
+            for (var key in obj) {
+                var p = obj[key];
+
+                if (p) {
+                    var isArr = _.isArray(p);
+                    var isObj = _.isObject(p);
+
+                    if (!isArr && !isObj) {
+                        console.log("not empty simple key: " + key);
+                        compacted[key] = p;
+
+                        continue;
+                    }
+
+                    if (isArr && p.length > 0) {
+                        console.log("not empty arr key: " + key);
+                        compacted[key] = p;
+
+                        continue;
+                    }
+
+                    if (isObj && notEmpty(p)) {
+                        console.log("not empty obj key: " + key);
+                        compacted[key] = p;
+
+                        continue;
+                    }
+                }
+                else {
+                    console.log("empty key: " + key);
+                }
+            }
+
+            return compacted;
+        };
+
         // Save cache in db.
         $scope.saveItem = function () {
-            var item = $scope.backupItem;
+            var item = $scope.doCompact($scope.backupItem);
+
+            console.log(item);
 
             if (item.cacheStoreFactory && !item.readThrough && !item.writeThrough) {
                 $alert({position: 'top', title: 'Store is configured but read/write through are not enabled!'});
@@ -154,7 +233,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
                     $scope.selectItem(item);
 
-                    $alert({type: "success", title: 'Cache "' + item.name  + '" saved.', duration: 2, container: '#save-btn'});
+                    $alert({
+                        type: "success",
+                        title: 'Cache "' + item.name + '" saved.',
+                        duration: 2,
+                        container: '#save-btn'
+                    });
                 })
                 .error(function (errorMessage) {
                     $alert({title: errorMessage});

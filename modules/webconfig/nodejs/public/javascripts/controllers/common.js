@@ -62,63 +62,6 @@ configuratorModule.service('commonFunctions', function () {
             });
 
             return lines.join("");
-        },
-        getFldMdl: function(obj, path) {
-            path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-            path = path.replace(/^\./, '');           // strip a leading dot
-
-            var a = path.split('.');
-
-            for (var i = 0; i < a.length; ++i) {
-                var k = a[i];
-
-                if (k in obj) {
-                    obj = obj[k];
-                }
-                else {
-                    return;
-                }
-            }
-
-            return obj;
-        },
-        setFldMdl: function(obj, path, value) {
-            path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-            path = path.replace(/^\./, '');           // strip a leading dot
-
-            var a = path.split('.');
-
-            for (var i = 0; i < a.length - 1; ++i) {
-                var k = a[i];
-
-                if (k in obj) {
-                    if (!obj[k]) {
-                        obj[k] = {};
-                    }
-                }
-                else {
-                    obj[k] = {};
-                }
-
-                obj = obj[k];
-            }
-
-            if (value) {
-                obj[a[a.length - 1]] = value;
-            }
-            else {
-                delete obj[a[a.length - 1]];
-            }
-
-            //
-            //if (group && group.model && field.group)
-            //    backupItem[group.model][field.group][field.model] = value;
-            //else if (group && group.model)
-            //    backupItem[group.model][field.model] = value;
-            //else if (field.group)
-            //    backupItem[field.group][field.model] = value;
-            //else
-            //    backupItem[field.model] = value;
         }
     }
 });
