@@ -18,8 +18,6 @@
 configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
-        $scope.getFldMdl = commonFunctions.getFldMdl;
-        $scope.setFldMdl = commonFunctions.setFldMdl;
         $scope.getModel = commonFunctions.getModel;
 
         $scope.atomicities = [
