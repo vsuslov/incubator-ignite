@@ -24,9 +24,10 @@ exports.generateClusterConfiguration = function(cluster) {
     res.push('' +
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '\n' +
-        '<!-- ' + (generatorUtils.mainComment.replace('$date', generatorUtils.formatDate(new Date()))) + ' -->\n' +    
+        '<!-- ' + generatorUtils.mainComment() + ' -->\n' +    
         '<beans xmlns="http://www.springframework.org/schema/beans"\n' +
-        '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"\n' +
+        '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
+        '       xmlns:util="http://www.springframework.org/schema/util"\n' +
         '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n' +
         '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n' +
         '                           http://www.springframework.org/schema/util\n' +

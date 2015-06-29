@@ -57,9 +57,7 @@ block content
 
                 div(style='padding-top: 10px')        
                     #xmlResult(ng-show="cfgLang == 'xml'")
-                        .panel.panel-default
-                            .panel-body
-                                #xmlResult
+                        #xmlResultDiv
                 
                     #javaResult(ng-show="cfgLang == 'java'")
                         div(style="padding-bottom: 10px")
@@ -67,9 +65,7 @@ block content
                                 input(type='checkbox', ng-model="generateJavaClass")
                                 | generate java class.
                         
-                        .panel.panel-default
-                            .panel-body
-                                #javaResult
+                        #javaResultDiv
                     
                     #dockerResult(ng-show="cfgLang == 'docker'")
                         p

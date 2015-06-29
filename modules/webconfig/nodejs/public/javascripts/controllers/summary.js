@@ -40,10 +40,10 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             .success(
             function (data) {
                 if (lang == 'java') {
-                    $("<pre class='brush:java' />").text(data).appendTo($('#javaResult').empty());
+                    $("<pre class='brush:java' />").text(data).appendTo($('#javaResultDiv').empty());
                 }
                 else if (lang == 'xml') {
-                    $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResult').empty());
+                    $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResultDiv').empty());
                 }
 
                 SyntaxHighlighter.highlight();

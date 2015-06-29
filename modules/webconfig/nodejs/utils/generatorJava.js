@@ -21,6 +21,9 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     var res = generatorUtils.builder();
 
     if (generateJavaClass) {
+        res.line('/**');
+        res.line(' * ' + generatorUtils.mainComment());
+        res.line(' */');
         res.startBlock('public class ConfigurationFactory {');
         res.line();
         res.startBlock('public IgniteConfiguration createConfiguration() {');
