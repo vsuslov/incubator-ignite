@@ -118,15 +118,33 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                 });
         };
 
-        $scope.tables = [
-            {schema: 'Schema1', keyClass: 'KeyClass1', valueClass: 'ValueClass1'},
-            {schema: 'Schema2', keyClass: 'KeyClass2', valueClass: 'ValueClass2'},
-            {schema: 'Schema3', keyClass: 'KeyClass3', valueClass: 'ValueClass3'}];
+        $scope.data = {
+            curTableIdx: -1,
+            curFieldIdx: -1,
+            tables: [
+                {schemaName: 'Schema1', use: true},
+                {schemaName: 'Schema1', use: true, tableName: 'Table1', keyClass: 'KeyClass1', valueClass: 'ValueClass1',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name1', dbType: 'dbType1', javaName: 'javaName1', javaType: 'javaType1'},
+                        {use: true, key: false, ak: false, dbName: 'name2', dbType: 'dbType2', javaName: 'javaName2', javaType: 'javaType2'},
+                        {use: false, key: false, ak: false, dbName: 'name3', dbType: 'dbType3', javaName: 'javaName3', javaType: 'javaType3'}
+                    ]
+                },
+                {schemaName: 'Schema2', use: false},
+                {schemaName: 'Schema2', use: false, tableName: 'Table2', keyClass: 'KeyClass2', valueClass: 'ValueClass2',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name4', dbType: 'dbType4', javaName: 'javaName4', javaType: 'javaType4'},
+                        {use: true, key: false, ak: false, dbName: 'name5', dbType: 'dbType5', javaName: 'javaName5', javaType: 'javaType5'},
+                        {use: false, key: false, ak: false, dbName: 'name6', dbType: 'dbType6', javaName: 'javaName6', javaType: 'javaType6'}
+                    ]},
+                {schemaName: 'Schema2', use: false, tableName: 'Table3', keyClass: 'KeyClass3', valueClass: 'ValueClass3',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name7', dbType: 'dbType7', javaName: 'javaName7', javaType: 'javaType7'},
+                        {use: true, key: false, ak: false, dbName: 'name8', dbType: 'dbType8', javaName: 'javaName8', javaType: 'javaType8'},
+                        {use: false, key: false, ak: false, dbName: 'name9', dbType: 'dbType9', javaName: 'javaName9', javaType: 'javaType9'}
+                    ]}]
+        };
 
-        $scope.columns = [
-            {use: true, key: true, ak: true, dbName: 'name1', dbType: 'dbType1', javaName: 'javaName1', javaType: 'javaType1'},
-            {use: true, key: false, ak: false, dbName: 'name2', dbType: 'dbType2', javaName: 'javaName2', javaType: 'javaType2'},
-            {use: false, key: false, ak: false, dbName: 'name3', dbType: 'dbType3', javaName: 'javaName3', javaType: 'javaType3'}
-        ];
+        $scope.curTableIdx = -1;
     }]
 );
