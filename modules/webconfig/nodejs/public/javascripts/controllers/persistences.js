@@ -117,5 +117,16 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                     $alert({title: errorMessage});
                 });
         };
+
+        $scope.tables = [
+            {schema: 'Schema1', keyClass: 'KeyClass1', valueClass: 'ValueClass1'},
+            {schema: 'Schema2', keyClass: 'KeyClass2', valueClass: 'ValueClass2'},
+            {schema: 'Schema3', keyClass: 'KeyClass3', valueClass: 'ValueClass3'}];
+
+        $scope.columns = [
+            {use: true, key: true, ak: true, dbName: 'name1', dbType: 'dbType1', javaName: 'javaName1', javaType: 'javaType1'},
+            {use: true, key: false, ak: false, dbName: 'name2', dbType: 'dbType2', javaName: 'javaName2', javaType: 'javaType2'},
+            {use: false, key: false, ak: false, dbName: 'name3', dbType: 'dbType3', javaName: 'javaName3', javaType: 'javaType3'}
+        ];
     }]
 );

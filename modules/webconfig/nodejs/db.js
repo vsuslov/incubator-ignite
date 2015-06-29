@@ -279,7 +279,9 @@ exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 var PersistenceSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
-    database: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
+    dbType: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
+    dbName: String,
+    host: String,
     user: String,
     tables: [{
         use: Boolean,

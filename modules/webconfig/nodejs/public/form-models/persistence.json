@@ -7,13 +7,21 @@
       "required": true
     },
     {
-      "label": "Database",
+      "label": "Database type",
       "type": "dropdown",
-      "model": "database",
+      "model": "dbType",
       "placeholder": "Choose database",
       "items": "databases",
       "tip": [
-        "Select database to connect for loading tables metadata."
+        "Select database type to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Database name",
+      "type": "text",
+      "model": "dbName",
+      "tip": [
+        "Database name to connect for loading tables metadata."
       ]
     },
     {

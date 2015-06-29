@@ -47,3 +47,48 @@ block content
                                 +form-row
             button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
             button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            button.btn.btn-primary.btn-second(ng-click='reloadMetadata()') Reload
+        .links(ng-hide='tables.length == 0')
+            table.table-bordered.table-condensed.col-sm-12(st-table='tables')
+                thead
+                    tr
+                        th Schema/Table
+                        th Key class
+                        th Value class
+                tbody
+                    tr(ng-repeat='row in tables')
+                        td.col-sm-4
+                            a {{row.schema}}
+                        td.col-sm-4
+                            a {{row.keyClass}}
+                        td.col-sm-4
+                            a {{row.valueClass}}
+        .links(ng-hide='columns.length == 0')
+            table.table-bordered.table-condensed.col-sm-12(st-table='columns')
+                thead
+                    tr
+                        th.col-sm-1 Use
+                        th.col-sm-1 Key
+                        th.col-sm-1 Ak
+                        th.col-sm-2 DB Name
+                        th.col-sm-2 DB Type
+                        th.col-sm-2 Java Name
+                        th.col-sm-2 Java Type
+                tbody
+                    tr(ng-repeat='row in columns')
+                        td.col-sm-1
+                            input(type='checkbox' ng-checked='row.use')
+                        td.col-sm-1
+                            input(type='checkbox' ng-checked='row.key')
+                        td.col-sm-1
+                            input(type='checkbox' ng-checked='row.ak')
+                        td.col-sm-2
+                            a {{row.dbName}}
+                        td.col-sm-2
+                            a {{row.dbType}}
+                        td.col-sm-2
+                            a {{row.javaName}}
+                        td.col-sm-2
+                            a {{row.javaType}}
+
+
