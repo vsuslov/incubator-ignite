@@ -15,26 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.testsuites;
+package org.apache.ignite.logger.log4j2;
 
-import junit.framework.*;
-import org.apache.ignite.logger.log4j2.*;
+import org.apache.ignite.lang.*;
 
 /**
- * Log4j2 logging tests.
+ * Interface for those loggers and appenders that evaluate their file paths lazily.
  */
-public class IgniteLog4j2TestSuite extends TestSuite {
+interface Log4j2FileAware {
     /**
-     * @return Test suite.
-     * @throws Exception Thrown in case of the failure.
+     * Sets closure that later evaluate file path.
+     *
+     * @param filePathClos Closure that generates actual file path.
      */
-    public static TestSuite suite() throws Exception {
-        TestSuite suite = new TestSuite("Log4j2 Logging Test Suite");
-
-        suite.addTest(new TestSuite(GridLog4j2InitializedTest.class));
-        suite.addTest(new TestSuite(GridLog4j2NotInitializedTest.class));
-        suite.addTest(new TestSuite(GridLog4j2CorrectFileNameTest.class));
-
-        return suite;
-    }
+    void updateFilePath(IgniteClosure<String, String> filePathClos);
 }

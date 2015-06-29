@@ -17,11 +17,30 @@
 
 package org.apache.ignite.logger.log4j2;
 
+import junit.framework.*;
+import org.apache.ignite.*;
+import org.apache.ignite.testframework.junits.common.*;
+
 /**
- * TODO: delete me.
- *
- * This class was added just to resolve problem with javadocs for empty module.
- * Class have to be deleted if there are another files in module.
+ * Log4j not initialized test.
  */
-public class SampleClass {
+@GridCommonTest(group = "Logger")
+public class GridLog4j2NotInitializedTest extends TestCase {
+    /** */
+    public void testLogInitialize() {
+        IgniteLogger log = new Log4J2Logger().getLogger(GridLog4j2NotInitializedTest.class);
+
+        if (log.isDebugEnabled())
+            log.debug("This is 'debug' message.");
+        else
+            System.out.println("DEBUG level is not enabled.");
+
+        if (log.isInfoEnabled())
+            log.info("This is 'info' message.");
+        else
+            System.out.println("INFO level is not enabled.");
+
+        log.warning("This is 'warning' message.");
+        log.error("This is 'error' message.");
+    }
 }
