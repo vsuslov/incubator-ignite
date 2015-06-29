@@ -283,8 +283,8 @@ var PersistenceSchema = new Schema({
     user: String,
     tables: [{
         use: Boolean,
-        schemaName: String,
-        tableName: String,
+        schema: String,
+        table: String,
         keyClass: String,
         valueClass: String,
         columns: [{
