@@ -17,6 +17,7 @@
 
 configuratorModule.controller('persistenceController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.joinTip = commonFunctions.joinTip;
+        $scope.getModel = commonFunctions.getModel;
 
         $scope.databases = [
             {value: 'oracle', label: 'Oracle database'},
@@ -121,6 +122,10 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
         $scope.data = {
             curTableIdx: -1,
             curFieldIdx: -1,
+            curKeyClass: '',
+            curValueClass: '',
+            curJavaName: '',
+            curJavaType: '',
             tables: [
                 {schemaName: 'Schema1', use: true},
                 {schemaName: 'Schema1', use: true, tableName: 'Table1', keyClass: 'KeyClass1', valueClass: 'ValueClass1',
@@ -141,10 +146,38 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                     fields: [
                         {use: true, key: true, ak: true, dbName: 'name7', dbType: 'dbType7', javaName: 'javaName7', javaType: 'javaType7'},
                         {use: true, key: false, ak: false, dbName: 'name8', dbType: 'dbType8', javaName: 'javaName8', javaType: 'javaType8'},
-                        {use: false, key: false, ak: false, dbName: 'name9', dbType: 'dbType9', javaName: 'javaName9', javaType: 'javaType9'}
+                        {use: false, key: false, ak: false, dbName: 'name9', dbType: 'dbType9', javaName: 'javaName9', javaType: 'javaType9'},
+                        {use: false, key: false, ak: false, dbName: 'name10', dbType: 'dbType10', javaName: 'javaName10', javaType: 'javaType10'},
+                        {use: false, key: false, ak: false, dbName: 'name11', dbType: 'dbType11', javaName: 'javaName11', javaType: 'javaType11'},
+                        {use: false, key: false, ak: false, dbName: 'name12', dbType: 'dbType12', javaName: 'javaName12', javaType: 'javaType12'}
                     ]}]
         };
 
-        $scope.curTableIdx = -1;
+        $scope.selectTable = function (idx) {
+            var data = $scope.data;
+
+            data.curTableIdx = idx;
+            data.curFieldIdx = -1;
+
+            if (idx >= 0) {
+                var tbl = data.tables[idx];
+
+                data.curKeyClass = tbl.keyClass;
+                data.curValueClass = tbl.valueClass;
+            }
+        };
+
+        $scope.selectField = function (idx) {
+            var data = $scope.data;
+
+            data.curFieldIdx = idx;
+
+            if (idx >= 0) {
+                var fld = data.tables[data.curTableIdx].fields[idx];
+
+                data.curJavaName = fld.javaName;
+                data.curJavaType = fld.javaType;
+            }
+        };
     }]
 );
