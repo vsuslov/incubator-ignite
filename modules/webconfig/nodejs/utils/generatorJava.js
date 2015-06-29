@@ -266,13 +266,6 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cluster, 'cfg', 'segmentationPolicy', 'SegmentationPolicy');
-    addProperty(res, cluster, 'cfg', 'segmentationResolveAttempts');
-    addProperty(res, cluster, 'cfg', 'allSegmentationResolversPassRequired');
-
-    res.needEmptyLine = true;
-
-    res.needEmptyLine = true;
     addProperty(res, cluster, 'cfg', 'utilityCacheKeepAliveTime');
     addProperty(res, cluster, 'cfg', 'utilityCachePoolSize');
 

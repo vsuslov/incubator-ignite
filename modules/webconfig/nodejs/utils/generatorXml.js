@@ -253,17 +253,10 @@ exports.generateClusterConfiguration = function(cluster) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cluster, 'segmentationPolicy');
-    addProperty(res, cluster, 'allSegmentationResolversPassRequired');
-    addProperty(res, cluster, 'segmentationResolveAttempts');
-    
-    res.needEmptyLine = true;
-
     addProperty(res, cluster, 'cacheSanityCheckEnabled');
     
     res.needEmptyLine = true;
 
-    res.needEmptyLine = true;
     addProperty(res, cluster, 'utilityCacheKeepAliveTime');
     addProperty(res, cluster, 'utilityCachePoolSize');
     
