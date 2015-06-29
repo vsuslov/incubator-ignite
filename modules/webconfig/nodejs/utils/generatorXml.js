@@ -310,14 +310,13 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     res.needEmptyLine = true;
 
-    if (cacheCfg.nearConfiguration) {
+    if (cacheCfg.nearConfiguration && (cacheCfg.nearConfiguration.nearStartSize || cacheCfg.nearConfiguration.nearEvictionPolicy.kind)) {
         res.emptyLineIfNeeded();
 
         res.startBlock('<property name="nearConfiguration">');
         res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
         addProperty(res, cacheCfg.nearConfiguration, 'nearStartSize');
-        addProperty(res, cacheCfg.nearConfiguration, 'atomicSequenceReserveSize');
 
         createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
 

@@ -158,8 +158,7 @@ var CacheSchema = new Schema({
                 maxMemorySize: Number,
                 maxSize: Number
             }
-        },
-        atomicSequenceReserveSize: Number
+        }
     }
 });
 
