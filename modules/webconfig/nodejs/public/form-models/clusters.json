@@ -498,6 +498,7 @@
     },
     {
       "label": "Metrics",
+      "tip": ["Cluster runtime metrics settings."],
       "fields": [
         {
           "label": "Elapsed time",
@@ -546,6 +547,7 @@
     },
     {
       "label": "Peer Class Loading",
+      "tip": ["Cluster peer class loading settings."],
       "fields": [
         {
           "label": "Enable peer class loading",
@@ -588,6 +590,7 @@
     },
     {
       "label": "Segmentation",
+      "tip": ["How node will react on topology segmentation."],
       "fields": [
         {
           "label": "Policy",
@@ -624,6 +627,7 @@
     },
     {
       "label": "Swap",
+      "tip": ["Settings for overflow data to disk if it cannot fit in memory."],
       "fields": [
         {
           "label": "Swap space SPI",
@@ -700,6 +704,7 @@
     },
     {
       "label": "Time configuration",
+      "tip": ["Time settings for CLOCK write ordering mode."],
       "fields": [
         {
           "label": "Samples size",
@@ -745,6 +750,7 @@
     },
     {
       "label": "Thread pools size",
+      "tip": ["Settings for node thread pools."],
       "fields": [
         {
           "label": "Public",
@@ -786,6 +792,7 @@
     },
     {
       "label": "Transactions",
+      "tip": ["Settings for transactions."],
       "fields": [
         {
           "label": "Cache concurrency",
@@ -853,6 +860,7 @@
     },
     {
       "label": "Utility",
+      "tip": ["Settings for utility messages processing."],
       "fields": [
         {
           "label": "Keep alive time",

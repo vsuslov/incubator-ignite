@@ -49,6 +49,7 @@
   "advanced": [
     {
       "label": "Memory",
+      "tip": ["Cache memory settings."],
       "fields": [
         {
           "label": "Mode",
@@ -222,6 +223,7 @@
     },
     {
       "label": "Near cache",
+      "tip": ["Near cache settings."],
       "fields": [
         {
           "label": "Start size",
@@ -361,6 +363,7 @@
     },
     {
       "label": "Query",
+      "tip": ["Cache query settings."],
       "fields": [
         {
           "label": "Escape all",
@@ -411,6 +414,7 @@
     },
     {
       "label": "Rebalance",
+      "tip": ["Cache rebalance settings."],
       "fields": [
         {
           "label": "Mode",
@@ -487,6 +491,7 @@
     },
     {
       "label": "Store",
+      "tip": ["Cache store settings."],
       "fields": [
         {
           "label": "Store factory",
@@ -663,6 +668,7 @@
     },
     {
       "label": "Transaction",
+      "tip": ["Cache transactions settings."],
       "fields": [
         {
           "label": "Invalidate",
@@ -695,6 +701,7 @@
     },
     {
       "label": "Write behind",
+      "tip": ["Cache write behind settings."],
       "fields": [
         {
           "label": "Enabled",
