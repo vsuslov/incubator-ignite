@@ -18,9 +18,9 @@ extends layout-sidebar
 
 append scripts
     script(src='/javascripts/controllers/summary.js')
-    script(src='/javascripts/syntaxHighlighter/shCore.js')    
-    script(src='/javascripts/syntaxHighlighter/shBrushXml.js')    
-    script(src='/javascripts/syntaxHighlighter/shBrushJava.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shCore.min.js')    
+    script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushXml.js')    
+    script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushJava.js')    
     script(src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js')
         
 append css
@@ -60,11 +60,10 @@ block content
                         #xmlResultDiv
                 
                     #javaResult(ng-show="cfgLang == 'java'")
-                        div(style="padding-bottom: 10px")
-                            label
-                                input(type='checkbox', ng-model="generateJavaClass")
-                                | generate java class.
-                        
+                        label
+                            input(type='checkbox', ng-model="generateJavaClass")
+                            | generate java class.
+
                         #javaResultDiv
                     
                     #dockerResult(ng-show="cfgLang == 'docker'")
