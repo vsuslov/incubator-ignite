@@ -48,55 +48,62 @@ block content
                         .panel-body
                             .settings-row(ng-repeat='field in connection')
                                 +form-row
-        .links(ng-hide='data.tables.length == 0')
-            table.table-bordered.table-condensed.col-sm-12(st-table='data.tables')
-                thead
-                    tr
-                        th.col-sm-3 Schema/Table
-                        th Key class
-                        th Value class
-                tbody
-                    tr(ng-repeat='row in data.tables')
-                        td
-                            input(type='checkbox' ng-if='!row.tableName' ng-checked='row.use' ng-click='selectTable(-1)')
-                            a(ng-if='!row.tableName' style='margin-left: 5px' ng-click='selectTable(-1)') {{row.schemaName}}
-                            input(type='checkbox' ng-if='row.tableName' style='margin-left: 10px' ng-checked = 'row.use' ng-click='selectTable($index)')
-                            a(ng-if='row.tableName' style='margin-left: 5px' ng-click='selectTable($index)') {{row.tableName}}
-                        td
-                            a(ng-show='data.curTableIdx != $index' ng-click='selectTable($index)') {{row.keyClass}}
-                            input(type='text' ng-show='data.curTableIdx == $index' ng-model='data.curKeyClass' placeholder='Key class full name')
-                        td
-                            a(ng-show='data.curTableIdx != $index' ng-click='selectTable($index)') {{row.valueClass}}
-                            input(type='text' ng-show='data.curTableIdx == $index' ng-model='data.curValueClass' placeholder='Value class full name')
-        .links(ng-hide='data.curTableIdx < 0')
-            table.table-bordered.table-condensed.col-sm-12(st-table='data.tables[data.curTableIdx].fields')
-                thead
-                    tr
-                        th.col-sm-1 Use
-                        th.col-sm-1 Key
-                        th.col-sm-1 Ak
-                        th.col-sm-2 DB Name
-                        th.col-sm-2 DB Type
-                        th.col-sm-2 Java Name
-                        th.col-sm-2 Java Type
-                tbody
-                    tr(ng-repeat='row in data.tables[data.curTableIdx].fields')
-                        td
-                            +dbcheck('row.use', 'selectField($index)')
-                        td
-                            +dbcheck('row.key', 'selectField($index)')
-                        td
-                            +dbcheck('row.ak', 'selectField($index)')
-                        td
-                            a(ng-click='selectField($index)') {{row.dbName}}
-                        td
-                            a(ng-click='selectField($index)') {{row.dbType}}
-                        td
-                            a(ng-show='data.curFieldIdx != $index' ng-click='selectField($index)') {{row.javaName}}
-                            input(type='text' ng-show='data.curFieldIdx == $index' ng-model='data.curJavaName' placeholder='Field Java name')
-                        td
-                            a(ng-show='data.curFieldIdx != $index' ng-click='selectField($index)') {{row.javaType}}
-                            input(type='text' ng-show='data.curFieldIdx == $index' ng-model='data.curJavaType' placeholder='Field Java type')
+            div(bs-collapse data-start-collapsed='true' ng-hide='data.tables.length == 0')
+                .panel.panel-default
+                    .panel-heading
+                        h3
+                            a(bs-collapse-toggle) Metadata
+                    .panel-collapse(bs-collapse-target)
+                        .panel-body
+                            div(ng-hide='data.tables.length == 0')
+                                table.table-bordered.table-condensed.links-edit-small-padding.col-sm-12(st-table='data.tables')
+                                    thead
+                                        tr
+                                            th.col-sm-3 Schema/Table
+                                            th Key class
+                                            th Value class
+                                    tbody
+                                        tr(ng-repeat='row in data.tables')
+                                            td
+                                                input(type='checkbox' ng-if='!row.tableName' ng-checked='row.use' ng-click='selectTable(-1)')
+                                                a(ng-if='!row.tableName' style='margin-left: 5px' ng-click='selectTable(-1)') {{row.schemaName}}
+                                                input(type='checkbox' ng-if='row.tableName' style='margin-left: 10px' ng-checked = 'row.use' ng-click='selectTable($index)')
+                                                a(ng-if='row.tableName' style='margin-left: 5px' ng-click='selectTable($index)') {{row.tableName}}
+                                            td
+                                                a(ng-show='data.curTableIdx != $index' ng-click='selectTable($index)') {{row.keyClass}}
+                                                input.form-control(type='text' ng-show='data.curTableIdx == $index' ng-model='data.curKeyClass' placeholder='Key class full name')
+                                            td
+                                                a(ng-show='data.curTableIdx != $index' ng-click='selectTable($index)') {{row.valueClass}}
+                                                input.form-control(type='text' ng-show='data.curTableIdx == $index' ng-model='data.curValueClass' placeholder='Value class full name')
+                            div(ng-hide='data.curTableIdx < 0')
+                                table.table-bordered.table-condensed.links-edit-small-padding.col-sm-12(st-table='data.tables[data.curTableIdx].fields')
+                                    thead
+                                        tr
+                                            th.col-sm-1 Use
+                                            th.col-sm-1 Key
+                                            th.col-sm-1 Ak
+                                            th.col-sm-2 DB Name
+                                            th.col-sm-2 DB Type
+                                            th.col-sm-2 Java Name
+                                            th.col-sm-2 Java Type
+                                    tbody
+                                        tr(ng-repeat='row in data.tables[data.curTableIdx].fields')
+                                            td
+                                                +dbcheck('row.use', 'selectField($index)')
+                                            td
+                                                +dbcheck('row.key', 'selectField($index)')
+                                            td
+                                                +dbcheck('row.ak', 'selectField($index)')
+                                            td
+                                                a(ng-click='selectField($index)') {{row.dbName}}
+                                            td
+                                                a(ng-click='selectField($index)') {{row.dbType}}
+                                            td
+                                                a(ng-show='data.curFieldIdx != $index' ng-click='selectField($index)') {{row.javaName}}
+                                                input.form-control(type='text' ng-show='data.curFieldIdx == $index' ng-model='data.curJavaName' placeholder='Field Java name')
+                                            td
+                                                a(ng-show='data.curFieldIdx != $index' ng-click='selectField($index)') {{row.javaType}}
+                                                input.form-control(type='text' ng-show='data.curFieldIdx == $index' ng-model='data.curJavaType' placeholder='Field Java type')
         button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
         button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
         button.btn.btn-primary.btn-second(ng-click='reloadMetadata()') Reload

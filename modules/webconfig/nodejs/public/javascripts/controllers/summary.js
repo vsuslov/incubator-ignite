@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('clustersList', ['$scope', '$http', function ($scope, $http) {
+configuratorModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
     $http.get('/rest/clusters').success(function (data) {
         $scope.caches = data.caches;
         $scope.spaces = data.spaces;
         $scope.clusters = data.clusters;
     });
+
+    $scope.selectItem = function (item) {
+        $scope.selectedItem = item;
+
+        $scope.generateConfig()
+    };
 
     $scope.generateConfig = function() {
         var lang = $scope.cfgLang;
@@ -28,7 +34,7 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
         if (lang == 'docker')
             return;
 
-        var cluster = $scope.currCluster;
+        var cluster = $scope.selectedItem;
         
         if (!cluster)
             return;
@@ -82,7 +88,7 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
     };
     
     $scope.dockerFile = function() {
-        if (!$scope.currCluster || !$scope.dockerArg) {
+        if (!$scope.selectedItem || !$scope.dockerArg) {
             return '';
         }
         
@@ -127,11 +133,5 @@ configuratorModule.controller('clustersList', ['$scope', '$http', function ($sco
             "COPY *.xml /tmp/\n"+
             "\n"+
             "RUN mv /tmp/*.xml /home/$(ls)/config";
-    };
-
-    $scope.setSelectedCluster = function (cluster) {
-        $scope.currCluster = cluster;
-
-        $scope.generateConfig()
     };
 }]);

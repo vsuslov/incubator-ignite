@@ -32,23 +32,22 @@ block content
         h1 Summary
         p Configurations summary.
         hr
-    .docs-body(ng-controller='clustersList')
+    .docs-body(ng-controller='summaryController')
         div(ng-hide='clusters.length > 0')
             | No cluster configured. You can&nbsp;
             a(href='clusters') configure
             |  it.
-
         div(ng-hide='clusters.length == 0')
             p Following cluster configurations are created, you can download its as xml, java code or as docker file
-
-            div(ng-repeat='row in clusters', style='padding-left: 20px')
-                span.clusterName {{row.name}}
-                |&nbsp;
-                a(href, ng-click='setSelectedCluster(row)') Generate configuration
-
-            #cfgResult.configBox(ng-show='currCluster && !generateError && !loading', style='margin-top: 20px')
+            .links
+                table.col-sm-12(st-table='clusters')
+                    tbody
+                        tr(ng-repeat='row in clusters track by row._id')
+                            td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                                a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}
+            #cfgResult.configBox(ng-show='selectedItem && !generateError && !loading', style='margin-top: 20px')
                 ul.nav.nav-tabs
-                    li(ng-class='{active: cfgLang=="xml"}')
+                    li(ng-class='{active: cfgLang == "xml"}')
                         a(href, ng-click='cfgLang = "xml"')
                             img(src='images/xml.png', width='16px' height='16px')
                             |  XML
@@ -75,7 +74,7 @@ block content
                     #dockerResult(ng-show="cfgLang == 'docker'")
                         p
                             a(href='https://docs.docker.com/reference/builder') Dockerfile
-                            |  is a text file with instructions to create Docker image. To build image you have to
+                            | is a text file with instructions to create Docker image. To build image you have to
                             | store following Docker file with your xml ignite configurations to the same directory. 
                         
                         form.form-horizontal
