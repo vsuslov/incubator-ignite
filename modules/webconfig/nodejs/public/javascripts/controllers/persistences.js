@@ -135,7 +135,7 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                         {use: false, key: false, ak: false, dbName: 'name3', dbType: 'dbType3', javaName: 'javaName3', javaType: 'javaType3'}
                     ]
                 },
-                {schemaName: 'Schema2', use: false},
+                {schemaName: 'Schema2 with very long name', use: false},
                 {schemaName: 'Schema2', use: false, tableName: 'Table2', keyClass: 'KeyClass2', valueClass: 'ValueClass2',
                     fields: [
                         {use: true, key: true, ak: true, dbName: 'name4', dbType: 'dbType4', javaName: 'javaName4', javaType: 'javaType4'},
@@ -151,6 +151,25 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                         {use: false, key: false, ak: false, dbName: 'name11', dbType: 'dbType11', javaName: 'javaName11', javaType: 'javaType11'},
                         {use: false, key: false, ak: false, dbName: 'name12', dbType: 'dbType12', javaName: 'javaName12', javaType: 'javaType12'}
                     ]}]
+        };
+
+        $scope.selectSchema = function (idx) {
+            var data = $scope.data;
+            var tables = data.tables;
+            var schemaName = tables[idx].schemaName;
+            var use = tables[idx].use;
+
+            for (var i = idx + 1; i < tables.length; i++) {
+                var item = tables[i];
+
+                if (item.schemaName == schemaName && item.tableName)
+                    item.use = use;
+                else
+                    break;
+            }
+
+            data.curTableIdx = -1;
+            data.curFieldIdx = -1;
         };
 
         $scope.selectTable = function (idx) {
