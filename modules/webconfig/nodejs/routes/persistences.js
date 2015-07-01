@@ -295,7 +295,7 @@ router.post('/pg', function(req, res) {
                                     var valClsName = toJavaClassName(table.table_name);
 
                                     tables.push({
-                                        use: true,
+                                        use: pks.length > 0,
                                         schemaName: table.table_schema, tableName: table.table_name,
                                         keyClass: valClsName + 'Key', valueClass: valClsName,
                                         columns: cols
