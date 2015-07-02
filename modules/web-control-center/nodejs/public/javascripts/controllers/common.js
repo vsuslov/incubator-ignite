@@ -72,7 +72,6 @@ configuratorModule.config(function ($tooltipProvider) {
         placement: 'right',
         html: 'true',
         trigger: 'click hover'
-        //,delay: { hide: 600 }
     });
 });
 
