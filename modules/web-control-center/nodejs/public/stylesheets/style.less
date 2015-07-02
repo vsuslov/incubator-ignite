@@ -227,14 +227,20 @@
   text-decoration: none;
 }
 
-.theme-line .select li a {
-  color: #666;
-}
+.theme-line .select,
+.theme-line .typeahead {
+  li a {
+    color: #666;
+    background-color: transparent;
+  }
 
-.theme-line .select  {
-  li a:hover, .active {
+  li a:hover {
     color: #ec1c24;
-    background-color: white;
+    background-color: transparent;
+  }
+
+  .active {
+    background-color: #eee;
   }
 }
 

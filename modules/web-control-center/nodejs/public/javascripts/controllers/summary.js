@@ -86,6 +86,8 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
 
         document.body.removeChild(pom);
     };
+
+    $scope.oss = ['debian:8', 'ubuntu:14.10'];
     
     $scope.dockerFile = function() {
         if (!$scope.selectedItem || !$scope.dockerArg) {
