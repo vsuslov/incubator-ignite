@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="ignite-web-configurator">
+  <head>
+    <title></title>
+    <!-- Bootstrap-->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.css">
+    <!-- Font Awesome Icons-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css">
+    <!-- Font-->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto+Slab:700:serif|Roboto+Slab:400:serif">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-sanitize.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.2.2/angular-strap.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.2.2/angular-strap.tpl.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-smart-table/2.0.3/smart-table.js"></script>
+    <script src="/javascripts/controllers/common.js"></script>
+    <script src="/javascripts/dataStructures.js"></script>
+    <script src="/javascripts/bundle.js"></script>
+  </head>
+  <body class="theme-line body-overlap">
+    <div class="wrapper">
+      <header id="header" class="header">
+        <div class="container">
+          <h1 class="navbar-brand"><a href="/">Apache Ignite Web Configurator</a></h1>
+          <div ng-controller="auth" class="navbar-collapse collapse">
+            <ul ng-controller="activeLink" class="nav navbar-nav">
+              <li><a ng-class="{active: isActive('/clusters')}" href="/clusters">Configuration</a></li>
+              <li><a ng-class="{active: isActive('/sql')}" href="/sql">SQL</a></li>
+            </ul>
+            <ul ng-init="user = undefined" class="nav navbar-nav pull-right">
+              <li ng-show="user"><a data-toggle="dropdown" aria-expanded="true" bs-dropdown data-template="user-dropdown" data-placement="bottom-right" class="dropdown-toggle">{{user.username}}<span class="caret"></span></a>
+                <script id="user-dropdown" type="text/ng-template">
+                  <ul class="dropdown-menu">
+                    <li><a href="/rest/auth/logout">Log Out</a></li>
+                  </ul>
+                </script>
+              </li>
+              <li ng-show="!user" class="nav-login"><a ng-click="login()" href="#">Log In</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-container">
+        <div class="main-content">
+          <div class="main-head">
+            <div class="row">
+              <div class="docs-content">
+                <div>
+                  <p>
+                    Apache Ignite<sup>tm</sup> In-Memory Data Fabric is a high-performance,
+                    integrated and distributed in-memory platform for computing and transacting on large-scale data
+                    sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.
+                  </p>
+                </div>
+              </div>
+              <div class="block-image block-display-image"><img ng-src="https://www.filepicker.io/api/file/lydEeGB6Rs9hwbpcQxiw" alt="Apache Ignite stack"></div>
+              <div ng-controller="auth" class="text-center">
+                <button ng-click="login()" href="#" class="btn btn-primary">Configure Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container container-footer">
+        <footer>
+          <center>
+            <p>Powered by<a href="http://ignite.incubator.apache.org"> Apache Ignite</a>, version 1.1.0</p>
+          </center>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
