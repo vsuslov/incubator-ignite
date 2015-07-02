@@ -373,8 +373,8 @@ public class TcpDiscoverySpi extends IgniteSpiAdapter implements DiscoverySpi, T
     }
 
     /** {@inheritDoc} */
-    @Override public void failNode(UUID nodeId) {
-        impl.failNode(nodeId);
+    @Override public void failNode(UUID nodeId, @Nullable String warning) {
+        impl.failNode(nodeId, warning);
     }
 
     /** {@inheritDoc} */
@@ -385,7 +385,7 @@ public class TcpDiscoverySpi extends IgniteSpiAdapter implements DiscoverySpi, T
     /** {@inheritDoc} */
     @Override public boolean isClientMode() {
         if (impl == null)
-            throw new IllegalStateException("TcpDiscoverySpi has not started");
+            throw new IllegalStateException("TcpDiscoverySpi has not started.");
 
         return impl instanceof ClientImpl;
     }
@@ -1227,12 +1227,13 @@ public class TcpDiscoverySpi extends IgniteSpiAdapter implements DiscoverySpi, T
     /**
      * Writes response to the socket.
      *
+     * @param msg Received message.
      * @param sock Socket.
      * @param res Integer response.
      * @throws IOException If IO failed or write timed out.
      */
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected void writeToSocket(Socket sock, int res) throws IOException {
+    protected void writeToSocket(TcpDiscoveryAbstractMessage msg, Socket sock, int res) throws IOException {
         assert sock != null;
 
         SocketTimeoutObject obj = new SocketTimeoutObject(sock, U.currentTimeMillis() + sockTimeout);

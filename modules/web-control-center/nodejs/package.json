@@ -1,12 +1,12 @@
 {
-  "name": "ignite-web-configurator",
-  "version": "0.0.1",
-  "description": "",
+  "name": "ignite-web-control-center",
+  "version": "1.0.0",
+  "description": "Web application for configuration, monotoring Ignite Cluster",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
-  "author": "GridGain",
+  "author": "Ignite",
   "license": "Apache License, Version 2.0",
   "dependencies": {
     "body-parser": "~1.12.0",
