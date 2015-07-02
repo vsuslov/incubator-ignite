@@ -1,0 +1,57 @@
+<div class="docs-header">
+    <h1>Cluster state</h1>
+    <p>
+        Nodes in the cluster
+    </p>
+    <hr>
+</div>
+
+<div class="docs-body">
+    <div class="row" ng-controller="clustersListController">
+        <div class="col-md-6">
+            <div class="cluster-node" ng-repeat="node in nodes()">
+                <span ng-class="{glyphicon: true, 'glyphicon-phone': node.client, 'glyphicon-hdd': !node.client}"
+                      aria-hidden="true"
+                      title="{{node.client ? 'Client node' : 'Server node'}}"></span>
+
+                &nbsp;<span class="nodeAddr">{{nodeAddr(node)}}</span>
+
+                <br>
+                <small><span class="uuid">{{node.id}}</span></small>
+
+
+            </div>
+        </div>
+
+        <div class="col-md-2">
+
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">Node filters</div>
+                <div class="panel-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="cachesSelect">Caches</label>
+
+                            <div class="input-tip">
+                                <button id="cachesSelect" bs-select="bs-select" class="form-control" data-multiple="1"
+                                        data-placeholder="Choose cache" bs-options="" ng-model="selectedCaches">
+
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="showClients" ng-model="showClients">
+                                Show clients
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

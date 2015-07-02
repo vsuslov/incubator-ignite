@@ -133,7 +133,7 @@ configuratorModule.filter('compact', function () {
 
 configuratorModule.controller('activeLink', ['$scope', function ($scope) {
     $scope.isActive = function (path) {
-        return window.location.pathname.substr(0, path.length) == path;
+        return window.location.pathname.endsWith(path);
     };
 }]);
 

@@ -65,4 +65,9 @@ router.get('/summary', function(req, res) {
     res.render('summary', { user: req.user });
 });
 
+/* GET monitor page. */
+router.get('/monitor/cluster', function(req, res) {
+    res.render('monitor/cluster', { user: req.user });
+});
+
 module.exports = router;

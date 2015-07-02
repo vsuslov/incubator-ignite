@@ -1,0 +1,15 @@
+.cluster-node {
+    padding: 3px;
+    margin-top: 20px;
+
+    border-radius: 4px;
+}
+
+.cluster-node .uuid {
+    color: gray;
+    font-size: smaller;
+}
+
+.nodeAddr {
+    font-weight: bold;
+}
