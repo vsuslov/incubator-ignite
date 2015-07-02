@@ -1,7 +1,7 @@
 {
   "name": "ignite-web-control-center",
   "version": "1.0.0",
-  "description": "Web application for configuration, monotoring Ignite Cluster",
+  "description": "Web application for configuration, monitoring Ignite Cluster",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
