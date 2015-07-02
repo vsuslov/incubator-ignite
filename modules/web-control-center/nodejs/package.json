@@ -19,7 +19,6 @@
     "jade": "~1.9.2",
     "less-middleware": "1.0.x",
     "mongoose": "^4.0.2",
-    "morgan": "~1.5.1",
     "nconf": "^0.7.1",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
@@ -29,6 +28,7 @@
     "util": "^0.10.3"
   },
   "devDependencies": {
+    "morgan": "~1.5.1",
     "supertest": "^1.0.1",
     "mocha": "~2.0.1",
     "should": "~3.1.3"

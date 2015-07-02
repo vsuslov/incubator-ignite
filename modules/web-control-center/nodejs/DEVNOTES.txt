@@ -1,14 +1,21 @@
-Ignite Web Configurator Build Instructions
+Ignite Web Control Center Instructions
 ======================================
 
-Before run need install locally:
+How to deploy:
 
-1. NodeJS using installer from site https://nodejs.org
-2. MongoDB folow instructions from site http://docs.mongodb.org/manual/installation
+1. Install locally NodeJS using installer from site https://nodejs.org for your OS.
+2. Install locally MongoDB folow instructions from site http://docs.mongodb.org/manual/installation
+3. Checkout ignite-843 branch.
+4. Change directory '$IGNITE_HOME/modules/webconfig/nodejs'.
+5. Run "npm install" in terminal for download all dependencies.
 
-To run:
+Steps 1 - 5 should be executed once.
 
-1. Run following command in terminal for upload all dependence: "npm install" in 'modules/webconfig/nodejs' folder.
-2. Run MongoDB.
-3. Start application by following command in terminal: "npm start" in 'modules/webconfig/nodejs' folder.
-4. Open in browser: localhost:3000
+How to run:
+
+1. Run MongoDB.
+ 1.1 In terminal change dir to $MONGO_ISNTALL_DIR/server/3.0/bin.
+ 1.2 Run "mongod".
+2. In new terminal change directory '$IGNITE_HOME/modules/webconfig/nodejs'.
+3. Start application by executing "npm start".
+4. In browser open: http://localhost:3000
