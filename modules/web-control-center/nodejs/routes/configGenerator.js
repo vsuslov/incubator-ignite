@@ -24,45 +24,31 @@ var generatorJava = require('./../utils/generatorJava');
 
 router.get('/', function(req, res) {
     var lang = req.query.lang;
-    var name = req.query.name;
 
-    var user_id = req.user._id;
-    
-    db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {
+    // Get cluster.
+    db.Cluster.findById(req.query._id).populate('caches').exec(function (err, cluster) {
         if (err)
             return res.status(500).send(err.message);
 
-        var space_ids = spaces.map(function(value) {
-            return value._id;
-        });
+        if (!cluster) {
+            res.sendStatus(404);
 
-        // Get all clusters for spaces.
-        db.Cluster.find({name: name, space: {$in: space_ids}}).populate('caches').exec(function (err, clusters) {
-            if (err)
-                return res.status(500).send(err.message);
+            return
+        }
 
-            if (clusters.length == 0) {
-                res.sendStatus(404);
+        switch (lang) {
+            case 'xml':
+                res.send(generatorXml.generateClusterConfiguration(cluster));
+                break;
 
-                return
-            }
+            case 'java':
+                res.send(generatorJava.generateClusterConfiguration(cluster, req.query.generateJavaClass === 'true'));
+                break;
 
-            var cluster = clusters[0];
-
-            switch (lang) {
-                case 'xml':
-                    res.send(generatorXml.generateClusterConfiguration(cluster));
-                    break;
-
-                case 'java':
-                    res.send(generatorJava.generateClusterConfiguration(cluster, req.query.generateJavaClass == 'true'));
-                    break;
-
-                default:
-                    res.status(404).send("Unknown language: " + lang);
-                    break;
-            }
-        });
+            default:
+                res.status(404).send("Unknown language: " + lang);
+                break;
+        }
     });
 });
 

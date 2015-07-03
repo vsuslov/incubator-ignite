@@ -16,6 +16,17 @@
  */
 
 configuratorModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
+    $scope.generateJavaItems = [
+        { label: 'factory class',value: true},
+        { label: 'snippet',value: false}
+    ];
+
+    $scope.generateJavaClass = false;
+
+    $scope.javaData = undefined;
+    $scope.xmlData = undefined;
+    $scope.dockerData = undefined;
+
     $http.get('/rest/clusters').success(function (data) {
         $scope.caches = data.caches;
         $scope.spaces = data.spaces;
@@ -31,8 +42,11 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
     $scope.generateConfig = function() {
         var lang = $scope.cfgLang;
 
-        if (lang == 'docker')
+        if (lang == 'docker') {
+            $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
+
             return;
+        }
 
         var cluster = $scope.selectedItem;
         
@@ -42,13 +56,17 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
         $scope.loading = true;
 
         $http.get('/rest/configGenerator', {params: 
-        {name: cluster.name, lang: lang, generateJavaClass: $scope.generateJavaClass}})
+        {_id: cluster._id, lang: lang, generateJavaClass: $scope.generateJavaClass}})
             .success(
             function (data) {
                 if (lang == 'java') {
+                    $scope.javaData = data;
+
                     $("<pre class='brush:java' />").text(data).appendTo($('#javaResultDiv').empty());
                 }
                 else if (lang == 'xml') {
+                    $scope.xmlData = data;
+
                     $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResultDiv').empty());
                 }
 
@@ -68,23 +86,30 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
     $scope.$watch('generateJavaClass', $scope.generateConfig);
 
     $scope.dockerArg = {};
-    
-    $scope.downloadDocker = function() {
-        var dockerText = $scope.dockerFile();
-        
-        if (dockerText.length == 0)
+
+    $scope.download = function(text, fileName) {
+        if (text.length == 0)
             return;
         
-        var pom = document.createElement('a');
-        pom.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(dockerText));
-        pom.setAttribute('download', 'Dockerfile');
+        var file = document.createElement('a');
+        file.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(text));
+        file.setAttribute('download', fileName);
 
-        pom.style.display = 'none';
-        document.body.appendChild(pom);
+        file.style.display = 'none';
+        document.body.appendChild(file);
 
-        pom.click();
+        file.click();
 
-        document.body.removeChild(pom);
+        document.body.removeChild(file);
+    };
+
+    $scope.downloadJava = function() {
+        $scope.download($scope.javaData,
+            $scope.generateJavaClass ? 'ConfigurationFactory.java' : $scope.selectedItem.name + '.snipplet.txt');
+    };
+
+    $scope.downloadDocker = function() {
+        download($scope.dockerFile(), 'Dockerfile');
     };
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
@@ -98,7 +123,7 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
         if (!os) {
             os = 'debian:8'
         }
-        
+
         return "" +
             "# Start from a Debian image.\n"+
             "FROM " + os + "\n"+
@@ -110,7 +135,7 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
             "  maven \\\n"+
             "  git\n"+
             "\n"+
-            "# Intasll Oracle JDK.\n"+
+            "# Install Oracle JDK.\n"+
             "RUN mkdir /opt/jdk\n"+
             "\n"+
             "RUN wget --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \\\n"+
@@ -136,4 +161,8 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
             "\n"+
             "RUN mv /tmp/*.xml /home/$(ls)/config";
     };
+
+    $scope.$watch('dockerArg.os', function() {
+        $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
+    });
 }]);

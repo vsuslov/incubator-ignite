@@ -25,7 +25,9 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
         res.line(' * ' + generatorUtils.mainComment());
         res.line(' */');
         res.startBlock('public class ConfigurationFactory {');
-        res.line();
+        res.line('/**');
+        res.line(' * Configure grid.');
+        res.line(' */');
         res.startBlock('public IgniteConfiguration createConfiguration() {');
     }
     
@@ -273,6 +275,7 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     addProperty(res, cluster, 'cfg', 'utilityCachePoolSize');
 
     if (generateJavaClass) {
+        res.line();
         res.line('return cfg;');
         res.endBlock('}');
         res.endBlock('}');
