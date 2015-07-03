@@ -109,7 +109,7 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
     };
 
     $scope.downloadDocker = function() {
-        download($scope.dockerFile(), 'Dockerfile');
+        $scope.download($scope.dockerFile(), 'Dockerfile');
     };
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
