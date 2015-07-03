@@ -54,10 +54,13 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
                         return persistence._id == restoredItem._id;
                     });
 
-                    if (idx >= 0)
+                    if (idx >= 0) {
                         $scope.selectedItem = $scope.persistences[idx];
 
-                    $scope.backupItem = restoredItem;
+                        $scope.backupItem = restoredItem;
+                    }
+                    else
+                        sessionStorage.removeItem('persistenceBackupItem');
                 }
 
                 $scope.$watch('backupItem', function (val) {

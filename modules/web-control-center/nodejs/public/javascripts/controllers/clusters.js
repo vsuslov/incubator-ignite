@@ -112,10 +112,13 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                         return cluster._id == restoredItem._id;
                     });
 
-                    if (idx >= 0)
+                    if (idx >= 0) {
                         $scope.selectedItem = $scope.clusters[idx];
 
-                    $scope.backupItem = restoredItem;
+                        $scope.backupItem = restoredItem;
+                    }
+                    else
+                        sessionStorage.removeItem('clusterBackupItem');
                 }
 
                 $scope.$watch('backupItem', function (val) {

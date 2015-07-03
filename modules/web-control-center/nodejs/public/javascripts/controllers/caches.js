@@ -100,10 +100,13 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                         return cache._id == restoredItem._id;
                     });
 
-                    if (idx >= 0)
+                    if (idx >= 0) {
                         $scope.selectedItem = $scope.caches[idx];
 
-                    $scope.backupItem = restoredItem;
+                        $scope.backupItem = restoredItem;
+                    }
+                    else
+                        sessionStorage.removeItem('cacheBackupItem');
                 }
 
                 $scope.$watch('backupItem', function (val) {
