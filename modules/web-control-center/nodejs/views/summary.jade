@@ -62,10 +62,10 @@ block content
                             img(src='images/docker.png', width='16px' height='16px')
                             |  Dockerfile
 
+
                 .settings-row
                     #xmlResult(ng-show="cfgLang == 'xml'")
-                        label
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;' ng-click='$scope.download($scope.xmlData, $scope.selectedItem.name + ".xml")') Download
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -45px' ng-click='download(xmlData, selectedItem.name + ".xml")') Download
 
                         #xmlResultDiv
                     #javaResult(ng-show="cfgLang == 'java'")
@@ -74,10 +74,12 @@ block content
                         .col-sm-3
                             button.form-control(ng-model='generateJavaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in generateJavaItems')
 
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;' ng-click='downloadJava()') Download
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadJava()') Download
 
                         #javaResultDiv
                     #dockerResult(ng-show="cfgLang == 'docker'")
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadDocker()') Download
+
                         p
                             a(href='https://docs.docker.com/reference/builder') Dockerfile
                             | &nbspis a text file with instructions to create Docker image. To build image you have to
@@ -87,8 +89,6 @@ block content
                             label(for='os') Operation System:
                         .col-sm-4
                             input#os.form-control(type='text', ng-model='dockerArg.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
-
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;' ng-click='downloadDocker()') Download
 
                         .settings-row#dockerResultDiv(style='margin-top: 15px')
 
