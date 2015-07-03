@@ -44,12 +44,38 @@
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
       ]
+    },
+    {
+      "label": "Read from backup",
+      "type": "check",
+      "model": "readFromBackup",
+      "tip": [
+        "Flag indicating whether data can be read from backup.",
+        "If not set then always get data from primary node (never from backup)."
+      ]
     }
   ],
   "advanced": [
     {
+      "label": "Async back pressure control",
+      "fields": [
+        {
+          "label": "Max async concurrency",
+          "type": "number",
+          "model": "maxConcurrentAsyncOperations",
+          "placeholder": "500",
+          "tip": [
+            "Maximum number of allowed concurrent asynchronous operations.",
+            "If 0 then number of concurrent asynchronous operations is unlimited."
+          ]
+        }
+      ]
+    },
+    {
       "label": "Memory",
-      "tip": ["Cache memory settings."],
+      "tip": [
+        "Cache memory settings."
+      ],
       "fields": [
         {
           "label": "Mode",
@@ -218,12 +244,23 @@
           "tip": [
             "Flag indicating whether swap storage is enabled or not for this cache."
           ]
+        },
+        {
+          "label": "Copy on read",
+          "type": "check",
+          "model": "copyOnRead",
+          "tip": [
+            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
+            "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
+          ]
         }
       ]
     },
     {
       "label": "Near cache",
-      "tip": ["Near cache settings."],
+      "tip": [
+        "Near cache settings."
+      ],
       "fields": [
         {
           "label": "Start size",
@@ -363,7 +400,9 @@
     },
     {
       "label": "Query",
-      "tip": ["Cache query settings."],
+      "tip": [
+        "Cache query settings."
+      ],
       "fields": [
         {
           "label": "Escape all",
@@ -414,7 +453,9 @@
     },
     {
       "label": "Rebalance",
-      "tip": ["Cache rebalance settings."],
+      "tip": [
+        "Cache rebalance settings."
+      ],
       "fields": [
         {
           "label": "Mode",
@@ -490,8 +531,31 @@
       ]
     },
     {
+      "label": "Statistics",
+      "fields": [
+        {
+          "label": "Statistics enabled",
+          "type": "check",
+          "model": "statisticsEnabled",
+          "tip": [
+            "Flag indicating whether statistics gathering is enabled on a cache."
+          ]
+        },
+        {
+          "label": "Management enabled",
+          "type": "check",
+          "model": "managementEnabled",
+          "tip": [
+            "Flag indicating whether management is enabled on this cache."
+          ]
+        }
+      ]
+    },
+    {
       "label": "Store",
-      "tip": ["Cache store settings."],
+      "tip": [
+        "Cache store settings."
+      ],
       "fields": [
         {
           "label": "Store factory",
@@ -668,7 +732,9 @@
     },
     {
       "label": "Transaction",
-      "tip": ["Cache transactions settings."],
+      "tip": [
+        "Cache transactions settings."
+      ],
       "fields": [
         {
           "label": "Invalidate",
@@ -701,7 +767,9 @@
     },
     {
       "label": "Write behind",
-      "tip": ["Cache write behind settings."],
+      "tip": [
+        "Cache write behind settings."
+      ],
       "fields": [
         {
           "label": "Enabled",
@@ -747,55 +815,6 @@
           "placeholder": "1",
           "tip": [
             "Number of threads that will perform cache flushing."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Misc",
-      "fields": [
-        {
-          "label": "Statistics enabled",
-          "type": "check",
-          "model": "statisticsEnabled",
-          "tip": [
-            "Flag indicating whether statistics gathering is enabled on a cache."
-          ]
-        },
-        {
-          "label": "Management enabled",
-          "type": "check",
-          "model": "managementEnabled",
-          "tip": [
-            "Flag indicating whether management is enabled on this cache."
-          ]
-        },
-        {
-          "label": "Read from backup",
-          "type": "check",
-          "model": "readFromBackup",
-          "tip": [
-            "Flag indicating whether data can be read from backup.",
-            "If not set then always get data from primary node (never from backup)."
-          ]
-        },
-        {
-          "label": "Copy on read",
-          "type": "check",
-          "model": "copyOnRead",
-          "tip": [
-            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
-            "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
-          ]
-        },
-        {
-          "label": "Max async concurrency",
-          "type": "number",
-          "model": "maxConcurrentAsyncOperations",
-          "placeholder": "500",
-          "tip": [
-            "Maximum number of allowed concurrent asynchronous operations.",
-            "If 0 then number of concurrent asynchronous operations is unlimited."
           ]
         }
       ]

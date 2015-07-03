@@ -43,7 +43,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         ];
 
         $scope.evictionPolicies = [
-            {value: 'LRU', label: 'Least Recently Used'},
+            {value: 'LRU', label: 'LRU'},
             {value: 'RND', label: 'Random'},
             {value: 'FIFO', label: 'FIFO'},
             {value: 'SORTED', label: 'Sorted'},
