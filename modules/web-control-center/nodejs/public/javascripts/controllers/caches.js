@@ -19,6 +19,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
+        $scope.errorMessage = commonFunctions.errorMessage;
 
         $scope.atomicities = [
             {value: 'ATOMIC', label: 'ATOMIC'},
@@ -79,6 +80,9 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
             .success(function (data) {
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
+            })
+            .error(function (errMsg) {
+                $alert({title: $scope.errorMessage(errMsg)});
             });
 
         $scope.caches = [];
@@ -106,6 +110,9 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                     if (val)
                         sessionStorage.cacheBackupItem = angular.toJson(val);
                 }, true);
+            })
+            .error(function (errMsg) {
+                $alert({title: $scope.errorMessage(errMsg)});
             });
 
         $scope.selectItem = function (item) {
@@ -161,8 +168,8 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                         container: '#save-btn'
                     });
                 })
-                .error(function (errorMessage) {
-                    $alert({title: errorMessage});
+                .error(function (errMsg) {
+                    $alert({title: $scope.errorMessage(errMsg)});
                 });
         };
 
@@ -182,8 +189,8 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                         $scope.backupItem = undefined;
                     }
                 })
-                .error(function (errorMessage) {
-                    $alert({title: errorMessage});
+                .error(function (errMsg) {
+                    $alert({title: $scope.errorMessage(errMsg)});
                 });
         };
 

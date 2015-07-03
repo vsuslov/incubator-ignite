@@ -62,6 +62,9 @@ configuratorModule.service('commonFunctions', function () {
             });
 
             return lines.join("");
+        },
+        errorMessage: function(errMsg) {
+            return errMsg ? errMsg : 'Internal server error.';
         }
     }
 });
@@ -137,10 +140,11 @@ configuratorModule.controller('activeLink', ['$scope', function ($scope) {
     };
 }]);
 
-configuratorModule.controller('auth', ['$scope', '$modal', '$alert', '$http', '$window', function ($scope, $modal, $alert, $http, $window) {
-    $scope.action = 'login';
+configuratorModule.controller('auth', ['$scope', '$modal', '$alert', '$http', '$window', 'commonFunctions',
+    function ($scope, $modal, $alert, $http, $window, commonFunctions) {
+    $scope.errorMessage = commonFunctions.errorMessage;
 
-    $scope.errorMessage = '';
+    $scope.action = 'login';
 
     $scope.valid = false;
 
@@ -160,9 +164,7 @@ configuratorModule.controller('auth', ['$scope', '$modal', '$alert', '$http', '$
                 $window.location = '/clusters';
             })
             .error(function (data) {
-                console.log(data);
-
-                $alert({placement: 'top', container: '#errors-container', title: data});
+                $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
             });
     };
 }]);

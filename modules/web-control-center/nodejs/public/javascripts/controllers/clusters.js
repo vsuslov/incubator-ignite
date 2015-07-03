@@ -19,6 +19,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
+        $scope.errorMessage = commonFunctions.errorMessage;
 
         $scope.templates = [
             {value: {}, label: 'none'},
@@ -92,6 +93,9 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
 
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
+            })
+            .error(function (errMsg) {
+                $alert({title: $scope.errorMessage(errMsg)});
             });
 
         // When landing on the page, get clusters and show them.
@@ -118,6 +122,9 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                     if (val)
                         sessionStorage.clusterBackupItem = angular.toJson(val);
                 }, true);
+            })
+            .error(function (errMsg) {
+                $alert({title: $scope.errorMessage(errMsg)});
             });
 
         $scope.selectItem = function (item) {
@@ -178,8 +185,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                         container: '#save-btn'
                     });
                 })
-                .error(function (errorMessage) {
-                    $alert({title: errorMessage});
+                .error(function (errMsg) {
+                    $alert({title: $scope.errorMessage(errMsg)});
                 });
         };
 
@@ -199,8 +206,8 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                         $scope.backupItem = undefined;
                     }
                 })
-                .error(function (errorMessage) {
-                    $alert({title: errorMessage});
+                .error(function (errMsg) {
+                    $alert({title: $scope.errorMessage(errMsg)});
                 });
         };
     }]
