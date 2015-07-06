@@ -20,6 +20,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
         $scope.errorMessage = commonFunctions.errorMessage;
+        $scope.console = console;
 
         $scope.templates = [
             {value: {}, label: 'none'},

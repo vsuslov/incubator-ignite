@@ -19,7 +19,7 @@ var configuratorModule = angular.module('ignite-web-configurator', ['smart-table
 
 configuratorModule.service('commonFunctions', function () {
     return {
-        getModel: function(obj, path) {
+        getModel: function (obj, path) {
             if (!path)
                 return obj;
 
@@ -46,7 +46,7 @@ configuratorModule.service('commonFunctions', function () {
             a[ix1] = a[ix2];
             a[ix2] = tmp;
         },
-        joinTip: function(arr) {
+        joinTip: function (arr) {
             if (!arr) {
                 return arr;
             }
@@ -63,7 +63,7 @@ configuratorModule.service('commonFunctions', function () {
 
             return lines.join("");
         },
-        errorMessage: function(errMsg) {
+        errorMessage: function (errMsg) {
             return errMsg ? errMsg : 'Internal server error.';
         }
     }
@@ -134,37 +134,58 @@ configuratorModule.filter('compact', function () {
     }
 });
 
-configuratorModule.controller('activeLink', ['$scope', function ($scope) {
-    $scope.isActive = function (path) {
-        return window.location.pathname.substr(0, path.length) == path;
-    };
-}]);
+configuratorModule.directive('ipaddress', function () {
+    const ip = '(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])';
+    const port = '([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])';
+    const portRange = '(:' + port + '(..' + port + ')?)?';
+    const host = '(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])';
 
-configuratorModule.controller('auth', ['$scope', '$modal', '$alert', '$http', '$window', 'commonFunctions',
+    return {
+        require: 'ngModel',
+        link: function (scope, elem, attrs, ctrl) {
+            ctrl.$validators.ipaddress = function (modelValue, viewValue) {
+                if (ctrl.$isEmpty(modelValue) || !attrs['ipaddress'])
+                    return true;
+
+                return viewValue.match(new RegExp('(^' + ip + portRange + '$)|(^' + host + portRange + '$)')) != null;
+            }
+        }
+    }
+});
+
+configuratorModule.controller('activeLink', [
+    '$scope', function ($scope) {
+        $scope.isActive = function (path) {
+            return window.location.pathname.substr(0, path.length) == path;
+        };
+    }]);
+
+configuratorModule.controller('auth', [
+    '$scope', '$modal', '$alert', '$http', '$window', 'commonFunctions',
     function ($scope, $modal, $alert, $http, $window, commonFunctions) {
-    $scope.errorMessage = commonFunctions.errorMessage;
+        $scope.errorMessage = commonFunctions.errorMessage;
 
-    $scope.action = 'login';
+        $scope.action = 'login';
 
-    $scope.valid = false;
+        $scope.valid = false;
 
-    // Pre-fetch an external template populated with a custom scope
-    var authModal = $modal({scope: $scope, template: '/login', show: false});
+        // Pre-fetch an external template populated with a custom scope
+        var authModal = $modal({scope: $scope, template: '/login', show: false});
 
-    $scope.login = function () {
-        // Show when some event occurs (use $promise property to ensure the template has been loaded)
-        authModal.$promise.then(authModal.show);
-    };
+        $scope.login = function () {
+            // Show when some event occurs (use $promise property to ensure the template has been loaded)
+            authModal.$promise.then(authModal.show);
+        };
 
-    $scope.auth = function (action, user_info) {
-        $http.post('/rest/auth/' + action, user_info)
-            .success(function (data) {
-                authModal.hide();
+        $scope.auth = function (action, user_info) {
+            $http.post('/rest/auth/' + action, user_info)
+                .success(function (data) {
+                    authModal.hide();
 
-                $window.location = '/clusters';
-            })
-            .error(function (data) {
-                $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
-            });
-    };
-}]);
+                    $window.location = '/clusters';
+                })
+                .error(function (data) {
+                    $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
+                });
+        };
+    }]);

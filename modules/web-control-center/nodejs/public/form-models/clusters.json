@@ -52,6 +52,7 @@
               "model": "addresses",
               "editIdx": -1,
               "reordering": true,
+              "ipaddress": true,
               "placeholder": "IP address:port",
               "tip": [
                 "Addresses may be represented as follows:",
