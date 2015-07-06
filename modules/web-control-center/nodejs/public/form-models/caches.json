@@ -58,7 +58,9 @@
   "advanced": [
     {
       "label": "Async back pressure control",
-      "tip": ["Cache async back pressure settings."],
+      "tip": [
+        "Cache async back pressure settings."
+      ],
       "fields": [
         {
           "label": "Max async concurrency",
@@ -104,6 +106,7 @@
           "model": "offHeapMaxMemory",
           "min": -1,
           "placeholder": "-1",
+          "hide": "backupItem.memoryMode == 'OFFHEAP_VALUES'",
           "tip": [
             "Sets maximum amount of memory available to off-heap storage.",
             "Possible values are:",
@@ -121,6 +124,7 @@
           "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
+          "hide": "backupItem.memoryMode == 'OFFHEAP_TIERED'",
           "tip": [
             "Cache expiration policy."
           ],
@@ -543,7 +547,9 @@
     },
     {
       "label": "Statistics",
-      "tip": ["Cache statistics and management settings."],
+      "tip": [
+        "Cache statistics and management settings."
+      ],
       "fields": [
         {
           "label": "Statistics enabled",
@@ -572,8 +578,7 @@
         {
           "label": "Store factory",
           "type": "dropdown-details",
-          "group": "cacheStoreFactory",
-          "path": "store",
+          "path": "cacheStoreFactory",
           "model": "kind",
           "placeholder": "Choose store factory",
           "items": "cacheStoreFactories",
@@ -587,7 +592,7 @@
                 {
                   "label": "Data source bean",
                   "type": "text",
-                  "path": "store.CacheJdbcPojoStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "dataSourceBean",
                   "required": true,
                   "placeholder": "Bean name in Spring context",
@@ -598,10 +603,10 @@
                 {
                   "label": "Dialect",
                   "type": "dropdown",
-                  "path": "store.CacheJdbcPojoStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "dialect",
                   "placeholder": "Choose JDBC dialect",
-                  "items": "store.CacheJdbcPojoStoreFactory.cacheStoreJdbcDialects",
+                  "items": "cacheStoreFactory.CacheJdbcPojoStoreFactory.cacheStoreJdbcDialects",
                   "tip": [
                     "Dialect of SQL implemented by a particular RDBMS:",
                     "<ul>",
@@ -622,7 +627,7 @@
                 {
                   "label": "user",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "user",
                   "tip": [
                     "User name for database access."
@@ -631,7 +636,7 @@
                 {
                   "label": "Data source bean",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "dataSourceBean",
                   "placeholder": "Bean name in Spring context",
                   "tip": [
@@ -641,7 +646,7 @@
                 {
                   "label": "Init schema",
                   "type": "check",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "initSchema",
                   "tip": [
                     "Flag indicating whether DB schema should be initialized by Ignite (default behaviour) or was explicitly created by user."
@@ -650,7 +655,7 @@
                 {
                   "label": "Create query",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "createTableQuery",
                   "placeholder": "SQL for table creation",
                   "tip": [
@@ -661,7 +666,7 @@
                 {
                   "label": "Load query",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "loadQuery",
                   "placeholder": "SQL for load entry",
                   "tip": [
@@ -672,7 +677,7 @@
                 {
                   "label": "insert query",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "insertQuery",
                   "placeholder": "SQL for insert entry",
                   "tip": [
@@ -683,7 +688,7 @@
                 {
                   "label": "Update query",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "updateQuery",
                   "placeholder": "SQL for update entry",
                   "tip": [
@@ -694,7 +699,7 @@
                 {
                   "label": "Delete query",
                   "type": "text",
-                  "path": "store.CacheJdbcBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "deleteQuery",
                   "placeholder": "SQL for delete entry",
                   "tip": [
@@ -711,7 +716,7 @@
                   "tableLabel": "Hibernate properties",
                   "label": "Hibernate property",
                   "type": "table-simple",
-                  "path": "store.CacheHibernateBlobStoreFactory",
+                  "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
                   "model": "hibernateProperties",
                   "editIdx": -1,
                   "placeholder": "key=value",

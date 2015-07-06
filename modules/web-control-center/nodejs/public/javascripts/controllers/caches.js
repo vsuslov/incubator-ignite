@@ -76,13 +76,31 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.general = [];
         $scope.advanced = [];
 
+        $scope.showError = function (msg) {
+            if ($scope.alert)
+                $scope.alert.hide();
+
+            $scope.alert = $alert({title: $scope.errorMessage(msg)});
+        };
+
+        $scope.showInfo = function (msg) {
+            if ($scope.alert)
+                $scope.alert.hide();
+
+            $scope.alert = $alert({
+                type: 'success',
+                title: msg,
+                duration: 2
+            });
+        };
+
         $http.get('/form-models/caches.json')
             .success(function (data) {
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                $scope.showError(errMsg);
             });
 
         $scope.caches = [];
@@ -115,7 +133,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 }, true);
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                $scope.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -134,16 +152,14 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            console.log(item);
-
-            if (item.cacheStoreFactory && !item.readThrough && !item.writeThrough) {
-                $alert({position: 'top', title: 'Store is configured but read/write through are not enabled!'});
+            if (item.cacheStoreFactory && item.cacheStoreFactory.kind && !(item.readThrough || item.writeThrough)) {
+                $scope.showError('Store is configured but read/write through are not enabled!');
 
                 return;
             }
 
             if ((item.readThrough || item.writeThrough) && (!item.cacheStoreFactory || !item.cacheStoreFactory.kind)) {
-                $alert({position: 'top', title: 'Read / write through are enabled but strore is not configured!'});
+                $scope.showError('Read / write through are enabled but strore is not configured!');
 
                 return;
             }
@@ -164,15 +180,10 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
                     $scope.selectItem(item);
 
-                    $alert({
-                        type: 'success',
-                        title: 'Cache "' + item.name + '" saved.',
-                        duration: 2,
-                        container: '#save-btn'
-                    });
+                    $scope.showInfo('Cache "' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    $scope.showError(errMsg);
                 });
         };
 
@@ -193,19 +204,19 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                     }
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    $scope.showError(errMsg);
                 });
         };
 
         $scope.checkIndexedTypes = function (keyCls, valCls) {
             if (!keyCls) {
-                $alert({title: 'Key class name should be non empty!'});
+                $scope.showError('Key class name should be non empty!');
 
                 return false;
             }
 
             if (!valCls) {
-                $alert({title: 'Value class name should be non empty!'});
+                $scope.showError('Value class name should be non empty!');
 
                 return false;
             }

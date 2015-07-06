@@ -108,7 +108,7 @@ mixin form-row
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='password' placeholder='{{field.placeholder}}' ng-required='field.required')&attributes(fieldCommon)
-        div(ng-switch-when='number')
+        div(ng-switch-when='number' ng-hide='{{field.hide}}')
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
@@ -130,7 +130,7 @@ mixin form-row
                 .input-tip
                     button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
-        div(ng-switch-when='dropdown-details')
+        div(ng-switch-when='dropdown-details' ng-hide='{{field.hide}}')
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
