@@ -58,6 +58,7 @@
   "advanced": [
     {
       "label": "Async back pressure control",
+      "tip": ["Cache async back pressure settings."],
       "fields": [
         {
           "label": "Max async concurrency",
@@ -259,9 +260,19 @@
     {
       "label": "Near cache",
       "tip": [
-        "Near cache settings."
+        "Near cache settings.",
+        "Near cache is a small local cache that stores most recently or most frequently accessed data.",
+        "Should be used in case when it is impossible to send computations to remote nodes."
       ],
       "fields": [
+        {
+          "label": "Enabled",
+          "type": "check",
+          "model": "nearCacheEnabled",
+          "tip": [
+            "Flag indicating whether to configure near cache."
+          ]
+        },
         {
           "label": "Start size",
           "type": "number",
@@ -532,6 +543,7 @@
     },
     {
       "label": "Statistics",
+      "tip": ["Cache statistics and management settings."],
       "fields": [
         {
           "label": "Statistics enabled",
@@ -768,7 +780,8 @@
     {
       "label": "Write behind",
       "tip": [
-        "Cache write behind settings."
+        "Cache write behind settings.",
+        "Write-behind is a special mode when updates to cache accumulated and then asynchronously flushed to persistent store as a bulk operation."
       ],
       "fields": [
         {

@@ -197,7 +197,26 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 });
         };
 
+        $scope.checkIndexedTypes = function (keyCls, valCls) {
+            if (!keyCls) {
+                $alert({title: 'Key class name should be non empty!'});
+
+                return false;
+            }
+
+            if (!valCls) {
+                $alert({title: 'Value class name should be non empty!'});
+
+                return false;
+            }
+
+            return true;
+        };
+
         $scope.addIndexedTypes = function (keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return;
+
             var idxTypes = $scope.backupItem.indexedTypes;
 
             var newItem = {keyClass: keyCls, valueClass: valCls};
@@ -208,40 +227,16 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 $scope.backupItem.indexedTypes = [newItem];
         };
 
-        $scope.editIndexedTypes = function (idx) {
-            $scope.indexedTypeIdx = idx;
+        $scope.saveIndexedType = function (idx, keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return idx;
 
-            if (idx < 0) {
-                $scope.currKeyCls = '';
-                $scope.currValCls = '';
-            }
-            else {
-                var idxType = $scope.backupItem.indexedTypes[idx];
+            var idxType = $scope.backupItem.indexedTypes[idx];
 
-                $scope.currKeyCls = idxType.keyClass;
-                $scope.currValCls = idxType.valueClass;
-            }
-        };
+            idxType.keyClass = keyCls;
+            idxType.valueClass = valCls;
 
-        $scope.saveIndexedType = function (k, v) {
-            var idxTypes = $scope.backupItem.indexedTypes;
-
-            var idx = $scope.indexedTypeIdx;
-
-            if (idx < 0) {
-                var newItem = {keyClass: k, valueClass: v};
-
-                if (idxTypes)
-                    idxTypes.push(newItem);
-                else
-                    $scope.backupItem.indexedTypes = [newItem];
-            }
-            else {
-                var idxType = idxTypes[idx];
-
-                idxType.keyClass = k;
-                idxType.valueClass = v;
-            }
+            return -1;
         };
     }]
 );

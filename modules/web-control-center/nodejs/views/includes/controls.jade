@@ -144,7 +144,7 @@ mixin form-row
                     +details-row
         div(ng-switch-when='table-simple')&attributes(fieldCommon)
             div
-                label {{field.tableLabel}}: {{#{fieldMdl}.length}}
+                label {{field.tableLabel}}
                 +tipLabel('field.tip')
             table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
                 tbody
@@ -169,7 +169,7 @@ mixin form-row
         div(ng-switch-when='indexedTypes')
             - var tblMdl = 'backupItem.indexedTypes'
             div
-                label Indexed types: {{#{tblMdl}.length}}
+                label Indexed types
                 +tipLabel('field.tip')
             table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
                 tbody
@@ -180,7 +180,7 @@ mixin form-row
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{tblMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{tblMdl}[$index]={keyClass: curKeyClass, valueClass: curValueClass}')
+                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = saveIndexedType($index, curKeyClass, curValueClass)')
                                 .input-tip
                                     .col-sm-12
                                         input.form-control.table-form-control(type='text' ng-model='curKeyClass' placeholder='Key class full name')
@@ -190,4 +190,4 @@ mixin form-row
                 input.form-control(type='text' ng-model='newKeyClass' ng-focus='field.editIdx = -1' placeholder='Key class full name')
                 .settings-row
                     input.form-control(type='text' ng-model='newValueClass' ng-focus='field.editIdx = -1' placeholder='Value class full name')
-                button.btn.btn-primary.fieldButton(ng-click='field.editIdx = -1; addIndexedTypes(newKeyClass, newValueClass)') Add
+                button.btn.btn-primary.fieldButton(ng-disabled='!newKeyClass || !newValueClass' ng-click='field.editIdx = -1; addIndexedTypes(newKeyClass, newValueClass)') Add
