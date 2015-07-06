@@ -32,12 +32,12 @@ import java.util.concurrent.*;
 /**
  *
  */
-public class IgniteFairAffinityDynamicCacheSelfTest extends GridCommonAbstractTest {
+public class FairAffinityDynamicCacheSelfTest extends GridCommonAbstractTest {
     /** */
     private static final TcpDiscoveryIpFinder IP_FINDER = new TcpDiscoveryVmIpFinder(true);
 
     /** */
-    public IgniteFairAffinityDynamicCacheSelfTest(){
+    public FairAffinityDynamicCacheSelfTest(){
         super(false);
     }
 
@@ -84,8 +84,7 @@ public class IgniteFairAffinityDynamicCacheSelfTest extends GridCommonAbstractTe
             cache.put(i, i);
 
         IgniteInternalFuture<Object> destFut = GridTestUtils.runAsync(new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
+            @Override public Object call() throws Exception {
                 ignite(0).destroyCache(cache.getName());
 
                 return null;

@@ -23,6 +23,9 @@ import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.events.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
+import org.apache.ignite.lang.*;
+
+import org.jetbrains.annotations.*;
 
 import java.io.*;
 import java.util.*;
@@ -47,21 +50,134 @@ public class FairAffinityFunction implements AffinityFunction {
     /** Descending comparator. */
     private static final Comparator<PartitionSet> DESC_CMP = Collections.reverseOrder(ASC_CMP);
 
-    /** */
+    /** Number of partitions. */
     private final int parts;
 
+    /** Exclude neighbors flag. */
+    private boolean exclNeighbors;
+
+    /** Optional backup filter. First node is primary, second node is a node being tested. */
+    private IgniteBiPredicate<ClusterNode, ClusterNode> backupFilter;
+
     /**
-     * Creates fair affinity with default partition count.
+     * Empty constructor with all defaults.
      */
     public FairAffinityFunction() {
         this(DFLT_PART_CNT);
     }
 
     /**
+     * Initializes affinity with flag to exclude same-host-neighbors from being backups of each other
+     * and specified number of backups.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code #getBackupFilter()} is set.
+     *
+     * @param exclNeighbors {@code True} if nodes residing on the same host may not act as backups
+     *      of each other.
+     */
+    public FairAffinityFunction(boolean exclNeighbors) {
+        this(exclNeighbors, DFLT_PART_CNT);
+    }
+
+    /**
      * @param parts Number of partitions.
      */
     public FairAffinityFunction(int parts) {
+        this(false, parts);
+    }
+
+    /**
+     * Initializes affinity with flag to exclude same-host-neighbors from being backups of each other,
+     * and specified number of backups and partitions.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code #getBackupFilter()} is set.
+     *
+     * @param exclNeighbors {@code True} if nodes residing on the same host may not act as backups
+     *      of each other.
+     * @param parts Total number of partitions.
+     */
+    public FairAffinityFunction(boolean exclNeighbors, int parts) {
+        this(exclNeighbors, parts, null);
+    }
+
+    /**
+     * Initializes optional counts for replicas and backups.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code backupFilter} is set.
+     *
+     * @param parts Total number of partitions.
+     * @param backupFilter Optional back up filter for nodes. If provided, backups will be selected
+     *      from all nodes that pass this filter. First argument for this filter is primary node, and second
+     *      argument is node being tested.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code backupFilter} is set.
+     */
+    public FairAffinityFunction(int parts, @Nullable IgniteBiPredicate<ClusterNode, ClusterNode> backupFilter) {
+        this(false, parts, backupFilter);
+    }
+
+    /**
+     * Private constructor.
+     *
+     * @param exclNeighbors Exclude neighbors flag.
+     * @param parts Partitions count.
+     * @param backupFilter Backup filter.
+     */
+    private FairAffinityFunction(boolean exclNeighbors, int parts,
+        IgniteBiPredicate<ClusterNode, ClusterNode> backupFilter) {
+        A.ensure(parts != 0, "parts != 0");
+
+        this.exclNeighbors = exclNeighbors;
         this.parts = parts;
+        this.backupFilter = backupFilter;
+    }
+
+    /**
+     * Gets optional backup filter. If not {@code null}, backups will be selected
+     * from all nodes that pass this filter. First node passed to this filter is primary node,
+     * and second node is a node being tested.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code backupFilter} is set.
+     *
+     * @return Optional backup filter.
+     */
+    @Nullable public IgniteBiPredicate<ClusterNode, ClusterNode> getBackupFilter() {
+        return backupFilter;
+    }
+
+    /**
+     * Sets optional backup filter. If provided, then backups will be selected from all
+     * nodes that pass this filter. First node being passed to this filter is primary node,
+     * and second node is a node being tested.
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code backupFilter} is set.
+     *
+     * @param backupFilter Optional backup filter.
+     */
+    public void setBackupFilter(@Nullable IgniteBiPredicate<ClusterNode, ClusterNode> backupFilter) {
+        this.backupFilter = backupFilter;
+    }
+
+    /**
+     * Checks flag to exclude same-host-neighbors from being backups of each other (default is {@code false}).
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code #getBackupFilter()} is set.
+     *
+     * @return {@code True} if nodes residing on the same host may not act as backups of each other.
+     */
+    public boolean isExcludeNeighbors() {
+        return exclNeighbors;
+    }
+
+    /**
+     * Sets flag to exclude same-host-neighbors from being backups of each other (default is {@code false}).
+     * <p>
+     * Note that {@code excludeNeighbors} parameter is ignored if {@code #getBackupFilter()} is set.
+     *
+     * @param exclNeighbors {@code True} if nodes residing on the same host may not act as backups of each other.
+     */
+    public void setExcludeNeighbors(boolean exclNeighbors) {
+        this.exclNeighbors = exclNeighbors;
     }
 
     /** {@inheritDoc} */
@@ -81,7 +197,7 @@ public class FairAffinityFunction implements AffinityFunction {
         // Per tier pending partitions.
         Map<Integer, Queue<Integer>> pendingParts = new HashMap<>();
 
-        FullAssignmentMap fullMap = new FullAssignmentMap(tiers, assignment, topSnapshot);
+        FullAssignmentMap fullMap = new FullAssignmentMap(tiers, assignment, topSnapshot, exclNeighbors);
 
         for (int tier = 0; tier < tiers; tier++) {
             // Check if this is a new tier and add pending partitions.
@@ -89,15 +205,11 @@ public class FairAffinityFunction implements AffinityFunction {
 
             for (int part = 0; part < parts; part++) {
                 if (fullMap.assignments.get(part).size() < tier + 1) {
-                    if (pending == null) {
-                        pending = new LinkedList<>();
-
-                        pendingParts.put(tier, pending);
-                    }
+                    if (pending == null)
+                        pendingParts.put(tier, pending = new LinkedList<>());
 
                     if (!pending.contains(part))
                         pending.add(part);
-
                 }
             }
 
@@ -524,11 +636,8 @@ public class FairAffinityFunction implements AffinityFunction {
 
                 PartitionSet set = tmp.get(n.id());
 
-                if (set == null) {
-                    set = new PartitionSet(n);
-
-                    tmp.put(n.id(), set);
-                }
+                if (set == null)
+                    tmp.put(n.id(), set = new PartitionSet(n));
 
                 set.add(part);
             }
@@ -559,13 +668,24 @@ public class FairAffinityFunction implements AffinityFunction {
         /** Resulting assignment. */
         private List<List<ClusterNode>> assignments;
 
+        /** Exclude neighbors flag. */
+        private final boolean exclNeighbors;
+
+        /** Neighborhood map. */
+        private final Map<UUID, Collection<ClusterNode>> neighborhoodMap;
+
         /**
          * @param tiers Number of tiers.
          * @param assignments Assignments to modify.
          * @param topSnapshot Topology snapshot.
+         * @param exclNeighbors Exclude neighbors flag.
          */
-        private FullAssignmentMap(int tiers, List<List<ClusterNode>> assignments, Collection<ClusterNode> topSnapshot) {
+        private FullAssignmentMap(int tiers, List<List<ClusterNode>> assignments, Collection<ClusterNode> topSnapshot,
+            boolean exclNeighbors) {
             this.assignments = assignments;
+
+            this.exclNeighbors = exclNeighbors;
+            this.neighborhoodMap = exclNeighbors ? AffinityUtils.neighbors(topSnapshot) : null;
 
             tierMaps = new Map[tiers];
 
@@ -591,7 +711,7 @@ public class FairAffinityFunction implements AffinityFunction {
         boolean assign(int part, int tier, ClusterNode node, boolean force, Map<Integer, Queue<Integer>> pendingParts) {
             UUID nodeId = node.id();
 
-            if (!fullMap.get(nodeId).contains(part)) {
+            if (!containsPart(node, part)) {
                 tierMaps[tier].get(nodeId).add(part);
 
                 fullMap.get(nodeId).add(part);
@@ -613,7 +733,7 @@ public class FairAffinityFunction implements AffinityFunction {
 
                 return true;
             }
-            else if (force) {
+            else if (force && !exclNeighbors) {
                 assert !tierMaps[tier].get(nodeId).contains(part);
 
                 // Check previous tiers first.
@@ -641,11 +761,8 @@ public class FairAffinityFunction implements AffinityFunction {
 
                         Queue<Integer> pending = pendingParts.get(t);
 
-                        if (pending == null) {
-                            pending = new LinkedList<>();
-
-                            pendingParts.put(t, pending);
-                        }
+                        if (pending == null)
+                            pendingParts.put(t, pending = new LinkedList<>());
 
                         pending.add(part);
 
@@ -668,6 +785,22 @@ public class FairAffinityFunction implements AffinityFunction {
          */
         public Map<UUID, PartitionSet> tierMapping(int tier) {
             return tierMaps[tier];
+        }
+
+        /**
+         * @param node Node.
+         * @param part Partition.
+         */
+        private boolean containsPart(ClusterNode node, int part) {
+            if (fullMap.get(node.id()).contains(part))
+                return true;
+
+            if (exclNeighbors)
+                for (ClusterNode n : neighborhoodMap.get(node.id()))
+                    if (fullMap.get(n.id()).contains(part))
+                        return true;
+
+            return false;
         }
     }
 

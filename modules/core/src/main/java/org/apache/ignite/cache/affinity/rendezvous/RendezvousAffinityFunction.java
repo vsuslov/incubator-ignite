@@ -20,7 +20,6 @@ package org.apache.ignite.cache.affinity.rendezvous;
 import org.apache.ignite.*;
 import org.apache.ignite.cache.affinity.*;
 import org.apache.ignite.cluster.*;
-import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
@@ -72,8 +71,7 @@ public class RendezvousAffinityFunction implements AffinityFunction, Externaliza
             catch (NoSuchAlgorithmException e) {
                 assert false : "Should have failed in constructor";
 
-                throw new IgniteException("Failed to obtain message digest (digest was available in constructor)",
-                    e);
+                throw new IgniteException("Failed to obtain message digest (digest was available in constructor)", e);
             }
         }
     };
@@ -345,7 +343,7 @@ public class RendezvousAffinityFunction implements AffinityFunction, Externaliza
                 ClusterNode node = next.get2();
 
                 if (exclNeighbors) {
-                    Collection<ClusterNode> allNeighbors = allNeighbors(neighborhoodCache, res);
+                    Collection<ClusterNode> allNeighbors = AffinityUtils.neighborsForNodes(neighborhoodCache, res);
 
                     if (!allNeighbors.contains(node))
                         res.add(node);
@@ -400,7 +398,7 @@ public class RendezvousAffinityFunction implements AffinityFunction, Externaliza
         List<List<ClusterNode>> assignments = new ArrayList<>(parts);
 
         Map<UUID, Collection<ClusterNode>> neighborhoodCache = exclNeighbors ?
-            neighbors(affCtx.currentTopologySnapshot()) : null;
+            AffinityUtils.neighbors(affCtx.currentTopologySnapshot()) : null;
 
         for (int i = 0; i < parts; i++) {
             List<ClusterNode> partAssignment = assignPartition(i, affCtx.currentTopologySnapshot(), affCtx.backups(),
@@ -431,57 +429,6 @@ public class RendezvousAffinityFunction implements AffinityFunction, Externaliza
         exclNeighbors = in.readBoolean();
         hashIdRslvr = (AffinityNodeHashResolver)in.readObject();
         backupFilter = (IgniteBiPredicate<ClusterNode, ClusterNode>)in.readObject();
-    }
-
-    /**
-     * Builds neighborhood map for all nodes in snapshot.
-     *
-     * @param topSnapshot Topology snapshot.
-     * @return Neighbors map.
-     */
-    private Map<UUID, Collection<ClusterNode>> neighbors(Collection<ClusterNode> topSnapshot) {
-        Map<String, Collection<ClusterNode>> macMap = new HashMap<>(topSnapshot.size(), 1.0f);
-
-        // Group by mac addresses.
-        for (ClusterNode node : topSnapshot) {
-            String macs = node.attribute(IgniteNodeAttributes.ATTR_MACS);
-
-            Collection<ClusterNode> nodes = macMap.get(macs);
-
-            if (nodes == null) {
-                nodes = new HashSet<>();
-
-                macMap.put(macs, nodes);
-            }
-
-            nodes.add(node);
-        }
-
-        Map<UUID, Collection<ClusterNode>> neighbors = new HashMap<>(topSnapshot.size(), 1.0f);
-
-        for (Collection<ClusterNode> group : macMap.values()) {
-            for (ClusterNode node : group)
-                neighbors.put(node.id(), group);
-        }
-
-        return neighbors;
-    }
-
-    /**
-     * @param neighborhoodCache Neighborhood cache.
-     * @param nodes Nodes.
-     * @return All neighbors for given nodes.
-     */
-    private Collection<ClusterNode> allNeighbors(Map<UUID, Collection<ClusterNode>> neighborhoodCache,
-        Iterable<ClusterNode> nodes) {
-        Collection<ClusterNode> res = new HashSet<>();
-
-        for (ClusterNode node : nodes) {
-            if (!res.contains(node))
-                res.addAll(neighborhoodCache.get(node.id()));
-        }
-
-        return res;
     }
 
     /**

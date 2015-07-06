@@ -31,7 +31,7 @@ import java.util.*;
 /**
  * Tests partition fair affinity in real grid.
  */
-public class GridFairAffinityFunctionNodesSelfTest extends GridCommonAbstractTest {
+public class FairAffinityFunctionNodesSelfTest extends GridCommonAbstractTest {
     /** IP finder. */
     private static final TcpDiscoveryIpFinder IP_FINDER = new TcpDiscoveryVmIpFinder(true);
 

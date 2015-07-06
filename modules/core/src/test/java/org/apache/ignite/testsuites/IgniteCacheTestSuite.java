@@ -19,19 +19,9 @@ package org.apache.ignite.testsuites;
 
 import junit.framework.*;
 import org.apache.ignite.*;
-import org.apache.ignite.cache.*;
 import org.apache.ignite.cache.affinity.*;
 import org.apache.ignite.cache.affinity.fair.*;
-import org.apache.ignite.cache.store.*;
-import org.apache.ignite.cache.store.jdbc.*;
 import org.apache.ignite.internal.processors.cache.*;
-import org.apache.ignite.internal.processors.cache.context.*;
-import org.apache.ignite.internal.processors.cache.distributed.*;
-import org.apache.ignite.internal.processors.cache.distributed.dht.*;
-import org.apache.ignite.internal.processors.cache.distributed.near.*;
-import org.apache.ignite.internal.processors.cache.distributed.replicated.*;
-import org.apache.ignite.internal.processors.cache.local.*;
-import org.apache.ignite.internal.processors.datastreamer.*;
 import org.apache.ignite.testframework.*;
 
 import java.util.*;
@@ -56,6 +46,7 @@ public class IgniteCacheTestSuite extends TestSuite {
     public static TestSuite suite(Set<Class> ignoredTests) throws Exception {
         TestSuite suite = new TestSuite("IgniteCache Test Suite");
 
+/*
         suite.addTestSuite(IgniteCacheEntryListenerAtomicTest.class);
         suite.addTestSuite(IgniteCacheEntryListenerAtomicReplicatedTest.class);
         suite.addTestSuite(IgniteCacheEntryListenerAtomicLocalTest.class);
@@ -63,9 +54,11 @@ public class IgniteCacheTestSuite extends TestSuite {
         suite.addTestSuite(IgniteCacheEntryListenerTxReplicatedTest.class);
         suite.addTestSuite(IgniteCacheEntryListenerTxLocalTest.class);
         suite.addTestSuite(IgniteCacheEntryListenerEagerTtlDisabledTest.class);
+*/
 
         suite.addTestSuite(IgniteClientAffinityAssignmentSelfTest.class);
 
+/*
         suite.addTestSuite(IgniteCacheAtomicInvokeTest.class);
         suite.addTestSuite(IgniteCacheAtomicNearEnabledInvokeTest.class);
         suite.addTestSuite(IgniteCacheAtomicPrimaryWriteOrderInvokeTest.class);
@@ -93,23 +86,27 @@ public class IgniteCacheTestSuite extends TestSuite {
 
         // Warmup closure tests.
         suite.addTestSuite(IgniteWarmupClosureSelfTest.class);
+*/
 
         // Affinity tests.
-        suite.addTestSuite(GridFairAffinityFunctionNodesSelfTest.class);
-        suite.addTestSuite(GridFairAffinityFunctionSelfTest.class);
-        suite.addTestSuite(IgniteFairAffinityDynamicCacheSelfTest.class);
+        suite.addTestSuite(FairAffinityFunctionNodesSelfTest.class);
+        suite.addTestSuite(FairAffinityFunctionSelfTest.class);
+        suite.addTestSuite(FairAffinityDynamicCacheSelfTest.class);
         suite.addTestSuite(GridCacheAffinityBackupsSelfTest.class);
         suite.addTestSuite(IgniteCacheAffinitySelfTest.class);
-        suite.addTestSuite(IgniteClientNodeAffinityTest.class);
+        suite.addTestSuite(AffinityClientNodeSelfTest.class);
 
+/*
         // Swap tests.
         suite.addTestSuite(GridCacheSwapPreloadSelfTest.class);
         suite.addTestSuite(GridCacheSwapReloadSelfTest.class);
 
         // Common tests.
         suite.addTestSuite(GridCacheConcurrentMapSelfTest.class);
+*/
         suite.addTestSuite(GridCacheAffinityMapperSelfTest.class);
         GridTestUtils.addTestIfNeeded(suite, GridCacheAffinityRoutingSelfTest.class, ignoredTests);
+/*
         GridTestUtils.addTestIfNeeded(suite, GridCacheMvccSelfTest.class, ignoredTests);
         suite.addTestSuite(GridCacheMvccPartitionedSelfTest.class);
         suite.addTestSuite(GridCacheMvccManagerSelfTest.class);
@@ -121,7 +118,9 @@ public class IgniteCacheTestSuite extends TestSuite {
         suite.addTestSuite(CacheJdbcPojoStoreTest.class);
         suite.addTestSuite(CacheJdbcPojoStoreMultitreadedSelfTest.class);
         suite.addTestSuite(GridCacheBalancingStoreSelfTest.class);
+*/
         suite.addTestSuite(GridCacheAffinityApiSelfTest.class);
+/*
         suite.addTestSuite(GridCacheStoreValueBytesSelfTest.class);
         GridTestUtils.addTestIfNeeded(suite, DataStreamProcessorSelfTest.class, ignoredTests);
         suite.addTestSuite(DataStreamerMultiThreadedSelfTest.class);
@@ -173,6 +172,7 @@ public class IgniteCacheTestSuite extends TestSuite {
         suite.addTestSuite(GridCacheStopSelfTest.class);
 
         suite.addTestSuite(IgniteCacheNearLockValueSelfTest.class);
+*/
 
         return suite;
     }
