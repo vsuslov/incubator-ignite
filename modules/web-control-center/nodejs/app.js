@@ -85,6 +85,7 @@ var mustAuthenticated = function (req, res, next) {
 
 app.all('/clusters', mustAuthenticated);
 app.all('/caches', mustAuthenticated);
+app.all('/summary', mustAuthenticated);
 
 app.use('/', pageRoutes);
 app.use('/rest/clusters', clustersRouter);
