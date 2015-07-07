@@ -605,8 +605,9 @@
                   "type": "dropdown",
                   "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
                   "model": "dialect",
+                  "required": true,
                   "placeholder": "Choose JDBC dialect",
-                  "items": "cacheStoreFactory.CacheJdbcPojoStoreFactory.cacheStoreJdbcDialects",
+                  "items": "cacheStoreJdbcDialects",
                   "tip": [
                     "Dialect of SQL implemented by a particular RDBMS:",
                     "<ul>",
