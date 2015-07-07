@@ -82,7 +82,7 @@ mixin details-row
                                 .input-tip.form-group.has-feedback
                                     input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                                     +exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
-            button.btn.btn-primary.fieldButton(style='margin-left: 0' ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; #{detailMdl} ? #{detailMdl}.push(newValue) : #{detailMdl} = [newValue];') Add
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='detail.editIdx = -1; #{detailMdl} ? #{detailMdl}.push(newValue) : #{detailMdl} = [newValue];') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
                 input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='detail.editIdx = -1' placeholder='{{detail.placeholder}}')&attributes(customValidators)
