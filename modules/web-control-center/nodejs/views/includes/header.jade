@@ -22,6 +22,8 @@ header.header(id='header')
             ul.nav.navbar-nav(ng-controller='activeLink' ng-show='user')
                 li
                     a(ng-class="{active: isActive('/configuration')}" href='/configuration/clusters') Configuration
+                li(ng-show='user && user.admin')
+                    a(ng-class="{active: isActive('/admin')}" href='/admin/userList') Administration
                 //li
                 //    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
             ul.nav.navbar-nav.pull-right
