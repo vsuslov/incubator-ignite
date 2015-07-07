@@ -42,7 +42,7 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
         $scope.persistences = [];
 
         // When landing on the page, get persistences and show them.
-        $http.get('/rest/persistences')
+        $http.post('/configuration/persistences/list')
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.persistences = data.persistences;
@@ -87,7 +87,7 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            $http.post('/rest/persistences/save', item)
+            $http.post('/configuration/persistences/save', item)
                 .success(function (_id) {
                     var i = _.findIndex($scope.persistences, function (persistence) {
                         return persistence._id == _id;
@@ -111,7 +111,7 @@ configuratorModule.controller('persistenceController', ['$scope', '$alert', '$ht
         $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
-            $http.post('/rest/persistences/remove', {_id: _id})
+            $http.post('/configuration/persistences/remove', {_id: _id})
                 .success(function () {
                     var i = _.findIndex($scope.persistences, function (persistence) {
                         return persistence._id == _id;

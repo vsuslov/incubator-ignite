@@ -19,14 +19,19 @@ var db = require('../db');
 
 var router = require('express').Router();
 
-var generatorXml = require('./../utils/generatorXml');
-var generatorJava = require('./../utils/generatorJava');
+var generatorXml = require('./../generator/xml');
+var generatorJava = require('./../generator/java');
 
+/* GET summary page. */
 router.get('/', function(req, res) {
-    var lang = req.query.lang;
+    res.render('summary', { user: req.user });
+});
+
+router.post('/generator', function(req, res) {
+    var lang = req.body.lang;
 
     // Get cluster.
-    db.Cluster.findById(req.query._id).populate('caches').exec(function (err, cluster) {
+    db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -42,7 +47,7 @@ router.get('/', function(req, res) {
                 break;
 
             case 'java':
-                res.send(generatorJava.generateClusterConfiguration(cluster, req.query.generateJavaClass === 'true'));
+                res.send(generatorJava.generateClusterConfiguration(cluster, req.body.generateJavaClass));
                 break;
 
             default:

@@ -19,13 +19,18 @@ var router = require('express').Router();
 var db = require('../db');
 var ds = require('../public/javascripts/dataStructures.js'), jdbcTypes = ds.jdbcTypes, javaTypes = ds.javaTypes;
 
+/* GET persistence page. */
+router.get('/', function(req, res) {
+    res.render('persistence', { user: req.user });
+});
+
 /**
- * Send spaces and persistences accessed for user account.
+ * Get spaces and persistences accessed for user account.
  *
  * @param req Request.
  * @param res Response.
  */
-function selectAll(req, res) {
+router.post('/list', function(req, res) {
     var user_id = req.user._id;
 
     // Get owned space and all accessed space.
@@ -45,13 +50,6 @@ function selectAll(req, res) {
             res.json({spaces: spaces, persistences: persistences});
         });
     });
-}
-
-/**
- * Get spaces and persistences accessed for user account.
- */
-router.get('/', function(req, res) {
-    selectAll(req, res);
 });
 
 /**

@@ -25,12 +25,11 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
-var pageRoutes = require('./routes/pages');
+var publicRoutes = require('./routes/public');
 var clustersRouter = require('./routes/clusters');
 var cachesRouter = require('./routes/caches');
 var persistencesRouter = require('./routes/persistences');
-var authRouter = require('./routes/auth');
-var configGenerator = require('./routes/configGenerator');
+var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 
 var passport = require('passport');
@@ -85,27 +84,19 @@ var mustAuthenticated = function (req, res, next) {
 };
 
 var adminOnly = function(req, res, next) {
-    if (!req.isAuthenticated() || !req.user.admin)
-        res.sendStatus(403);
-    else
-        next();
+    req.isAuthenticated() && req.user.admin ? next() : res.sendStatus(403);
 };
 
-app.all('/configuration/clusters', mustAuthenticated);
-app.all('/configuration/caches', mustAuthenticated);
-app.all('/configuration/summary', mustAuthenticated);
-
 app.all('/admin/*', mustAuthenticated, adminOnly);
+app.all('/configuration/*', mustAuthenticated);
 
-app.use('/', pageRoutes);
-app.use('/rest/clusters', clustersRouter);
-app.use('/rest/caches', cachesRouter);
-app.use('/rest/persistences', persistencesRouter);
-app.use('/rest/auth', authRouter);
-app.use('/rest/configGenerator', configGenerator);
-
+app.use('/', publicRoutes);
 app.use('/admin', adminRouter);
 
+app.use('/configuration/clusters', clustersRouter);
+app.use('/configuration/caches', cachesRouter);
+app.use('/configuration/persistences', persistencesRouter);
+app.use('/configuration/summary', summary);
 
 // Catch 404 and forward to error handler.
 app.use(function (req, res, next) {

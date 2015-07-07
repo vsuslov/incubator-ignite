@@ -27,7 +27,7 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
     $scope.xmlData = undefined;
     $scope.dockerData = undefined;
 
-    $http.get('/rest/clusters').success(function (data) {
+    $http.post('/configuration/clusters/list').success(function (data) {
         $scope.caches = data.caches;
         $scope.spaces = data.spaces;
         $scope.clusters = data.clusters;
@@ -55,8 +55,7 @@ configuratorModule.controller('summaryController', ['$scope', '$http', function 
         
         $scope.loading = true;
 
-        $http.get('/rest/configGenerator', {params: 
-        {_id: cluster._id, lang: lang, generateJavaClass: $scope.generateJavaClass}})
+        $http.post('/configuration/summary/generator', {_id: cluster._id, lang: lang, generateJavaClass: $scope.generateJavaClass})
             .success(
             function (data) {
                 if (lang == 'java') {

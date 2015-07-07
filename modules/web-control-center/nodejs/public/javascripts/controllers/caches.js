@@ -106,7 +106,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.caches = [];
 
         // When landing on the page, get caches and show them.
-        $http.get('/rest/caches')
+        $http.post('/configuration/caches/list')
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
@@ -164,7 +164,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
                 return;
             }
 
-            $http.post('/rest/caches/save', item)
+            $http.post('/configuration/caches/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.caches, function (cache) {
                         return cache._id == _id;
@@ -190,7 +190,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
-            $http.post('/rest/caches/remove', {_id: _id})
+            $http.post('/configuration/caches/remove', {_id: _id})
                 .success(function () {
                     var i = _.findIndex($scope.caches, function (cache) {
                         return cache._id == _id;

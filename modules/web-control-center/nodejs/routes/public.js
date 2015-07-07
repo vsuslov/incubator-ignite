@@ -15,10 +15,17 @@
  * limitations under the License.
  */
 
-var passport = require('passport');
 var router = require('express').Router();
 
-var db = require('../db');
+// GET dropdown-menu template.
+router.get('/select', function(req, res) {
+    res.render('templates/select', { });
+});
+
+/* GET login page. */
+router.get('/login', function(req, res) {
+    res.render('login');
+});
 
 /**
  * Register new account.
@@ -77,5 +84,23 @@ router.get('/logout', function(req, res) {
 
     res.redirect('/');
 });
+
+/* GET home page. */
+router.get('/', function(req, res) {
+    if (req.isAuthenticated())
+        res.redirect('/configuration/clusters');
+    else
+        res.render('index', { user: req.user });
+});
+
+///* GET sql page. */
+//router.get('/sql', function(req, res) {
+//    res.render('sql', { user: req.user });
+//});
+//
+///* GET clients page. */
+//router.get('/clients', function(req, res) {
+//    res.render('clients', { user: req.user });
+//});
 
 module.exports = router;

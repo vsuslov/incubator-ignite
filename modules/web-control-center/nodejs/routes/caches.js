@@ -18,13 +18,18 @@
 var router = require('express').Router();
 var db = require('../db');
 
+/* GET caches page. */
+router.get('/', function(req, res) {
+    res.render('caches', { user: req.user });
+});
+
 /**
- * Send spaces and caches accessed for user account.
+ * Get spaces and caches accessed for user account.
  *
  * @param req Request.
  * @param res Response.
  */
-function selectAll(req, res) {
+router.post('/list', function(req, res) {
     var user_id = req.user._id;
 
     // Get owned space and all accessed space.
@@ -44,13 +49,6 @@ function selectAll(req, res) {
             res.json({spaces: spaces, caches: caches});
         });
     });
-}
-
-/**
- * Get spaces and caches accessed for user account.
- */
-router.get('/', function(req, res) {
-    selectAll(req, res);
 });
 
 /**

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-var generatorUtils = require("./generatorUtils");
+var generatorUtils = require("./common");
 
 exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     var res = generatorUtils.builder();

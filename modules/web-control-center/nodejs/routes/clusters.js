@@ -18,13 +18,18 @@
 var router = require('express').Router();
 var db = require('../db');
 
+/* GET clusters page. */
+router.get('/', function(req, res) {
+    res.render('clusters', { user: req.user });
+});
+
 /**
- * Send spaces and clusters accessed for user account.
+ * Get spaces and clusters accessed for user account.
  *
  * @param req Request.
  * @param res Response.
  */
-function selectAll(req, res) {
+router.post('/list', function(req, res) {
     var user_id = req.user._id;
 
     // Get owned space and all accessed space.
@@ -53,13 +58,6 @@ function selectAll(req, res) {
             });
         });
     });
-}
-
-/**
- * Get spaces and clusters accessed for user account.
- */
-router.get('/', function(req, res) {
-    selectAll(req, res);
 });
 
 /**

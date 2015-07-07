@@ -100,7 +100,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
             });
 
         // When landing on the page, get clusters and show them.
-        $http.get('/rest/clusters')
+        $http.post('/configuration/clusters/list')
             .success(function (data) {
                 $scope.caches = data.caches;
                 $scope.spaces = data.spaces;
@@ -166,7 +166,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
                 }
             }
 
-            $http.post('/rest/clusters/save', item)
+            $http.post('/configuration/clusters/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;
@@ -197,7 +197,7 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
-            $http.post('/rest/clusters/remove', {_id: _id})
+            $http.post('/configuration/clusters/remove', {_id: _id})
                 .success(function () {
                     var i = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == _id;

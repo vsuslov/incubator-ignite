@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-var generatorUtils = require("./generatorUtils");
+var generatorUtils = require("./common");
 var dataStructures = require("../public/javascripts/dataStructures.js");
 
 exports.generateClusterConfiguration = function(cluster) {
