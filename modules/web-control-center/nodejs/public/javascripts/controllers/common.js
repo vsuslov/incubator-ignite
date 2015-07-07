@@ -178,7 +178,7 @@ configuratorModule.controller('auth', [
         };
 
         $scope.auth = function (action, user_info) {
-            $http.post('/rest/auth/' + action, user_info)
+            $http.post('/' + action, user_info)
                 .success(function (data) {
                     authModal.hide();
 
