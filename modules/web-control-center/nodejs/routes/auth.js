@@ -37,7 +37,7 @@ router.post('/register', function(req, res, next) {
             if (err)
                 return res.status(401).send(err.message);
 
-            return res.redirect('/clusters');
+            return res.redirect('/configuration/clusters');
         });
     });
 });
@@ -57,7 +57,7 @@ router.post('/login', function(req, res, next) {
             if (err)
                 return res.status(401).send(err.message);
 
-            res.redirect('/clusters');
+            res.redirect('/configuration/clusters');
         });
     })(req, res, next);
 });

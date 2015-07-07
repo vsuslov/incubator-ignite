@@ -182,7 +182,7 @@ configuratorModule.controller('auth', [
                 .success(function (data) {
                     authModal.hide();
 
-                    $window.location = '/clusters';
+                    $window.location = '/configuration/clusters';
                 })
                 .error(function (data) {
                     $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
