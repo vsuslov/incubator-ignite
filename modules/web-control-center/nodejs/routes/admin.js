@@ -57,5 +57,15 @@ router.get('/userList', function(req, res) {
     res.render('admin/userList', { user: req.user });
 });
 
+router.get('/become', function(req, res) {
+    var userId = req.query.userId;
+    
+    if (!userId)
+        userId = null;
+    
+    res.cookie('currentUserId', userId);
+    
+    res.redirect('/')
+});
 
 module.exports = router;
