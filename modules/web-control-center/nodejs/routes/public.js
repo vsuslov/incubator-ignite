@@ -16,6 +16,7 @@
  */
 
 var router = require('express').Router();
+var passport = require('passport');
 
 // GET dropdown-menu template.
 router.get('/select', function(req, res) {
