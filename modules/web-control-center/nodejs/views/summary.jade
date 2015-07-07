@@ -46,7 +46,7 @@ block content
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                                a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}
+                                a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
             #cfgResult.configBox(ng-show='selectedItem && !generateError && !loading', style='margin-top: 20px')
                 ul.nav.nav-tabs
                     li(ng-class='{active: cfgLang == "xml"}')

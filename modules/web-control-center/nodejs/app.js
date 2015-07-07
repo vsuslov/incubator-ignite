@@ -31,6 +31,7 @@ var cachesRouter = require('./routes/caches');
 var persistencesRouter = require('./routes/persistences');
 var authRouter = require('./routes/auth');
 var configGenerator = require('./routes/configGenerator');
+var adminRouter = require('./routes/admin');
 
 var passport = require('passport');
 
@@ -83,9 +84,18 @@ var mustAuthenticated = function (req, res, next) {
     req.isAuthenticated() ? next() : res.redirect('/');
 };
 
+var adminOnly = function(req, res, next) {
+    if (!req.isAuthenticated() || !req.user.admin)
+        res.sendStatus(403);
+    else
+        next();
+};
+
 app.all('/configuration/clusters', mustAuthenticated);
 app.all('/configuration/caches', mustAuthenticated);
 app.all('/configuration/summary', mustAuthenticated);
+
+app.all('/admin/*', mustAuthenticated, adminOnly);
 
 app.use('/', pageRoutes);
 app.use('/rest/clusters', clustersRouter);
@@ -94,9 +104,12 @@ app.use('/rest/persistences', persistencesRouter);
 app.use('/rest/auth', authRouter);
 app.use('/rest/configGenerator', configGenerator);
 
+app.use('/admin', adminRouter);
+
+
 // Catch 404 and forward to error handler.
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
+    var err = new Error('Not Found: ' + req.originalUrl);
     err.status = 404;
     next(err);
 });

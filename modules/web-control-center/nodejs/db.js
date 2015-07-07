@@ -29,7 +29,8 @@ mongoose.connect(config.get('mongoDB:url'), {server: {poolSize: 4}});
 // Define account model.
 var AccountSchema = new Schema({
     username: String,
-    lastLogin: Date
+    lastLogin: Date,
+    admin: Boolean
 });
 
 AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin', usernameLowerCase: true});

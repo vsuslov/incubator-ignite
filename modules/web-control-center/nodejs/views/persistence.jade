@@ -35,7 +35,7 @@ block content
                 tbody
                     tr(ng-repeat='row in persistences track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                            a(ng-click='selectItem(row)') {{$index + 1}}. {{row.name}}, {{row.database | displayValue:databases:'Database not set'}}
+                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.database | displayValue:databases:'Database not set'}}
         button.btn.btn-primary(ng-click='createItem()') Add
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
