@@ -17,16 +17,26 @@
 
 package org.apache.ignite.internal.processors.cache;
 
-import static org.apache.ignite.cache.CacheMode.*;
+import org.apache.ignite.*;
+import org.apache.ignite.internal.*;
+import org.apache.ignite.internal.util.future.*;
+import org.apache.ignite.internal.util.typedef.internal.*;
 
 /**
- * Tests for replicated cache query metrics.
+ * Implementation of public API future for cache.
  */
-public class CacheReplicatedQueryMetricsSelfTest extends CacheAbstractQueryMetricsSelfTest {
-    /** {@inheritDoc} */
-    @Override protected void beforeTest() throws Exception {
-        cacheMode = REPLICATED;
+public class IgniteCacheFutureImpl<V> extends IgniteFutureImpl<V> {
+    /**
+     * Constructor.
+     *
+     * @param fut Internal future.
+     */
+    public IgniteCacheFutureImpl(IgniteInternalFuture<V> fut) {
+        super(fut);
+    }
 
-        super.beforeTest();
+    /** {@inheritDoc} */
+    @Override protected RuntimeException convertException(IgniteCheckedException e) {
+        return CU.convertToCacheException(e);
     }
 }

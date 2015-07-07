@@ -15,18 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.processors.cache;
+package org.apache.ignite.internal.visor.util;
 
-import static org.apache.ignite.cache.CacheMode.*;
+import org.apache.ignite.cluster.*;
 
 /**
- * Tests for partitioned cache query metrics.
+ * Exception to throw from Visor tasks in case of empty topology.
  */
-public class CachePartitionedQueryMetricsSelfTest extends CacheAbstractQueryMetricsSelfTest {
-    /** {@inheritDoc} */
-    @Override protected void beforeTest() throws Exception {
-        cacheMode = PARTITIONED;
+public class VisorClusterGroupEmptyException extends ClusterGroupEmptyException {
+    /** */
+    private static final long serialVersionUID = 0L;
 
-        super.beforeTest();
+    /**
+     * Creates exception with given error message.
+     *
+     * @param msg Error message.
+     */
+    public VisorClusterGroupEmptyException(String msg) {
+        super(msg);
     }
 }
