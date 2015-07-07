@@ -160,8 +160,6 @@ exports.evictionPolicies = {
 };
 
 exports.knownClasses = {
-    
-    
     OracleDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
     BasicJdbcDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
     DB2Dialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),

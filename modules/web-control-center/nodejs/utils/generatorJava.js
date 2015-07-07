@@ -318,14 +318,15 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');
     addProperty(res, cacheCfg, varName, 'backups');
-    addProperty(res, cacheCfg, varName, 'readFromBackup');
     addProperty(res, cacheCfg, varName, 'startSize');
+    addProperty(res, cacheCfg, varName, 'readFromBackup');
 
     res.needEmptyLine = true;
     
     addProperty(res, cacheCfg, varName, 'memoryMode', 'CacheMemoryMode');
     addProperty(res, cacheCfg, varName, 'offHeapMaxMemory');
     addProperty(res, cacheCfg, varName, 'swapEnabled');
+    addProperty(res, cacheCfg, varName, 'copyOnRead');
 
     res.needEmptyLine = true;
 
@@ -412,7 +413,9 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     addProperty(res, cacheCfg, varName, 'statisticsEnabled');
     addProperty(res, cacheCfg, varName, 'managementEnabled');
-    addProperty(res, cacheCfg, varName, 'copyOnRead');
+
+    res.needEmptyLine = true;
+
     addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
     
     return res;
