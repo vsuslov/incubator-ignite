@@ -45,8 +45,6 @@
           "expanded": true,
           "fields": [
             {
-              "tableLabel": "Addresses",
-              "label": "address",
               "type": "table-simple",
               "path": "discovery.Vm",
               "model": "addresses",
@@ -138,9 +136,13 @@
             {
               "label": "Bucket name",
               "type": "text",
+              "required": true,
               "path": "discovery.S3",
               "model": "bucketName",
-              "placeholder": ""
+              "placeholder": "",
+              "tip": [
+                "Bucket name for IP finder."
+              ]
             }
           ]
         },
@@ -172,6 +174,7 @@
             {
               "label": "Identity",
               "type": "text",
+              "required": true,
               "path": "discovery.Cloud",
               "model": "identity",
               "placeholder": "",
@@ -183,10 +186,44 @@
             {
               "label": "Provider",
               "type": "text",
-              "model": "discovery.Cloud.provider",
+              "required": true,
+              "path": "discovery.Cloud",
+              "model": "provider",
               "placeholder": "",
               "tip": [
                 "Cloud provider to use."
+              ]
+            },
+            {
+              "label": "Regions",
+              "type": "table-simple",
+              "path": "discovery.Cloud",
+              "model": "regions",
+              "editIdx": -1,
+              "placeholder": "",
+              "tableTip": [
+                "List of regions where VMs are located.",
+                "If the regions are not set then every region, that a cloud provider has, will be investigated. This could lead to significant performance degradation.",
+                "Note, that some cloud providers, like Google Compute Engine, doesn't have a notion of a region. For such providers a call to this method is redundant."
+              ],
+              "tip": [
+                "Region where VMs are located."
+              ]
+            },
+            {
+              "label": "Zones",
+              "type": "table-simple",
+              "path": "discovery.Cloud",
+              "model": "zones",
+              "editIdx": -1,
+              "placeholder": "",
+              "tableTip": [
+                "List of zones where VMs are located.",
+                "If the zones are not set then every zone from regions, set by {@link #setRegions(Collection)}}, will be taken into account.",
+                "Note, that some cloud providers, like Rackspace, doesn't have a notion of a zone. For such providers a call to this method is redundant."
+              ],
+              "tip": [
+                "Zone where VMs are located."
               ]
             }
           ]
@@ -197,6 +234,7 @@
             {
               "label": "Project name",
               "type": "text",
+              "required": true,
               "path": "discovery.GoogleStorage",
               "model": "projectName",
               "placeholder": "",
@@ -208,6 +246,7 @@
             {
               "label": "Bucket name",
               "type": "text",
+              "required": true,
               "path": "discovery.GoogleStorage",
               "model": "bucketName",
               "placeholder": "",
@@ -220,6 +259,7 @@
             {
               "label": "Private key path",
               "type": "text",
+              "required": true,
               "path": "discovery.GoogleStorage",
               "model": "serviceAccountP12FilePath",
               "placeholder": "",
@@ -230,6 +270,7 @@
             {
               "label": "Account id",
               "type": "text",
+              "required": true,
               "path": "discovery.GoogleStorage",
               "model": "accountId",
               "placeholder": "",

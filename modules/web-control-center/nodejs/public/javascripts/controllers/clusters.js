@@ -23,9 +23,9 @@ configuratorModule.controller('clustersController', ['$scope', '$alert', '$http'
         $scope.console = console;
 
         $scope.templates = [
-            {value: {}, label: 'none'},
+            {value: {discovery: {Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'none'},
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
-            {value: {discovery: {kind: 'Multicast', Multicast: {}}}, label: 'multicast'}
+            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'}
         ];
 
         $scope.discoveries = [

@@ -467,14 +467,16 @@
           ]
         },
         {
-          "tableLabel": "SQL functions",
-          "label": "SQL function",
+          "label": "SQL functions",
           "type": "table-simple",
           "model": "sqlFunctionClasses",
           "editIdx": -1,
           "placeholder": "SQL function full class name",
+          "tableTip": [
+            "Collections of classes with user-defined functions for SQL queries."
+          ],
           "tip": [
-            "Classes with user-defined functions for SQL queries."
+            "Class with user-defined functions for SQL queries."
           ]
         }
       ]
@@ -729,8 +731,7 @@
               "expanded": true,
               "fields": [
                 {
-                  "tableLabel": "Hibernate properties",
-                  "label": "Hibernate property",
+                  "label": "Hibernate properties",
                   "type": "table-simple",
                   "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
                   "model": "hibernateProperties",

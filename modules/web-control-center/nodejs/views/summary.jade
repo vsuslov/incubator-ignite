@@ -51,15 +51,15 @@ block content
                 ul.nav.nav-tabs
                     li(ng-class='{active: cfgLang == "xml"}')
                         a(href, ng-click='cfgLang = "xml"')
-                            img(src='images/xml.png', width='16px' height='16px')
+                            img(src='/images/xml.png', width='16px' height='16px')
                             |  XML
                     li(ng-class='{active: cfgLang=="java"}')
                         a(href, ng-click='cfgLang = "java"')
-                            img(src='images/java.png', width='16px' height='16px')
+                            img(src='/images/java.png', width='16px' height='16px')
                             |  Java
                     li(ng-class="{active: cfgLang=='docker'}")
                         a(href, ng-click='cfgLang = "docker"')
-                            img(src='images/docker.png', width='16px' height='16px')
+                            img(src='/images/docker.png', width='16px' height='16px')
                             |  Dockerfile
                 .settings-row
                     #xmlResult(ng-show="cfgLang == 'xml'")

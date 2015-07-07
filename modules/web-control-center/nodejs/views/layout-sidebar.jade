@@ -22,16 +22,16 @@ block container
             .sidebar-nav
                 ul.menu(ng-controller='activeLink')
                     li
-                        a(ng-class="{active: isActive('/clusters')}" href='/clusters') Clusters
+                        a(ng-class="{active: isActive('/configuration/clusters')}" href='/configuration/clusters') Clusters
                     li
-                        a(ng-class="{active: isActive('/caches')}" href='/caches') Caches
+                        a(ng-class="{active: isActive('/configuration/caches')}" href='/configuration/caches') Caches
                     //li
                     //    a(ng-class="{active: isActive('/persistence')}" href='/persistence') Persistence
                     //li
                     //    a(ng-class="{active: isActive('/clients')}" href='/clients') Clients
                     li
                         p
-                        a(ng-class="{active: isActive('/summary')}" href='/summary') Summary
+                        a(ng-class="{active: isActive('/configuration/summary')}" href='/configuration/summary') Summary
         .col-sm-10.border-left.section-right
             .docs-content
                 block content

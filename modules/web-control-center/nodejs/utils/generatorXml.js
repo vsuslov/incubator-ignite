@@ -88,6 +88,8 @@ exports.generateClusterConfiguration = function(cluster) {
                 addProperty(res, d.Cloud, 'credentialPath');
                 addProperty(res, d.Cloud, 'identity');
                 addProperty(res, d.Cloud, 'provider');
+                addListProperty(res, d.Cloud, 'regions');
+                addListProperty(res, d.Cloud, 'zones');
 
                 res.endBlock('</bean>');
 

@@ -190,7 +190,9 @@ var ClusterSchema = new Schema({
             credential: String,
             credentialPath: String,
             identity: String,
-            provider: String
+            provider: String,
+            regions: [String],
+            zones:  [String]
         },
         GoogleStorage: {
             projectName: String,

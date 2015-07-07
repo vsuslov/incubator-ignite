@@ -30,23 +30,23 @@ router.get('/login', function(req, res) {
 /* GET home page. */
 router.get('/', function(req, res) {
     if (req.isAuthenticated())
-        res.redirect('/clusters');
+        res.redirect('/configuration/clusters');
     else
         res.render('index', { user: req.user });
 });
 
 /* GET clusters page. */
-router.get('/clusters', function(req, res) {
+router.get('/configuration/clusters', function(req, res) {
     res.render('clusters', { user: req.user });
 });
 
 /* GET caches page. */
-router.get('/caches', function(req, res) {
+router.get('/configuration/caches', function(req, res) {
     res.render('caches', { user: req.user });
 });
 
 /* GET persistence page. */
-router.get('/persistence', function(req, res) {
+router.get('/configuration/persistence', function(req, res) {
     res.render('persistence', { user: req.user });
 });
 
@@ -61,7 +61,7 @@ router.get('/clients', function(req, res) {
 });
 
 /* GET summary page. */
-router.get('/summary', function(req, res) {
+router.get('/configuration/summary', function(req, res) {
     res.render('summary', { user: req.user });
 });
 

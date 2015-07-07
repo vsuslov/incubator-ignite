@@ -82,7 +82,9 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
                         credential: null,
                         credentialPath: null,
                         identity: null,
-                        provider: null
+                        provider: null,
+                        regions: {type: 'list'},
+                        zones: {type: 'list'}
                     }, true);
 
                 break;
