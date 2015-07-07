@@ -73,7 +73,7 @@ mixin details-row
                             div(ng-show='detail.editIdx != {{$index}}')
                                 i.stackTipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
                                 i.stackTipField.fa.fa-arrow-down(ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
-                                i.stackTipField.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(detailMdl, $index, $index - 1); detail.editIdx = -1;')
+                                i.stackTipField.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
                                 .input-tip
                                     a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
                             div(ng-show='detail.editIdx == {{$index}}')
@@ -159,11 +159,11 @@ mixin form-row
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{fieldMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.tipField.fa.fa-floppy-o(ng-click='field.editIdx = -1; #{fieldMdl}[$index]=curValue')
+                                i.stackTipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
                         td.col-sm-1(ng-if='field.reordering')
-                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(fieldMdl, $index, $index - 1); field.editIdx = -1;')
+                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index - 1); field.editIdx = -1;')
                             i.fa.fa-arrow-down(ng-show='$index < #{fieldMdl}.length - 1' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index + 1); field.editIdx = -1;')
             .col-sm-6
                 button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{fieldMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; #{fieldMdl} ? #{fieldMdl}.push(newValue) : #{fieldMdl} = [newValue];') Add
