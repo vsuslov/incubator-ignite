@@ -316,7 +316,9 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');
     addProperty(res, cacheCfg, varName, 'backups');
-    
+    addProperty(res, cacheCfg, varName, 'readFromBackup');
+    addProperty(res, cacheCfg, varName, 'startSize');
+
     res.needEmptyLine = true;
     
     addProperty(res, cacheCfg, varName, 'memoryMode', 'CacheMemoryMode');
@@ -385,6 +387,12 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
     }
 
     res.needEmptyLine = true;
+
+    addProperty(res, cacheCfg, varName, 'loadPreviousValue');
+    addProperty(res, cacheCfg, varName, 'readThrough');
+    addProperty(res, cacheCfg, varName, 'writeThrough');
+
+    res.needEmptyLine = true;
     
     addProperty(res, cacheCfg, varName, 'invalidate');
     addProperty(res, cacheCfg, varName, 'defaultLockTimeout');
@@ -402,7 +410,6 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     addProperty(res, cacheCfg, varName, 'statisticsEnabled');
     addProperty(res, cacheCfg, varName, 'managementEnabled');
-    addProperty(res, cacheCfg, varName, 'readFromBackup');
     addProperty(res, cacheCfg, varName, 'copyOnRead');
     addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
     

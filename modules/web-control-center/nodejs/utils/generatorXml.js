@@ -291,6 +291,8 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     addProperty(res, cacheCfg, 'atomicityMode');
     addProperty(res, cacheCfg, 'backups');
+    addProperty(res, cacheCfg, 'readFromBackup');
+    addProperty(res, cacheCfg, 'startSize');
 
     res.needEmptyLine = true;
 
@@ -304,15 +306,17 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     res.needEmptyLine = true;
 
-    if (cacheCfg.nearConfiguration && (cacheCfg.nearConfiguration.nearStartSize || cacheCfg.nearConfiguration.nearEvictionPolicy.kind)) {
+    if (cacheCfg.nearCacheEnabled) {
         res.emptyLineIfNeeded();
 
         res.startBlock('<property name="nearConfiguration">');
         res.startBlock('<bean class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
-        addProperty(res, cacheCfg.nearConfiguration, 'nearStartSize');
+        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearStartSize)
+            addProperty(res, cacheCfg.nearConfiguration, 'nearStartSize');
 
-        createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy.kind)
+            createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
 
         res.endBlock('</bean>');
         res.endBlock('</property>');
@@ -362,6 +366,12 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     res.needEmptyLine = true;
 
+    addProperty(res, cacheCfg, 'loadPreviousValue');
+    addProperty(res, cacheCfg, 'readThrough');
+    addProperty(res, cacheCfg, 'writeThrough');
+
+    res.needEmptyLine = true;
+
     addProperty(res, cacheCfg, 'invalidate');
     addProperty(res, cacheCfg, 'defaultLockTimeout');
     addProperty(res, cacheCfg, 'transactionManagerLookupClassName');
@@ -378,7 +388,6 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     addProperty(res, cacheCfg, 'statisticsEnabled');
     addProperty(res, cacheCfg, 'managementEnabled');
-    addProperty(res, cacheCfg, 'readFromBackup');
     addProperty(res, cacheCfg, 'copyOnRead');
     addProperty(res, cacheCfg, 'maxConcurrentAsyncOperations');
     

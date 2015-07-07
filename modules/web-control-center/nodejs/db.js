@@ -56,6 +56,7 @@ var CacheSchema = new Schema({
     backups: Number,
     memoryMode: {type: String, enum: ['ONHEAP_TIERED', 'OFFHEAP_TIERED', 'OFFHEAP_VALUES']},
     offHeapMaxMemory: Number,
+    startSize: Number,
     swapEnabled: Boolean,
 
     evictionPolicy: {
@@ -114,6 +115,7 @@ var CacheSchema = new Schema({
             hibernateProperties: [String]
         }
     },
+    loadPreviousValue: Boolean,
     readThrough: Boolean,
     writeThrough: Boolean,
 

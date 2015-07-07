@@ -40,7 +40,7 @@
       "label": "Backups",
       "type": "number",
       "model": "backups",
-      "placeholder": "0",
+      "placeholder": 0,
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
       ]
@@ -66,7 +66,7 @@
           "label": "Max async concurrency",
           "type": "number",
           "model": "maxConcurrentAsyncOperations",
-          "placeholder": "500",
+          "placeholder": 500,
           "tip": [
             "Maximum number of allowed concurrent asynchronous operations.",
             "If 0 then number of concurrent asynchronous operations is unlimited."
@@ -105,7 +105,7 @@
           "type": "number",
           "model": "offHeapMaxMemory",
           "min": -1,
-          "placeholder": "-1",
+          "placeholder": -1,
           "hide": "backupItem.memoryMode == 'OFFHEAP_VALUES'",
           "tip": [
             "Sets maximum amount of memory available to off-heap storage.",
@@ -137,14 +137,15 @@
                   "type": "number",
                   "path": "evictionPolicy.LRU",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "evictionPolicy.LRU",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -154,7 +155,7 @@
                   "type": "number",
                   "path": "evictionPolicy.LRU",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -169,7 +170,7 @@
                   "type": "number",
                   "path": "evictionPolicy.RND",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -184,14 +185,15 @@
                   "type": "number",
                   "path": "evictionPolicy.FIFO",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "evictionPolicy.FIFO",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -201,7 +203,7 @@
                   "type": "number",
                   "path": "evictionPolicy.FIFO",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -216,14 +218,15 @@
                   "type": "number",
                   "path": "evictionPolicy.SORTED",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "evictionPolicy.SORTED",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -233,7 +236,7 @@
                   "type": "number",
                   "path": "evictionPolicy.SORTED",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -241,6 +244,13 @@
               ]
             }
           }
+        },
+        {
+          "label": "Start size",
+          "type": "number",
+          "model": "startSize",
+          "placeholder": 1500000,
+          "tip": ["Initial cache size which will be used to pre-create internal hash table after start."]
         },
         {
           "label": "Swap enabled",
@@ -282,7 +292,7 @@
           "type": "number",
           "path": "nearConfiguration",
           "model": "nearStartSize",
-          "placeholder": "375000",
+          "placeholder": 375000,
           "tip": [
             "Initial cache size for near cache which will be used to pre-create internal hash table after start."
           ]
@@ -306,14 +316,15 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.LRU",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.LRU",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -323,7 +334,7 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.LRU",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -338,7 +349,7 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.RND",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -353,14 +364,15 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.FIFO",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.FIFO",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -370,7 +382,7 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.FIFO",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -385,14 +397,15 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.SORTED",
                   "model": "batchSize",
-                  "placeholder": "1"
+                  "placeholder": 1,
+                  "tip": ["Number of entries to remove on shrink."]
                 },
                 {
                   "label": "Max memory size",
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.SORTED",
                   "model": "maxMemorySize",
-                  "placeholder": "0",
+                  "placeholder": 0,
                   "tip": [
                     "Maximum allowed cache size in bytes."
                   ]
@@ -402,7 +415,7 @@
                   "type": "number",
                   "path": "nearConfiguration.nearEvictionPolicy.SORTED",
                   "model": "maxSize",
-                  "placeholder": "100000",
+                  "placeholder": 100000,
                   "tip": [
                     "Maximum allowed size of cache before entry will start getting evicted."
                   ]
@@ -432,7 +445,7 @@
           "label": "Cached rows",
           "type": "number",
           "model": "sqlOnheapRowCacheSize",
-          "placeholder": "10240",
+          "placeholder": 10240,
           "tip": [
             "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access."
           ]
@@ -441,7 +454,7 @@
           "label": "Long query timeout",
           "type": "number",
           "model": "longQueryWarningTimeout",
-          "placeholder": "3000",
+          "placeholder": 3000,
           "tip": [
             "Timeout in milliseconds after which long query warning will be printed."
           ]
@@ -491,7 +504,7 @@
           "label": "Pool size",
           "type": "number",
           "model": "rebalanceThreadPoolSize",
-          "placeholder": "2",
+          "placeholder": 2,
           "tip": [
             "Size of rebalancing thread pool.<br>",
             "Note that size serves as a hint and implementation may create more threads for rebalancing than specified here (but never less threads)."
@@ -511,7 +524,7 @@
           "label": "Order",
           "type": "number",
           "model": "rebalanceOrder",
-          "placeholder": "0",
+          "placeholder": 0,
           "tip": [
             "If cache rebalance order is positive, rebalancing for this cache will be started only when rebalancing for all caches with smaller rebalance order (except caches with rebalance order 0) will be completed."
           ]
@@ -520,7 +533,7 @@
           "label": "Delay",
           "type": "number",
           "model": "rebalanceDelay",
-          "placeholder": "0",
+          "placeholder": 0,
           "tip": [
             "Delay in milliseconds upon a node joining or leaving topology (or crash) after which rebalancing should be started automatically."
           ]
@@ -529,7 +542,7 @@
           "label": "Timeout",
           "type": "number",
           "model": "rebalanceTimeout",
-          "placeholder": "10000",
+          "placeholder": 10000,
           "tip": [
             "Rebalance timeout in milliseconds."
           ]
@@ -538,7 +551,7 @@
           "label": "Throttle",
           "type": "number",
           "model": "rebalanceThrottle",
-          "placeholder": "0",
+          "placeholder": 0,
           "tip": [
             "Time in milliseconds to wait between rebalance messages to avoid overloading of CPU or network."
           ]
@@ -630,6 +643,7 @@
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "user",
+                  "required": true,
                   "tip": [
                     "User name for database access."
                   ]
@@ -639,6 +653,7 @@
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "dataSourceBean",
+                  "required": true,
                   "placeholder": "Bean name in Spring context",
                   "tip": [
                     "Name of the data source bean in Spring context."
@@ -731,6 +746,24 @@
           }
         },
         {
+          "label": "Load previous value",
+          "type": "check",
+          "model": "loadPreviousValue",
+          "tip": [
+            "Flag indicating whether value should be loaded from store if it is not in the cache for following cache operations:",
+            "<ul>",
+            "  <li>IgniteCache.putIfAbsent()</li>",
+            "  <li>IgniteCache.replace()</li>",
+            "  <li>IgniteCache.replace()</li>",
+            "  <li>IgniteCache.remove()</li>",
+            "  <li>IgniteCache.getAndPut()</li>",
+            "  <li>IgniteCache.getAndRemove()</li>",
+            "  <li>IgniteCache.getAndReplace()</li>",
+            "  <li>IgniteCache.getAndPutIfAbsent()</li>",
+            "</ul>"
+          ]
+        },
+        {
           "label": "Read-through",
           "type": "check",
           "model": "readThrough",
@@ -767,7 +800,7 @@
           "label": "Default lock timeout",
           "type": "number",
           "model": "defaultLockTimeout",
-          "placeholder": "0",
+          "placeholder": 0,
           "tip": [
             "Default lock acquisition timeout.",
             "If 0 then lock acquisition will never timeout."
@@ -802,7 +835,7 @@
           "label": "Batch size",
           "type": "number",
           "model": "writeBehindBatchSize",
-          "placeholder": "512",
+          "placeholder": 512,
           "tip": [
             "Maximum batch size for write-behind cache store operations.",
             "Store operations (get or remove) are combined in a batch of this size to be passed to cache store."
@@ -812,7 +845,7 @@
           "label": "Flush size",
           "type": "number",
           "model": "writeBehindFlushSize",
-          "placeholder": "10240",
+          "placeholder": 10240,
           "tip": [
             "Maximum size of the write-behind cache.<br>",
             "If cache size exceeds this value, all cached items are flushed to the cache store and write cache is cleared."
@@ -822,7 +855,7 @@
           "label": "Flush frequency",
           "type": "number",
           "model": "writeBehindFlushFrequency",
-          "placeholder": "5000",
+          "placeholder": 5000,
           "tip": [
             "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
           ]
@@ -831,7 +864,7 @@
           "label": "Flush threads count",
           "type": "number",
           "model": "writeBehindFlushThreadCount",
-          "placeholder": "1",
+          "placeholder": 1,
           "tip": [
             "Number of threads that will perform cache flushing."
           ]

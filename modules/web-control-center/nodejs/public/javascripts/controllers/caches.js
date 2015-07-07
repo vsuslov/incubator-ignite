@@ -144,7 +144,7 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
 
         // Add new cache.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
+            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
