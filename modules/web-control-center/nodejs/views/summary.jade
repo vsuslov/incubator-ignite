@@ -69,7 +69,7 @@ block content
                         .col-sm-1
                             label Generate:
                         .col-sm-3
-                            button.form-control(ng-model='generateJavaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in generateJavaItems')
+                            button.form-control(ng-model='generateJavaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in generateJavaItems' data-sort='false')
                         button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadJava()') Download
                         #javaResultDiv
                     #dockerResult(ng-show="cfgLang == 'docker'")

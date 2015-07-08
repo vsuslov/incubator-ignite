@@ -17,8 +17,8 @@
 
 configuratorModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
     $scope.generateJavaItems = [
-        { label: 'factory class',value: true},
-        { label: 'snippet',value: false}
+        { label: 'snippet',value: false},
+        { label: 'factory class',value: true}
     ];
 
     $scope.generateJavaClass = false;
