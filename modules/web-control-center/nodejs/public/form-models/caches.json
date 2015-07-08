@@ -693,7 +693,7 @@
                   ]
                 },
                 {
-                  "label": "insert query",
+                  "label": "Insert query",
                   "type": "text",
                   "path": "cacheStoreFactory.CacheJdbcBlobStoreFactory",
                   "model": "insertQuery",
