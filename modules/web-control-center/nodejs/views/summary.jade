@@ -75,13 +75,14 @@ block content
                     #dockerResult(ng-show="cfgLang == 'docker'")
                         button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadDocker()') Download
                         p
-                            a(href='https://docs.docker.com/reference/builder') Docker&nbsp;
-                            | file is a text file with instructions to create Docker image.<br/>
+                            a(style='color:#ec1c24' href='https://docs.docker.com/reference/builder' target="_blank") Docker
+                            | &nbsp;file is a text file with instructions to create Docker image.<br/>
                             | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
                             | Also you could use predefined&nbsp;
-                            a(href='https://ignite.incubator.apache.org/download.html#docker') Apache Ignite docker image.
-                            | For more information about using Ignite with Docker please read&nbsp;
-                            a(href='http://apacheignite.readme.io/docs/docker-deployment') documentation.
+                            a(style='color:#ec1c24' href='https://ignite.incubator.apache.org/download.html#docker' target="_blank") Apache Ignite docker image
+                            | . For more information about using Ignite with Docker please read&nbsp;
+                            a(style='color:#ec1c24' href='http://apacheignite.readme.io/docs/docker-deployment' target="_blank") documentation
+                            |.
                         .col-sm-2
                             label(for='os') Operation System:
                         .col-sm-4
