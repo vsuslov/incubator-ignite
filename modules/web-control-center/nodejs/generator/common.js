@@ -169,12 +169,12 @@ exports.knownClasses = {
 };
 
 exports.dataSources = {
-    Oracle: {className: 'oracle.jdbc.pool.OracleDataSource'},
-    DB2: {className: 'com.ibm.db2.jcc.DB2ConnectionPoolDataSource'},
-    SQLServer: {className: 'com.microsoft.sqlserver.jdbc.SQLServerDataSource'},
-    MySQL: {className: 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource'},
-    PostgreSQL: {className: 'org.postgresql.ds.PGPoolingDataSource'},
-    H2: {className: 'org.h2.jdbcx.JdbcDataSource'}
+    Oracle: 'oracle.jdbc.pool.OracleDataSource',
+    DB2: 'com.ibm.db2.jcc.DB2ConnectionPoolDataSource',
+    SQLServer: 'com.microsoft.sqlserver.jdbc.SQLServerDataSource',
+    MySQL: 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
+    PostgreSQL: 'org.postgresql.ds.PGPoolingDataSource',
+    H2: 'org.h2.jdbcx.JdbcDataSource'
 };
 
 exports.storeFactories = {
@@ -233,6 +233,12 @@ exports.hasProperty = function(obj, props) {
     return false;
 };
 
+/**
+ * Convert some name to valid java name.
+ *
+ * @param name to convert.
+ * @returns {string} Valid java name.
+ */
 exports.toJavaName = function(name) {
     var javaName = name.replace(/[^A-Za-z_0-9]+/, '_');
 

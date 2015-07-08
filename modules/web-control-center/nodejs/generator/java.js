@@ -304,6 +304,14 @@ function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
 
 exports.generateCacheConfiguration = generateCacheConfiguration;
 
+/**
+ * Generate java code for cache configuration.
+ *
+ * @param cacheCfg Cache config.
+ * @param varName Variable name.
+ * @param res Result builder.
+ * @returns {*} Append generated java code to builder and return it.
+ */
 function generateCacheConfiguration(cacheCfg, varName, res) {
     if (!res)
         res = generatorUtils.builder();

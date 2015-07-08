@@ -23,25 +23,13 @@ var dataStructures = require("../public/javascripts/dataStructures.js");
 exports.generateClusterConfiguration = function(cluster) {
     var res = generatorUtils.builder();
 
-    res.propertiesRequired = false;
-    res.datasourceBeans = [];
+    res.datasources = [];
+    res.deep = 1;
 
-    res.push('' +
-        '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '\n' +
-        '<!-- ' + generatorUtils.mainComment() + ' -->\n' +    
-        '<beans xmlns="http://www.springframework.org/schema/beans"\n' +
-        '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
-        '       xmlns:util="http://www.springframework.org/schema/util"\n' +
-        '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n' +
-        '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n' +
-        '                           http://www.springframework.org/schema/util\n' +
-        '                           http://www.springframework.org/schema/util/spring-util.xsd">\n');
+    // Generate Ignite Configuration.
+    res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
 
-    res.push('    <bean class="org.apache.ignite.configuration.IgniteConfiguration">\n');
-
-    res.deep = 2;
-
+    // Generate discovery.
     if (cluster.discovery) {
         res.startBlock('<property name="discoverySpi">');
         res.startBlock('<bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">');
@@ -145,25 +133,25 @@ exports.generateClusterConfiguration = function(cluster) {
         res.needEmptyLine = true
     }
 
-    if (cluster.caches && cluster.caches.length > 0) {
-        res.emptyLineIfNeeded();
+    // Generate atomics group.
+    addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
+        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
+    res.needEmptyLine = true;
 
-        res.startBlock('<property name="cacheConfiguration">');
-        res.startBlock('<list>');
+    // Generate communication group.
+    addProperty(res, cluster, 'networkTimeout');
+    addProperty(res, cluster, 'networkSendRetryDelay');
+    addProperty(res, cluster, 'networkSendRetryCount');
+    addProperty(res, cluster, 'segmentCheckFrequency');
+    addProperty(res, cluster, 'waitForSegmentOnStart');
+    addProperty(res, cluster, 'discoveryStartupDelay');
+    res.needEmptyLine = true;
 
-        for (var i = 0; i < cluster.caches.length; i++) {
-            if (i > 0)
-                res.line();
+    // Generate deployment group.
+    addProperty(res, cluster, 'deploymentMode');
+    res.needEmptyLine = true;
 
-            generateCacheConfiguration(cluster.caches[i], res);
-        }
-
-        res.endBlock('</list>');
-        res.endBlock('</property>');
-
-        res.needEmptyLine = true;
-    }
-
+    // Generate events group.
     if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
         res.emptyLineIfNeeded();
         
@@ -197,90 +185,120 @@ exports.generateClusterConfiguration = function(cluster) {
 
         res.needEmptyLine = true;
     }
-    
-    addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
-        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
 
-    res.needEmptyLine = true;
-
-    addProperty(res, cluster, 'networkTimeout');
-    addProperty(res, cluster, 'networkSendRetryDelay');
-    addProperty(res, cluster, 'networkSendRetryCount');
-    addProperty(res, cluster, 'segmentCheckFrequency');
-    addProperty(res, cluster, 'waitForSegmentOnStart');
-    addProperty(res, cluster, 'discoveryStartupDelay');
-    
-    res.needEmptyLine = true;
-    
-    addProperty(res, cluster, 'deploymentMode');
-
-    res.needEmptyLine = true;
-
+    // Generate marshaller group.
     addProperty(res, cluster, 'marshalLocalJobs');
     addProperty(res, cluster, 'marshCacheKeepAliveTime');
     addProperty(res, cluster, 'marshCachePoolSize');
-
     res.needEmptyLine = true;
 
+    // Generate metrics group.
     addProperty(res, cluster, 'metricsExpireTime');
     addProperty(res, cluster, 'metricsHistorySize');
     addProperty(res, cluster, 'metricsLogFrequency');
     addProperty(res, cluster, 'metricsUpdateFrequency');
-
     res.needEmptyLine = true;
 
+    // Generate PeerClassLoading group.
     addProperty(res, cluster, 'peerClassLoadingEnabled');
     addListProperty(res, cluster, 'peerClassLoadingLocalClassPathExclude');
     addProperty(res, cluster, 'peerClassLoadingMissedResourcesCacheSize');
     addProperty(res, cluster, 'peerClassLoadingThreadPoolSize');
-    
     res.needEmptyLine = true;
 
+    // Generate swap group.
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
             generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
     }
-    
+
+    // Generate time group.
     addProperty(res, cluster, 'clockSyncSamples');
     addProperty(res, cluster, 'clockSyncFrequency');
     addProperty(res, cluster, 'timeServerPortBase');
     addProperty(res, cluster, 'timeServerPortRange');
-
     res.needEmptyLine = true;
 
+    // Generate thread pools group.
     addProperty(res, cluster, 'publicThreadPoolSize');
     addProperty(res, cluster, 'systemThreadPoolSize');
     addProperty(res, cluster, 'managementThreadPoolSize');
     addProperty(res, cluster, 'igfsThreadPoolSize');
-
     res.needEmptyLine = true;
-    
+
+    // Generate transactions group.
     addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
         generatorUtils.transactionConfiguration.className, generatorUtils.transactionConfiguration.fields);
-
     res.needEmptyLine = true;
 
-    addProperty(res, cluster, 'cacheSanityCheckEnabled');
-    
-    res.needEmptyLine = true;
-
+    // Generate utility group.
     addProperty(res, cluster, 'utilityCacheKeepAliveTime');
     addProperty(res, cluster, 'utilityCachePoolSize');
-    
-    res.push('    </bean>\n');
-    res.push('</beans>');
 
-    if (res.propertiesRequired) {
-        res.splice(1, 0,
-            '\n    <!--Bean to load properties file -->\n' +
-            '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n' +
-            '        <property name="location" value="classpath:ignite.properties"/>\n' +
-            '    </bean>\n');
+    // Generate caches configs.
+    if (cluster.caches && cluster.caches.length > 0) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="cacheConfiguration">');
+        res.startBlock('<list>');
+
+        for (var i = 0; i < cluster.caches.length; i++) {
+            if (i > 0)
+                res.line();
+
+            generateCacheConfiguration(cluster.caches[i], res);
+        }
+
+        res.endBlock('</list>');
+        res.endBlock('</property>');
+
+        res.needEmptyLine = true;
     }
 
-    return res.join('');
+    res.endBlock('</bean>');
+
+    // Build final XML:
+    // 1. Add header.
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n\n';
+
+    xml += '<!-- ' + generatorUtils.mainComment() + ' -->\n';
+    xml += '<beans xmlns="http://www.springframework.org/schema/beans"\n';
+    xml += '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n';
+    xml += '       xmlns:util="http://www.springframework.org/schema/util"\n';
+    xml += '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n';
+    xml += '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n';
+    xml += '                           http://www.springframework.org/schema/util\n';
+    xml += '                           http://www.springframework.org/schema/util/spring-util.xsd">\n';
+
+    // 2. Add external property file and all data sources.
+    if (res.datasources.length > 0) {
+        xml += '    <!-- Load external properties file. -->\n';
+        xml += '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n';
+        xml += '        <property name="location" value="classpath:ignite.properties"/>\n';
+        xml += '    </bean>\n\n';
+
+        xml += '    <!-- Data source beans will be initialized from external properties file. -->\n';
+
+        _.forEach(res.datasources, function(item) {
+            var beanId = item.dataSourceBean;
+
+            xml += '    <bean id= "' + beanId + '" class="' + item.className + '">\n';
+            xml += '        <property name="URL" value="${' + beanId + '.jdbc.url}" />\n';
+            xml += '        <property name="user" value="${' + beanId + '.jdbc.username}" />\n';
+            xml += '        <property name="password" value="${' + beanId + '.jdbc.password}" />\n';
+            xml += '    </bean>\n\n';
+        });
+    }
+
+    // 3. Add main content.
+    xml += res.join('');
+
+    // 4. Add footer.
+    xml += '</beans>\n';
+
+    return xml;
 };
 
 function createEvictionPolicy(res, evictionPolicy, propertyName) {
@@ -381,22 +399,15 @@ function generateCacheConfiguration(cacheCfg, res) {
         addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', data.className, data.fields, true);
 
         if (storeFactory.dialect) {
-            res.propertiesRequired = true;
+            console.log("storeFactory.dataSourceBean = " + storeFactory.dataSourceBean);
 
-            if (!_.contains(res.datasourceBeans, storeFactory.dataSourceBean)) {
-                res.datasourceBeans.push(storeFactory.dataSourceBean);
-
-                var dataSource = generatorUtils.dataSources[storeFactory.dialect];
-
-                var dsBean = '\n    <bean id= "' + storeFactory.dataSourceBean + '" class="' + dataSource.className + '">\n';
-
-                dsBean += '        <property name="URL" value="${' + storeFactory.dataSourceBean + '.jdbc.url}" />\n';
-                dsBean += '        <property name="user" value="${' + storeFactory.dataSourceBean + '.jdbc.username}" />\n';
-                dsBean += '        <property name="password" value="${' + storeFactory.dataSourceBean + '.jdbc.password}" />\n';
-
-                dsBean += '    </bean>\n\n';
-
-                res.splice(1, 0, dsBean);
+            if (_.findIndex(res.datasources, function (ds) {
+                    return ds.dataSourceBean == storeFactory.dataSourceBean;
+                }) < 0) {
+                res.datasources.push({
+                    dataSourceBean: storeFactory.dataSourceBean,
+                    className: generatorUtils.dataSources[storeFactory.dialect]
+                });
             }
         }
     }
