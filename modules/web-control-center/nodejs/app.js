@@ -31,6 +31,7 @@ var cachesRouter = require('./routes/caches');
 var persistencesRouter = require('./routes/persistences');
 var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
+var profileRouter = require('./routes/profile');
 
 var uiUtils = require('./utils/ui-utils');
 
@@ -124,6 +125,7 @@ app.all('*', function(req, res, next) {
 
 app.use('/', publicRoutes);
 app.use('/admin', adminRouter);
+app.use('/', mustAuthenticated, profileRouter);
 
 app.use('/configuration/clusters', clustersRouter);
 app.use('/configuration/caches', cachesRouter);
