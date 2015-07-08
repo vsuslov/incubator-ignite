@@ -20,7 +20,7 @@ var db = require('../db');
 
 /* GET clusters page. */
 router.get('/', function(req, res) {
-    res.render('clusters', { user: req.user });
+    res.render('clusters');
 });
 
 /**

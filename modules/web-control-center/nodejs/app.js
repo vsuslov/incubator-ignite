@@ -32,6 +32,8 @@ var persistencesRouter = require('./routes/persistences');
 var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 
+var uiUtils = require('./utils/ui-utils');
+
 var passport = require('passport');
 
 var db = require('./db');
@@ -89,6 +91,18 @@ var adminOnly = function(req, res, next) {
 
 app.all('/admin/*', mustAuthenticated, adminOnly);
 app.all('/configuration/*', mustAuthenticated);
+
+for (var p in uiUtils) {
+    if (uiUtils.hasOwnProperty(p)) {
+        app.locals[p] = uiUtils[p];
+    }
+}
+
+app.all('*', function(req, res, next) {
+    res.locals.user = req.user;
+
+    next()
+});
 
 app.use('/', publicRoutes);
 app.use('/admin', adminRouter);

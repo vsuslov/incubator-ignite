@@ -17,6 +17,7 @@
 
 var router = require('express').Router();
 var db = require('../db');
+var uiUtils = require('../utils/ui-utils');
 
 /**
  * Get list of user accounts.
@@ -25,8 +26,14 @@ router.get('/ajax/list', function(req, res) {
     db.Account.find({}, function (err, users) {
         if (err)
             return res.status(500).send(err.message);
-        
-        res.json(users);
+
+        var uiUsers = [];
+
+        for (var i = 0; i < users.length; i++) {
+            uiUsers.push(uiUtils.filterUser(users[i]))
+        }
+
+        res.json(uiUsers);
     });
 });
 
@@ -54,7 +61,7 @@ router.get('/ajax/setAdmin', function(req, res) {
 });
 
 router.get('/userList', function(req, res) {
-    res.render('admin/userList', { user: req.user });
+    res.render('admin/userList');
 });
 
 router.get('/become', function(req, res) {

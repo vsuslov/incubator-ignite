@@ -92,7 +92,7 @@ router.get('/', function(req, res) {
     if (req.isAuthenticated())
         res.redirect('/configuration/clusters');
     else
-        res.render('index', { user: req.user });
+        res.render('index');
 });
 
 ///* GET sql page. */
