@@ -24,7 +24,7 @@ var generatorJava = require('./../generator/java');
 
 /* GET summary page. */
 router.get('/', function(req, res) {
-    res.render('summary', { user: req.user });
+    res.render('summary');
 });
 
 router.post('/generator', function(req, res) {

@@ -31,7 +31,7 @@ router.get('/', function(req, res) {
  * @param res Response.
  */
 router.post('/list', function(req, res) {
-    var user_id = req.user._id;
+    var user_id = req.currentUserId();
 
     // Get owned space and all accessed space.
     db.Space.find({$or: [{owner: user_id}, {usedBy: {$elemMatch: {account: user_id}}}]}, function (err, spaces) {

@@ -65,14 +65,25 @@ router.get('/userList', function(req, res) {
 });
 
 router.get('/become', function(req, res) {
-    var userId = req.query.userId;
-    
-    if (!userId)
-        userId = null;
-    
-    res.cookie('currentUserId', userId);
-    
-    res.redirect('/')
+    var viewedUserId = req.query.viewedUserId;
+
+    if (!viewedUserId) {
+        req.session.viewedUser = null;
+
+        res.redirect('/');
+
+        return
+    }
+
+    db.Account.findById(viewedUserId, function(err, viewedUser) {
+        if (err) {
+            return res.sendStatus(404);
+        }
+
+        req.session.viewedUser = {_id: viewedUser._id, username: viewedUser.username};
+
+        res.redirect('/');
+    })
 });
 
 module.exports = router;

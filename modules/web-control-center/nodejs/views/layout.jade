@@ -15,7 +15,7 @@
     limitations under the License.
 
 doctype html
-html(ng-app='ignite-web-control-center', ng-init='loggedInUser = #{JSON.stringify(filterUser(user))}')
+html(ng-app='ignite-web-control-center', ng-init='loggedInUser = #{JSON.stringify(filterUser(user))}; viewedUser = #{JSON.stringify(viewedUser)}')
     head
         title= title
 

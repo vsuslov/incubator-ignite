@@ -101,6 +101,24 @@ for (var p in uiUtils) {
 app.all('*', function(req, res, next) {
     res.locals.user = req.user;
 
+    res.locals.viewedUser = req.session.viewedUser;
+
+    req.currentUserId = function() {
+        if (!req.user)
+            return null;
+
+        if (req.session.viewedUser) {
+            if (req.user.admin)
+                return req.session.viewedUser._id;
+
+            req.session.viewedUser = null;
+        }
+
+        return req.user._id;
+    };
+
+    res.locals.currentUserId = req.currentUserId;
+
     next()
 });
 

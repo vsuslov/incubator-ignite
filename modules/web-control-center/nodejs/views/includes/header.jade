@@ -36,3 +36,8 @@ header.header(id='header')
                                 a(href='/logout') Log Out
                 li.nav-login(ng-show='!loggedInUser')
                     a(ng-click='login()' href='#') Log In
+
+        div(class='viewedUser' ng-show='viewedUser') You're working as&nbsp;
+            strong {{viewedUser.username}}&nbsp;
+            a(href='/admin/become')
+                span(class="glyphicon glyphicon-remove" title='Unlogin')
