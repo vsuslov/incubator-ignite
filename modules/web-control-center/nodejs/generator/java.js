@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
+
 var generatorUtils = require("./common");
 
 exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     var res = generatorUtils.builder();
+
+    res.datasourceBeans = [];
 
     if (generateJavaClass) {
         res.line('/**');
@@ -41,6 +45,7 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
 
         res.importClass('org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi');
         res.line('TcpDiscoverySpi discovery = new TcpDiscoverySpi();');
+
         switch (d.kind) {
             case 'Multicast':
                 addBeanWithProperties(res, d.Multicast, 'discovery', 'ipFinder', 'ipFinder',
@@ -141,8 +146,7 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
 
             var cache = cluster.caches[i];
 
-            var cacheName = cache.name.replace(/[^A-Za-z_0-9]+/, '_');
-            cacheName = 'cache' + cacheName.charAt(0).toLocaleUpperCase() + cacheName.slice(1);
+            var cacheName = 'cache' + generatorUtils.toJavaName(cache.name);
 
             names.push(cacheName);
 
@@ -382,11 +386,35 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
     res.needEmptyLine = true;
     
     if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
-        var obj = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
+        var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
         var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
-        addBeanWithProperties(res, obj, varName, 'cacheStoreFactory', 'cacheStoreFactory', data.className,
+        var sfVarName = 'storeFactory' + generatorUtils.toJavaName(cacheCfg.name);
+        var dsVarName = 'none';
+
+        if (storeFactory.dialect) {
+            var dataSourceBean = storeFactory.dataSourceBean;
+
+            dsVarName = 'dataSource' + generatorUtils.toJavaName(dataSourceBean);
+
+            if (!_.contains(res.datasourceBeans, dataSourceBean)) {
+                res.datasourceBeans.push(dataSourceBean);
+
+                var dataSource = generatorUtils.dataSources[storeFactory.dialect];
+
+                res.line();
+                res.line(dataSource.className + ' ' + dsVarName + ' = new ' + dataSource.className + '();');
+                res.line(dsVarName + '.setURL(_URL_);');
+                res.line(dsVarName + '.setUsername(_User_Name_);');
+                res.line(dsVarName + '.setPassword(_Password_);');
+            }
+        }
+
+        addBeanWithProperties(res, storeFactory, varName, 'cacheStoreFactory', sfVarName, data.className,
             data.fields, true);
+
+        if (dsVarName != 'none')
+            res.line(sfVarName + '.setDataSource(' + dsVarName + ');');
     }
 
     res.needEmptyLine = true;
@@ -502,6 +530,7 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
         }
         
         res.line(beanClass + ' ' + beanVarName + ' = new ' + beanClass + '();');
+
         for (var propName in props) {
             if (props.hasOwnProperty(propName)) {
                 var descr = props[propName];
@@ -544,8 +573,9 @@ function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName,
                         
                         case 'className':
                             if (bean[propName]) {
-                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + bean[propName] + '());');
+                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + generatorUtils.knownClasses[bean[propName]].className + '());');
                             }
+
                             break;
                         
                         default:

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('adminController', [
+controlCenterModule.controller('adminController', [
     '$scope', '$alert', '$http', 'commonFunctions', function ($scope,
         $alert, $http, commonFunctions) {
 

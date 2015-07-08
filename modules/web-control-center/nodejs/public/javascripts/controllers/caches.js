@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -65,12 +65,12 @@ configuratorModule.controller('cachesController', ['$scope', '$alert', '$http', 
         ];
 
         $scope.cacheStoreJdbcDialects = [
-            {value: 'BasicJdbcDialect', label: 'Generic JDBC dialect'},
-            {value: 'OracleDialect', label: 'Oracle'},
-            {value: 'DB2Dialect', label: 'IBM DB2'},
-            {value: 'SQLServerDialect', label: 'Microsoft SQL Server'},
-            {value: 'MySQLDialect', label: 'My SQL'},
-            {value: 'H2Dialect', label: 'H2 database'}
+            {value: 'Oracle', label: 'Oracle'},
+            {value: 'DB2', label: 'IBM DB2'},
+            {value: 'SQLServer', label: 'Microsoft SQL Server'},
+            {value: 'MySQL', label: 'My SQL'},
+            {value: 'PostgreSQL', label: 'Postgre SQL'},
+            {value: 'H2', label: 'H2 database'}
         ];
 
         $scope.general = [];

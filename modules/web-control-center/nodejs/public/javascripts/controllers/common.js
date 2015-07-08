@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-var configuratorModule = angular.module('ignite-web-configurator', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
+var controlCenterModule = angular.module('ignite-web-control-center', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
 
-configuratorModule.service('commonFunctions', function () {
+controlCenterModule.service('commonFunctions', function () {
     return {
         getModel: function (obj, path) {
             if (!path)
@@ -69,7 +69,7 @@ configuratorModule.service('commonFunctions', function () {
     }
 });
 
-configuratorModule.config(function ($tooltipProvider) {
+controlCenterModule.config(function ($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {
         container: 'body',
         placement: 'right',
@@ -78,7 +78,7 @@ configuratorModule.config(function ($tooltipProvider) {
     });
 });
 
-configuratorModule.config(function ($selectProvider) {
+controlCenterModule.config(function ($selectProvider) {
     angular.extend($selectProvider.defaults, {
         maxLength: '1',
         allText: 'Select All',
@@ -88,7 +88,7 @@ configuratorModule.config(function ($selectProvider) {
 });
 
 // Alert settings
-configuratorModule.config(function ($alertProvider) {
+controlCenterModule.config(function ($alertProvider) {
     angular.extend($alertProvider.defaults, {
         container: 'body',
         placement: 'top-right',
@@ -98,7 +98,7 @@ configuratorModule.config(function ($alertProvider) {
 });
 
 // Decode name using map(value, label).
-configuratorModule.filter('displayValue', function () {
+controlCenterModule.filter('displayValue', function () {
     return function (v, m, dflt) {
         var i = _.findIndex(m, function (item) {
             return item.value == v;
@@ -125,7 +125,7 @@ configuratorModule.filter('displayValue', function () {
  * @param s String to replace in.
  * @return Replaces string.
  */
-configuratorModule.filter('compact', function () {
+controlCenterModule.filter('compact', function () {
     return function (s) {
         return s.replace("org.apache.ignite.internal.visor.", "o.a.i.i.v.").
             replace("org.apache.ignite.internal.", "o.a.i.i.").
@@ -134,7 +134,7 @@ configuratorModule.filter('compact', function () {
     }
 });
 
-configuratorModule.directive('ipaddress', function () {
+controlCenterModule.directive('ipaddress', function () {
     const ip = '(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])';
     const port = '([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])';
     const portRange = '(:' + port + '(..' + port + ')?)?';
@@ -153,14 +153,14 @@ configuratorModule.directive('ipaddress', function () {
     }
 });
 
-configuratorModule.controller('activeLink', [
+controlCenterModule.controller('activeLink', [
     '$scope', function ($scope) {
         $scope.isActive = function (path) {
             return window.location.pathname.substr(0, path.length) == path;
         };
     }]);
 
-configuratorModule.controller('auth', [
+controlCenterModule.controller('auth', [
     '$scope', '$modal', '$alert', '$http', '$window', 'commonFunctions',
     function ($scope, $modal, $alert, $http, $window, commonFunctions) {
         $scope.errorMessage = commonFunctions.errorMessage;

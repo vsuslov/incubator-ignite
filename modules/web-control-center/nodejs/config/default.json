@@ -3,6 +3,6 @@
         "port": 3000
     },
     "mongoDB": {
-        "url": "mongodb://localhost/web-configurator"
+        "url": "mongodb://localhost/web-control-center"
     }
 }

@@ -22,7 +22,7 @@ header.header(id='header')
             ul.nav.navbar-nav(ng-controller='activeLink' ng-show='loggedInUser')
                 li
                     a(ng-class="{active: isActive('/configuration')}" href='/configuration/clusters') Configuration
-                li(ng-show='loggedInUser && loggedInUser.admin')
+                li(ng-if='loggedInUser && loggedInUser.admin')
                     a(ng-class="{active: isActive('/admin')}" href='/admin/userList') Administration
                 //li
                 //    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL

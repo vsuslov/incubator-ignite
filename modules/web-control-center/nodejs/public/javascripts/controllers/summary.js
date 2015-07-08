@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-configuratorModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
+controlCenterModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
     $scope.generateJavaItems = [
         { label: 'snippet',value: false},
         { label: 'factory class',value: true}

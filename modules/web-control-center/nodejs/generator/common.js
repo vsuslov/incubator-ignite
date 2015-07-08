@@ -160,12 +160,21 @@ exports.evictionPolicies = {
 };
 
 exports.knownClasses = {
-    OracleDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
-    BasicJdbcDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
-    DB2Dialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
-    SQLServerDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
-    MySQLDialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.MySQLDialect', {}),
-    H2Dialect: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.H2Dialect', {})
+    Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
+    DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
+    SQLServer: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.SQLServerDialect', {}),
+    MySQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.MySQLDialect', {}),
+    PostgreSQL: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.BasicJdbcDialect', {}),
+    H2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.H2Dialect', {})
+};
+
+exports.dataSources = {
+    Oracle: {className: 'oracle.jdbc.pool.OracleDataSource'},
+    DB2: {className: 'com.ibm.db2.jcc.DB2ConnectionPoolDataSource'},
+    SQLServer: {className: 'com.microsoft.sqlserver.jdbc.SQLServerDataSource'},
+    MySQL: {className: 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource'},
+    PostgreSQL: {className: 'org.postgresql.ds.PGPoolingDataSource'},
+    H2: {className: 'org.h2.jdbcx.JdbcDataSource'}
 };
 
 exports.storeFactories = {
@@ -222,4 +231,10 @@ exports.hasProperty = function(obj, props) {
     }
 
     return false;
+};
+
+exports.toJavaName = function(name) {
+    var javaName = name.replace(/[^A-Za-z_0-9]+/, '_');
+
+    return javaName.charAt(0).toLocaleUpperCase() + javaName.slice(1);
 };

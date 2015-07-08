@@ -15,11 +15,16 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
+
 var generatorUtils = require("./common");
 var dataStructures = require("../public/javascripts/dataStructures.js");
 
 exports.generateClusterConfiguration = function(cluster) {
     var res = generatorUtils.builder();
+
+    res.propertiesRequired = false;
+    res.datasourceBeans = [];
 
     res.push('' +
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -31,8 +36,9 @@ exports.generateClusterConfiguration = function(cluster) {
         '       xsi:schemaLocation="http://www.springframework.org/schema/beans\n' +
         '                           http://www.springframework.org/schema/beans/spring-beans.xsd\n' +
         '                           http://www.springframework.org/schema/util\n' +
-        '                           http://www.springframework.org/schema/util/spring-util.xsd">\n' +
-        '    <bean class="org.apache.ignite.configuration.IgniteConfiguration">\n');
+        '                           http://www.springframework.org/schema/util/spring-util.xsd">\n');
+
+    res.push('    <bean class="org.apache.ignite.configuration.IgniteConfiguration">\n');
 
     res.deep = 2;
 
@@ -266,6 +272,14 @@ exports.generateClusterConfiguration = function(cluster) {
     res.push('    </bean>\n');
     res.push('</beans>');
 
+    if (res.propertiesRequired) {
+        res.splice(1, 0,
+            '\n    <!--Bean to load properties file -->\n' +
+            '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n' +
+            '        <property name="location" value="classpath:ignite.properties"/>\n' +
+            '    </bean>\n');
+    }
+
     return res.join('');
 };
 
@@ -361,10 +375,30 @@ function generateCacheConfiguration(cacheCfg, res) {
     res.needEmptyLine = true;
 
     if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
-        var obj = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
+        var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
         var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
-        addBeanWithProperties(res, obj, 'cacheStoreFactory', data.className, data.fields, true);
+        addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', data.className, data.fields, true);
+
+        if (storeFactory.dialect) {
+            res.propertiesRequired = true;
+
+            if (!_.contains(res.datasourceBeans, storeFactory.dataSourceBean)) {
+                res.datasourceBeans.push(storeFactory.dataSourceBean);
+
+                var dataSource = generatorUtils.dataSources[storeFactory.dialect];
+
+                var dsBean = '\n    <bean id= "' + storeFactory.dataSourceBean + '" class="' + dataSource.className + '">\n';
+
+                dsBean += '        <property name="URL" value="${' + storeFactory.dataSourceBean + '.jdbc.url}" />\n';
+                dsBean += '        <property name="user" value="${' + storeFactory.dataSourceBean + '.jdbc.username}" />\n';
+                dsBean += '        <property name="password" value="${' + storeFactory.dataSourceBean + '.jdbc.password}" />\n';
+
+                dsBean += '    </bean>\n\n';
+
+                res.splice(1, 0, dsBean);
+            }
+        }
     }
 
     res.needEmptyLine = true;
