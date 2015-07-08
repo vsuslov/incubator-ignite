@@ -33,6 +33,8 @@ header.header(id='header')
                     script#user-dropdown(type='text/ng-template')
                         ul.dropdown-menu
                             li
+                                a(href='/profile') Profile
+                            li
                                 a(href='/logout') Log Out
                 li.nav-login(ng-show='!loggedInUser')
                     a(ng-click='login()' href='#') Log In
