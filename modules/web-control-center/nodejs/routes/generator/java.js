@@ -19,12 +19,12 @@ var _ = require('lodash');
 
 var generatorUtils = require("./common");
 
-exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
+exports.generateClusterConfiguration = function(cluster, javaClass) {
     var res = generatorUtils.builder();
 
     res.datasourceBeans = [];
 
-    if (generateJavaClass) {
+    if (javaClass) {
         res.line('/**');
         res.line(' * ' + generatorUtils.mainComment());
         res.line(' */');
@@ -291,7 +291,7 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
     addProperty(res, cluster, 'cfg', 'utilityCacheKeepAliveTime');
     addProperty(res, cluster, 'cfg', 'utilityCachePoolSize');
 
-    if (generateJavaClass) {
+    if (javaClass) {
         res.line();
         res.line('return cfg;');
         res.endBlock('}');

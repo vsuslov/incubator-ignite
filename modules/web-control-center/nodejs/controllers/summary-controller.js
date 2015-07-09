@@ -16,66 +16,50 @@
  */
 
 controlCenterModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
-    $scope.generateJavaItems = [
+    $scope.javaClassItems = [
         { label: 'snippet',value: false},
         { label: 'factory class',value: true}
     ];
 
-    $scope.generateJavaClass = false;
+    $scope.oss = ['debian:8', 'ubuntu:14.10'];
 
-    $scope.javaData = undefined;
-    $scope.xmlData = undefined;
-    $scope.dockerData = undefined;
+    $scope.cfgLang = 'xml';
+
+    $scope.javaClass = false;
+    $scope.os = undefined;
+
+    $scope.generated = undefined;
 
     $http.post('/configuration/clusters/list').success(function (data) {
         $scope.clusters = data.clusters;
     });
 
-    $scope.selectItem = function (item) {
-        $scope.selectedItem = item;
+    $scope.reload = function() {
+        $("<pre class='brush:java' />").text($scope.javaClass ? $scope.generated.javaClass : $scope.generated.javaSnippet).appendTo($('#javaResultDiv').empty());
 
-        $scope.generate()
+        $("<pre class='brush:xml' />").text($scope.generated.xml).appendTo($('#xmlResultDiv').empty());
+
+        var os = $scope.os ? $scope.os : $scope.oss[0];
+
+        $("<pre class='brush:plain' />").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#dockerResultDiv').empty());
+
+        SyntaxHighlighter.highlight();
     };
 
-    $scope.cfgLang = 'xml';
-
-    $scope.generate = function() {
-        var cluster = $scope.selectedItem;
-        
-        if (!cluster)
+    $scope.generate = function(item) {
+        if (!item)
             return;
 
-        var lang = $scope.cfgLang;
-        
+        $scope.selectedItem = item;
+
         $scope.loading = true;
 
-        $http.post('/configuration/summary/generator', {_id: cluster._id, lang: lang, generateJavaClass: $scope.generateJavaClass})
-            .success(
-            function (data) {
-                switch (lang) {
-                    case 'java':
-                        $scope.javaData = data;
+        $http.post('/configuration/summary/generator', {_id: $scope.selectedItem._id})
+            .success(function (data) {
+                $scope.generated = data;
 
-                        $("<pre class='brush:java' />").text(data).appendTo($('#javaResultDiv').empty());
-
-                        break;
-
-                    case 'xml':
-                        $scope.xmlData = data;
-
-                        $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResultDiv').empty());
-
-                        break;
-
-                    case 'docker':
-                        $scope.dockerData = data;
-
-                        $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
-
-                        break;
-                }
-
-                SyntaxHighlighter.highlight();
+                $scope.$watch('javaClass', $scope.reload);
+                $scope.$watch('os', $scope.reload);
 
                 $scope.loading = false;
             }).error(function (data) {
@@ -85,87 +69,18 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
             });
     };
 
-    $scope.$watch('cfgLang', $scope.generate);
-    $scope.$watch('generateJavaClass', $scope.generate);
-
-    $scope.dockerArg = {};
-
-    $scope.download = function(text, fileName) {
-        if (text.length == 0)
-            return;
-        
+    $scope.download = function() {
         var file = document.createElement('a');
+
         file.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(text));
-        file.setAttribute('download', fileName);
+        file.setAttribute('download', $scope.selectedItem.name + '-configuration.zip');
 
         file.style.display = 'none';
+
         document.body.appendChild(file);
 
         file.click();
 
         document.body.removeChild(file);
     };
-
-    $scope.downloadJava = function() {
-        $scope.download($scope.javaData,
-            $scope.generateJavaClass ? 'ConfigurationFactory.java' : $scope.selectedItem.name + '.snipplet.txt');
-    };
-
-    $scope.downloadDocker = function() {
-        $scope.download($scope.dockerFile(), 'Dockerfile');
-    };
-
-    $scope.oss = ['debian:8', 'ubuntu:14.10'];
-    
-    $scope.dockerFile = function() {
-        if (!$scope.selectedItem || !$scope.dockerArg) {
-            return '';
-        }
-        
-        var os = $scope.dockerArg.os;
-
-        if (!os)
-            os = 'debian:8';
-
-        return "" +
-            "# Start from a Debian image.\n"+
-            "FROM " + os + "\n"+
-            "\n"+
-            "# Install tools.\n"+
-            "RUN apt-get update && apt-get install -y --fix-missing \\\n"+
-            "  wget \\\n"+
-            "  dstat \\\n"+
-            "  maven \\\n"+
-            "  git\n"+
-            "\n"+
-            "# Install Oracle JDK.\n"+
-            "RUN mkdir /opt/jdk\n"+
-            "\n"+
-            "RUN wget --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \\\n"+
-            "  http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz\n"+
-            "\n"+
-            "RUN tar -zxf jdk-7u79-linux-x64.tar.gz -C /opt/jdk\n"+
-            "\n"+
-            "RUN rm jdk-7u79-linux-x64.tar.gz\n"+
-            "\n"+
-            "RUN update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.7.0_79/bin/java 100\n"+
-            "\n"+
-            "RUN update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.7.0_79/bin/javac 100\n"+
-            "\n"+
-            "# Sets java variables.\n"+
-            "ENV JAVA_HOME /opt/jdk/jdk1.7.0_79/\n"+
-            "\n"+
-            "# Create working directory\n"+
-            "WORKDIR /home\n"+
-            "\n"+
-            "RUN wget -O ignite.zip http://tiny.cc/updater/download_ignite.php && unzip ignite.zip && rm ignite.zip\n"+
-            "\n"+
-            "COPY *.xml /tmp/\n"+
-            "\n"+
-            "RUN mv /tmp/*.xml /home/$(ls)/config";
-    };
-
-    $scope.$watch('dockerArg.os', function() {
-        $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
-    });
 }]);

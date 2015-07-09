@@ -36,18 +36,18 @@ block content
         p Configurations summary.
         hr
     .docs-body(ng-controller='summaryController')
-        div(ng-hide='clusters.length > 0')
+        div(ng-show='clusters.length == 0')
             | No cluster configured. You can&nbsp;
             a(href='clusters') configure
-            |  it.
-        div(ng-hide='clusters.length == 0')
+            | &nbsp;it.
+        div(ng-show='clusters.length > 0')
             p Following cluster configurations were created, you can download them as XML, java code or as docker file.
             .links
                 table.col-sm-12(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                                a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+                                a(ng-click='generate(row)') {{$index + 1}}) {{row.name}}
             #cfgResult.configBox(ng-show='selectedItem && !generateError && !loading', style='margin-top: 20px')
                 ul.nav.nav-tabs
                     li(ng-class='{active: cfgLang == "xml"}')
@@ -70,7 +70,7 @@ block content
                         .col-sm-1
                             label Generate:
                         .col-sm-3
-                            button.form-control(ng-model='generateJavaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in generateJavaItems' data-sort='false')
+                            button.form-control(ng-model='javaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                         button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadJava()') Download
                         #javaResultDiv
                     #dockerResult(ng-show="cfgLang == 'docker'")
@@ -87,6 +87,6 @@ block content
                         .col-sm-2
                             label(for='os') Operation System:
                         .col-sm-4
-                            input#os.form-control(type='text', ng-model='dockerArg.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
+                            input#os.form-control(type='text', ng-model='os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
                         .settings-row#dockerResultDiv(style='margin-top: 15px')
                 div(ng-show='generateError') {{generateError}}

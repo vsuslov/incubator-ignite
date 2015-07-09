@@ -21,6 +21,7 @@ var router = require('express').Router();
 
 var generatorXml = require('./generator/xml');
 var generatorJava = require('./generator/java');
+var generatorDocker = require('./generator/docker');
 
 /* GET summary page. */
 router.get('/', function(req, res) {
@@ -28,32 +29,20 @@ router.get('/', function(req, res) {
 });
 
 router.post('/generator', function(req, res) {
-    var lang = req.body.lang;
-
     // Get cluster.
     db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
             return res.status(500).send(err.message);
 
-        if (!cluster) {
-            res.sendStatus(404);
+        if (!cluster)
+            return res.sendStatus(404);
 
-            return
-        }
-
-        switch (lang) {
-            case 'xml':
-                res.send(generatorXml.generateClusterConfiguration(cluster));
-                break;
-
-            case 'java':
-                res.send(generatorJava.generateClusterConfiguration(cluster, req.body.generateJavaClass));
-                break;
-
-            default:
-                res.status(404).send("Unknown language: " + lang);
-                break;
-        }
+        return res.send({
+            xml: generatorXml.generateClusterConfiguration(cluster),
+            javaSnippet: generatorJava.generateClusterConfiguration(cluster, false),
+            javaClass: generatorJava.generateClusterConfiguration(cluster, true),
+            docker: generatorDocker.generateClusterConfiguration(cluster, '%OS%')
+        });
     });
 });
 
