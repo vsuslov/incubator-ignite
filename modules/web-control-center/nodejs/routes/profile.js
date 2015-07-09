@@ -33,4 +33,22 @@ router.get('/profile', function(req, res) {
     });
 });
 
+router.post('/profile/saveUser', function(req, res) {
+    var userId = req.body._id;
+    
+    if (userId != req.currentUserId() && userId != req.user._id)
+        return res.sendStatus(403);
+    
+    var u = {
+        username: req.body.username
+    }; 
+    
+    db.Account.findByIdAndUpdate(userId, u, {new: true}, function(err, val) {
+        if (err)
+            return res.status(500).send(err);
+        
+        res.json(uiUtils.filterUser(val));
+    })
+});
+
 module.exports = router;

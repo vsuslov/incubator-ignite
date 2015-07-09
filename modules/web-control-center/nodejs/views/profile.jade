@@ -16,13 +16,25 @@
 
 extends templates/layout-sidebar
 
+append scripts
+    script(src='/profile-controller.js')
+
 block content
-    .docs-header(ng-init='editableUser = #{JSON.stringify(filterUser(editableUser))}')
+    .docs-header(ng-init='savedUser = #{JSON.stringify(filterUser(editableUser))}')
         h1 User profile
         p Profile of&nbsp;
-            strong {{editableUser.username}}.
+            strong {{savedUser.username}}.
         hr
 
     .docs-body()
-        | User name:
-        a(href='#' editable-text="editableUser.username") {{editableUser.username}}
+        div(ng-controller='profileController')
+            | User name:
+
+            div(ng-show='editField != "username"')
+                a(href ng-click='editField = "username"') {{editableUser.username}}
+            div(ng-show='editField == "username"')
+                i.stackTipField.fa.fa-floppy-o(ng-click='editField = null')
+                .input-tip
+                    input.form-control(type='text' ng-model='editableUser.username')
+
+                    
