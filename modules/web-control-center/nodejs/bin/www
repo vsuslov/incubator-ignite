@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 var app = require('../app');
-var config = require('../configuration.js');
+var config = require('../helpers/configuration-loader.js');
 var debug = require('debug')('ignite-web-control-center:server');
 var http = require('http');
 

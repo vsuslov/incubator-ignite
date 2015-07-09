@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-var config = require('./configuration.js');
+var config = require('./helpers/configuration-loader.js');
 
 // Mongoose for mongodb.
 var mongoose = require('mongoose'),

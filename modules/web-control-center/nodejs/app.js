@@ -33,7 +33,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 
-var uiUtils = require('./utils/ui-utils');
+var uiUtils = require('./helpers/ui-utils');
 
 var passport = require('passport');
 
@@ -60,6 +60,8 @@ app.use(require('less-middleware')(path.join(__dirname, 'public'), {
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'controllers')));
+app.use(express.static(path.join(__dirname, 'helpers')));
 
 app.use(cookieParser('keyboard cat'));
 

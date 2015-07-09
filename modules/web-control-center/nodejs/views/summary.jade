@@ -14,10 +14,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-extends layout-sidebar
+extends templates/layout-sidebar
 
 append scripts
-    script(src='/javascripts/controllers/summary.js')
+    script(src='/summary-controller.js')
+
     script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shCore.min.js')    
     script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushXml.js')    
     script(src='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushJava.js')

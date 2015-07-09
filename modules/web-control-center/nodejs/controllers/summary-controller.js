@@ -28,45 +28,51 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
     $scope.dockerData = undefined;
 
     $http.post('/configuration/clusters/list').success(function (data) {
-        $scope.caches = data.caches;
-        $scope.spaces = data.spaces;
         $scope.clusters = data.clusters;
     });
 
     $scope.selectItem = function (item) {
         $scope.selectedItem = item;
 
-        $scope.generateConfig()
+        $scope.generate()
     };
 
-    $scope.generateConfig = function() {
-        var lang = $scope.cfgLang;
+    $scope.cfgLang = 'xml';
 
-        if (lang == 'docker') {
-            $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
-
-            return;
-        }
-
+    $scope.generate = function() {
         var cluster = $scope.selectedItem;
         
         if (!cluster)
             return;
+
+        var lang = $scope.cfgLang;
         
         $scope.loading = true;
 
         $http.post('/configuration/summary/generator', {_id: cluster._id, lang: lang, generateJavaClass: $scope.generateJavaClass})
             .success(
             function (data) {
-                if (lang == 'java') {
-                    $scope.javaData = data;
+                switch (lang) {
+                    case 'java':
+                        $scope.javaData = data;
 
-                    $("<pre class='brush:java' />").text(data).appendTo($('#javaResultDiv').empty());
-                }
-                else if (lang == 'xml') {
-                    $scope.xmlData = data;
+                        $("<pre class='brush:java' />").text(data).appendTo($('#javaResultDiv').empty());
 
-                    $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResultDiv').empty());
+                        break;
+
+                    case 'xml':
+                        $scope.xmlData = data;
+
+                        $("<pre class='brush:xml' />").text(data).appendTo($('#xmlResultDiv').empty());
+
+                        break;
+
+                    case 'docker':
+                        $scope.dockerData = data;
+
+                        $("<pre class='brush:plain' />").text($scope.dockerFile()).appendTo($('#dockerResultDiv').empty());
+
+                        break;
                 }
 
                 SyntaxHighlighter.highlight();
@@ -79,10 +85,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
             });
     };
 
-    $scope.cfgLang = 'xml';
-
-    $scope.$watch('cfgLang', $scope.generateConfig);
-    $scope.$watch('generateJavaClass', $scope.generateConfig);
+    $scope.$watch('cfgLang', $scope.generate);
+    $scope.$watch('generateJavaClass', $scope.generate);
 
     $scope.dockerArg = {};
 
@@ -119,9 +123,9 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
         }
         
         var os = $scope.dockerArg.os;
-        if (!os) {
-            os = 'debian:8'
-        }
+
+        if (!os)
+            os = 'debian:8';
 
         return "" +
             "# Start from a Debian image.\n"+

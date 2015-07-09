@@ -17,12 +17,16 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../utils/ui-utils');
+var uiUtils = require('../helpers/ui-utils');
+
+router.get('/', function(req, res) {
+    res.render('admin/index');
+});
 
 /**
  * Get list of user accounts.
  */
-router.get('/ajax/list', function(req, res) {
+router.post('/list', function(req, res) {
     db.Account.find({}, function (err, users) {
         if (err)
             return res.status(500).send(err.message);
@@ -37,7 +41,7 @@ router.get('/ajax/list', function(req, res) {
     });
 });
 
-router.get('/ajax/remove', function(req, res) {
+router.post('/remove', function(req, res) {
     var userId = req.query.userId;
 
     db.Account.findByIdAndRemove(userId, function(err) {
@@ -48,7 +52,7 @@ router.get('/ajax/remove', function(req, res) {
     });
 });
 
-router.get('/ajax/setAdmin', function(req, res) {
+router.post('/save', function(req, res) {
     var userId = req.query.userId;
     var adminFlag = req.query.adminFlag;
 
@@ -60,12 +64,8 @@ router.get('/ajax/setAdmin', function(req, res) {
     });
 });
 
-router.get('/userList', function(req, res) {
-    res.render('admin/userList');
-});
-
-router.get('/become', function(req, res) {
-    var viewedUserId = req.query.viewedUserId;
+router.post('/become', function(req, res) {
+    var viewedUserId = req.body.viewedUserId;
 
     if (!viewedUserId) {
         req.session.viewedUser = null;
@@ -76,9 +76,8 @@ router.get('/become', function(req, res) {
     }
 
     db.Account.findById(viewedUserId, function(err, viewedUser) {
-        if (err) {
+        if (err)
             return res.sendStatus(404);
-        }
 
         req.session.viewedUser = {_id: viewedUser._id, username: viewedUser.username};
 

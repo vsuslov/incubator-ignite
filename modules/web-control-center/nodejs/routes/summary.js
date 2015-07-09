@@ -19,8 +19,8 @@ var db = require('../db');
 
 var router = require('express').Router();
 
-var generatorXml = require('./../generator/xml');
-var generatorJava = require('./../generator/java');
+var generatorXml = require('./generator/xml');
+var generatorJava = require('./generator/java');
 
 /* GET summary page. */
 router.get('/', function(req, res) {

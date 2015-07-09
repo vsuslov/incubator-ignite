@@ -23,7 +23,7 @@ header.header(id='header')
                 li
                     a(ng-class="{active: isActive('/configuration')}" href='/configuration/clusters') Configuration
                 li(ng-if='loggedInUser && loggedInUser.admin')
-                    a(ng-class="{active: isActive('/admin')}" href='/admin/userList') Administration
+                    a(ng-class="{active: isActive('/admin')}" href='/admin') Administration
                 //li
                 //    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
             ul.nav.navbar-nav.pull-right

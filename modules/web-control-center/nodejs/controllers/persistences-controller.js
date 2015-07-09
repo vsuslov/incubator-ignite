@@ -31,7 +31,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
 
         $scope.connection = [];
 
-        $http.get('/form-models/persistence.json')
+        $http.get('/models/persistence.json')
             .success(function (data) {
                 $scope.connection = data.connection;
             })
@@ -42,7 +42,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
         $scope.persistences = [];
 
         // When landing on the page, get persistences and show them.
-        $http.post('/configuration/persistences/list')
+        $http.post('list')
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.persistences = data.persistences;
@@ -87,7 +87,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            $http.post('/configuration/persistences/save', item)
+            $http.post('save', item)
                 .success(function (_id) {
                     var i = _.findIndex($scope.persistences, function (persistence) {
                         return persistence._id == _id;
@@ -111,7 +111,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
         $scope.removeItem = function () {
             var _id = $scope.selectedItem._id;
 
-            $http.post('/configuration/persistences/remove', {_id: _id})
+            $http.post('remove', {_id: _id})
                 .success(function () {
                     var i = _.findIndex($scope.persistences, function (persistence) {
                         return persistence._id == _id;

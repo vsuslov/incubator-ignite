@@ -43,17 +43,16 @@ html(ng-app='ignite-web-control-center', ng-init='loggedInUser = #{JSON.stringif
 
             script(src='https://cdnjs.cloudflare.com/ajax/libs/angular-smart-table/2.0.3/smart-table.js')
 
-            script(src='/javascripts/controllers/common.js')
-            script(src='/javascripts/dataStructures.js')
+            script(src='/common-module.js')
+            script(src='/data-structures.js')
 
-            script(src='/javascripts/bundle.js')
     body.theme-line.body-overlap
         .wrapper
-            include includes/header
+            include ../includes/header
 
             .container.body-container
                 .main-content
                     .main-head
                         block container
 
-            include includes/footer
+            include ../includes/footer

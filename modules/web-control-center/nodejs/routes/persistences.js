@@ -17,7 +17,7 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var ds = require('../public/javascripts/dataStructures.js'), jdbcTypes = ds.jdbcTypes, javaTypes = ds.javaTypes;
+var ds = require('../helpers/data-structures.js'), jdbcTypes = ds.jdbcTypes, javaTypes = ds.javaTypes;
 
 /* GET persistence page. */
 router.get('/', function(req, res) {

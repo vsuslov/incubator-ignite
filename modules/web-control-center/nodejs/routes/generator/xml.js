@@ -18,7 +18,7 @@
 var _ = require('lodash');
 
 var generatorUtils = require("./common");
-var dataStructures = require("../public/javascripts/dataStructures.js");
+var dataStructures = require("../../helpers/data-structures.js");
 
 exports.generateClusterConfiguration = function(cluster) {
     var res = generatorUtils.builder();

@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', [
-    '$scope', '$alert', '$http', 'commonFunctions', function ($scope,
-        $alert, $http, commonFunctions) {
-
+controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', function ($scope, $alert, $http) {
         $scope.userList = null;
 
         function reload() {
-            $http.get('ajax/list')
+            $http.post('admin/list')
                 .success(function (data) {
                     $scope.userList = data;
                 })
@@ -37,7 +34,7 @@ controlCenterModule.controller('adminController', [
             if (!confirm("You are going to delete user " + user.username + ". Please, confirm it."))
                 return false;
 
-            $http.get('ajax/remove', {params: {userId: user._id}}).success(
+            $http.post('admin/remove', {params: {userId: user._id}}).success(
                 function (data) {
                     $scope.alertStr = "User has been removed: " + user.username;
                     $scope.alertType = 'success';
@@ -56,7 +53,7 @@ controlCenterModule.controller('adminController', [
             
             user.adminChanging = true;
 
-            $http.get('ajax/setAdmin', {params: {userId: user._id, adminFlag: user.admin}}).success(
+            $http.post('admin/save', {params: {userId: user._id, adminFlag: user.admin}}).success(
                 function (data) {
                     reload();
                 }).error(function (err) {

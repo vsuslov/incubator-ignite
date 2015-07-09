@@ -17,7 +17,7 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../utils/ui-utils');
+var uiUtils = require('../helpers/ui-utils');
 
 /**
  * Get list of user accounts.
