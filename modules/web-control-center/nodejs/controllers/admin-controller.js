@@ -15,8 +15,27 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', function ($scope, $alert, $http) {
+controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
         $scope.userList = null;
+
+        $scope.showInfo = function (msg) {
+            $scope.showAlert(msg, 'success');
+        };
+
+        $scope.showError = function (msg) {
+            $scope.showAlert(msg, 'danger');
+        };
+
+        $scope.showAlert = function (msg, type) {
+            if ($scope.alert)
+                $scope.alert.hide();
+
+            $scope.alert = $alert({
+                type: type,
+                title: msg,
+                duration: 2
+            });
+        };
 
         function reload() {
             $http.post('admin/list')
@@ -24,7 +43,7 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
                     $scope.userList = data;
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    $scope.showError(commonFunctions.errorMessage(errMsg));
                 });
         }
 
@@ -36,21 +55,20 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
 
             $http.post('admin/remove', {userId: user._id}).success(
                 function (data) {
-                    $scope.alertStr = "User has been removed: " + user.username;
-                    $scope.alertType = 'success';
-
                     reload();
+
+                    $scope.showInfo("User has been removed: " + user.username);
                 }).error(function (err) {
-                    $scope.alertStr = "Failed to remove user: " + err;
+                    $scope.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
                 });
 
             return false;
         };
-        
-        $scope.toggleAdmin = function(user) {
+
+        $scope.toggleAdmin = function (user) {
             if (user.adminChanging)
                 return;
-            
+
             user.adminChanging = true;
 
             $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
@@ -58,8 +76,8 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
                     reload();
 
                     adminChanging = false;
-                }).error(function (err) {
-                    $scope.alertStr = "Failed to update user: " + err;
+                }).error(function (errMsg) {
+                    $scope.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
 
                     adminChanging = false;
                 });
