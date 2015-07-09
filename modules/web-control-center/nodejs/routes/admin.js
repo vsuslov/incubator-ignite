@@ -20,7 +20,7 @@ var db = require('../db');
 var uiUtils = require('../helpers/ui-utils');
 
 router.get('/', function(req, res) {
-    res.render('admin/index');
+    res.render('admin/userList');
 });
 
 /**
@@ -42,7 +42,7 @@ router.post('/list', function(req, res) {
 });
 
 router.post('/remove', function(req, res) {
-    var userId = req.query.userId;
+    var userId = req.body.userId;
 
     db.Account.findByIdAndRemove(userId, function(err) {
         if (!err)
@@ -53,8 +53,8 @@ router.post('/remove', function(req, res) {
 });
 
 router.post('/save', function(req, res) {
-    var userId = req.query.userId;
-    var adminFlag = req.query.adminFlag;
+    var userId = req.body.userId;
+    var adminFlag = req.body.adminFlag;
 
     db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function(err) {
         if (!err)
@@ -64,8 +64,8 @@ router.post('/save', function(req, res) {
     });
 });
 
-router.post('/become', function(req, res) {
-    var viewedUserId = req.body.viewedUserId;
+router.get('/become', function(req, res) {
+    var viewedUserId = req.query.viewedUserId;
 
     if (!viewedUserId) {
         req.session.viewedUser = null;

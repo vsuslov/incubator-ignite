@@ -34,7 +34,7 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
             if (!confirm("You are going to delete user " + user.username + ". Please, confirm it."))
                 return false;
 
-            $http.post('admin/remove', {params: {userId: user._id}}).success(
+            $http.post('admin/remove', {userId: user._id}).success(
                 function (data) {
                     $scope.alertStr = "User has been removed: " + user.username;
                     $scope.alertType = 'success';
@@ -53,11 +53,15 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
             
             user.adminChanging = true;
 
-            $http.post('admin/save', {params: {userId: user._id, adminFlag: user.admin}}).success(
+            $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
                 function (data) {
                     reload();
+
+                    adminChanging = false;
                 }).error(function (err) {
                     $scope.alertStr = "Failed to update user: " + err;
+
+                    adminChanging = false;
                 });
         }
     }]);
