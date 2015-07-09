@@ -31,7 +31,7 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
         reload();
 
         $scope.removeUser = function (user) {
-            if (!confirm("You are going to delete user " + user.username + ". Please, confirm it."))
+            if (!confirm("Are you sure you want to delete user " + user.username + "?"))
                 return false;
 
             $http.post('admin/remove', {userId: user._id}).success(
