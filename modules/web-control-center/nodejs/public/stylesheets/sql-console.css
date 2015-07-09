@@ -21,6 +21,10 @@
     padding: 0 10px;
 }
 
+#cacheTd {
+    height: 100%;
+}
+
 #resultPanel {
     margin-top: 20px;
 }
@@ -38,4 +42,31 @@
 
 .resultRow {
     padding: 2px;
+}
+
+#defCacheSelect {
+    padding: 0 2px;
+
+    border: 1px solid #333;
+
+    margin-top: 10px;
+
+    width: 150px;
+
+    font-size: 12px;
+
+    overflow: auto;
+}
+
+#defCacheSelect div {
+    padding: 2px 0;
+}
+
+#defCacheSelect div:hover {
+    background: #eef;
+}
+
+#defCacheSelect .def {
+    color: #11f;
+    font-weight: bold;
 }
