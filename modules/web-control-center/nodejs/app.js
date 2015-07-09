@@ -32,6 +32,7 @@ var persistencesRouter = require('./routes/persistences');
 var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
+var sqlRouter = require('./routes/sql');
 
 var uiUtils = require('./helpers/ui-utils');
 
@@ -132,6 +133,7 @@ app.use('/configuration/clusters', clustersRouter);
 app.use('/configuration/caches', cachesRouter);
 app.use('/configuration/persistences', persistencesRouter);
 app.use('/configuration/summary', summary);
+app.use('/sql', sqlRouter);
 
 // Catch 404 and forward to error handler.
 app.use(function (req, res, next) {

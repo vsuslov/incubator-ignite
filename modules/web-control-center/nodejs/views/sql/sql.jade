@@ -1,3 +1,4 @@
+
 //-
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -5,18 +6,38 @@
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-
          http://www.apache.org/licenses/LICENSE-2.0
-
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+extends ../templates/layout-fluid
 
-extends headers
+append scripts
+    script(src='/cache-viewer-controller.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js')
 
-block main-container
-    .container.body-container
-        .main-content
-            block container
+append css
+    link(rel='stylesheet', href='/stylesheets/sql-console.css')
+
+block container
+    div(ng-controller='cacheViewerController')
+        h3 Sql console
+
+        table#queryTable(cellpadding=0, cellspacing=0, ng-init='queryType = "sql"')
+            tr
+                td
+                    | Query&nbsp;type:
+
+
+                td(width='99%')
+                    #querySqlContainer
+                        #querySql
+
+
+                td
+                    | Default&nbsp;cache
+
+        #queryResult
+            | Some result

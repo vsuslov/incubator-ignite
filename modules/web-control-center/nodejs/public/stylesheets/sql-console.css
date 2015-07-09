@@ -1,0 +1,31 @@
+#queryTable {
+    width: 100%;
+}
+
+#queryTable tr {
+    cursor: default;
+}
+
+#queryTable tr {
+    vertical-align: top;
+}
+
+#querySql {
+    height: 150px;
+
+    border: 1px solid #aaa;
+}
+
+#querySqlContainer {
+    margin: 0 10px;
+}
+
+#queryResult {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 5px;
+
+
+}
