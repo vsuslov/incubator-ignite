@@ -39,7 +39,9 @@ block container
                         #querySql
 
                 td
-                    | Default&nbsp;cache
+                    | Default&nbsp;cache:
+                    div#defCacheSelect
+                        div(ng-repeat='c in caches', ng-class='{def: defCache == c}', ng-click='defCache = c') {{c}}
 
         #resultPanel
             strong Results
