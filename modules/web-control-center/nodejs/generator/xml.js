@@ -399,8 +399,6 @@ function generateCacheConfiguration(cacheCfg, res) {
         addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', data.className, data.fields, true);
 
         if (storeFactory.dialect) {
-            console.log("storeFactory.dataSourceBean = " + storeFactory.dataSourceBean);
-
             if (_.findIndex(res.datasources, function (ds) {
                     return ds.dataSourceBean == storeFactory.dataSourceBean;
                 }) < 0) {
