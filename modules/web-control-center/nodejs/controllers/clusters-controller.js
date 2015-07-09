@@ -82,8 +82,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
         ];
 
         $scope.marshallers = [
-            {value: 'JdkMarshaller', label: 'JdkMarshaller'},
-            {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'}
+            {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'},
+            {value: 'JdkMarshaller', label: 'JdkMarshaller'}
         ];
 
         $scope.clusters = [];

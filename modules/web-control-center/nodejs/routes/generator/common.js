@@ -147,7 +147,6 @@ exports.builder = function () {
 
 function ClassDescriptor(className, fields) {
     this.className = className;
-
     this.fields = fields;
 }
 
@@ -159,6 +158,14 @@ exports.evictionPolicies = {
         {batchSize: null, maxMemorySize: null, maxSize: null}),
     'SORTED': new ClassDescriptor('org.apache.ignite.cache.eviction.sorted.SortedEvictionPolicy',
         {batchSize: null, maxMemorySize: null, maxSize: null})
+};
+
+exports.marshallers = {
+    OptimizedMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.optimized.OptimizedMarshaller', {
+        poolSize: null,
+        requireSerializable: null
+    }),
+    JdkMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.jdk.JdkMarshaller', {})
 };
 
 exports.knownClasses = {

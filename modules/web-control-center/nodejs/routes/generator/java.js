@@ -228,9 +228,20 @@ exports.generateClusterConfiguration = function(cluster, generateJavaClass) {
 
     res.needEmptyLine = true;
 
+    var marshaller = cluster.marshaller;
+
+    if (marshaller && marshaller.kind) {
+        var marshallerDesc = generatorUtils.marshallers[marshaller.kind];
+
+        addBeanWithProperties(res, marshaller[marshaller.kind], 'cfg', 'marshaller', 'marshaller',
+            marshallerDesc.className, marshallerDesc.fields, true);
+
+        addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
+    }
+
     addProperty(res, cluster, 'cfg', 'marshalLocalJobs');
-    addProperty(res, cluster, 'cfg', 'marshCacheKeepAliveTime');
-    addProperty(res, cluster, 'cfg', 'marshCachePoolSize');
+    addProperty(res, cluster, 'cfg', 'marshallerCacheKeepAliveTime');
+    addProperty(res, cluster, 'cfg', 'marshallerCacheThreadPoolSize');
 
     res.needEmptyLine = true;
 
@@ -529,10 +540,7 @@ function addMultiparamProperty(res, obj, objVariableName, propName, type, setter
 }
 
 function addBeanWithProperties(res, bean, objVarName, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
-    if (!bean)
-        return;
-    
-    if (generatorUtils.hasProperty(bean, props)) {
+    if (bean && generatorUtils.hasProperty(bean, props)) {
         if (!res.emptyLineIfNeeded()) {
             res.line();
         }

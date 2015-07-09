@@ -187,9 +187,18 @@ exports.generateClusterConfiguration = function(cluster) {
     }
 
     // Generate marshaller group.
+    var marshaller = cluster.marshaller;
+
+    if (marshaller && marshaller.kind) {
+        var marshallerDesc = generatorUtils.marshallers[marshaller.kind];
+
+        addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
+        res.needEmptyLine = true;
+    }
+
     addProperty(res, cluster, 'marshalLocalJobs');
-    addProperty(res, cluster, 'marshCacheKeepAliveTime');
-    addProperty(res, cluster, 'marshCachePoolSize');
+    addProperty(res, cluster, 'marshallerCacheKeepAliveTime');
+    addProperty(res, cluster, 'marshallerCacheThreadPoolSize');
     res.needEmptyLine = true;
 
     // Generate metrics group.
@@ -457,10 +466,7 @@ function addProperty(res, obj, propName, setterName) {
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
-    if (!bean)
-        return;
-
-    if (generatorUtils.hasProperty(bean, props)) {
+    if (bean && generatorUtils.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
         res.startBlock('<bean class="' + beanClass + '">');
