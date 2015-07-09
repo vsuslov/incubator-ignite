@@ -272,6 +272,140 @@
       ]
     },
     {
+      "label": "Query",
+      "tip": [
+        "Cache query settings."
+      ],
+      "fields": [
+        {
+          "label": "Escape all",
+          "type": "check",
+          "model": "sqlEscapeAll",
+          "tip": [
+            "If set then all the SQL table and field names will be escaped with double quotes.",
+            "This enforces case sensitivity for field names and also allows having special characters in table and field names."
+          ]
+        },
+        {
+          "label": "Cached rows",
+          "type": "number",
+          "model": "sqlOnheapRowCacheSize",
+          "placeholder": 10240,
+          "tip": [
+            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access."
+          ]
+        },
+        {
+          "label": "Long query timeout",
+          "type": "number",
+          "model": "longQueryWarningTimeout",
+          "placeholder": 3000,
+          "tip": [
+            "Timeout in milliseconds after which long query warning will be printed."
+          ]
+        },
+        {
+          "type": "indexedTypes",
+          "model": "indexedTypes",
+          "tip": [
+            "Collection of types to index."
+          ]
+        },
+        {
+          "label": "SQL functions",
+          "type": "table-simple",
+          "model": "sqlFunctionClasses",
+          "editIdx": -1,
+          "placeholder": "SQL function full class name",
+          "tableTip": [
+            "Collections of classes with user-defined functions for SQL queries."
+          ],
+          "tip": [
+            "Class with user-defined functions for SQL queries."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Rebalance",
+      "tip": [
+        "Cache rebalance settings."
+      ],
+      "fields": [
+        {
+          "label": "Mode",
+          "type": "dropdown",
+          "model": "rebalanceMode",
+          "placeholder": "ASYNC",
+          "items": "rebalanceModes",
+          "tip": [
+            "Rebalance modes:",
+            "<ul>",
+            "  <li>Synchronous - in this mode distributed caches will not start until all necessary data is loaded from other available grid nodes.</li>",
+            "  <li>Asynchronous - in this mode distributed caches will start immediately and will load all necessary data from other available grid nodes in the background.</li>",
+            "  <li>None - in this mode no rebalancing will take place which means that caches will be either loaded on demand from persistent store whenever data is accessed, or will be populated explicitly.</li>",
+            "</ul>"
+          ]
+        },
+        {
+          "label": "Pool size",
+          "type": "number",
+          "model": "rebalanceThreadPoolSize",
+          "placeholder": 2,
+          "tip": [
+            "Size of rebalancing thread pool.<br>",
+            "Note that size serves as a hint and implementation may create more threads for rebalancing than specified here (but never less threads)."
+          ]
+        },
+        {
+          "label": "Batch size",
+          "type": "number",
+          "model": "rebalanceBatchSize",
+          "placeholder": "512 * 1024",
+          "tip": [
+            "Size (in bytes) to be loaded within a single rebalance message.",
+            "Rebalancing algorithm will split total data set on every node into multiple batches prior to sending data."
+          ]
+        },
+        {
+          "label": "Order",
+          "type": "number",
+          "model": "rebalanceOrder",
+          "placeholder": 0,
+          "tip": [
+            "If cache rebalance order is positive, rebalancing for this cache will be started only when rebalancing for all caches with smaller rebalance order (except caches with rebalance order 0) will be completed."
+          ]
+        },
+        {
+          "label": "Delay",
+          "type": "number",
+          "model": "rebalanceDelay",
+          "placeholder": 0,
+          "tip": [
+            "Delay in milliseconds upon a node joining or leaving topology (or crash) after which rebalancing should be started automatically."
+          ]
+        },
+        {
+          "label": "Timeout",
+          "type": "number",
+          "model": "rebalanceTimeout",
+          "placeholder": 10000,
+          "tip": [
+            "Rebalance timeout in milliseconds."
+          ]
+        },
+        {
+          "label": "Throttle",
+          "type": "number",
+          "model": "rebalanceThrottle",
+          "placeholder": 0,
+          "tip": [
+            "Time in milliseconds to wait between rebalance messages to avoid overloading of CPU or network."
+          ]
+        }
+      ]
+    },
+    {
       "label": "Server near cache",
       "tip": [
         "Near cache settings.",
@@ -423,140 +557,6 @@
               ]
             }
           }
-        }
-      ]
-    },
-    {
-      "label": "Query",
-      "tip": [
-        "Cache query settings."
-      ],
-      "fields": [
-        {
-          "label": "Escape all",
-          "type": "check",
-          "model": "sqlEscapeAll",
-          "tip": [
-            "If set then all the SQL table and field names will be escaped with double quotes.",
-            "This enforces case sensitivity for field names and also allows having special characters in table and field names."
-          ]
-        },
-        {
-          "label": "Cached rows",
-          "type": "number",
-          "model": "sqlOnheapRowCacheSize",
-          "placeholder": 10240,
-          "tip": [
-            "Number of SQL rows which will be cached onheap to avoid deserialization on each SQL index access."
-          ]
-        },
-        {
-          "label": "Long query timeout",
-          "type": "number",
-          "model": "longQueryWarningTimeout",
-          "placeholder": 3000,
-          "tip": [
-            "Timeout in milliseconds after which long query warning will be printed."
-          ]
-        },
-        {
-          "type": "indexedTypes",
-          "model": "indexedTypes",
-          "tip": [
-            "Collection of types to index."
-          ]
-        },
-        {
-          "label": "SQL functions",
-          "type": "table-simple",
-          "model": "sqlFunctionClasses",
-          "editIdx": -1,
-          "placeholder": "SQL function full class name",
-          "tableTip": [
-            "Collections of classes with user-defined functions for SQL queries."
-          ],
-          "tip": [
-            "Class with user-defined functions for SQL queries."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Rebalance",
-      "tip": [
-        "Cache rebalance settings."
-      ],
-      "fields": [
-        {
-          "label": "Mode",
-          "type": "dropdown",
-          "model": "rebalanceMode",
-          "placeholder": "ASYNC",
-          "items": "rebalanceModes",
-          "tip": [
-            "Rebalance modes:",
-            "<ul>",
-            "  <li>Synchronous - in this mode distributed caches will not start until all necessary data is loaded from other available grid nodes.</li>",
-            "  <li>Asynchronous - in this mode distributed caches will start immediately and will load all necessary data from other available grid nodes in the background.</li>",
-            "  <li>None - in this mode no rebalancing will take place which means that caches will be either loaded on demand from persistent store whenever data is accessed, or will be populated explicitly.</li>",
-            "</ul>"
-          ]
-        },
-        {
-          "label": "Pool size",
-          "type": "number",
-          "model": "rebalanceThreadPoolSize",
-          "placeholder": 2,
-          "tip": [
-            "Size of rebalancing thread pool.<br>",
-            "Note that size serves as a hint and implementation may create more threads for rebalancing than specified here (but never less threads)."
-          ]
-        },
-        {
-          "label": "Batch size",
-          "type": "number",
-          "model": "rebalanceBatchSize",
-          "placeholder": "512 * 1024",
-          "tip": [
-            "Size (in bytes) to be loaded within a single rebalance message.",
-            "Rebalancing algorithm will split total data set on every node into multiple batches prior to sending data."
-          ]
-        },
-        {
-          "label": "Order",
-          "type": "number",
-          "model": "rebalanceOrder",
-          "placeholder": 0,
-          "tip": [
-            "If cache rebalance order is positive, rebalancing for this cache will be started only when rebalancing for all caches with smaller rebalance order (except caches with rebalance order 0) will be completed."
-          ]
-        },
-        {
-          "label": "Delay",
-          "type": "number",
-          "model": "rebalanceDelay",
-          "placeholder": 0,
-          "tip": [
-            "Delay in milliseconds upon a node joining or leaving topology (or crash) after which rebalancing should be started automatically."
-          ]
-        },
-        {
-          "label": "Timeout",
-          "type": "number",
-          "model": "rebalanceTimeout",
-          "placeholder": 10000,
-          "tip": [
-            "Rebalance timeout in milliseconds."
-          ]
-        },
-        {
-          "label": "Throttle",
-          "type": "number",
-          "model": "rebalanceThrottle",
-          "placeholder": 0,
-          "tip": [
-            "Time in milliseconds to wait between rebalance messages to avoid overloading of CPU or network."
-          ]
         }
       ]
     },
