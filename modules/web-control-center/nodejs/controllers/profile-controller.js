@@ -47,6 +47,10 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
 
         $http.post('/profile/changePassword', {_id: $scope.editableUser._id, pass: $scope.pass1}).success(function() {
             $scope.showInfo('Password has been changed');
+
+            $scope.pass1 = '';
+            $scope.pass2 = '';
+            $scope.showChangePasswordForm = false;
         }).error(function(err) {
             $scope.showError('Failed to change password: ' + commonFunctions.errorMessage(err));
         });

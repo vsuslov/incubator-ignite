@@ -65,14 +65,16 @@ router.post('/profile/changePassword', function(req, res) {
         if (err)
             return res.status(500).send(err);
         
-        user.salt = user.makeSalt();
-        user.hash = user.encryptPassword(pass);
-        
-        user.save(function (err) {
+        user.setPassword(pass, function (err, updatedUser) {
             if (err)
                 return res.status(500).send(err);
 
-            res.json(uiUtils.filterUser(val));
+            updatedUser.save(function(err) {
+                if (err)
+                    return res.status(500).send(err);
+
+                res.json(uiUtils.filterUser(user));
+            });
         });
     })
 });
