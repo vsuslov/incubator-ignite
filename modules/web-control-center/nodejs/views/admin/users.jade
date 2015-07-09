@@ -1,0 +1,35 @@
+.row(ng-controller='adminController')
+    .docs-content
+        .docs-header
+            h1 Users
+            p List of registered users
+            hr
+        .docs-body
+            div(ng-class='{alert: true, "alert-danger": alertType == danger, "alert-success": alertType == "success"}' ng-show='alertStr') {{alertStr}}
+            table.table.table-striped(st-table='userListDisplay' st-safe-src='userList')
+                thead
+                    tr
+                        th(colspan='5')
+                            input.form-control(type='text' st-search='' class='' placeholder='Search ...')
+                    tr
+                        th(st-sort='username') User name
+                        th(st-sort='email') Email
+                        th(st-sort='lastLogin') Last login
+                        th(st-sort='lastLogin') Admin
+                        th(colspan='2') Actions
+                tbody
+                    tr(ng-repeat='user in userListDisplay')
+                        td {{user.username}}
+                        td
+                            a(ng-href='mailto:{{user.email}}') {{user.email}}
+                        td
+                            span.small {{user.lastLogin | date:'medium'}}
+                        td
+                            input(type='checkbox' ng-disabled='user.adminChanging' ng-model='user.admin'
+                               ng-change='toggleAdmin(user)')
+                        td(width='1%')
+                            a(ng-click='removeUser(user)' ng-show='user._id != loggedInUser._id' title='Remove user')
+                                span.glyphicon.glyphicon-remove(style='color: red')
+                        td(width='1%')
+                            a(ng-href='become?viewedUserId={{user._id}}' ng-show='user._id != loggedInUser._id' title='View user\'s configurations')
+                                span.glyphicon.glyphicon-eye-open
