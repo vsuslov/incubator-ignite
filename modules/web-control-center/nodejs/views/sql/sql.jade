@@ -23,21 +23,30 @@ append css
 
 block container
     div.greedy(ng-controller='cacheViewerController')
-        h3 Sql console
+        h4 Sql console
 
         table#queryTable(cellpadding=0, cellspacing=0, ng-init='queryType = "sql"')
             tr
                 td
-                    | Query&nbsp;type:
+                    label(for='queryTypeSelect') Query&nbsp;type:
+                    select#queryTypeSelect(ng-model='queryType')
+                        option(value='sql') Sql query
+                        option(value='id') Get by ID
+                        option(value='scane') Scan cache
 
-
-                td(width='99%')
-                    #querySqlContainer
+                td.queryTd
+                    div(ng-show='queryType == "sql"')
                         #querySql
-
 
                 td
                     | Default&nbsp;cache
 
-        #queryResult
-            | Some result
+        #resultPanel
+            strong Results
+
+            #queryResult
+                div(ng-repeat='r in results')
+                    .resultRow
+                        | {{r.id}} -> {{r.s}}
+                        span.props  {{r.fields}}
+

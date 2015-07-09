@@ -17,6 +17,40 @@
 
 controlCenterModule.controller('cacheViewerController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
 
+    $scope.results = [
+        {
+            id: 256,
+            s: 'com.foo.User@3213',
+            fields: {
+                id: 256,
+                firstName: 'Ivan',
+                lastName: 'Ivanov',
+                old: 23
+            }
+        },
+
+        {
+            id: 384,
+            s: 'com.foo.User@23214',
+            fields: {
+                id: 384,
+                firstName: 'Sergey',
+                lastName: 'Petrov',
+                old: 28
+            }
+        },
+
+        {
+            id: 923,
+            s: 'com.foo.User@93494',
+            fields: {
+                id: 923,
+                firstName: 'Andrey',
+                lastName: 'Sidorov',
+                old: 28
+            }
+        }
+    ];
 
     var sqlEditor = ace.edit('querySql');
 

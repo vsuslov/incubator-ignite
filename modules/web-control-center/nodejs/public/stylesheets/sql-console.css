@@ -16,16 +16,26 @@
     border: 1px solid #aaa;
 }
 
-#querySqlContainer {
-    margin: 0 10px;
+.queryTd {
+    width: 99%;
+    padding: 0 10px;
+}
+
+#resultPanel {
+    margin-top: 20px;
 }
 
 #queryResult {
     width: 100%;
 
-    margin-top: 10px;
-
     padding: 5px;
+}
 
+#queryResult .props {
+    color: #666;
+    font-size: smaller;
+}
 
+.resultRow {
+    padding: 2px;
 }
