@@ -38,10 +38,15 @@
                         .details-row
                             label.col-sm-3.required Password:
                             .col-sm-9
-                                input.form-control(type='password', ng-model='user_info.password', placeholder='Password', required)
+                                input.form-control(type='password', ng-model='user_info.password', placeholder='Password', required, ng-keyup='action == "login" && $event.keyCode == 13 ? auth(action, user_info) : null')
+                        .details-row(ng-show='action == "register"')
+                            label.col-sm-3.required Confirm:
+                            .col-sm-9.input-tip.has-feedback
+                                input.form-control(type='password', ng-model='user_info.confirm', placeholder='Confirm password', required, ng-keyup='$event.keyCode == 13 ? auth(action, user_info) : null')
+                                i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='user_info.password != user_info.confirm' bs-tooltip data-title='Password does not match confirmation' type='button')
             .modal-footer
                 a.show-signup.ng-hide(ng-show='action != "login"', ng-click='action = "login";') log in
                 a.show-signup(ng-show="action != 'register'", ng-click='action = "register";') sign up
                 | &nbsp;or&nbsp;
-                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-show='action == "login"' ng-disabled='loginForm.$invalid') Log In
-                button.btn.btn-primary(ng-click='auth(action, user_info)' ng-show='action == "register"' ng-disabled='loginForm.$invalid') Sign Up
+                button.btn.btn-primary(ng-show='action == "login"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Log In
+                button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid || user_info.password != user_info.confirm' ng-click='auth(action, user_info)') Sign Up
