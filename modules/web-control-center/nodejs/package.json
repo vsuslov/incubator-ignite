@@ -9,7 +9,7 @@
   "author": "Ignite",
   "license": "Apache License, Version 2.0",
   "dependencies": {
-    "adm-zip": "^0.4.7",
+    "archiver": "^0.14.4",
     "body-parser": "~1.12.0",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^0.8.1",

@@ -62,19 +62,23 @@ block content
                         a(href, ng-click='cfgLang = "docker"')
                             img(src='/images/docker.png', width='16px' height='16px')
                             |  Dockerfile
-                .settings-row
+                form.settings-row(method='post' action='summary/download')
+                    input(type="hidden" name="_id" value="{{selectedItem._id}}")
+                    input(type="hidden" name="javaClass" value="{{javaClass}}")
+                    input(type="hidden" name="os" value="{{os}}")
+
                     #xmlResult(ng-show="cfgLang == 'xml'")
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -45px' ng-click='download(xmlData, selectedItem.name + ".xml")') Download
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -45px' type='submit') Download
                         #xmlResultDiv
                     #javaResult(ng-show="cfgLang == 'java'")
                         .col-sm-1
                             label Generate:
                         .col-sm-3
-                            button.form-control(ng-model='javaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadJava()') Download
+                            button.form-control(type='button' ng-model='javaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' type='submit') Download
                         #javaResultDiv
                     #dockerResult(ng-show="cfgLang == 'docker'")
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' ng-click='downloadDocker()') Download
+                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' type='submit') Download
                         p
                             a(style='color:#ec1c24' href='https://docs.docker.com/reference/builder' target="_blank") Docker
                             | &nbsp;file is a text file with instructions to create Docker image.<br/>

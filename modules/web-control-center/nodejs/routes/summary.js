@@ -46,4 +46,52 @@ router.post('/generator', function(req, res) {
     });
 });
 
+router.post('/download', function(req, res) {
+    // Get cluster.
+    db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
+        if (err)
+            return res.status(500).send(err.message);
+
+        if (!cluster)
+            return res.sendStatus(404);
+
+        var archiver = require('archiver');
+
+        // creating archives
+        var zip = archiver('zip');
+
+        zip.on('error', function(err) {
+            res.status(500).send({error: err.message});
+        });
+
+        //on stream closed we can end the request
+        res.on('close', function() {
+            console.log('Archive wrote %d bytes', archive.pointer());
+
+            return res.status(200).send('OK').end();
+        });
+
+        //set the archive name
+        res.attachment(cluster.name + '-configuration.zip');
+
+        var generatorCommon = require('./generator/common');
+
+        var javaClass = req.body.javaClass;
+
+        // Send the file to the page output.
+        zip.pipe(res);
+
+        var props = generatorCommon.generateProperties(cluster);
+
+        if (props)
+            zip.append(props, {name: "secret.properties"});
+
+        zip.append(generatorXml.generateClusterConfiguration(cluster), {name: cluster.name + ".xml"})
+            .append(generatorJava.generateClusterConfiguration(cluster, req.body.javaClass),
+                {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
+            .append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"})
+            .finalize();
+    });
+});
+
 module.exports = router;

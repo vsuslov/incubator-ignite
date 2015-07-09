@@ -20,7 +20,7 @@ exports.generateClusterConfiguration = function(cluster, os) {
         os = 'debian:8';
 
     return "" +
-        "# Start from a Debian image.\n"+
+        "# Start from a OS image.\n"+
         "FROM " + os + "\n"+
         "\n"+
         "# Install tools.\n"+

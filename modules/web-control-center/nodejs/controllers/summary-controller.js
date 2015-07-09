@@ -30,7 +30,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
 
     $scope.generated = undefined;
 
-    $http.post('/configuration/clusters/list').success(function (data) {
+    $http.post('clusters/list').success(function (data) {
         $scope.clusters = data.clusters;
     });
 
@@ -54,7 +54,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
 
         $scope.loading = true;
 
-        $http.post('/configuration/summary/generator', {_id: $scope.selectedItem._id})
+        $http.post('summary/generator', {_id: $scope.selectedItem._id})
             .success(function (data) {
                 $scope.generated = data;
 
@@ -70,17 +70,23 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', function
     };
 
     $scope.download = function() {
-        var file = document.createElement('a');
+        $http.post('summary/download', {_id: $scope.selectedItem._id, javaClass: $scope.javaClass, os: $scope.os})
+            .success(function (data) {
+                var file = document.createElement('a');
 
-        file.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(text));
-        file.setAttribute('download', $scope.selectedItem.name + '-configuration.zip');
+                file.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + data);
+                file.setAttribute('download', $scope.selectedItem.name + '-configuration.zip');
 
-        file.style.display = 'none';
+                file.style.display = 'none';
 
-        document.body.appendChild(file);
+                document.body.appendChild(file);
 
-        file.click();
+                file.click();
 
-        document.body.removeChild(file);
+                document.body.removeChild(file);
+            })
+            .error(function (data) {
+                $scope.generateError = "Failed to generate zip: " + data;
+            });
     };
 }]);

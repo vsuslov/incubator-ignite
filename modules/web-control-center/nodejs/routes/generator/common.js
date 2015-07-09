@@ -261,7 +261,7 @@ exports.toJavaName = function(name) {
  * @returns {string} Generated content.
  */
 exports.generateProperties = function(cluster) {
-    var res = builder();
+    var res = exports.builder();
 
     var datasources = [];
 
@@ -290,5 +290,5 @@ exports.generateProperties = function(cluster) {
     if (datasources.length > 0)
         return '# ' + mainComment() + '\n\n' + res.join();
 
-    return '';
+    return undefined;
 };
