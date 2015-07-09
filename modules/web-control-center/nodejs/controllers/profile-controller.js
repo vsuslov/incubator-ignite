@@ -15,23 +15,43 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('profileController', ['$scope', '$alert', '$http', function ($scope, $alert, $http) {
+controlCenterModule.controller('profileController', ['$scope', '$alert', '$http', 'commonFunctions',
+    function ($scope, $alert, $http, commonFunctions) {
     
     $scope.editableUser = angular.copy($scope.savedUser);
 
     $scope.editField = null;
 
     $scope.showInfo = function (msg) {
+        $scope.showAlert(msg, 'success');
+    };
+
+    $scope.showError = function (msg) {
+        $scope.showAlert(msg, 'danger');
+    };
+
+    $scope.showAlert = function (msg, type) {
         if ($scope.alert)
             $scope.alert.hide();
 
         $scope.alert = $alert({
-            type: 'success',
+            type: type,
             title: msg,
             duration: 2
         });
     };
 
+    $scope.changePass = function() {
+        if (!$scope.pass1 || $scope.pass1.length == 0 || $scope.pass1 != $scope.pass2)
+            return;
+
+        $http.post('/profile/changePassword', {_id: $scope.editableUser._id, pass: $scope.pass1}).success(function() {
+            $scope.showInfo('Password has been changed');
+        }).error(function(err) {
+            $scope.showError('Failed to change password: ' + commonFunctions.errorMessage(err));
+        });
+    };
+    
     $scope.$watch('editField', function(val) {
         if (!angular.equals($scope.editableUser, $scope.savedUser)) {
             $http.post('/profile/saveUser', $scope.editableUser).success(function(updatedUser) {
@@ -39,8 +59,8 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
                 angular.copy(updatedUser, $scope.editableUser);
 
                 $scope.showInfo('Profile has been updated');
-            }).error(function(data) {
-                $scope.showInfo('Failed to update profile: ' + data);
+            }).error(function(err) {
+                $scope.showError('Failed to update profile: ' + commonFunctions.errorMessage(err));
             });
         }
     });
