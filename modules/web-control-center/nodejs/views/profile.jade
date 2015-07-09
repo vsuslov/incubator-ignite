@@ -29,7 +29,6 @@ block content
     .docs-body()
         div(ng-controller='profileController')
             | User name:
-
             div(ng-show='editField != "username"')
                 a(href ng-click='editField = "username"') {{editableUser.username}}
             div(ng-show='editField == "username"')
@@ -37,4 +36,14 @@ block content
                 .input-tip
                     input.form-control(type='text' ng-model='editableUser.username')
 
-                    
+            p
+                button.btn.btn-link(ng-show='!showChangePasswordForm' ng-click='showChangePasswordForm = true') Change password
+                form.form-inline(ng-show='showChangePasswordForm', role="form")
+                    .form-group
+                        label(for='pass1') New password:&nbsp; 
+                        input#pass1.form-control(type='password', ng-model='pass1')
+                    .form-group
+                        label(for='pass2') Repeat password:&nbsp;
+                        input#pass2.form-control(type='password', ng-model='pass2')
+
+                    i.stackTipField.fa.fa-floppy-o(ng-click='changePass()')    

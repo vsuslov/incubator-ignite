@@ -92,7 +92,6 @@ var adminOnly = function(req, res, next) {
     req.isAuthenticated() && req.user.admin ? next() : res.sendStatus(403);
 };
 
-app.all('/admin/*', mustAuthenticated, adminOnly);
 app.all('/configuration/*', mustAuthenticated);
 
 for (var p in uiUtils) {
@@ -126,7 +125,7 @@ app.all('*', function(req, res, next) {
 });
 
 app.use('/', publicRoutes);
-app.use('/admin', adminRouter);
+app.use('/admin', mustAuthenticated, adminOnly, adminRouter);
 app.use('/', mustAuthenticated, profileRouter);
 
 app.use('/configuration/clusters', clustersRouter);

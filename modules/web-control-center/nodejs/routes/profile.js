@@ -19,6 +19,15 @@ var router = require('express').Router();
 var db = require('../db');
 var uiUtils = require('../helpers/ui-utils');
 
+router.all('/profile/*', function(req, res, next) {
+    var userId = req.body._id;
+
+    if (userId != req.currentUserId() && userId != req.user._id)
+        return res.sendStatus(403);
+    else
+        next();
+});
+
 /**
  * Get list of user accounts.
  */
@@ -34,20 +43,37 @@ router.get('/profile', function(req, res) {
 });
 
 router.post('/profile/saveUser', function(req, res) {
-    var userId = req.body._id;
-    
-    if (userId != req.currentUserId() && userId != req.user._id)
-        return res.sendStatus(403);
-    
     var u = {
         username: req.body.username
     }; 
     
-    db.Account.findByIdAndUpdate(userId, u, {new: true}, function(err, val) {
+    db.Account.findByIdAndUpdate(req.body._id, u, {new: true}, function(err, val) {
         if (err)
             return res.status(500).send(err);
         
         res.json(uiUtils.filterUser(val));
+    })
+});
+
+router.post('/profile/changePassword', function(req, res) {
+    var pass = req.body.pass;
+    
+    if (!pass || pass.length == 0)
+        return res.sendStatus(500);
+    
+    db.Account.findById(req.body._id, function(err, user) {
+        if (err)
+            return res.status(500).send(err);
+        
+        user.salt = user.makeSalt();
+        user.hash = user.encryptPassword(pass);
+        
+        user.save(function (err) {
+            if (err)
+                return res.status(500).send(err);
+
+            res.json(uiUtils.filterUser(val));
+        });
     })
 });
 

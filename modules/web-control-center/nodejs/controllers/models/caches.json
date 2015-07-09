@@ -272,7 +272,7 @@
       ]
     },
     {
-      "label": "Near cache",
+      "label": "Server near cache",
       "tip": [
         "Near cache settings.",
         "Near cache is a small local cache that stores most recently or most frequently accessed data.",

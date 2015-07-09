@@ -24,7 +24,6 @@ block container
                 p List of registered users
                 hr
             .docs-body
-                div(ng-class='{alert: true, "alert-danger": alertType == danger, "alert-success": alertType == "success"}' ng-show='alertStr') {{alertStr}}
                 table.table.table-striped(st-table='userListDisplay' st-safe-src='userList')
                     thead
                         tr
@@ -44,8 +43,8 @@ block container
                             td
                                 span.small {{user.lastLogin | date:'medium'}}
                             td
-                                input(type='checkbox' ng-disabled='user.adminChanging' ng-model='user.admin'
-                                ng-change='toggleAdmin(user)')
+                                input(type='checkbox' ng-disabled='user.adminChanging || user._id == loggedInUser._id' 
+                                ng-model='user.admin' ng-change='toggleAdmin(user)')
                             td(width='1%')
                                 a(ng-click='removeUser(user)' ng-show='user._id != loggedInUser._id' title='Remove user')
                                     span.glyphicon.glyphicon-remove(style='color: red')
