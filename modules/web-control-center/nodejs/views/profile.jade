@@ -45,10 +45,6 @@ block container
                                 | Change password
                         div(ng-show='profileUser.changePassword')
                             .details-row
-                                +lbl('Old password:')
-                                .col-sm-4
-                                    input.form-control(type='password', ng-model='profileUser.oldPassword' placeholder='Old password' ng-required='profileUser.changePassword')
-                            .details-row
                                 +lbl('New password:')
                                 .col-sm-4
                                     input.form-control(type='password', ng-model='profileUser.newPassword' placeholder='New password' ng-required='profileUser.changePassword')
