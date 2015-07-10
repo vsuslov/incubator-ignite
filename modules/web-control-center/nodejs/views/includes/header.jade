@@ -22,8 +22,8 @@ header.header(id='header')
             ul.nav.navbar-nav(ng-controller='activeLink' ng-show='loggedInUser')
                 li
                     a(ng-class="{active: isActive('/configuration')}" href='/configuration/clusters') Configuration
-                li
-                    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
+                //li
+                //    a(ng-class="{active: isActive('/sql')}" href='/sql') SQL
             ul.nav.navbar-nav.pull-right
                 li(ng-show='loggedInUser')
                     a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{loggedInUser.username}}

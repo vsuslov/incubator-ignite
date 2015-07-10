@@ -20,7 +20,7 @@ var db = require('../db');
 
 /* GET caches page. */
 router.get('/', function(req, res) {
-    res.render('caches');
+    res.render('configuration/caches');
 });
 
 /**

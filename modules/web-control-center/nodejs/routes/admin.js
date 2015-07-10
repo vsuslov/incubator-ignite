@@ -20,7 +20,7 @@ var db = require('../db');
 var uiUtils = require('../helpers/ui-utils');
 
 router.get('/', function(req, res) {
-    res.render('admin/userList');
+    res.render('settings/admin');
 });
 
 /**

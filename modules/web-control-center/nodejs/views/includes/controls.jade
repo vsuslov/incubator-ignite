@@ -67,7 +67,7 @@ mixin details-row
             +tipField('detail.tip')
         div(ng-switch-when='table-simple')&attributes(detailCommon)
             div(ng-if="detail.label")
-                label {{detail.label}}:
+                label.table-header {{detail.label}}:
                 +tipLabel('detail.tableTip')
             table.col-sm-12.links-edit-details(st-table='#{detailMdl}' ng-show='#{detailMdl}.length > 0')
                 tbody
@@ -151,7 +151,7 @@ mixin form-row
                     +details-row
         div(ng-switch-when='table-simple')&attributes(fieldCommon)
             div
-                label {{field.label}}:
+                label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
             table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
                 tbody
@@ -176,7 +176,7 @@ mixin form-row
         div(ng-switch-when='indexedTypes')
             - var tblMdl = 'backupItem.indexedTypes'
             div
-                label Index key-value type pairs:
+                label.table-header Index key-value type pairs:
                 +tipLabel('field.tip')
             table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
                 tbody

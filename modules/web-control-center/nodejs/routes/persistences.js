@@ -21,7 +21,7 @@ var ds = require('../helpers/data-structures.js'), jdbcTypes = ds.jdbcTypes, jav
 
 /* GET persistence page. */
 router.get('/', function(req, res) {
-    res.render('persistence');
+    res.render('configuration/persistence');
 });
 
 /**

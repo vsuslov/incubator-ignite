@@ -14,25 +14,28 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-extends templates/layout-sidebar
+extends ../templates/layout-sidebar
 
 append scripts
-    script(src='/caches-controller.js')
+    script(src='/clusters-controller.js')
 
-include includes/controls
+include ../includes/controls
 
 block content
     .docs-header
-        h1 Create and configure Ignite caches
+        h1 Create and configure Ignite clusters
         hr
-    .docs-body(ng-controller='cachesController')
-        .links(ng-hide='caches.length == 0')
-            table.col-sm-12(st-table='caches')
+    .docs-body(ng-controller='clustersController')
+        .links(ng-hide='clusters.length == 0')
+            table.col-sm-12(st-table='clusters')
                 tbody
-                    tr(ng-repeat='row in caches track by row._id')
+                    tr(ng-repeat='row in clusters track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}, {{row.atomicityMode | displayValue:atomicities:'Cache atomicity not set'}}
-        button.btn.btn-primary(ng-click='createItem()') Add cache
+                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
+        button.btn.btn-primary(ng-click='createItem()' ng-disabled='!create.template') &nbspAdd cluster
+        label(style='margin-left: 15px; margin-right: 10px') Use template:
+        button.btn.btn-default(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose cluster template' bs-options='item.value as item.label for item in templates' bs-select)
+        i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             div(bs-collapse data-start-collapsed='false')
@@ -64,4 +67,4 @@ block content
                     h3
                         a(bs-collapse-toggle='0' ng-click='expanded = !expanded;') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
             button#save-btn.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
-            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            button.btn.btn-primary(ng-show='backupItem._id' ng-click='removeItem()') Remove

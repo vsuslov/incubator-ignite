@@ -14,12 +14,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-extends templates/layout-sidebar
+extends ../templates/layout-sidebar
 
 append scripts
     script(src='/persistences-controller.js')
 
-include includes/controls
+include ../includes/controls
 
 mixin dbcheck(chk)
     input(type='checkbox' style='margin-left: 5px' ng-checked=chk)

@@ -38,7 +38,7 @@ router.get('/', function (req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        res.render('profile');
+        res.render('settings/profile');
     });
 });
 

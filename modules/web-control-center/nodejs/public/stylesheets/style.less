@@ -605,7 +605,10 @@ h1.ignite-logo {
 .details-row, .settings-row {
   display: block;
   margin: 0.65em 0;
-  line-height: @input-height;
+
+  label.table-header {
+    line-height: @input-height;
+  }
 
   [class*="col-"] {
     display: inline-block;

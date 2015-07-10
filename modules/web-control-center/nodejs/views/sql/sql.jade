@@ -12,7 +12,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-extends ../templates/layout-fluid
+extends ../templates/layout-sidebar
 
 append scripts
     script(src='/cache-viewer-controller.js')
@@ -22,6 +22,9 @@ append css
     link(rel='stylesheet', href='/stylesheets/sql-console.css')
 
 block container
+    .docs-header
+        h1 Connect to Ignite and execute SQL queries
+        hr
     div.greedy(ng-controller='cacheViewerController')
         h4 Sql console
 

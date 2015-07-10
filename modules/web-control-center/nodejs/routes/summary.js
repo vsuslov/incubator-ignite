@@ -25,7 +25,7 @@ var generatorDocker = require('./generator/docker');
 
 /* GET summary page. */
 router.get('/', function(req, res) {
-    res.render('summary');
+    res.render('configuration/summary');
 });
 
 router.post('/generator', function(req, res) {
