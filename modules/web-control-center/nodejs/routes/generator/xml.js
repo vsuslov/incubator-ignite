@@ -242,10 +242,6 @@ exports.generateClusterConfiguration = function(cluster) {
         generatorUtils.transactionConfiguration.className, generatorUtils.transactionConfiguration.fields);
     res.needEmptyLine = true;
 
-    // Generate utility group.
-    addProperty(res, cluster, 'utilityCacheKeepAliveTime');
-    addProperty(res, cluster, 'utilityCachePoolSize');
-
     // Generate caches configs.
     if (cluster.caches && cluster.caches.length > 0) {
         res.emptyLineIfNeeded();

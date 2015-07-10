@@ -274,8 +274,6 @@ var ClusterSchema = new Schema({
         pessimisticTxLogSize: Number,
         txSerializableEnabled: Boolean
     },
-    utilityCacheKeepAliveTime: Number,
-    utilityCachePoolSize: Number,
     waitForSegmentOnStart: Boolean
 });
 

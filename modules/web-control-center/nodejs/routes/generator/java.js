@@ -288,9 +288,6 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cluster, 'cfg', 'utilityCacheKeepAliveTime');
-    addProperty(res, cluster, 'cfg', 'utilityCachePoolSize');
-
     if (javaClass) {
         res.line();
         res.line('return cfg;');

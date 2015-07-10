@@ -862,30 +862,6 @@
           ]
         }
       ]
-    },
-    {
-      "label": "Utility",
-      "tip": ["Settings for utility messages processing."],
-      "fields": [
-        {
-          "label": "Keep alive time",
-          "type": "number",
-          "model": "utilityCacheKeepAliveTime",
-          "placeholder": "10,000",
-          "tip": [
-            "Keep alive time of thread pool that is in charge of processing utility cache messages."
-          ]
-        },
-        {
-          "label": "Pool size",
-          "type": "number",
-          "model": "utilityCachePoolSize",
-          "placeholder": "max(8, availableProcessors) * 2",
-          "tip": [
-            "Thread pool that is in charge of processing utility cache messages."
-          ]
-        }
-      ]
     }
   ]
 }
