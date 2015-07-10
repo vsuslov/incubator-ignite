@@ -15,27 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+controlCenterModule.controller('adminController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
         $scope.userList = null;
-
-        $scope.showInfo = function (msg) {
-            $scope.showAlert(msg, 'success');
-        };
-
-        $scope.showError = function (msg) {
-            $scope.showAlert(msg, 'danger');
-        };
-
-        $scope.showAlert = function (msg, type) {
-            if ($scope.alert)
-                $scope.alert.hide();
-
-            $scope.alert = $alert({
-                type: type,
-                title: msg,
-                duration: 2
-            });
-        };
 
         function reload() {
             $http.post('admin/list')
@@ -43,7 +24,7 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
                     $scope.userList = data;
                 })
                 .error(function (errMsg) {
-                    $scope.showError(commonFunctions.errorMessage(errMsg));
+                    commonFunctions.showError(commonFunctions.errorMessage(errMsg));
                 });
         }
 
@@ -57,9 +38,9 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
                 function (data) {
                     reload();
 
-                    $scope.showInfo("User has been removed: " + user.username);
-                }).error(function (err) {
-                    $scope.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
+                    commonFunctions.showInfo("User has been removed: " + user.username);
+                }).error(function (errMsg) {
+                    commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
                 });
 
             return false;
@@ -77,7 +58,7 @@ controlCenterModule.controller('adminController', ['$scope', '$alert', '$http', 
 
                     adminChanging = false;
                 }).error(function (errMsg) {
-                    $scope.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
+                    commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
 
                     adminChanging = false;
                 });

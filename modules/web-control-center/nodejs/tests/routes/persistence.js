@@ -1,7 +1,7 @@
 var request = require('supertest'),
     should = require('should'),
     express = require('express'),
-    persistenceRouter = require('../../routes/persistences');
+    persistenceRouter = require('../../routes/persistence');
 
 var app = express();
 

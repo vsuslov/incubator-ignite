@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
-        $scope.errorMessage = commonFunctions.errorMessage;
 
         $scope.atomicities = [
             {value: 'ATOMIC', label: 'ATOMIC'},
@@ -76,31 +75,13 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
         $scope.general = [];
         $scope.advanced = [];
 
-        $scope.showError = function (msg) {
-            if ($scope.alert)
-                $scope.alert.hide();
-
-            $scope.alert = $alert({title: $scope.errorMessage(msg)});
-        };
-
-        $scope.showInfo = function (msg) {
-            if ($scope.alert)
-                $scope.alert.hide();
-
-            $scope.alert = $alert({
-                type: 'success',
-                title: msg,
-                duration: 2
-            });
-        };
-
         $http.get('/models/caches.json')
             .success(function (data) {
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             })
             .error(function (errMsg) {
-                $scope.showError(errMsg);
+                commonFunctions.showError(errMsg);
             });
 
         $scope.caches = [];
@@ -135,7 +116,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
                 }, true);
             })
             .error(function (errMsg) {
-                $scope.showError(errMsg);
+                commonFunctions.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -155,13 +136,13 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
             var item = $scope.backupItem;
 
             if (item.cacheStoreFactory && item.cacheStoreFactory.kind && !(item.readThrough || item.writeThrough)) {
-                $scope.showError('Store is configured but read/write through are not enabled!');
+                commonFunctions.showError('Store is configured but read/write through are not enabled!');
 
                 return;
             }
 
             if ((item.readThrough || item.writeThrough) && (!item.cacheStoreFactory || !item.cacheStoreFactory.kind)) {
-                $scope.showError('Read / write through are enabled but strore is not configured!');
+                commonFunctions.showError('Read / write through are enabled but strore is not configured!');
 
                 return;
             }
@@ -182,10 +163,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
 
                     $scope.selectItem(item);
 
-                    $scope.showInfo('Cache "' + item.name + '" saved.');
+                    commonFunctions.showInfo('Cache "' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
-                    $scope.showError(errMsg);
+                    commonFunctions.showError(errMsg);
                 });
         };
 
@@ -206,50 +187,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
                     }
                 })
                 .error(function (errMsg) {
-                    $scope.showError(errMsg);
+                    commonFunctions.showError(errMsg);
                 });
-        };
-
-        $scope.checkIndexedTypes = function (keyCls, valCls) {
-            if (!keyCls) {
-                $scope.showError('Key class name should be non empty!');
-
-                return false;
-            }
-
-            if (!valCls) {
-                $scope.showError('Value class name should be non empty!');
-
-                return false;
-            }
-
-            return true;
-        };
-
-        $scope.addIndexedTypes = function (keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
-                return;
-
-            var idxTypes = $scope.backupItem.indexedTypes;
-
-            var newItem = {keyClass: keyCls, valueClass: valCls};
-
-            if (idxTypes)
-                idxTypes.push(newItem);
-            else
-                $scope.backupItem.indexedTypes = [newItem];
-        };
-
-        $scope.saveIndexedType = function (idx, keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
-                return idx;
-
-            var idxType = $scope.backupItem.indexedTypes[idx];
-
-            idxType.keyClass = keyCls;
-            idxType.valueClass = valCls;
-
-            return -1;
         };
     }]
 );

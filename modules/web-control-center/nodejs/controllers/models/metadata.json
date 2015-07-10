@@ -1,0 +1,11 @@
+{
+  "general": [
+    {
+      "label": "Name",
+      "type": "text",
+      "model": "name",
+      "required": true,
+      "placeholder": "Input name"
+    }
+  ]
+}

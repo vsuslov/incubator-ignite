@@ -17,7 +17,14 @@
 
 var controlCenterModule = angular.module('ignite-web-control-center', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
 
-controlCenterModule.service('commonFunctions', function () {
+// Common functions to be used in controllers.
+controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
+    var msgModal = undefined;
+
+    function errorMessage(errMsg) {
+        return errMsg ? errMsg : 'Internal server error.';
+    }
+
     return {
         getModel: function (obj, path) {
             if (!path)
@@ -63,11 +70,25 @@ controlCenterModule.service('commonFunctions', function () {
 
             return lines.join("");
         },
-        errorMessage: function (errMsg) {
-            return errMsg ? errMsg : 'Internal server error.';
+        errorMessage: errorMessage,
+        showError: function (msg) {
+            if (msgModal)
+                msgModal.hide();
+
+            msgModal = $alert({title: errorMessage(msg)});
+        },
+        showInfo: function (msg) {
+            if (msgModal)
+                msgModal.hide();
+
+            msgModal = $alert({
+                type: 'success',
+                title: msg,
+                duration: 2
+            });
         }
     }
-});
+}]);
 
 controlCenterModule.config(function ($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {

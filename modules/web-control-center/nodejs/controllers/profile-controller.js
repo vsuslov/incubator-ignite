@@ -15,29 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('profileController', ['$scope', '$alert', '$http', 'commonFunctions',
-    function ($scope, $alert, $http, commonFunctions) {
-    
+controlCenterModule.controller('profileController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
     $scope.profileUser = angular.copy($scope.loggedInUser);
-
-    $scope.showInfo = function (msg) {
-        $scope.showAlert(msg, 'success');
-    };
-
-    $scope.showError = function (msg) {
-        $scope.showAlert(msg, 'danger');
-    };
-
-    $scope.showAlert = function (msg, type) {
-        if ($scope.alert)
-            $scope.alert.hide();
-
-        $scope.alert = $alert({
-            type: type,
-            title: msg,
-            duration: 2
-        });
-    };
 
     $scope.saveUser = function() {
         var profile = $scope.profileUser;
@@ -56,7 +35,7 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
                     email: changeEmail ? email : undefined,
                     newPassword: profile.changePassword ? profile.newPassword : undefined
                 }).success(function () {
-                    $scope.showInfo('Profile saved.');
+                    commonFunctions.showInfo('Profile saved.');
 
                     if (changeUsername)
                         $scope.loggedInUser.username = userName;
@@ -64,7 +43,7 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
                     if (changeEmail)
                         $scope.loggedInUser.email = email;
                 }).error(function (err) {
-                    $scope.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
+                    commonFunctions.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
                 });
             }
         }

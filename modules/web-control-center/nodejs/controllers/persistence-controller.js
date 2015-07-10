@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+controlCenterModule.controller('persistenceController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
-        $scope.errorMessage = commonFunctions.errorMessage;
 
         $scope.databases = [
             {value: 'oracle', label: 'Oracle database'},
@@ -36,13 +35,13 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
                 $scope.connection = data.connection;
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                commonFunctions.showError(errMsg);
             });
 
         $scope.persistences = [];
 
         // When landing on the page, get persistences and show them.
-        $http.post('list')
+        $http.post('persistence/list')
             .success(function (data) {
                 $scope.spaces = data.spaces;
                 $scope.persistences = data.persistences;
@@ -71,7 +70,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
                 }, true);
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                commonFunctions.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -106,7 +105,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
                     $scope.selectItem(item);
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    commonFunctions.showError(errMsg);
                 });
         };
 
@@ -127,7 +126,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
                     }
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    commonFunctions.showError(errMsg);
                 });
         };
 

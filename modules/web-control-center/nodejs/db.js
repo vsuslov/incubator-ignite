@@ -48,6 +48,14 @@ exports.Space = mongoose.model('Space', new Schema({
     }]
 }));
 
+// Define cache type metadata model.
+var CacheTypeMetadataSchema = new Schema({
+    space: {type: ObjectId, ref: 'Space'},
+    name: String
+});
+
+exports.CacheTypeMetadata = mongoose.model('CacheTypeMetadata', CacheTypeMetadataSchema);
+
 // Define cache model.
 var CacheSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},

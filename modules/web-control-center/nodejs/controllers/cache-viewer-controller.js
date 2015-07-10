@@ -52,8 +52,7 @@ var demoResults = [
 
 var demoCaches = ['Users', 'Organizations', 'Cities'];
 
-controlCenterModule.controller('cacheViewerController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
-
+controlCenterModule.controller('cacheViewerController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
     $scope.results = demoResults;
 
     $scope.caches = demoCaches;

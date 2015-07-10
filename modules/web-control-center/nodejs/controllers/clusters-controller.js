@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http', 'commonFunctions', function ($scope, $alert, $http, commonFunctions) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
-        $scope.errorMessage = commonFunctions.errorMessage;
-        $scope.console = console;
 
         $scope.templates = [
             {value: {discovery: {Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'none'},
@@ -96,7 +94,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
                 $scope.advanced = data.advanced;
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                commonFunctions.showError(errMsg);
             });
 
         // When landing on the page, get clusters and show them.
@@ -130,7 +128,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
                 }, true);
             })
             .error(function (errMsg) {
-                $alert({title: $scope.errorMessage(errMsg)});
+                commonFunctions.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -160,7 +158,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
                         var cache = $scope.caches[idx];
 
                         if (cache.swapEnabled) {
-                            $alert({title: 'Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!'});
+                            commonFunctions.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
 
                             return;
                         }
@@ -184,15 +182,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
 
                     $scope.selectItem(item);
 
-                    $alert({
-                        type: 'success',
-                        title: 'Cluster "' + item.name + '" saved.',
-                        duration: 2,
-                        container: '#save-btn'
-                    });
+                    commonFunctions.showInfo('Cluster "' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    commonFunctions.showError(errMsg);
                 });
         };
 
@@ -213,7 +206,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
                     }
                 })
                 .error(function (errMsg) {
-                    $alert({title: $scope.errorMessage(errMsg)});
+                    commonFunctions.showError(errMsg);
                 });
         };
     }]

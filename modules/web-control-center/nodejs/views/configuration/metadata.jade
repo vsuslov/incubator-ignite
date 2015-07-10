@@ -1,0 +1,42 @@
+//-
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+extends ../templates/layout-sidebar
+
+append scripts
+    script(src='/metadata-controller.js')
+
+include ../includes/controls
+
+block content
+    .docs-header
+        h1 Create and configure cache type metadata
+        hr
+    .docs-body(ng-controller='metadataController')
+        .links(ng-hide='metadata.length == 0')
+            table.col-sm-12(st-table='metadata')
+                tbody
+                    tr(ng-repeat='row in metadata track by row._id')
+                        td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+        button.btn.btn-primary(ng-click='createItem()') Add metadata
+        hr
+        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
+            .panel-body
+                .settings-row(ng-repeat='field in general')
+                    +form-row
+            button#save-btn.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
+            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
