@@ -41,21 +41,21 @@ block container
                                 input.form-control(type='email' ng-model='profileUser.email' placeholder='you@domain.com' required)
                         .details-row
                             label
-                                input(type="checkbox" ng-model='change_password')
+                                input(type="checkbox" ng-model='profileUser.changePassword')
                                 | Change password
-                        div(ng-show='change_password')
+                        div(ng-show='profileUser.changePassword')
                             .details-row
                                 +lbl('Old password:')
                                 .col-sm-4
-                                    input.form-control(ng-show='change_password' type='password', ng-model='profileUser.oldPassword' placeholder='Old password' ng-required='change_password')
+                                    input.form-control(type='password', ng-model='profileUser.oldPassword' placeholder='Old password' ng-required='profileUser.changePassword')
                             .details-row
                                 +lbl('New password:')
                                 .col-sm-4
-                                    input.form-control(ng-show='change_password' type='password', ng-model='profileUser.newPassword' placeholder='New password' ng-required='change_password')
+                                    input.form-control(type='password', ng-model='profileUser.newPassword' placeholder='New password' ng-required='profileUser.changePassword')
                             .details-row
                                 +lbl('Confirm:')
                                 .col-sm-4
-                                    input.form-control(type='password', ng-model='profileUser.confirm' placeholder='Confirm' ng-required='change_password')
+                                    input.form-control(type='password', ng-model='profileUser.confirmPassword' placeholder='Confirm' ng-required='profileUser.changePassword')
                     .col-sm-12.details-row
                         button#save-btn.btn.btn-primary(ng-disabled='profileForm.$invalid' ng-click='saveUser()') Save
 

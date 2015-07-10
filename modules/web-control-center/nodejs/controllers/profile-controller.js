@@ -20,8 +20,6 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
     
     $scope.profileUser = angular.copy($scope.loggedInUser);
 
-    $scope.editField = null;
-
     $scope.showInfo = function (msg) {
         $scope.showAlert(msg, 'success');
     };
@@ -42,38 +40,41 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
     };
 
     $scope.saveUser = function() {
-        if ($scope.profileUser) {
-            var userName = $scope.profileUser.username;
-            var oldPass = $scope.profileUser.oldPassword;
-            var newPass = $scope.profileUser.newPassword;
-            var confirm = $scope.profileUser.confirm;
+        var profile = $scope.profileUser;
 
-            if (userName && oldPass && newPass && confirm &&
-                userName.length > 0 && oldPass.length > 0 && newPass.length > 0 && confirm.length > 0 &&
-                newPass == confirm
-            ) {
-                $http.post('/profile/changePassword', {
-                    _id: $scope.editableUser._id,
-                    pass: $scope.pass1
+        if ($scope.profileUser) {
+            var userName = profile.username;
+            var email = profile.email;
+            var oldPassword = profile.oldPassword;
+            var newPassword = profile.newPassword;
+            var confirmPassword = profile.confirmPassword;
+
+            var changeUsername = userName && userName.length > 0 && userName != $scope.loggedInUser.username;
+            var changeEmail = email && email.length > 0 && email != $scope.loggedInUser.email;
+
+            var changePassword = profile.changePassword && oldPassword && newPassword && confirmPassword &&
+                oldPassword.length > 0 && newPassword.length > 0 && confirmPassword.length > 0 && newPassword == confirmPassword;
+
+            if (changeUsername || changeEmail || changePassword) {
+                $http.post('/profile/saveUser', {
+                    _id: profile._id,
+                    changeUsername: changeUsername,
+                    userName: userName,
+                    changeEmail: changeEmail,
+                    email: email,
+                    changePassword: changePassword,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword,
+                    confirmPassword: confirmPassword
                 }).success(function () {
                     $scope.showInfo('Profile saved.');
+
+                    if (changeUsername)
+                        $scope.loggedInUser.username = userName;
                 }).error(function (err) {
                     $scope.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
                 });
             }
         }
     };
-
-    //$scope.$watch('editField', function(val) {
-    //    if (!angular.equals($scope.editableUser, $scope.savedUser)) {
-    //        $http.post('/profile/saveUser', $scope.editableUser).success(function(updatedUser) {
-    //            angular.copy(updatedUser, $scope.savedUser);
-    //            angular.copy(updatedUser, $scope.editableUser);
-    //
-    //            $scope.showInfo('Profile has been updated');
-    //        }).error(function(err) {
-    //            $scope.showError('Failed to update profile: ' + commonFunctions.errorMessage(err));
-    //        });
-    //    }
-    //});
 }]);

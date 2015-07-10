@@ -19,7 +19,7 @@ var router = require('express').Router();
 var db = require('../db');
 var uiUtils = require('../helpers/ui-utils');
 
-router.all('/profile/*', function(req, res, next) {
+router.all('/profile/*', function (req, res, next) {
     var userId = req.body._id;
 
     if (userId != req.currentUserId() && userId != req.user._id)
@@ -31,52 +31,74 @@ router.all('/profile/*', function(req, res, next) {
 /**
  * Get list of user accounts.
  */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     var user_id = req.currentUserId();
 
     db.Account.findById(user_id, function (err, user) {
         if (err)
             return res.status(500).send(err.message);
 
-        res.render('profile', {editableUser: user});
+        res.render('profile');
     });
 });
 
-router.post('/saveUser', function(req, res) {
-    var u = {
-        username: req.body.username
-    }; 
-    
-    db.Account.findByIdAndUpdate(req.body._id, u, {new: true}, function(err, val) {
-        if (err)
-            return res.status(500).send(err);
-        
-        res.json(uiUtils.filterUser(val));
-    })
-});
+router.post('/saveUser', function (req, res) {
+    var params = req.body;
 
-router.post('/changePassword', function(req, res) {
-    var pass = req.body.pass;
-    
-    if (!pass || pass.length == 0)
-        return res.sendStatus(500);
-    
-    db.Account.findById(req.body._id, function(err, user) {
-        if (err)
-            return res.status(500).send(err);
-        
-        user.setPassword(pass, function (err, updatedUser) {
+    if (params.changeUsername || params.changeEmail) {
+        var u = {};
+
+        if (params.changeUsername)
+            u.username = params.userName;
+
+        if (params.changeEmail)
+            u.email = params.email;
+
+        db.Account.findByIdAndUpdate(req.body._id, u, {new: true}, function (err, val) {
             if (err)
                 return res.status(500).send(err);
 
-            updatedUser.save(function(err) {
+            res.json(uiUtils.filterUser(val));
+        })
+    }
+
+    if (params.changeEmail) {
+        // TODO
+    }
+
+    if (params.changePassword) {
+        var oldPassword = params.oldPassword;
+        var newPassword = params.newPassword;
+        var confirmPassword = params.confirmPassword;
+
+        var zz = user.verifyPassword(oldPassword);
+
+        if (!oldPassword || oldPassword.length == 0 || !zz)
+            return res.status(500).send('Wrong value for old password');
+
+        if (!newPassword || newPassword.length == 0)
+            return res.status(500).send('Wrong value for new password');
+
+        if (!confirmPassword || confirmPassword.length == 0 || newPassword != oldPassword)
+            return res.status(500).send('New password does not match confirmation');
+
+        db.Account.findById(params._id, function (err, user) {
+            if (err)
+                return res.status(500).send(err);
+
+            user.setPassword(newPassword, function (err, updatedUser) {
                 if (err)
                     return res.status(500).send(err);
 
-                res.json(uiUtils.filterUser(user));
+                updatedUser.save(function (err) {
+                    if (err)
+                        return res.status(500).send(err);
+
+                    res.json(uiUtils.filterUser(user));
+                });
             });
         });
-    })
+    }
 });
 
 module.exports = router;
