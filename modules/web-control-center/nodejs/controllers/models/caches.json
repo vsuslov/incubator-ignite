@@ -126,7 +126,7 @@
           "items": "evictionPolicies",
           "hide": "backupItem.memoryMode == 'OFFHEAP_TIERED'",
           "tip": [
-            "Cache expiration policy."
+            "Optional cache eviction policy. Must be set for entries to be evicted from on-heap to off-heap or swap."
           ],
           "details": {
             "LRU": {
@@ -287,7 +287,7 @@
           ]
         },
         {
-          "label": "Cached rows",
+          "label": "On-heap cache for off-heap indexes",
           "type": "number",
           "model": "sqlOnheapRowCacheSize",
           "placeholder": 10240,

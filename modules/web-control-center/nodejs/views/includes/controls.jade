@@ -175,8 +175,8 @@ mixin form-row
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
         div(ng-switch-when='indexedTypes')
             - var tblMdl = 'backupItem.indexedTypes'
-            div(ng-if="field.label")
-                label Indexed types:
+            div
+                label Index key-value type pairs:
                 +tipLabel('field.tip')
             table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
                 tbody

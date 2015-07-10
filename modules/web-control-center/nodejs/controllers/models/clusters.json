@@ -800,7 +800,7 @@
       "tip": ["Settings for transactions."],
       "fields": [
         {
-          "label": "Cache concurrency",
+          "label": "Concurrency",
           "type": "dropdown",
           "path": "transactionConfiguration",
           "model": "defaultTxConcurrency",
@@ -849,6 +849,14 @@
           "placeholder": "0",
           "tip": [
             "Size of pessimistic transactions log stored on node in order to recover transaction commit if originating node has left grid before it has sent all messages to transaction nodes."
+          ]
+        },
+        {
+          "label": "Manager lookup",
+          "type": "text",
+          "model": "txManagerLookupClassName",
+          "tip": [
+            "Class name of transaction manager finder for integration for JEE app servers."
           ]
         },
         {
