@@ -285,7 +285,7 @@ exports.generateClusterConfiguration = function(cluster) {
     if (res.datasources.length > 0) {
         xml += '    <!-- Load external properties file. -->\n';
         xml += '    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">\n';
-        xml += '        <property name="location" value="classpath:ignite.properties"/>\n';
+        xml += '        <property name="location" value="classpath:secret.properties"/>\n';
         xml += '    </bean>\n\n';
 
         xml += '    <!-- Data source beans will be initialized from external properties file. -->\n';
