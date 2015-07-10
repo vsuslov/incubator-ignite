@@ -17,32 +17,45 @@
 extends templates/layout
 
 mixin lbl(txt)
-    label.col-sm-2.labelFormField #{txt}
+    label.col-sm-2.required.labelFormField #{txt}
 
 append scripts
     script(src='/profile-controller.js')
 
 block container
-    .row.greedy(ng-controller='profileController' ng-init='savedUser = #{JSON.stringify(filterUser(editableUser))}')
+    .row.greedy(ng-controller='profileController')
         .docs-content
             .docs-header
                 h1 User profile
                 hr
             .docs-body
                 form.form-horizontal(name='profileForm' novalidate)
-                    .col-sm-12
-                        .col-sm-8.settings-row(style='padding: 0')
+                    .col-sm-10(style='padding: 0')
+                        .details-row
                             +lbl('User name:')
-                            .col-sm-8
-                                input.form-control(type='text' ng-model='editableUser.username' placeholder='Input name' required)
-                        .col-sm-8.settings-row(style='padding: 0')
-                            +lbl('New password:')
-                            .col-sm-8
-                                input.form-control(type='password', ng-model='editableUser.password' placeholder='Password' required)
-                        .col-sm-8.settings-row(style='padding: 0')
-                            +lbl('Confirm:')
-                            .col-sm-8
-                                input.form-control(type='password', ng-model='editableUser.confirm' placeholder='Confirm' required)
-                    .col-sm-12.settings-row
+                            .col-sm-4
+                                input.form-control(type='text' ng-model='profileUser.username' placeholder='Input name' required)
+                        .details-row
+                            +lbl('Email:')
+                            .col-sm-4
+                                input.form-control(type='email' ng-model='profileUser.email' placeholder='you@domain.com' required)
+                        .details-row
+                            label
+                                input(type="checkbox" ng-model='change_password')
+                                | Change password
+                        div(ng-show='change_password')
+                            .details-row
+                                +lbl('Old password:')
+                                .col-sm-4
+                                    input.form-control(ng-show='change_password' type='password', ng-model='profileUser.oldPassword' placeholder='Old password' ng-required='change_password')
+                            .details-row
+                                +lbl('New password:')
+                                .col-sm-4
+                                    input.form-control(ng-show='change_password' type='password', ng-model='profileUser.newPassword' placeholder='New password' ng-required='change_password')
+                            .details-row
+                                +lbl('Confirm:')
+                                .col-sm-4
+                                    input.form-control(type='password', ng-model='profileUser.confirm' placeholder='Confirm' ng-required='change_password')
+                    .col-sm-12.details-row
                         button#save-btn.btn.btn-primary(ng-disabled='profileForm.$invalid' ng-click='saveUser()') Save
 

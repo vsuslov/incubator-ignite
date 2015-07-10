@@ -127,7 +127,7 @@ app.all('*', function(req, res, next) {
 
 app.use('/', publicRoutes);
 app.use('/admin', mustAuthenticated, adminOnly, adminRouter);
-app.use('/', mustAuthenticated, profileRouter);
+app.use('/profile', mustAuthenticated, profileRouter);
 
 app.use('/configuration/clusters', clustersRouter);
 app.use('/configuration/caches', cachesRouter);

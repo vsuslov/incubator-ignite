@@ -31,7 +31,7 @@ router.all('/profile/*', function(req, res, next) {
 /**
  * Get list of user accounts.
  */
-router.get('/profile', function(req, res) {
+router.get('/', function(req, res) {
     var user_id = req.currentUserId();
 
     db.Account.findById(user_id, function (err, user) {
@@ -42,7 +42,7 @@ router.get('/profile', function(req, res) {
     });
 });
 
-router.post('/profile/saveUser', function(req, res) {
+router.post('/saveUser', function(req, res) {
     var u = {
         username: req.body.username
     }; 
@@ -55,7 +55,7 @@ router.post('/profile/saveUser', function(req, res) {
     })
 });
 
-router.post('/profile/changePassword', function(req, res) {
+router.post('/changePassword', function(req, res) {
     var pass = req.body.pass;
     
     if (!pass || pass.length == 0)

@@ -18,7 +18,7 @@
 controlCenterModule.controller('profileController', ['$scope', '$alert', '$http', 'commonFunctions',
     function ($scope, $alert, $http, commonFunctions) {
     
-    $scope.editableUser = angular.copy($scope.savedUser);
+    $scope.profileUser = angular.copy($scope.loggedInUser);
 
     $scope.editField = null;
 
@@ -41,32 +41,39 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
         });
     };
 
-    $scope.changePass = function() {
-        if (!$scope.pass1 || $scope.pass1.length == 0 || $scope.pass1 != $scope.pass2)
-            return;
+    $scope.saveUser = function() {
+        if ($scope.profileUser) {
+            var userName = $scope.profileUser.username;
+            var oldPass = $scope.profileUser.oldPassword;
+            var newPass = $scope.profileUser.newPassword;
+            var confirm = $scope.profileUser.confirm;
 
-        $http.post('/profile/changePassword', {_id: $scope.editableUser._id, pass: $scope.pass1}).success(function() {
-            $scope.showInfo('Password has been changed');
-
-            $scope.pass1 = '';
-            $scope.pass2 = '';
-            $scope.showChangePasswordForm = false;
-        }).error(function(err) {
-            $scope.showError('Failed to change password: ' + commonFunctions.errorMessage(err));
-        });
-    };
-    
-    $scope.$watch('editField', function(val) {
-        if (!angular.equals($scope.editableUser, $scope.savedUser)) {
-            $http.post('/profile/saveUser', $scope.editableUser).success(function(updatedUser) {
-                angular.copy(updatedUser, $scope.savedUser);
-                angular.copy(updatedUser, $scope.editableUser);
-
-                $scope.showInfo('Profile has been updated');
-            }).error(function(err) {
-                $scope.showError('Failed to update profile: ' + commonFunctions.errorMessage(err));
-            });
+            if (userName && oldPass && newPass && confirm &&
+                userName.length > 0 && oldPass.length > 0 && newPass.length > 0 && confirm.length > 0 &&
+                newPass == confirm
+            ) {
+                $http.post('/profile/changePassword', {
+                    _id: $scope.editableUser._id,
+                    pass: $scope.pass1
+                }).success(function () {
+                    $scope.showInfo('Profile saved.');
+                }).error(function (err) {
+                    $scope.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
+                });
+            }
         }
-    });
-    
+    };
+
+    //$scope.$watch('editField', function(val) {
+    //    if (!angular.equals($scope.editableUser, $scope.savedUser)) {
+    //        $http.post('/profile/saveUser', $scope.editableUser).success(function(updatedUser) {
+    //            angular.copy(updatedUser, $scope.savedUser);
+    //            angular.copy(updatedUser, $scope.editableUser);
+    //
+    //            $scope.showInfo('Profile has been updated');
+    //        }).error(function(err) {
+    //            $scope.showError('Failed to update profile: ' + commonFunctions.errorMessage(err));
+    //        });
+    //    }
+    //});
 }]);

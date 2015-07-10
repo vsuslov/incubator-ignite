@@ -14,6 +14,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
+mixin lbl(txt)
+    label.col-sm-3.required #{txt}
+
 .modal.center(role='dialog')
     .modal-dialog
         .modal-content
@@ -28,19 +31,19 @@
                 .modal-body.row
                     .col-sm-9.login.col-sm-offset-1
                         .details-row(ng-show='action == "register"')
-                            label.col-sm-3.required Full Name:
+                            +lbl('Full Name:')
                             .col-sm-9
                                 input.form-control(type='text', ng-model='user_info.username', placeholder='John Smith', focus-me='action=="register"', ng-required='action=="register"')
                         .details-row
-                            label.col-sm-3.required Email:
+                            +lbl('Email:')
                             .col-sm-9
                                 input.form-control(type='email', ng-model='user_info.email', placeholder='you@domain.com', focus-me='action=="login"', required)
                         .details-row
-                            label.col-sm-3.required Password:
+                            +lbl('Password:')
                             .col-sm-9
                                 input.form-control(type='password', ng-model='user_info.password', placeholder='Password', required, ng-keyup='action == "login" && $event.keyCode == 13 ? auth(action, user_info) : null')
                         .details-row(ng-show='action == "register"')
-                            label.col-sm-3.required Confirm:
+                            +lbl('Confirm:')
                             .col-sm-9.input-tip.has-feedback
                                 input.form-control(type='password', ng-model='user_info.confirm', placeholder='Confirm password', required, ng-keyup='$event.keyCode == 13 ? auth(action, user_info) : null')
                                 i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='user_info.password != user_info.confirm' bs-tooltip data-title='Password does not match confirmation' type='button')
