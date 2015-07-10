@@ -13,7 +13,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-mixin item(active, ref, txt)
+mixin header-item(active, ref, txt)
     li
         a(ng-class='{active: isActive("#{active}")}' href='#{ref}') #{txt}
 
@@ -23,10 +23,10 @@ header.header(id='header')
             a(href='/') Apache Ignite Web Configurator
         .navbar-collapse.collapse(ng-controller='auth')
             ul.nav.navbar-nav(ng-controller='activeLink' ng-show='loggedInUser')
-                +item('/configuration', '/configuration/clusters', 'Configuration')
-                //+item('/monitoring', '/monitoring', 'Monitoring')
-                //+item('/sql', '/sql', 'SQL')
-                //+item('/deploy', '/deploy', 'Deploy')
+                +header-item('/configuration', '/configuration/clusters', 'Configuration')
+                //+header-item('/monitoring', '/monitoring', 'Monitoring')
+                //+header-item('/sql', '/sql', 'SQL')
+                //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
                 li(ng-show='loggedInUser')
                     a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{loggedInUser.username}}
