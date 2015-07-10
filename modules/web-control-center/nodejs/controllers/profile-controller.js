@@ -45,15 +45,14 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
         if ($scope.profileUser) {
             var userName = profile.username;
             var email = profile.email;
-            var oldPassword = profile.oldPassword;
             var newPassword = profile.newPassword;
             var confirmPassword = profile.confirmPassword;
 
             var changeUsername = userName && userName.length > 0 && userName != $scope.loggedInUser.username;
             var changeEmail = email && email.length > 0 && email != $scope.loggedInUser.email;
 
-            var changePassword = profile.changePassword && oldPassword && newPassword && confirmPassword &&
-                oldPassword.length > 0 && newPassword.length > 0 && confirmPassword.length > 0 && newPassword == confirmPassword;
+            var changePassword = profile.changePassword && newPassword && confirmPassword &&
+                 newPassword.length > 0 && confirmPassword.length > 0 && newPassword == confirmPassword;
 
             if (changeUsername || changeEmail || changePassword) {
                 $http.post('/profile/saveUser', {
@@ -63,7 +62,6 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
                     changeEmail: changeEmail,
                     email: email,
                     changePassword: changePassword,
-                    oldPassword: oldPassword,
                     newPassword: newPassword,
                     confirmPassword: confirmPassword
                 }).success(function () {

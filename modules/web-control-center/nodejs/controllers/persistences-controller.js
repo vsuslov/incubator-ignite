@@ -49,7 +49,7 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
 
                 var restoredItem = angular.fromJson(sessionStorage.persistenceBackupItem);
 
-                if (restoredItem) {
+                if (restoredItem && restoredItem._id) {
                     var idx = _.findIndex($scope.persistences, function (persistence) {
                         return persistence._id == restoredItem._id;
                     });
@@ -62,6 +62,8 @@ controlCenterModule.controller('persistenceController', ['$scope', '$alert', '$h
                     else
                         sessionStorage.removeItem('persistenceBackupItem');
                 }
+                else
+                    $scope.backupItem = restoredItem;
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)

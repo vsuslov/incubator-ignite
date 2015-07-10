@@ -108,7 +108,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
 
                 var restoredItem = angular.fromJson(sessionStorage.clusterBackupItem);
 
-                if (restoredItem) {
+                if (restoredItem && restoredItem._id) {
                     var idx = _.findIndex($scope.clusters, function (cluster) {
                         return cluster._id == restoredItem._id;
                     });
@@ -121,6 +121,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$alert', '$http
                     else
                         sessionStorage.removeItem('clusterBackupItem');
                 }
+                else
+                    $scope.backupItem = restoredItem;
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)

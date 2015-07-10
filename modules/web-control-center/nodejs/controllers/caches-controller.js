@@ -113,7 +113,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
 
                 var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
-                if (restoredItem) {
+                if (restoredItem && restoredItem._id) {
                     var idx = _.findIndex($scope.caches, function (cache) {
                         return cache._id == restoredItem._id;
                     });
@@ -126,6 +126,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$alert', '$http',
                     else
                         sessionStorage.removeItem('cacheBackupItem');
                 }
+                else
+                    $scope.backupItem = restoredItem;
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)

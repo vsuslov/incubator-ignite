@@ -67,19 +67,13 @@ router.post('/saveUser', function (req, res) {
     }
 
     if (params.changePassword) {
-        var oldPassword = params.oldPassword;
         var newPassword = params.newPassword;
         var confirmPassword = params.confirmPassword;
-
-        var zz = user.verifyPassword(oldPassword);
-
-        if (!oldPassword || oldPassword.length == 0 || !zz)
-            return res.status(500).send('Wrong value for old password');
 
         if (!newPassword || newPassword.length == 0)
             return res.status(500).send('Wrong value for new password');
 
-        if (!confirmPassword || confirmPassword.length == 0 || newPassword != oldPassword)
+        if (!confirmPassword || confirmPassword.length == 0 || newPassword != confirmPassword)
             return res.status(500).send('New password does not match confirmation');
 
         db.Account.findById(params._id, function (err, user) {
