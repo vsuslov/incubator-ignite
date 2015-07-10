@@ -14,36 +14,35 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-extends templates/layout-sidebar
+extends templates/layout
+
+mixin lbl(txt)
+    label.col-sm-2.labelFormField #{txt}
 
 append scripts
     script(src='/profile-controller.js')
 
-block content
-    .docs-header(ng-init='savedUser = #{JSON.stringify(filterUser(editableUser))}')
-        h1 User profile
-        p Profile of&nbsp;
-            strong {{savedUser.username}}.
-        hr
+block container
+    .row.greedy(ng-controller='profileController' ng-init='savedUser = #{JSON.stringify(filterUser(editableUser))}')
+        .docs-content
+            .docs-header
+                h1 User profile
+                hr
+            .docs-body
+                form.form-horizontal(name='profileForm' novalidate)
+                    .col-sm-12
+                        .col-sm-8.settings-row(style='padding: 0')
+                            +lbl('User name:')
+                            .col-sm-8
+                                input.form-control(type='text' ng-model='editableUser.username' placeholder='Input name' required)
+                        .col-sm-8.settings-row(style='padding: 0')
+                            +lbl('New password:')
+                            .col-sm-8
+                                input.form-control(type='password', ng-model='editableUser.password' placeholder='Password' required)
+                        .col-sm-8.settings-row(style='padding: 0')
+                            +lbl('Confirm:')
+                            .col-sm-8
+                                input.form-control(type='password', ng-model='editableUser.confirm' placeholder='Confirm' required)
+                    .col-sm-12.settings-row
+                        button#save-btn.btn.btn-primary(ng-disabled='profileForm.$invalid' ng-click='saveUser()') Save
 
-    .docs-body()
-        div(ng-controller='profileController')
-            | User name:
-            div(ng-show='editField != "username"')
-                a(href ng-click='editField = "username"') {{editableUser.username}}
-            div(ng-show='editField == "username"')
-                i.stackTipField.fa.fa-floppy-o(ng-click='editField = null')
-                .input-tip
-                    input.form-control(type='text' ng-model='editableUser.username')
-
-            p
-                button.btn.btn-link(ng-show='!showChangePasswordForm' ng-click='showChangePasswordForm = true') Change password
-                form.form-inline(ng-show='showChangePasswordForm', role="form")
-                    .form-group
-                        label(for='pass1') New password:&nbsp; 
-                        input#pass1.form-control(type='password', ng-model='pass1')
-                    .form-group
-                        label(for='pass2') Repeat password:&nbsp;
-                        input#pass2.form-control(type='password', ng-model='pass2')
-
-                    i.stackTipField.fa.fa-floppy-o(ng-click='changePass()')    

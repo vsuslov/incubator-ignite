@@ -1,0 +1,54 @@
+
+//-
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+         http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+extends ../templates/layout-fluid
+
+append scripts
+    script(src='/cache-viewer-controller.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js')
+
+append css
+    link(rel='stylesheet', href='/stylesheets/sql-console.css')
+
+block container
+    div.greedy(ng-controller='cacheViewerController')
+        h4 Sql console
+
+        table#queryTable(cellpadding=0, cellspacing=0, ng-init='queryType = "sql"')
+            tr
+                td
+                    label(for='queryTypeSelect') Query&nbsp;type:
+                    select#queryTypeSelect(ng-model='queryType')
+                        option(value='sql') Sql query
+                        option(value='id') Get by ID
+                        option(value='scane') Scan cache
+
+                td.queryTd
+                    div(ng-show='queryType == "sql"')
+                        #querySql
+
+                td
+                    | Default&nbsp;cache:
+                    div#defCacheSelect
+                        div(ng-repeat='c in caches', ng-class='{def: defCache == c}', ng-click='defCache = c') {{c}}
+
+        #resultPanel
+            strong Results
+
+            #queryResult
+                div(ng-repeat='r in results')
+                    .resultRow
+                        | {{r.id}} -> {{r.s}}
+                        span.props  {{r.fields}}
+
