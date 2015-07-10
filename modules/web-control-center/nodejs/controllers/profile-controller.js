@@ -42,33 +42,27 @@ controlCenterModule.controller('profileController', ['$scope', '$alert', '$http'
     $scope.saveUser = function() {
         var profile = $scope.profileUser;
 
-        if ($scope.profileUser) {
+        if (profile) {
             var userName = profile.username;
+            var changeUsername = userName != $scope.loggedInUser.username;
+
             var email = profile.email;
-            var newPassword = profile.newPassword;
-            var confirmPassword = profile.confirmPassword;
+            var changeEmail = email != $scope.loggedInUser.email;
 
-            var changeUsername = userName && userName.length > 0 && userName != $scope.loggedInUser.username;
-            var changeEmail = email && email.length > 0 && email != $scope.loggedInUser.email;
-
-            var changePassword = profile.changePassword && newPassword && confirmPassword &&
-                 newPassword.length > 0 && confirmPassword.length > 0 && newPassword == confirmPassword;
-
-            if (changeUsername || changeEmail || changePassword) {
+            if (changeUsername || changeEmail || profile.changePassword) {
                 $http.post('/profile/saveUser', {
                     _id: profile._id,
-                    changeUsername: changeUsername,
-                    userName: userName,
-                    changeEmail: changeEmail,
-                    email: email,
-                    changePassword: changePassword,
-                    newPassword: newPassword,
-                    confirmPassword: confirmPassword
+                    userName: changeUsername ? userName : undefined,
+                    email: changeEmail ? email : undefined,
+                    newPassword: profile.changePassword ? profile.newPassword : undefined
                 }).success(function () {
                     $scope.showInfo('Profile saved.');
 
                     if (changeUsername)
                         $scope.loggedInUser.username = userName;
+
+                    if (changeEmail)
+                        $scope.loggedInUser.email = email;
                 }).error(function (err) {
                     $scope.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
                 });

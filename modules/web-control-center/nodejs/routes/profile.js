@@ -29,12 +29,12 @@ router.all('/profile/*', function (req, res, next) {
 });
 
 /**
- * Get list of user accounts.
+ * Get user profile page.
  */
 router.get('/', function (req, res) {
     var user_id = req.currentUserId();
 
-    db.Account.findById(user_id, function (err, user) {
+    db.Account.findById(user_id, function (err) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -42,39 +42,17 @@ router.get('/', function (req, res) {
     });
 });
 
+/**
+ * Save user profile.
+ */
 router.post('/saveUser', function (req, res) {
     var params = req.body;
 
-    if (params.changeUsername || params.changeEmail) {
-        var u = {};
-
-        if (params.changeUsername)
-            u.username = params.userName;
-
-        if (params.changeEmail)
-            u.email = params.email;
-
-        db.Account.findByIdAndUpdate(req.body._id, u, {new: true}, function (err, val) {
-            if (err)
-                return res.status(500).send(err);
-
-            res.json(uiUtils.filterUser(val));
-        })
-    }
-
-    if (params.changeEmail) {
-        // TODO
-    }
-
-    if (params.changePassword) {
+    if (params.newPassword) {
         var newPassword = params.newPassword;
-        var confirmPassword = params.confirmPassword;
 
         if (!newPassword || newPassword.length == 0)
             return res.status(500).send('Wrong value for new password');
-
-        if (!confirmPassword || confirmPassword.length == 0 || newPassword != confirmPassword)
-            return res.status(500).send('New password does not match confirmation');
 
         db.Account.findById(params._id, function (err, user) {
             if (err)
@@ -84,6 +62,12 @@ router.post('/saveUser', function (req, res) {
                 if (err)
                     return res.status(500).send(err);
 
+                if (params.userName)
+                    updatedUser.username = params.userName;
+
+                if (params.email)
+                    updatedUser.email = params.email;
+
                 updatedUser.save(function (err) {
                     if (err)
                         return res.status(500).send(err);
@@ -92,6 +76,22 @@ router.post('/saveUser', function (req, res) {
                 });
             });
         });
+    }
+    else if (params.userName || params.email) {
+        var upd = {};
+
+        if (params.userName)
+            upd.username = params.userName;
+
+        if (params.email)
+            upd.email = params.email;
+
+        db.Account.findByIdAndUpdate(params._id, upd, {new: true}, function (err, val) {
+            if (err)
+                return res.status(500).send(err);
+
+            res.json(uiUtils.filterUser(val));
+        })
     }
 });
 

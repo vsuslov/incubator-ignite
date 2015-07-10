@@ -52,7 +52,7 @@ block container
                             .details-row
                                 +lbl('Confirm:')
                                 .col-sm-4
-                                    input.form-control(type='password', ng-model='profileUser.confirmPassword' placeholder='Confirm' ng-required='profileUser.changePassword')
+                                    input.form-control(type='password', ng-model='profileUser.confirmPassword' match='profileUser.newPassword' placeholder='Confirm' ng-required='profileUser.changePassword')
                     .col-sm-12.details-row
                         button#save-btn.btn.btn-primary(ng-disabled='profileForm.$invalid' ng-click='saveUser()') Save
 
