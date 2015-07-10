@@ -160,7 +160,7 @@
 .theme-line .docs-header h1 {
   color: #444;
   margin-top: 0;
-  font-size: 25px;
+  font-size: 22px;
 }
 
 .theme-line .btn-primary {
@@ -191,37 +191,41 @@
   border-bottom: 4px solid #888;
 }
 
+.theme-line ul li > a.active {
+  cursor: default;
+  pointer-events: none;
+}
+
 .theme-line .sidebar-nav {
   color: #474a54;
   padding-bottom: 30px;
-}
 
-.theme-line .sidebar-nav ul {
-  padding: 0;
-  list-style: none;
-  font-size: 14px;
-  margin: 3px 0 0;
-}
+  ul {
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    margin: 3px 0 0;
+    li {
+      color: #666;
+      line-height: @input-height;
 
-.theme-line .sidebar-nav ul li a {
-  padding: 3px 0;
-  display: block;
-  color: #666;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-}
+      span.fa-stack {
+        margin-right: 5px;
+        font-size: 12px;
+        height: 26px;
+      }
 
-.theme-line .sidebar-nav ul li a:before {
-  top: 0;
-  content: " ";
-  display: block;
-  width: 6px;
-  height: 100%;
-  position: absolute;
-  left: -30px;
+      a {
+        font-size: 18px;
+        color: #666;
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+      }
+    }
+  }
 }
 
 .theme-line .sidebar-nav ul li a:hover {
@@ -439,6 +443,10 @@
   color: @ignite-red;
 }
 
+.theme-line header .navbar-nav a {
+  font-size: 18px;
+}
+
 .theme-line.body-threes .section-right .threes-nav .btn-default:hover, .theme-line.page-docs.body-threes .section-right .threes-nav .pull-right a:hover {
   color: @ignite-red;
   border-color: @ignite-red;
@@ -585,7 +593,7 @@ h1.ignite-logo {
 
 @media (min-width: 768px) {
   .navbar-nav > li > a {
-    padding-top: 20px;
+    padding-top: 18px;
     padding-bottom: 10px;
   }
 }
@@ -703,7 +711,7 @@ button .caret {
 .theme-line .links table {
   display: table;
   table-layout: fixed;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 
   td {
     padding-left: 18px;
@@ -724,6 +732,8 @@ button .caret {
 }
 
 .theme-line table.links-edit:extend(.theme-line .links table all) {
+  margin-bottom: 10px;
+
   label {
     line-height: @input-height;
     color: #666;
@@ -731,6 +741,8 @@ button .caret {
 }
 
 .theme-line table.links-edit-details:extend(.theme-line .links table all) {
+  margin-bottom: 10px;
+
   label {
     line-height: @input-height;
     color: #666;
@@ -774,7 +786,6 @@ button .caret {
 
 label {
   font-weight: normal;
-  line-height: 14px;
   margin-bottom: 0;
 }
 
