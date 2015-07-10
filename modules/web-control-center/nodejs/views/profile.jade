@@ -40,9 +40,10 @@ block container
                             .col-sm-4
                                 input.form-control(type='email' ng-model='profileUser.email' placeholder='you@domain.com' required)
                         .details-row
-                            label
-                                input(type="checkbox" ng-model='profileUser.changePassword')
-                                | Change password
+                            .checkbox
+                                label
+                                    input(type="checkbox" ng-model='profileUser.changePassword')
+                                    | Change password
                         div(ng-show='profileUser.changePassword')
                             .details-row
                                 +lbl('New password:')
