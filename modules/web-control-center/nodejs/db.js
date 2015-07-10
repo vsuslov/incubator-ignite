@@ -29,6 +29,7 @@ mongoose.connect(config.get('mongoDB:url'), {server: {poolSize: 4}});
 // Define account model.
 var AccountSchema = new Schema({
     username: String,
+    email: String,
     lastLogin: Date,
     admin: Boolean
 });
