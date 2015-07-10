@@ -53,23 +53,57 @@
         "Flag indicating whether data can be read from backup.",
         "If not set then always get data from primary node (never from backup)."
       ]
+    },
+    {
+      "label": "Invalidate near cache",
+      "type": "check",
+      "model": "invalidate",
+      "tip": [
+        "Invalidation flag for near cache entries in transaction.",
+        "If set then values will be invalidated (nullified) upon commit in near cache."
+      ]
     }
   ],
   "advanced": [
     {
-      "label": "Async back pressure control",
+      "label": "Concurrency control",
       "tip": [
-        "Cache async back pressure settings."
+        "Cache concurrent usage settings."
       ],
       "fields": [
         {
-          "label": "Max async concurrency",
+          "label": "Max async operations",
           "type": "number",
           "model": "maxConcurrentAsyncOperations",
           "placeholder": 500,
           "tip": [
             "Maximum number of allowed concurrent asynchronous operations.",
             "If 0 then number of concurrent asynchronous operations is unlimited."
+          ]
+        },
+        {
+          "label": "Default lock timeout",
+          "type": "number",
+          "model": "defaultLockTimeout",
+          "placeholder": 0,
+          "tip": [
+            "Default lock acquisition timeout.",
+            "If 0 then lock acquisition will never timeout."
+          ]
+        },
+        {
+          "label": "Entry versioning",
+          "type": "dropdown",
+          "model": "atomicWriteOrderMode",
+          "placeholder": "Choose versioning",
+          "items": "atomicWriteOrderModes",
+          "hide": "backupItem.atomicityMode == 'TRANSACTIONAL'",
+          "tip": [
+            "Write ordering mode determines which node assigns the write version, sender or the primary node.",
+            "<ul>",
+            "  <li>CLOCK - in this mode write versions are assigned on a sender node which generally leads to better performance.</li>",
+            "  <li>PRIMARY - in this mode version is assigned only on primary node. This means that sender will only send write request to primary node, which in turn will assign write version and forward it to backups.</li>",
+            "</ul>"
           ]
         }
       ]
@@ -138,7 +172,9 @@
                   "path": "evictionPolicy.LRU",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -186,7 +222,9 @@
                   "path": "evictionPolicy.FIFO",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -219,7 +257,9 @@
                   "path": "evictionPolicy.SORTED",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -250,7 +290,9 @@
           "type": "number",
           "model": "startSize",
           "placeholder": 1500000,
-          "tip": ["Initial cache size which will be used to pre-create internal hash table after start."]
+          "tip": [
+            "Initial cache size which will be used to pre-create internal hash table after start."
+          ]
         },
         {
           "label": "Swap enabled",
@@ -451,7 +493,9 @@
                   "path": "nearConfiguration.nearEvictionPolicy.LRU",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -499,7 +543,9 @@
                   "path": "nearConfiguration.nearEvictionPolicy.FIFO",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -532,7 +578,9 @@
                   "path": "nearConfiguration.nearEvictionPolicy.SORTED",
                   "model": "batchSize",
                   "placeholder": 1,
-                  "tip": ["Number of entries to remove on shrink."]
+                  "tip": [
+                    "Number of entries to remove on shrink."
+                  ]
                 },
                 {
                   "label": "Max memory size",
@@ -778,41 +826,6 @@
           "model": "writeThrough",
           "tip": [
             "Flag indicating whether write-through caching should be used."
-          ]
-        }
-      ]
-    },
-    {
-      "label": "Transaction",
-      "tip": [
-        "Cache transactions settings."
-      ],
-      "fields": [
-        {
-          "label": "Invalidate",
-          "type": "check",
-          "model": "invalidate",
-          "tip": [
-            "Invalidation flag for near cache entries in transaction.",
-            "If set then values will be invalidated (nullified) upon commit in near cache."
-          ]
-        },
-        {
-          "label": "Default lock timeout",
-          "type": "number",
-          "model": "defaultLockTimeout",
-          "placeholder": 0,
-          "tip": [
-            "Default lock acquisition timeout.",
-            "If 0 then lock acquisition will never timeout."
-          ]
-        },
-        {
-          "label": "Manager finder",
-          "type": "text",
-          "model": "transactionManagerLookupClassName",
-          "tip": [
-            "Class name of transaction manager finder for integration for JEE app servers."
           ]
         }
       ]
