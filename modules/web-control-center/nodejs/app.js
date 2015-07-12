@@ -34,6 +34,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
+var bridge = require('./bridge/bridge');
 
 var uiUtils = require('./helpers/ui-utils');
 
@@ -165,5 +166,7 @@ app.use(function (err, req, res) {
         error: {}
     });
 });
+
+bridge.startServer();
 
 module.exports = app;
