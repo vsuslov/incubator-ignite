@@ -103,27 +103,22 @@ for (var p in uiUtils) {
 }
 
 app.all('*', function(req, res, next) {
-    res.locals.user = req.user;
+    var becomeUsed = req.session.viewedUser && req.user.admin;
 
-    res.locals.viewedUser = req.session.viewedUser;
+    res.locals.user = becomeUsed ? req.session.viewedUser : req.user;
+    res.locals.becomeUsed = becomeUsed;
 
     req.currentUserId = function() {
         if (!req.user)
             return null;
 
-        if (req.session.viewedUser) {
-            if (req.user.admin)
-                return req.session.viewedUser._id;
-
-            req.session.viewedUser = null;
-        }
+        if (req.session.viewedUser && req.user.admin)
+            return req.session.viewedUser._id;
 
         return req.user._id;
     };
 
-    res.locals.currentUserId = req.currentUserId;
-
-    next()
+    next();
 });
 
 app.use('/', publicRoutes);

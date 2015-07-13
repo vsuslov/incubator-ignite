@@ -17,7 +17,6 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../helpers/ui-utils');
 
 router.get('/', function(req, res) {
     res.render('settings/admin');
@@ -27,17 +26,11 @@ router.get('/', function(req, res) {
  * Get list of user accounts.
  */
 router.post('/list', function(req, res) {
-    db.Account.find({}, function (err, users) {
+    db.Account.find({}).select('_id username email lastLogin admin').exec(function (err, users) {
         if (err)
             return res.status(500).send(err.message);
 
-        var uiUsers = [];
-
-        for (var i = 0; i < users.length; i++) {
-            uiUsers.push(uiUtils.filterUser(users[i]))
-        }
-
-        res.json(uiUsers);
+        res.json(users);
     });
 });
 
@@ -45,10 +38,10 @@ router.post('/remove', function(req, res) {
     var userId = req.body.userId;
 
     db.Account.findByIdAndRemove(userId, function(err) {
-        if (!err)
-            res.sendStatus(200);
-        else
-            res.status(500).send(err);
+        if (err)
+            return res.status(500).send(err);
+
+        res.sendStatus(200);
     });
 });
 
@@ -57,10 +50,10 @@ router.post('/save', function(req, res) {
     var adminFlag = req.body.adminFlag;
 
     db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function(err) {
-        if (!err)
-            res.sendStatus(200);
-        else
-            res.status(500).send(err);
+        if (err)
+            return res.status(500).send(err.message);
+
+        res.sendStatus(200);
     });
 });
 
@@ -79,7 +72,7 @@ router.get('/become', function(req, res) {
         if (err)
             return res.sendStatus(404);
 
-        req.session.viewedUser = {_id: viewedUser._id, username: viewedUser.username};
+        req.session.viewedUser = viewedUser;
 
         res.redirect('/');
     })

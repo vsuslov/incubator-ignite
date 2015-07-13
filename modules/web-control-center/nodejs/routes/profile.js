@@ -60,7 +60,7 @@ router.post('/saveUser', function (req, res) {
 
             user.setPassword(newPassword, function (err, updatedUser) {
                 if (err)
-                    return res.status(500).send(err);
+                    return res.status(500).send(err.message);
 
                 if (params.userName)
                     updatedUser.username = params.userName;
@@ -70,7 +70,7 @@ router.post('/saveUser', function (req, res) {
 
                 updatedUser.save(function (err) {
                     if (err)
-                        return res.status(500).send(err);
+                        return res.status(500).send(err.message);
 
                     res.json(uiUtils.filterUser(user));
                 });
@@ -88,7 +88,7 @@ router.post('/saveUser', function (req, res) {
 
         db.Account.findByIdAndUpdate(params._id, upd, {new: true}, function (err, val) {
             if (err)
-                return res.status(500).send(err);
+                return res.status(500).send(err.message);
 
             res.json(uiUtils.filterUser(val));
         })

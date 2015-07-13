@@ -18,31 +18,30 @@ mixin header-item(active, ref, txt)
         a(ng-class='{active: isActive("#{active}")}' href='#{ref}') #{txt}
 
 header.header(id='header')
+    div.viewedUser(ng-show='becomeUsed') You're working as&nbsp;
+        strong {{user.username}}&nbsp;
+        a(href='/admin/become')
+            span.fa.fa-remove(title='Unlogin')
     .container
         h1.navbar-brand
             a(href='/') Apache Ignite Web Configurator
         .navbar-collapse.collapse(ng-controller='auth')
-            ul.nav.navbar-nav(ng-controller='activeLink' ng-show='loggedInUser')
+            ul.nav.navbar-nav(ng-controller='activeLink')
                 +header-item('/configuration', '/configuration/clusters', 'Configuration')
                 //+header-item('/monitoring', '/monitoring', 'Monitoring')
                 //+header-item('/sql', '/sql', 'SQL')
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
-                li(ng-show='loggedInUser')
-                    a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{loggedInUser.username}}
+                li(ng-show='user')
+                    a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{user.username}}
                         span.caret
                     script#user-dropdown(type='text/ng-template')
                         ul.dropdown-menu
                             li
                                 a(href='/profile') Profile
-                            li(ng-if='loggedInUser && loggedInUser.admin')
+                            li(ng-if='user.admin')
                                 a(href='/admin') Admin Panel
                             li
                                 a(href='/logout') Log Out
-                li.nav-login(ng-show='!loggedInUser')
+                li.nav-login(ng-show='!user')
                     a(ng-click='login()' href='#') Log In
-
-        div(class='viewedUser' ng-show='viewedUser') You're working as&nbsp;
-            strong {{viewedUser.username}}&nbsp;
-            a(href='/admin/become')
-                span(class="glyphicon glyphicon-remove" title='Unlogin')

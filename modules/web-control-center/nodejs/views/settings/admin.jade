@@ -37,17 +37,17 @@ block container
                             th(width='1%'  st-sort='admin') Admin
                             th(width='1%') Actions
                     tbody
-                        tr(ng-repeat='user in displayedUsers')
-                            td {{user.username}}
+                        tr(ng-repeat='row in displayedUsers')
+                            td {{row.username}}
                             td
-                                a(ng-href='mailto:{{user.email}}') {{user.email}}
+                                a(ng-href='mailto:{{row.email}}') {{row.email}}
                             td
-                                span {{user.lastLogin | date:'medium'}}
+                                span {{row.lastLogin | date:'medium'}}
                             td(style='text-align: center;')
-                                input(type='checkbox' ng-disabled='user.adminChanging || user._id == loggedInUser._id'
-                                    ng-model='user.admin' ng-change='toggleAdmin(user)')
+                                input(type='checkbox' ng-disabled='row.adminChanging || row._id == user._id'
+                                    ng-model='row.admin' ng-change='toggleAdmin(user)')
                             td(style='text-align: center;')
-                                a(ng-click='removeUser(user)' ng-show='user._id != loggedInUser._id' title='Remove user')
+                                a(ng-click='removeUser(row)' ng-show='row._id != user._id' title='Remove user')
                                     i.fa.fa-remove
-                                a(style='margin-left: 5px' ng-href='admin/become?viewedUserId={{user._id}}' ng-show='user._id != loggedInUser._id' title='View user\'s configurations')
+                                a(style='margin-left: 5px' ng-href='admin/become?viewedUserId={{row._id}}' ng-show='row._id != user._id' title='View user\'s configurations')
                                     i.fa.fa-eye
