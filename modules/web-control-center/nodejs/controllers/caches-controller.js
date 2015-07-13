@@ -87,11 +87,25 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
         $scope.caches = [];
 
         $scope.required = function (field) {
-            if (field.label == 'Eviction policy') {
-                var backupItem = $scope.backupItem;
+            var model = commonFunctions.isDefined(field.path) ? field.path + '.' + field.model : field.model;
 
-                return backupItem.swapEnabled ||
-                    (commonFunctions.isDefined(backupItem.offHeapMaxMemory) && backupItem.offHeapMaxMemory >= 0);
+            var backupItem = $scope.backupItem;
+
+            var memoryMode = backupItem.memoryMode;
+            var offHeapMaxMemory = backupItem.offHeapMaxMemory;
+
+            if (model == 'offHeapMaxMemory') {
+                var oft = memoryMode == 'OFFHEAP_TIERED';
+
+                if (oft && !commonFunctions.isDefined(offHeapMaxMemory))
+                    backupItem.offHeapMaxMemory = 0;
+
+                return oft;
+            }
+
+            if (model == 'evictionPolicy.kind') {
+                return memoryMode == 'ONHEAP_TIERED' &&  backupItem.swapEnabled ||
+                    (commonFunctions.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
             }
 
             return false;
