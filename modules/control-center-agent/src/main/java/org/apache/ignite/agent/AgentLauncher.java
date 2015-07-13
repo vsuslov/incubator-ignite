@@ -32,6 +32,9 @@ public class AgentLauncher {
         .addOption("p", "password", true, "User's password")
         .addOption("u", "url", true, "web-control-center URL");
 
+    /**
+     *
+     */
     private static void printHelp() {
         HelpFormatter helpFormatter = new HelpFormatter();
 
