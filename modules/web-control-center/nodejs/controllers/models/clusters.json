@@ -2,7 +2,7 @@
   "templateTip": [
     "Use following template for add cluster:",
     "<ul>",
-    "  <li>blank - Empty configuration.</li>",
+    "  <li>none - Empty configuration.</li>",
     "  <li>local - Configuration with static ips discovery and pre-configured list of IP addresses.</li>",
     "  <li>multicast - Configuration with multicast discovery.</li>",
     "</ul>"

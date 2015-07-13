@@ -32,7 +32,10 @@ block content
                     tr(ng-repeat='row in metadata track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-        button.btn.btn-primary(ng-click='createItem()') Add metadata
+        button.btn.btn-primary(ng-click='createItem()' ng-disabled='!create.template') &nbspAdd metadata
+        label(style='margin-left: 15px; margin-right: 10px') for:
+        button.btn.btn-default(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
+        i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
             .panel-body

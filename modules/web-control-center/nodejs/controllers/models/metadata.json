@@ -1,4 +1,12 @@
 {
+  "templateTip": [
+    "Use following template for metadata:",
+    "<ul>",
+    "  <li>query - Create cache type metadata to use with queries only.</li>",
+    "  <li>store - Create cache type metadata to use with JDBC POJO store only.</li>",
+    "  <li>both - Create cache type metadata to use with query and store.</li>",
+    "</ul>"
+  ],
   "general": [
     {
       "label": "Name",
@@ -6,6 +14,91 @@
       "model": "name",
       "required": true,
       "placeholder": "Input name"
+    },
+    {
+      "label": "kind",
+      "type": "dropdown",
+      "model": "kind",
+      "required": true,
+      "items": "templates",
+      "placeholder": "Select kind"
+    },
+    {
+      "label": "dbSchema",
+      "type": "text",
+      "model": "dbSchema",
+      "required": true,
+      "placeholder": "Input DB schema name"
+    },
+    {
+      "label": "dbTbl",
+      "type": "text",
+      "model": "dbTbl",
+      "required": true,
+      "placeholder": "Input DB table name"
+    },
+    {
+      "label": "keyType",
+      "type": "text",
+      "model": "keyType",
+      "required": true,
+      "placeholder": "Full class name for Key"
+    },
+    {
+      "label": "valType",
+      "type": "text",
+      "model": "valType",
+      "required": true,
+      "placeholder": "Full class name for Value"
+    },
+    {
+      "label": "keyFields",
+      "type": "text",
+      "model": "keyFields",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "valFields",
+      "type": "text",
+      "model": "valFields",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "qryFlds",
+      "type": "text",
+      "model": "qryFlds",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "ascFlds",
+      "type": "text",
+      "model": "ascFlds",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "descFlds",
+      "type": "text",
+      "model": "descFlds",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "txtFlds",
+      "type": "text",
+      "model": "txtFlds",
+      "required": true,
+      "placeholder": "TODO"
+    },
+    {
+      "label": "grps",
+      "type": "text",
+      "model": "grps",
+      "required": true,
+      "placeholder": "TODO"
     }
   ]
 }

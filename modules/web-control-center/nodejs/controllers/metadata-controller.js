@@ -20,10 +20,17 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
 
+        $scope.templates = [
+            {value: 'query', label: 'query'},
+            {value: 'store', label: 'store'},
+            {value: 'both', label: 'both'}
+        ];
+
         $scope.metadata = [];
 
         $http.get('/models/metadata.json')
             .success(function (data) {
+                $scope.templateTip = data.templateTip;
                 $scope.general = data.general;
             })
             .error(function (errMsg) {
