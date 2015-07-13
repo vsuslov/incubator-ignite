@@ -70,6 +70,9 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
 
             return lines.join("");
         },
+        isDefined: function (v) {
+            return !(v === undefined || v === null);
+        },
         errorMessage: errorMessage,
         showError: function (msg) {
             if (msgModal)
