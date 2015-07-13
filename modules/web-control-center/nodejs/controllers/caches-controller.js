@@ -92,21 +92,17 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
             var backupItem = $scope.backupItem;
 
             var memoryMode = backupItem.memoryMode;
+
+            var onHeapTired = memoryMode == 'ONHEAP_TIERED';
+            var offHeapTired = memoryMode == 'OFFHEAP_TIERED';
+
             var offHeapMaxMemory = backupItem.offHeapMaxMemory;
 
-            if (model == 'offHeapMaxMemory') {
-                var oft = memoryMode == 'OFFHEAP_TIERED';
+            if (model == 'offHeapMaxMemory' && offHeapTired)
+                return true;
 
-                if (oft && !commonFunctions.isDefined(offHeapMaxMemory))
-                    backupItem.offHeapMaxMemory = 0;
-
-                return oft;
-            }
-
-            if (model == 'evictionPolicy.kind') {
-                return memoryMode == 'ONHEAP_TIERED' &&  backupItem.swapEnabled ||
-                    (commonFunctions.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
-            }
+            if (model == 'evictionPolicy.kind' && onHeapTired)
+                return backupItem.swapEnabled || (commonFunctions.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
 
             return false;
         };

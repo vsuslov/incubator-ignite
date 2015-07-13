@@ -454,7 +454,7 @@ exports.generateCacheConfiguration = generateCacheConfiguration;
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
-    if (val) {
+    if (generatorUtils.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line('<property name="' + (setterName ? setterName : propName) + '" value="' + escapeAttr(val) + '"/>');
@@ -503,13 +503,11 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                             res.endBlock('</property>');
                         }
                     }
-                    else {
+                    else
                         addProperty(res, bean, propName, descr.setterName);
-                    }
                 }
-                else {
+                else
                     addProperty(res, bean, propName);
-                }
             }
         }
 

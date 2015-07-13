@@ -490,7 +490,7 @@ function toJavaCode(val, type) {
 function addProperty(res, obj, objVariableName, propName, enumType, setterName) {
     var val = obj[propName];
     
-    if (val) {
+    if (generatorUtils.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(objVariableName + '.' + getSetterName(setterName ? setterName : propName)
