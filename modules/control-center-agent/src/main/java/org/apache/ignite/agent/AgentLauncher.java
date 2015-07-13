@@ -17,6 +17,7 @@
 
 package org.apache.ignite.agent;
 
+import org.apache.commons.cli.*;
 import org.eclipse.jetty.websocket.client.*;
 
 import java.net.*;
@@ -25,22 +26,57 @@ import java.net.*;
  *
  */
 public class AgentLauncher {
+    /** */
+    private static final Options options = new Options()
+        .addOption("l", "login", true, "User's login (email) on web-control-center")
+        .addOption("p", "password", true, "User's password")
+        .addOption("u", "url", true, "web-control-center URL");
+
+    private static void printHelp() {
+        HelpFormatter helpFormatter = new HelpFormatter();
+
+        helpFormatter.printHelp("\njava -jar control-center-agent.jar -l myemail@gmail.com -p qwerty", options);
+    }
+
     /**
      * @param args Args.
      */
     public static void main(String[] args) throws Exception {
-        String login = args[0];
-        String pwd = args[1];
+        CommandLineParser parser = new BasicParser();
+
+        CommandLine cmd = parser.parse(options, args);
+
+        String login = cmd.getOptionValue('l');
+
+        if (login == null) {
+            System.out.println("Login is not specified.");
+
+            printHelp();
+
+            System.exit(1);
+        }
+
+        String pwd = cmd.getOptionValue('p');
+
+        if (pwd == null) {
+            System.out.println("Password is not specified.");
+
+            printHelp();
+
+            System.exit(1);
+        }
 
         AgentConfiguration cfg = new AgentConfiguration();
 
         cfg.setLogin(login);
         cfg.setPassword(pwd);
 
-        if (args.length > 2)
+        String uri = cmd.getOptionValue('u');
+
+        if (uri == null)
             cfg.setUri("ws://localhost:8088");
         else
-            cfg.setUri(args[2]);
+            cfg.setUri(uri);
 
         WebSocketClient client = new WebSocketClient();
 
