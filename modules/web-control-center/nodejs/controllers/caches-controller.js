@@ -86,6 +86,17 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         $scope.caches = [];
 
+        $scope.required = function (field) {
+            if (field.label == 'Eviction policy') {
+                var backupItem = $scope.backupItem;
+
+                return backupItem.swapEnabled ||
+                    (commonFunctions.isDefined(backupItem.offHeapMaxMemory) && backupItem.offHeapMaxMemory >= 0);
+            }
+
+            return false;
+        };
+
         // When landing on the page, get caches and show them.
         $http.post('caches/list')
             .success(function (data) {

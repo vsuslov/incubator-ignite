@@ -95,7 +95,7 @@ mixin form-row
     - var lblClasses = ['col-sm-2']
 
     - var fieldMdl = 'getModel(backupItem, field.path)[field.model]';
-    - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required'};
+    - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
 
     div(ng-switch='field.type')
         div.checkbox.col-sm-6(ng-switch-when='check')
@@ -140,7 +140,7 @@ mixin form-row
         div(ng-switch-when='dropdown-details' ng-hide='{{field.hide}}')
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+            label(class=lblClasses ng-class='{true: "required"}[field.required || required(field)]') {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
