@@ -15,22 +15,24 @@ package org.apache.ignite.agent;/*
  * limitations under the License.
  */
 
+import org.apache.commons.codec.*;
+import org.apache.http.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.impl.client.*;
 import org.apache.ignite.agent.messages.*;
-import org.eclipse.jetty.websocket.api.*;
-import org.eclipse.jetty.websocket.api.annotations.*;
 
-import java.util.concurrent.*;
+import java.io.*;
+import java.nio.charset.*;
 
 /**
  *
  */
-@WebSocket
 public class Agent {
     /** */
-    private final CountDownLatch closeLatch = new CountDownLatch(1);
+    private final AgentConfiguration cfg;
 
     /** */
-    private final AgentConfiguration cfg;
+    private CloseableHttpClient httpclient;
 
     /**
      * @param cfg Config.
@@ -40,69 +42,48 @@ public class Agent {
     }
 
     /**
-     * @param statusCode Status code.
-     * @param reason Reason.
+     *
      */
-    @OnWebSocketClose
-    public void onClose(int statusCode, String reason) {
-        System.out.printf("Connection closed: %d - %s%n", statusCode, reason);
-
-        closeLatch.countDown();
-    }
-
-    /**
-     * @param ses Session.
-     */
-    @OnWebSocketConnect
-    public void onConnect(Session ses) {
-        System.out.println("Authentication...");
-
-        AuthMessage authMsg = new AuthMessage(cfg.getLogin(), cfg.getPassword());
-
-        try {
-            ses.getRemote().sendString(MessageFactory.toString(authMsg));
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    }
-
-    /**
-     * @param ses Session.
-     * @param error Error.
-     */
-    @OnWebSocketError
-    public void onError(Session ses, Throwable error) {
-        System.out.printf("Error: " + ses);
-
-        error.printStackTrace();
-
-        closeLatch.countDown();
-    }
-
-    /**
-     * @param msg Message.
-     */
-    @OnWebSocketMessage
-    public void onMessage(Session ses, String msg) {
-        AbstractMessage m = MessageFactory.fromString(msg);
-
-        if (m instanceof AuthResult) {
-            if (((AuthResult)m).isSuccess())
-                System.out.println("Authentication success");
-            else {
-                System.out.println("Authentication failed: " + ((AuthResult)m).getMessage());
-
-                ses.close();
-            }
-        }
-        else
-            System.err.printf("Unknown message: %s%n", msg);
+    public void start() {
+        httpclient = HttpClientBuilder.create().build();
     }
 
     /**
      *
      */
-    public void waitForClose() throws InterruptedException {
-        closeLatch.await();
+    public void stop() throws IOException {
+        if (httpclient != null)
+            httpclient.close();
+    }
+
+    /**
+     * @param uri Url.
+     */
+    public RestResult executeRest(String uri) throws IOException {
+        HttpGet get = new HttpGet(uri);
+
+        CloseableHttpResponse resp = httpclient.execute(get);
+
+        RestResult res = new RestResult();
+
+        res.setCode(resp.getStatusLine().getStatusCode());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        resp.getEntity().writeTo(out);
+
+        Charset charset = Charsets.UTF_8;
+
+        Header encodingHdr = resp.getEntity().getContentEncoding();
+
+        if (encodingHdr != null) {
+            String encoding = encodingHdr.getValue();
+
+            charset = Charsets.toCharset(encoding);
+        }
+
+        res.setMessage(new String(out.toByteArray(), charset));
+
+        return res;
     }
 }

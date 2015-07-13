@@ -81,21 +81,30 @@ public class AgentLauncher {
         else
             cfg.setUri(uri);
 
-        WebSocketClient client = new WebSocketClient();
-
         Agent agent = new Agent(cfg);
 
-        client.start();
+        agent.start();
 
         try {
-            client.connect(agent, new URI(cfg.getUri()));
+            WebSocketClient client = new WebSocketClient();
 
-            System.out.printf("Connecting to : %s%n", cfg.getUri());
+            AgentSocket agentSocket = new AgentSocket(cfg, agent);
 
-            agent.waitForClose();
+            client.start();
+
+            try {
+                client.connect(agentSocket, new URI(cfg.getUri()));
+
+                System.out.printf("Connecting to : %s%n", cfg.getUri());
+
+                agentSocket.waitForClose();
+            }
+            finally {
+                client.stop();
+            }
         }
         finally {
-            client.stop();
+            agent.stop();
         }
     }
 }
