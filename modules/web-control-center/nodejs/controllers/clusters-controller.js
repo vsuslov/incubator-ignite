@@ -204,6 +204,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
                         $scope.selectedItem = undefined;
                         $scope.backupItem = undefined;
                     }
+
+                    commonFunctions.showInfo("Cluster has been removed: " + $scope.selectedItem.label);
                 })
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);

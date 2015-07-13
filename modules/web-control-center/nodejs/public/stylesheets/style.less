@@ -53,11 +53,9 @@
 
 .modal.center .modal-dialog {
   position: fixed;
-  top: 40%;
+  top: 50%;
   left: 50%;
-  min-width: 320px;
-  max-width: 630px;
-  width: 50%;
+  -webkit-transform:translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
 
@@ -588,7 +586,7 @@ h1.ignite-logo {
 
 .greedy {
   min-height: 200px;
-  height: ~"calc(100vh - 230px)";
+  height: ~"calc(100vh - 290px)";
 }
 
 @media (min-width: 768px) {
@@ -760,6 +758,31 @@ button .caret {
   }
 }
 
+.theme-line table.admin {
+  thead > tr th.header {
+    padding: 0 0 0.65em;
+
+    div {
+      padding: 0
+    }
+  }
+
+  margin-bottom: 10px;
+
+  label {
+    line-height: @input-height;
+    color: #666;
+  }
+
+  thead > tr th, td {
+    padding: 0.65em 0.65em;
+
+    .input-tip {
+      padding: 0;
+    }
+  }
+}
+
 .btn {
   padding: 3px 6px;
 }
@@ -809,12 +832,6 @@ label {
 .labelFormField {
   float: left;
   line-height: @input-height;
-}
-
-.stackTipField {
-  float: right;
-  line-height: @input-height;
-  margin-left: 5px;
 }
 
 .form-horizontal .form-group {
@@ -1003,4 +1020,12 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
 
 a {
   cursor: pointer;
+}
+
+.st-sort-ascent:after{
+  content: '\25B2';
+}
+
+.st-sort-descent:after{
+  content: '\25BC';
 }

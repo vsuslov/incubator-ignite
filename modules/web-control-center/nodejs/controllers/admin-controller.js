@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-        $scope.userList = null;
+controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
+        $scope.users = null;
 
         function reload() {
             $http.post('admin/list')
                 .success(function (data) {
-                    $scope.userList = data;
+                    $scope.users = data;
                 })
                 .error(function (errMsg) {
                     commonFunctions.showError(commonFunctions.errorMessage(errMsg));
@@ -31,19 +31,21 @@ controlCenterModule.controller('adminController', ['$scope', '$http', 'commonFun
         reload();
 
         $scope.removeUser = function (user) {
-            if (!confirm("Are you sure you want to delete user " + user.username + "?"))
-                return false;
+            $confirm.show("Are you sure you want to delete user: '" + user.username + "'?").then(function() {
+                $http.post('admin/remove', {userId: user._id}).success(
+                    function () {
+                        var i = _.findIndex($scope.users, function (u) {
+                            return u._id == user._id;
+                        });
 
-            $http.post('admin/remove', {userId: user._id}).success(
-                function (data) {
-                    reload();
+                        if (i >= 0)
+                            $scope.users.splice(i, 1);
 
-                    commonFunctions.showInfo("User has been removed: " + user.username);
-                }).error(function (errMsg) {
-                    commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
-                });
-
-            return false;
+                        commonFunctions.showInfo("User has been removed: '" + user.username + "'");
+                    }).error(function (errMsg) {
+                        commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
+                    });
+            });
         };
 
         $scope.toggleAdmin = function (user) {
@@ -52,15 +54,15 @@ controlCenterModule.controller('adminController', ['$scope', '$http', 'commonFun
 
             user.adminChanging = true;
 
-            $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
-                function (data) {
-                    reload();
+            $http.post('admin/save', {userId: user._id, adminFlag: !user.admin}).success(
+                function () {
+                    commonFunctions.showInfo("Admin right was successfully toggled for user: '" + user.username + "'");
 
-                    adminChanging = false;
+                    user.adminChanging = false;
                 }).error(function (errMsg) {
-                    commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
+                    commonFunctions.showError("Failed to toggle admin right for user: " + commonFunctions.errorMessage(errMsg));
 
-                    adminChanging = false;
+                    user.adminChanging = false;
                 });
         }
     }]);

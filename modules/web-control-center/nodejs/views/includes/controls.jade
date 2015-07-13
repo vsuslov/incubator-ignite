@@ -74,14 +74,14 @@ mixin details-row
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
                             div(ng-show='detail.editIdx != {{$index}}')
-                                i.stackTipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
-                                i.stackTipField.fa.fa-arrow-down(ng-if='detail.reordering' ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
-                                i.stackTipField.fa.fa-arrow-up(ng-if='detail.reordering' ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
+                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
+                                i.tipField.fa.fa-arrow-down(ng-if='detail.reordering' ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
+                                i.tipField.fa.fa-arrow-up(ng-if='detail.reordering' ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
                                 .input-tip
                                     a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
                             div(ng-show='detail.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.stackTipField.fa.fa-floppy-o(ng-click='#{detailMdl}[$index] = curValue ? curValue : #{detailMdl}[$index]; detail.editIdx = curValue ? -1 : detail.editIdx')
+                                i.tipField.fa.fa-floppy-o(ng-click='#{detailMdl}[$index] = curValue ? curValue : #{detailMdl}[$index]; detail.editIdx = curValue ? -1 : detail.editIdx')
                                 .input-tip.form-group.has-feedback
                                     input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                                     +exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
@@ -162,7 +162,7 @@ mixin form-row
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{fieldMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.stackTipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
+                                i.tipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
                         td.col-sm-1(ng-if='field.reordering')

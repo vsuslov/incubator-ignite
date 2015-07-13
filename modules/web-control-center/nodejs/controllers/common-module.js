@@ -90,6 +90,42 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
     }
 }]);
 
+controlCenterModule.config(function($modalProvider) {
+    angular.extend($modalProvider.defaults, {
+        html: true
+    });
+});
+
+controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
+    var scope = $rootScope.$new();
+
+    var deferred;
+
+    scope.title = 'Confirmation';
+
+    scope.ok = function() {
+        deferred.resolve();
+
+        confirm.hide();
+    };
+
+    var confirm = $modal({template: '/confirm', scope: scope, placement: 'center', show: false});
+
+    var parentShow = confirm.show;
+
+    confirm.show = function(content) {
+        scope.content = content || 'Confirm deletion?';
+
+        deferred = $q.defer();
+
+        parentShow();
+
+        return deferred.promise;
+    };
+
+    return confirm;
+});
+
 controlCenterModule.config(function ($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {
         container: 'body',
