@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.logger.log4j;
+package org.apache.ignite.logger.log4j2;
 
 import org.apache.ignite.*;
 import org.apache.ignite.internal.util.*;
@@ -24,9 +24,6 @@ import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
 import org.apache.ignite.logger.*;
-import org.apache.log4j.*;
-import org.apache.log4j.varia.*;
-import org.apache.log4j.xml.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
@@ -36,14 +33,14 @@ import java.util.*;
 import static org.apache.ignite.IgniteSystemProperties.*;
 
 /**
- * Log4j-based implementation for logging. This logger should be used
- * by loaders that have prefer <a target=_new href="http://logging.apache.org/log4j/docs/">log4j</a>-based logging.
+ * Log4j2-based implementation for logging. This logger should be used
+ * by loaders that have prefer <a target=_new href="http://logging.apache.org/log4j/2.x/index.html">log4j2</a>-based logging.
  * <p>
- * Here is a typical example of configuring log4j logger in Ignite configuration file:
+ * Here is a typical example of configuring log4j2 logger in Ignite configuration file:
  * <pre name="code" class="xml">
  *      &lt;property name="gridLogger"&gt;
- *          &lt;bean class="org.apache.ignite.grid.logger.log4j.Log4jLogger"&gt;
- *              &lt;constructor-arg type="java.lang.String" value="config/ignite-log4j.xml"/&gt;
+ *          &lt;bean class="org.apache.ignite.grid.logger.log4j2.Log4j2Logger"&gt;
+ *              &lt;constructor-arg type="java.lang.String" value="config/ignite-log4j2.xml"/&gt;
  *          &lt;/bean>
  *      &lt;/property&gt;
  * </pre>
@@ -51,20 +48,20 @@ import static org.apache.ignite.IgniteSystemProperties.*;
  * <pre name="code" class="java">
  *      IgniteConfiguration cfg = new IgniteConfiguration();
  *      ...
- *      URL xml = U.resolveIgniteUrl("config/custom-log4j.xml");
- *      IgniteLogger log = new Log4JLogger(xml);
+ *      URL xml = U.resolveIgniteUrl("config/custom-log4j2.xml");
+ *      IgniteLogger log = new Log4J2Logger(xml);
  *      ...
  *      cfg.setGridLogger(log);
  * </pre>
  *
- * Please take a look at <a target=_new href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4j 1.2</a>
+ * Please take a look at <a target=_new href="http://logging.apache.org/log4j/2.x/index.html">Apache Log4j 2</a>
  * for additional information.
  * <p>
  * It's recommended to use Ignite logger injection instead of using/instantiating
  * logger in your task/job code. See {@link org.apache.ignite.resources.LoggerResource} annotation about logger
  * injection.
  */
-public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAware {
+public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAware {
     /** Appenders. */
     private static Collection<FileAppender> fileAppenders = new GridConcurrentHashSet<>();
 
@@ -95,12 +92,12 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      * Creates new logger and automatically detects if root logger already
      * has appenders configured. If it does not, the root logger will be
      * configured with default appender (analogous to calling
-     * {@link #Log4JLogger(boolean) Log4JLogger(boolean)}
+     * {@link #Log4J2Logger(boolean) Log4JLogger(boolean)}
      * with parameter {@code true}, otherwise, existing appenders will be used (analogous
-     * to calling {@link #Log4JLogger(boolean) Log4JLogger(boolean)}
+     * to calling {@link #Log4J2Logger(boolean) Log4JLogger(boolean)}
      * with parameter {@code false}).
      */
-    public Log4JLogger() {
+    public Log4J2Logger() {
         this(!isConfigured());
     }
 
@@ -115,7 +112,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      *      and {@code Log4j} should be configured prior to calling this
      *      constructor.
      */
-    public Log4JLogger(boolean init) {
+    public Log4J2Logger(boolean init) {
         impl = Logger.getRootLogger();
 
         if (init) {
@@ -135,7 +132,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      *
      * @param impl Log4j implementation to use.
      */
-    public Log4JLogger(final Logger impl) {
+    public Log4J2Logger(final Logger impl) {
         assert impl != null;
 
         path = null;
@@ -155,7 +152,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      * @param path Path to log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
-    public Log4JLogger(String path) throws IgniteCheckedException {
+    public Log4J2Logger(String path) throws IgniteCheckedException {
         if (path == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
 
@@ -184,7 +181,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      * @param cfgFile Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
-    public Log4JLogger(File cfgFile) throws IgniteCheckedException {
+    public Log4J2Logger(File cfgFile) throws IgniteCheckedException {
         if (cfgFile == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
 
@@ -211,7 +208,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
      * @param cfgUrl URL for Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
-    public Log4JLogger(final URL cfgUrl) throws IgniteCheckedException {
+    public Log4J2Logger(final URL cfgUrl) throws IgniteCheckedException {
         if (cfgUrl == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
 
@@ -420,16 +417,16 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
     }
 
     /**
-     * Gets {@link org.apache.ignite.IgniteLogger} wrapper around log4j logger for the given
+     * Gets {@link IgniteLogger} wrapper around log4j logger for the given
      * category. If category is {@code null}, then root logger is returned. If
      * category is an instance of {@link Class} then {@code (Class)ctgr).getName()}
      * is used as category name.
      *
      * @param ctgr {@inheritDoc}
-     * @return {@link org.apache.ignite.IgniteLogger} wrapper around log4j logger.
+     * @return {@link IgniteLogger} wrapper around log4j logger.
      */
-    @Override public Log4JLogger getLogger(Object ctgr) {
-        return new Log4JLogger(ctgr == null ? Logger.getRootLogger() :
+    @Override public Log4J2Logger getLogger(Object ctgr) {
+        return new Log4J2Logger(ctgr == null ? Logger.getRootLogger() :
             ctgr instanceof Class ? Logger.getLogger(((Class<?>)ctgr).getName()) :
                 Logger.getLogger(ctgr.toString()));
     }
@@ -500,7 +497,7 @@ public class Log4JLogger implements IgniteLogger, LoggerNodeIdAware, Log4jFileAw
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return S.toString(Log4JLogger.class, this);
+        return S.toString(Log4J2Logger.class, this);
     }
 
     /** {@inheritDoc} */
