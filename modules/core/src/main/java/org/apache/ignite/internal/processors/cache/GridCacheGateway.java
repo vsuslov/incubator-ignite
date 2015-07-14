@@ -68,7 +68,7 @@ public class GridCacheGateway<K, V> {
      *
      * @return {@code True} if enter successful, {@code false} if the cache or the node was stopped.
      */
-    public boolean enterIfNotClosed() {
+    public boolean enterIfNotStopped() {
         onEnter();
 
         // Must unlock in case of unexpected errors to avoid
@@ -89,7 +89,7 @@ public class GridCacheGateway<K, V> {
      *
      * @return {@code True} if enter successful, {@code false} if the cache or the node was stopped.
      */
-    public boolean enterIfNotClosedNoLock() {
+    public boolean enterIfNotStoppedNoLock() {
         onEnter();
 
         return !stopped;
@@ -127,7 +127,7 @@ public class GridCacheGateway<K, V> {
         try {
             GridCacheAdapter<K, V> cache = ctx.cache();
 
-            GridCachePreloader<K, V> preldr = cache != null ? cache.preloader() : null;
+            GridCachePreloader preldr = cache != null ? cache.preloader() : null;
 
             if (preldr == null)
                 throw new IllegalStateException("Grid is in invalid state to perform this operation. " +

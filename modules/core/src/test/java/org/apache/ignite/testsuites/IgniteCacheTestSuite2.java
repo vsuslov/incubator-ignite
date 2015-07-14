@@ -58,11 +58,13 @@ public class IgniteCacheTestSuite2 extends TestSuite {
         suite.addTestSuite(GridCachePartitionedGetSelfTest.class);
         suite.addTest(new TestSuite(GridCachePartitionedBasicApiTest.class));
         suite.addTest(new TestSuite(GridCacheNearMultiGetSelfTest.class));
+        suite.addTest(new TestSuite(NoneRebalanceModeSelfTest.class));
         suite.addTest(new TestSuite(GridCacheNearJobExecutionSelfTest.class));
         suite.addTest(new TestSuite(GridCacheNearOneNodeSelfTest.class));
         suite.addTest(new TestSuite(GridCacheNearMultiNodeSelfTest.class));
         suite.addTest(new TestSuite(GridCacheAtomicNearMultiNodeSelfTest.class));
         suite.addTest(new TestSuite(GridCacheNearReadersSelfTest.class));
+        suite.addTest(new TestSuite(GridCacheNearReaderPreloadSelfTest.class));
         suite.addTest(new TestSuite(GridCacheAtomicNearReadersSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedAffinitySelfTest.class));
         suite.addTest(new TestSuite(GridCacheRendezvousAffinityFunctionExcludeNeighborsSelfTest.class));
@@ -76,6 +78,7 @@ public class IgniteCacheTestSuite2 extends TestSuite {
         suite.addTest(new TestSuite(GridCachePartitionedNearDisabledBasicStoreMultiNodeSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedEventSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedLockSelfTest.class));
+        suite.addTest(new TestSuite(GridCachePartitionedNearDisabledLockSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedMultiNodeLockSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedMultiNodeSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedMultiThreadedPutGetSelfTest.class));
@@ -88,7 +91,7 @@ public class IgniteCacheTestSuite2 extends TestSuite {
         suite.addTest(new TestSuite(GridCacheDhtEntrySelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtInternalEntrySelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtMappingSelfTest.class));
-//        suite.addTest(new TestSuite(GridCachePartitionedTxMultiThreadedSelfTest.class)); TODO-gg-4066
+        suite.addTest(new TestSuite(GridCachePartitionedTxMultiThreadedSelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtPreloadSelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtPreloadOffHeapSelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtPreloadBigDataSelfTest.class));
@@ -113,7 +116,7 @@ public class IgniteCacheTestSuite2 extends TestSuite {
         suite.addTest(new TestSuite(GridCacheReplicatedEvictionSelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtEvictionNearReadersSelfTest.class));
         suite.addTest(new TestSuite(GridCacheDhtAtomicEvictionNearReadersSelfTest.class));
-//        suite.addTest(new TestSuite(GridCachePartitionedTopologyChangeSelfTest.class)); TODO-gg-5489
+        suite.addTest(new TestSuite(GridCachePartitionedTopologyChangeSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedPreloadEventsSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedUnloadEventsSelfTest.class));
         suite.addTest(new TestSuite(GridCachePartitionedAffinityHashIdResolverSelfTest.class));
@@ -127,14 +130,13 @@ public class IgniteCacheTestSuite2 extends TestSuite {
 
         suite.addTest(new TestSuite(GridCacheOffheapUpdateSelfTest.class));
 
-        // TODO: GG-7242, GG-7243: Enabled when fixed.
-//        suite.addTest(new TestSuite(GridCacheDhtRemoveFailureTest.class));
-//        suite.addTest(new TestSuite(GridCacheNearRemoveFailureTest.class));
-        // TODO: GG-7201: Enable when fixed.
-        //suite.addTest(new TestSuite(GridCacheDhtAtomicRemoveFailureTest.class));
-
         suite.addTest(new TestSuite(GridCacheNearPrimarySyncSelfTest.class));
         suite.addTest(new TestSuite(GridCacheColocatedPrimarySyncSelfTest.class));
+
+        suite.addTest(new TestSuite(IgniteCachePartitionMapUpdateTest.class));
+        suite.addTest(new TestSuite(IgniteCacheClientNodePartitionsExchangeTest.class));
+        suite.addTest(new TestSuite(IgniteCacheClientNodeChangingTopologyTest.class));
+        suite.addTest(new TestSuite(IgniteCacheClientNodeConcurrentStart.class));
 
         return suite;
     }

@@ -111,6 +111,10 @@ public class TcpDiscoveryNode extends GridMetadataAwareAdapter implements Cluste
     @GridToStringExclude
     private UUID clientRouterNodeId;
 
+    /** */
+    @GridToStringExclude
+    private volatile transient InetSocketAddress lastSuccessfulAddr;
+
     /**
      * Public default no-arg constructor for {@link Externalizable} interface.
      */
@@ -139,17 +143,35 @@ public class TcpDiscoveryNode extends GridMetadataAwareAdapter implements Cluste
         assert ver != null;
 
         this.id = id;
-        this.addrs = addrs;
+
+        List<String> sortedAddrs = new ArrayList<>(addrs);
+        Collections.sort(sortedAddrs);
+
+        this.addrs = sortedAddrs;
         this.hostNames = hostNames;
         this.discPort = discPort;
         this.metricsProvider = metricsProvider;
         this.ver = ver;
 
-        consistentId = U.consistentId(addrs, discPort);
+        consistentId = U.consistentId(sortedAddrs, discPort);
 
         metrics = metricsProvider.metrics();
         cacheMetrics = metricsProvider.cacheMetrics();
         sockAddrs = U.toSocketAddresses(this, discPort);
+    }
+
+    /**
+     * @return Last successfully connected address.
+     */
+    @Nullable public InetSocketAddress lastSuccessfulAddress() {
+        return lastSuccessfulAddr;
+    }
+
+    /**
+     * @param lastSuccessfulAddr Last successfully connected address.
+     */
+    public void lastSuccessfulAddress(InetSocketAddress lastSuccessfulAddr) {
+        this.lastSuccessfulAddr = lastSuccessfulAddr;
     }
 
     /** {@inheritDoc} */
@@ -282,7 +304,7 @@ public class TcpDiscoveryNode extends GridMetadataAwareAdapter implements Cluste
      * @param order Order of the node.
      */
     public void order(long order) {
-        assert order >= 0 : "Order is invalid: " + this;
+        assert order > 0 : "Order is invalid: " + this;
 
         this.order = order;
     }
@@ -448,11 +470,8 @@ public class TcpDiscoveryNode extends GridMetadataAwareAdapter implements Cluste
 
         ClusterMetrics metrics = this.metrics;
 
-        if (metrics != null) {
-            mtr = new byte[ClusterMetricsSnapshot.METRICS_SIZE];
-
-            ClusterMetricsSnapshot.serialize(mtr, 0, metrics);
-        }
+        if (metrics != null)
+            mtr = ClusterMetricsSnapshot.serialize(metrics);
 
         U.writeByteArray(out, mtr);
 
