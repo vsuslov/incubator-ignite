@@ -20,7 +20,7 @@ var db = require('../db');
 var ds = require('../helpers/data-structures.js'), jdbcTypes = ds.jdbcTypes, javaTypes = ds.javaTypes;
 
 /* GET persistence page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('configuration/persistence');
 });
 
@@ -30,7 +30,7 @@ router.get('/', function(req, res) {
  * @param req Request.
  * @param res Response.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     var user_id = req.currentUserId();
 
     // Get owned space and all accessed space.
@@ -38,7 +38,7 @@ router.post('/list', function(req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var space_ids = spaces.map(function(value) {
+        var space_ids = spaces.map(function (value) {
             return value._id;
         });
 
@@ -55,9 +55,9 @@ router.post('/list', function(req, res) {
 /**
  * Save persistence.
  */
-router.post('/save', function(req, res) {
+router.post('/save', function (req, res) {
     if (req.body._id)
-        db.Persistence.update({_id: req.body._id}, req.body, {upsert: true}, function(err) {
+        db.Persistence.update({_id: req.body._id}, req.body, {upsert: true}, function (err) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -66,7 +66,7 @@ router.post('/save', function(req, res) {
     else {
         var persistence = new db.Persistence(req.body);
 
-        persistence.save(function(err, persistence) {
+        persistence.save(function (err, persistence) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -78,7 +78,7 @@ router.post('/save', function(req, res) {
 /**
  * Remove persistence by ._id.
  */
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res) {
     db.Persistence.remove(req.body, function (err) {
         if (err)
             return res.status(500).send(err.message);
@@ -89,8 +89,8 @@ router.post('/remove', function(req, res) {
 
 // simple countdown latch
 function CDL(countdown, completion) {
-    this.countDown = function() {
-        if(--countdown < 1) completion();
+    this.countDown = function () {
+        if (--countdown < 1) completion();
     };
 }
 
@@ -134,7 +134,7 @@ function toJavaFieldName(name) {
 
 
 //
-router.post('/pg', function(req, res) {
+router.post('/pg', function (req, res) {
     var pg = require('pg');
     var util = require('util');
 
@@ -148,14 +148,14 @@ router.post('/pg', function(req, res) {
 
     var connectionString = util.format('postgres://%s:%s@%s:%d/%s', username, password, host, port, dbName);
 
-    pg.connect(connectionString, function(err, client, done) {
+    pg.connect(connectionString, function (err, client, done) {
         var sendError = function (err) {
             done();
 
             res.status(500).send(err.message);
         };
 
-        if(err)
+        if (err)
             return sendError(err);
 
         var sendResponse = function () {
@@ -244,67 +244,70 @@ router.post('/pg', function(req, res) {
             'SELECT table_schema, table_name ' +
             'FROM information_schema.tables ' +
             'WHERE table_schema = ANY (current_schemas(false)) ' +
-            'ORDER BY table_schema, table_name', function(err, result) {
+            'ORDER BY table_schema, table_name', function (err, result) {
 
-            if(err)
-                return sendError(err);
+                if (err)
+                    return sendError(err);
 
-            if (result.rows.length > 0) {
-                // usage
-                var latch = new CDL(result.rows.length, sendResponse);
+                if (result.rows.length > 0) {
+                    // usage
+                    var latch = new CDL(result.rows.length, sendResponse);
 
-                result.rows.forEach(function (table) {
+                    result.rows.forEach(function (table) {
 
-                    var indisprimary = client.query(
-                        "SELECT a.attname " +
-                        "FROM pg_index i " +
-                        "JOIN pg_attribute a " +
-                        "  ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) " +
-                        "WHERE  i.indrelid = $1::regclass AND i.indisprimary", [table.table_schema + '.' + table.table_name],
-                        function (err, result) {
-                            if (err)
-                                return sendError(err);
+                        var indisprimary = client.query(
+                            "SELECT a.attname " +
+                            "FROM pg_index i " +
+                            "JOIN pg_attribute a " +
+                            "  ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) " +
+                            "WHERE  i.indrelid = $1::regclass AND i.indisprimary", [table.table_schema + '.' + table.table_name],
+                            function (err, result) {
+                                if (err)
+                                    return sendError(err);
 
-                            var pks = result.rows.map(function(row) {
-                                return row.attname;
+                                var pks = result.rows.map(function (row) {
+                                    return row.attname;
+                                });
+
+                                client.query(
+                                    'SELECT column_name, udt_name, is_nullable ' +
+                                    'FROM information_schema.columns ' +
+                                    'WHERE table_schema = $1 AND table_name = $2', [table.table_schema, table.table_name],
+                                    function (err, result) {
+                                        if (err)
+                                            return sendError(err);
+
+                                        var cols = [];
+
+                                        result.rows.forEach(function (column) {
+                                            var dataType = jdbcType(column.udt_name);
+
+                                            cols.push({
+                                                pk: pks.indexOf(column.column_name) >= 0,
+                                                use: true,
+                                                notNull: column.is_nullable == 'NO',
+                                                dbName: column.column_name,
+                                                dbType: dataType,
+                                                javaName: toJavaFieldName(column.column_name),
+                                                javaType: javaType(dataType)
+                                            });
+                                        });
+
+                                        var valClsName = toJavaClassName(table.table_name);
+
+                                        tables.push({
+                                            use: pks.length > 0,
+                                            schemaName: table.table_schema, tableName: table.table_name,
+                                            keyClass: valClsName + 'Key', valueClass: valClsName,
+                                            columns: cols
+                                        });
+
+                                        latch.countDown();
+                                    })
                             });
-
-                            client.query(
-                                'SELECT column_name, udt_name, is_nullable ' +
-                                'FROM information_schema.columns ' +
-                                'WHERE table_schema = $1 AND table_name = $2', [table.table_schema, table.table_name],
-                                function (err, result) {
-                                    if (err)
-                                        return sendError(err);
-
-                                    var cols = [];
-
-                                    result.rows.forEach(function (column) {
-                                        var dataType = jdbcType(column.udt_name);
-
-                                        cols.push({
-                                            pk: pks.indexOf(column.column_name) >= 0,
-                                            use: true,
-                                            notNull: column.is_nullable == 'NO',
-                                            dbName: column.column_name, dbType: dataType,
-                                            javaName: toJavaFieldName(column.column_name), javaType: javaType(dataType) });
-                                    });
-
-                                    var valClsName = toJavaClassName(table.table_name);
-
-                                    tables.push({
-                                        use: pks.length > 0,
-                                        schemaName: table.table_schema, tableName: table.table_name,
-                                        keyClass: valClsName + 'Key', valueClass: valClsName,
-                                        columns: cols
-                                    });
-
-                                    latch.countDown();
-                                })
-                        });
-                });
-            }
-        });
+                    });
+                }
+            });
     });
 });
 

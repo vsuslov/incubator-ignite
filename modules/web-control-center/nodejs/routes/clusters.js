@@ -19,7 +19,7 @@ var router = require('express').Router();
 var db = require('../db');
 
 /* GET clusters page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('configuration/clusters');
 });
 
@@ -29,7 +29,7 @@ router.get('/', function(req, res) {
  * @param req Request.
  * @param res Response.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     var user_id = req.currentUserId();
 
     // Get owned space and all accessed space.
@@ -37,7 +37,7 @@ router.post('/list', function(req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var space_ids = spaces.map(function(value) {
+        var space_ids = spaces.map(function (value) {
             return value._id;
         });
 
@@ -50,7 +50,7 @@ router.post('/list', function(req, res) {
                 if (err)
                     return res.status(500).send(err.message);
 
-                var cachesJson = caches.map(function(cache) {
+                var cachesJson = caches.map(function (cache) {
                     return {value: cache._id, label: cache.name, swapEnabled: cache.swapEnabled};
                 });
 
@@ -63,9 +63,9 @@ router.post('/list', function(req, res) {
 /**
  * Save cluster.
  */
-router.post('/save', function(req, res) {
+router.post('/save', function (req, res) {
     if (req.body._id)
-        db.Cluster.update({_id: req.body._id}, req.body, {upsert: true}, function(err) {
+        db.Cluster.update({_id: req.body._id}, req.body, {upsert: true}, function (err) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -74,7 +74,7 @@ router.post('/save', function(req, res) {
     else {
         var cluster = new db.Cluster(req.body);
 
-        cluster.save(function(err, cluster) {
+        cluster.save(function (err, cluster) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -86,7 +86,7 @@ router.post('/save', function(req, res) {
 /**
  * Remove cluster by ._id.
  */
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res) {
     db.Cluster.remove(req.body, function (err) {
         if (err)
             return res.status(500).send(err.message);

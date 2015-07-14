@@ -19,7 +19,7 @@ var router = require('express').Router();
 var db = require('../db');
 
 /* GET metadata page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('configuration/metadata');
 });
 
@@ -29,7 +29,7 @@ router.get('/', function(req, res) {
  * @param req Request.
  * @param res Response.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     var user_id = req.currentUserId();
 
     // Get owned space and all accessed space.
@@ -37,7 +37,7 @@ router.post('/list', function(req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var space_ids = spaces.map(function(value) {
+        var space_ids = spaces.map(function (value) {
             return value._id;
         });
 
@@ -54,9 +54,9 @@ router.post('/list', function(req, res) {
 /**
  * Save metadata.
  */
-router.post('/save', function(req, res) {
+router.post('/save', function (req, res) {
     if (req.body._id)
-        db.CacheTypeMetadata.update({_id: req.body._id}, req.body, {upsert: true}, function(err) {
+        db.CacheTypeMetadata.update({_id: req.body._id}, req.body, {upsert: true}, function (err) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -65,7 +65,7 @@ router.post('/save', function(req, res) {
     else {
         var metadata = new db.CacheTypeMetadata(req.body);
 
-        metadata.save(function(err, metadata) {
+        metadata.save(function (err, metadata) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -77,7 +77,7 @@ router.post('/save', function(req, res) {
 /**
  * Remove metadata by ._id.
  */
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res) {
     db.CacheTypeMetadata.remove(req.body, function (err) {
         if (err)
             return res.status(500).send(err.message);
