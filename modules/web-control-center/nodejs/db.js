@@ -52,7 +52,20 @@ exports.Space = mongoose.model('Space', new Schema({
 // Define cache type metadata model.
 var CacheTypeMetadataSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
-    name: String
+    name: String,
+    kind: {type: String, enum: ['query', 'store', 'both']},
+    databaseSchema: String,
+    databaseTable: String,
+    keyType: String,
+    valueType: String,
+    valType: String,
+    keyFields: [{dbName: String, dbType: Number, javaName: String, javaType: String}],
+    valueFields: [{dbName: String, dbType: Number, javaName: String, javaType: String}],
+    queryFields: [{name: String, className: String}],
+    ascendingFields: [{name: String, className: String}],
+    descendingFields:  [{name: String, className: String}],
+    textFields: [String],
+    groups: [{name: String, fields: [{field: String, direction: String}]}]
 });
 
 exports.CacheTypeMetadata = mongoose.model('CacheTypeMetadata', CacheTypeMetadataSchema);

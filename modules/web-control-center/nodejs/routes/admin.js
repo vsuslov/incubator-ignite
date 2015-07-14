@@ -18,14 +18,14 @@
 var router = require('express').Router();
 var db = require('../db');
 
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('settings/admin');
 });
 
 /**
  * Get list of user accounts.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     db.Account.find({}).select('-attempts -hash -salt').exec(function (err, users) {
         if (err)
             return res.status(500).send(err.message);
@@ -34,10 +34,10 @@ router.post('/list', function(req, res) {
     });
 });
 
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res) {
     var userId = req.body.userId;
 
-    db.Account.findByIdAndRemove(userId, function(err) {
+    db.Account.findByIdAndRemove(userId, function (err) {
         if (err)
             return res.status(500).send(err);
 
@@ -45,11 +45,11 @@ router.post('/remove', function(req, res) {
     });
 });
 
-router.post('/save', function(req, res) {
+router.post('/save', function (req, res) {
     var userId = req.body.userId;
     var adminFlag = req.body.adminFlag;
 
-    db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function(err) {
+    db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function (err) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -57,7 +57,7 @@ router.post('/save', function(req, res) {
     });
 });
 
-router.get('/become', function(req, res) {
+router.get('/become', function (req, res) {
     var viewedUserId = req.query.viewedUserId;
 
     if (!viewedUserId) {
@@ -66,7 +66,7 @@ router.get('/become', function(req, res) {
         return res.redirect('/admin');
     }
 
-    db.Account.findById(viewedUserId, function(err, viewedUser) {
+    db.Account.findById(viewedUserId, function (err, viewedUser) {
         if (err)
             return res.sendStatus(404);
 

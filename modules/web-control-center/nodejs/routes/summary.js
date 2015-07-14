@@ -24,11 +24,11 @@ var generatorJava = require('./generator/java');
 var generatorDocker = require('./generator/docker');
 
 /* GET summary page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('configuration/summary');
 });
 
-router.post('/generator', function(req, res) {
+router.post('/generator', function (req, res) {
     // Get cluster.
     db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
@@ -46,7 +46,7 @@ router.post('/generator', function(req, res) {
     });
 });
 
-router.post('/download', function(req, res) {
+router.post('/download', function (req, res) {
     // Get cluster.
     db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
@@ -60,12 +60,12 @@ router.post('/download', function(req, res) {
         // creating archives
         var zip = archiver('zip');
 
-        zip.on('error', function(err) {
+        zip.on('error', function (err) {
             res.status(500).send({error: err.message});
         });
 
         //on stream closed we can end the request
-        res.on('close', function() {
+        res.on('close', function () {
             console.log('Archive wrote %d bytes', archive.pointer());
 
             return res.status(200).send('OK').end();
@@ -88,7 +88,7 @@ router.post('/download', function(req, res) {
 
         zip.append(generatorXml.generateClusterConfiguration(cluster), {name: cluster.name + ".xml"})
             .append(generatorJava.generateClusterConfiguration(cluster, req.body.javaClass),
-                {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
+            {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
             .append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"})
             .finalize();
     });
