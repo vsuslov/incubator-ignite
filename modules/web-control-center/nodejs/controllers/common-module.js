@@ -25,9 +25,13 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
         return errMsg ? errMsg : 'Internal server error.';
     }
 
+    function isDefined(v) {
+        return !(v === undefined || v === null);
+    }
+
     return {
         getModel: function (obj, path) {
-            if (!path)
+            if (!isDefined(path))
                 return obj;
 
             path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
@@ -70,9 +74,7 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
 
             return lines.join("");
         },
-        isDefined: function (v) {
-            return !(v === undefined || v === null);
-        },
+        isDefined: isDefined,
         errorMessage: errorMessage,
         showError: function (msg) {
             if (msgModal)

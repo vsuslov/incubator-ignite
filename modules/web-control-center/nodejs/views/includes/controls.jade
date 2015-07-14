@@ -97,26 +97,27 @@ mixin form-row
     - var fieldMdl = 'getModel(backupItem, field.path)[field.model]';
     - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
     - var fieldRequiredClass = '{true: "required"}[field.required || required(field)]'
+    - var fieldHide = '{{field.hide}}'
 
     div(ng-switch='field.type')
-        div.checkbox.col-sm-6(ng-switch-when='check')
+        div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
                 input(type='checkbox')&attributes(fieldCommon)
                 | {{field.label}}
                 +tipLabel('field.tip')
-        div(ng-switch-when='text')
+        div(ng-switch-when='text' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
-        div(ng-switch-when='password')
+        div(ng-switch-when='password' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='password' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
-        div(ng-switch-when='number' ng-hide='{{field.hide}}')
+        div(ng-switch-when='number' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
@@ -125,20 +126,20 @@ mixin form-row
                     +exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
-        div(ng-switch-when='dropdown' ng-hide='{{field.hide}}')
+        div(ng-switch-when='dropdown' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
-        div(ng-switch-when='dropdown-multiple' ng-hide='{{field.hide}}')
+        div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
-        div(ng-switch-when='dropdown-details' ng-hide='{{field.hide}}')
+        div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
@@ -150,7 +151,7 @@ mixin form-row
             .col-sm-6.panel-details(ng-show='#{expanded} && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
-        div(ng-switch-when='table-simple')&attributes(fieldCommon)
+        div(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             div
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
@@ -174,7 +175,7 @@ mixin form-row
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
-        div(ng-switch-when='fieldsMetadata')&attributes(fieldCommon)
+        div(ng-switch-when='fieldsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
             div
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
@@ -198,7 +199,7 @@ mixin form-row
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
-        div(ng-switch-when='groupsMetadata')&attributes(fieldCommon)
+        div(ng-switch-when='groupsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
             div
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')

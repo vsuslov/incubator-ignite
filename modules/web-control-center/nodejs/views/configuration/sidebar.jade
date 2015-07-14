@@ -24,23 +24,15 @@ mixin sidebar-item(ref, num, txt)
                 i.fa.fa-stack-1x #{num}
             | #{txt}
 
-mixin sidebar-subitem(ref, txt)
-    li
-        a(style='font-size: 16px' ng-class='{active: isActive("#{ref}")}' href='#{ref}')
-            span.fa-stack
-                i.fa.fa-stack-2x
-            | #{txt}
-
 block container
     .row
         .col-sm-2.border-right.section-left.greedy
             .sidebar-nav
                 ul.menu(ng-controller='activeLink')
                     +sidebar-item('/configuration/clusters', 1, 'Clusters')
-                    +sidebar-item('/configuration/caches', 2, 'Caches')
-                    //+sidebar-subitem('/configuration/metadata', 'Metadata')
-                    //+sidebar-subitem('/configuration/persistence', 'Persistence')
-                    +sidebar-item('/configuration/summary', 3, 'Summary')
+                    +sidebar-item('/configuration/metadata', 2, 'Metadata')
+                    +sidebar-item('/configuration/caches', 3, 'Caches')
+                    +sidebar-item('/configuration/summary', 4, 'Summary')
 
         .col-sm-10.border-left.section-right
             .docs-content

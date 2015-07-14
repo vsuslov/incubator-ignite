@@ -1,4 +1,8 @@
 {
+  "screenTip": [
+    "Optional cache configuration.",
+    "Configure caches, link them to clusters and go to Summary page for configuration generation."
+  ],
   "general": [
     {
       "label": "Name",

@@ -26,6 +26,8 @@ block content
         h1 Create and configure Ignite caches
         hr
     .docs-body(ng-controller='cachesController')
+        .block-callout
+            p(ng-bind-html='joinTip(screenTip)')
         .links(ng-hide='caches.length == 0')
             table.col-sm-12(st-table='caches')
                 tbody

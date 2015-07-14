@@ -1,4 +1,7 @@
 {
+  "screenTip": [
+    "Configure cluster, link caches to them and go to Summary for configuration generation."
+  ],
   "templateTip": [
     "Use following template for add cluster:",
     "<ul>",

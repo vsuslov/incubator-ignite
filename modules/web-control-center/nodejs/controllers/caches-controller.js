@@ -77,6 +77,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         $http.get('/models/caches.json')
             .success(function (data) {
+                $scope.screenTip = data.screenTip;
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             })

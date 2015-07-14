@@ -1,4 +1,9 @@
 {
+  "screenTip": [
+    "Optional cache type metadata configuration.",
+    "Enter metadata manually or load from database.",
+    "Generate cache for metadata if needed."
+  ],
   "templateTip": [
     "Use following template for metadata:",
     "<ul>",
@@ -16,81 +21,94 @@
       "placeholder": "Input name"
     },
     {
-      "label": "kind",
+      "label": "Metadata for",
       "type": "dropdown",
       "model": "kind",
-      "required": true,
       "items": "templates",
-      "placeholder": "Select kind"
+      "placeholder": "Select kind",
+      "tip": ["TODO."]
     },
     {
       "label": "Database schema",
       "type": "text",
       "model": "databaseSchema",
       "required": true,
-      "placeholder": "Input DB schema name"
+      "hide": "backupItem.kind == 'query'",
+      "placeholder": "Input DB schema name",
+      "tip": ["TODO."]
     },
     {
       "label": "Database table",
       "type": "text",
       "model": "databaseTable",
       "required": true,
-      "placeholder": "Input DB table name"
+      "hide": "backupItem.kind == 'query'",
+      "placeholder": "Input DB table name",
+      "tip": ["TODO."]
     },
     {
       "label": "Key type",
       "type": "text",
       "model": "keyType",
       "required": true,
-      "placeholder": "Full class name for Key"
+      "placeholder": "Full class name for Key",
+      "tip": ["TODO."]
     },
     {
       "label": "Value type",
       "type": "text",
       "model": "value Type",
       "required": true,
-      "placeholder": "Full class name for Value"
+      "placeholder": "Full class name for Value",
+      "tip": ["TODO."]
     },
     {
       "label": "Key fields",
       "type": "fieldsMetadata",
       "model": "keyFields",
+      "hide": "backupItem.kind == 'query'",
       "tip": ["Collection of key fields descriptions."]
     },
     {
-      "label": "valFields",
+      "label": "Value fields",
       "type": "fieldsMetadata",
       "model": "valueFields",
+      "hide": "backupItem.kind == 'query'",
       "tip": ["Collection of value fields descriptions."]
     },
     {
       "label": "Query fields",
       "type": "text",
       "model": "queryFields",
+      "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Ascending fields",
       "type": "text",
       "model": "ascendingFields",
+      "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Descending fields",
       "type": "text",
       "model": "descendingFields",
+      "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Text fields",
       "type": "table-simple",
       "model": "textFields",
+      "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Groups",
       "type": "groupsMetadata",
       "model": "groups",
+      "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     }
   ]

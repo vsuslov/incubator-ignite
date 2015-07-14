@@ -18,6 +18,9 @@
 @logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 @input-height: 28px;
 @ignite-red: #ec1c24;
+@ignite-block-callout-background: #f3f8f3;
+@ignite-block-callout-border: #50af51;
+
 
 .main-header .logo {
   height: auto;
@@ -1034,3 +1037,19 @@ a {
 .st-sort-descent:after{
   content: '\25BC';
 }
+
+.block-callout {
+  background-color: @ignite-block-callout-background;
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-color: @ignite-block-callout-border;
+
+  margin-bottom: 20px;
+
+  p {
+    padding: 10px 0 10px 10px;
+  }
+}
+
+
+

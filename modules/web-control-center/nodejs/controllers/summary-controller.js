@@ -15,11 +15,21 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('summaryController', ['$scope', '$http', function ($scope, $http) {
+controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
+    $scope.joinTip = commonFunctions.joinTip;
+
     $scope.javaClassItems = [
         { label: 'snippet',value: false},
         { label: 'factory class',value: true}
     ];
+
+    $http.get('/models/summary.json')
+        .success(function (data) {
+            $scope.screenTip = data.screenTip;
+        })
+        .error(function (errMsg) {
+            commonFunctions.showError(errMsg);
+        });
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
 

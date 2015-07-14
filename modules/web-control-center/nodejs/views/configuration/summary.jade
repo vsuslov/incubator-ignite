@@ -35,6 +35,8 @@ block content
         h1 Configurations summary
         hr
     .docs-body(ng-controller='summaryController')
+        .block-callout
+            p(ng-bind-html='joinTip(screenTip)')
         div(ng-show='clusters.length == 0')
             | No cluster configured. You can&nbsp;
             a(href='clusters') configure

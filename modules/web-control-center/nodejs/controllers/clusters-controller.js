@@ -88,6 +88,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
 
         $http.get('/models/clusters.json')
             .success(function (data) {
+                $scope.screenTip = data.screenTip;
                 $scope.templateTip = data.templateTip;
 
                 $scope.general = data.general;

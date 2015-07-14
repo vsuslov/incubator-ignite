@@ -21,15 +21,18 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
         $scope.getModel = commonFunctions.getModel;
 
         $scope.templates = [
-            {value: 'query', label: 'query'},
-            {value: 'store', label: 'store'},
-            {value: 'both', label: 'both'}
+            {value: {kind: 'query'}, label: 'query'},
+            {value: {kind: 'store'}, label: 'store'},
+            {value: {kind: 'both'}, label: 'both'}
         ];
+
+        $scope.template = $scope.templates[0].value;
 
         $scope.metadata = [];
 
         $http.get('/models/metadata.json')
             .success(function (data) {
+                $scope.screenTip = data.screenTip;
                 $scope.templateTip = data.templateTip;
                 $scope.general = data.general;
             })
@@ -80,7 +83,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
         // Add new metadata.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true};
+            $scope.backupItem = angular.copy($scope.template);
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
