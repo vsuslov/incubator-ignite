@@ -24,6 +24,12 @@ import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
 import org.apache.ignite.logger.*;
+import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.*;
+import org.apache.logging.log4j.core.appender.*;
+import org.apache.logging.log4j.core.config.*;
+import org.apache.logging.log4j.core.layout.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
@@ -92,9 +98,9 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      * Creates new logger and automatically detects if root logger already
      * has appenders configured. If it does not, the root logger will be
      * configured with default appender (analogous to calling
-     * {@link #Log4J2Logger(boolean) Log4JLogger(boolean)}
+     * {@link #Log4J2Logger(boolean) Log4J2Logger(boolean)}
      * with parameter {@code true}, otherwise, existing appenders will be used (analogous
-     * to calling {@link #Log4J2Logger(boolean) Log4JLogger(boolean)}
+     * to calling {@link #Log4J2Logger(boolean) Log4J2Logger(boolean)}
      * with parameter {@code false}).
      */
     public Log4J2Logger() {
@@ -113,7 +119,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      *      constructor.
      */
     public Log4J2Logger(boolean init) {
-        impl = Logger.getRootLogger();
+        impl = LogManager.getRootLogger();
 
         if (init) {
             // Implementation has already been inited, passing NULL.
@@ -166,9 +172,10 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    DOMConfigurator.configure(cfgUrl);
+                    // TODO review
+                    Configurator.initialize("Log4J2Logger", cfgUrl.toString());
 
-                return Logger.getRootLogger();
+                return LogManager.getRootLogger();
             }
         });
 
@@ -181,6 +188,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      * @param cfgFile Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
+    // TODO create test
     public Log4J2Logger(File cfgFile) throws IgniteCheckedException {
         if (cfgFile == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
@@ -188,14 +196,21 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
         if (!cfgFile.exists() || cfgFile.isDirectory())
             throw new IgniteCheckedException("Log4j configuration path was not found or is a directory: " + cfgFile);
 
-        path = cfgFile.getAbsolutePath();
+        final String uri;
+
+        try {
+            uri = cfgFile.toURI().toURL().toString();
+        }
+        catch (MalformedURLException e) {
+            throw new IgniteCheckedException(e.toString());
+        }
 
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    DOMConfigurator.configure(path);
+                    Configurator.initialize("Log4J2Logger", uri);
 
-                return Logger.getRootLogger();
+                return LogManager.getRootLogger();
             }
         });
 
@@ -208,6 +223,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      * @param cfgUrl URL for Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
+    // TODO test it.
     public Log4J2Logger(final URL cfgUrl) throws IgniteCheckedException {
         if (cfgUrl == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
@@ -217,9 +233,9 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    DOMConfigurator.configure(cfgUrl);
+                    Configurator.initialize("Log4J2Logger", cfgUrl.toString());
 
-                return Logger.getRootLogger();
+                return LogManager.getRootLogger();
             }
         });
 
@@ -227,12 +243,13 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
     }
 
     /**
-     * Checks if Log4j is already configured within this VM or not.
+     * Checks if Log4j2 is already configured within this VM or not.
      *
-     * @return {@code True} if log4j was already configured, {@code false} otherwise.
+     * @return {@code True} if log4j2 was already configured, {@code false} otherwise.
      */
+    // TODO review
     public static boolean isConfigured() {
-        return Logger.getRootLogger().getAllAppenders().hasMoreElements();
+        return LogManager.getLogger("Log4J2Logger") != null;
     }
 
     /**
