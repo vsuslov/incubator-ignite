@@ -24,81 +24,74 @@
       "placeholder": "Select kind"
     },
     {
-      "label": "dbSchema",
+      "label": "Database schema",
       "type": "text",
-      "model": "dbSchema",
+      "model": "databaseSchema",
       "required": true,
       "placeholder": "Input DB schema name"
     },
     {
-      "label": "dbTbl",
+      "label": "Database table",
       "type": "text",
-      "model": "dbTbl",
+      "model": "databaseTable",
       "required": true,
       "placeholder": "Input DB table name"
     },
     {
-      "label": "keyType",
+      "label": "Key type",
       "type": "text",
       "model": "keyType",
       "required": true,
       "placeholder": "Full class name for Key"
     },
     {
-      "label": "valType",
+      "label": "Value type",
       "type": "text",
-      "model": "valType",
+      "model": "value Type",
       "required": true,
       "placeholder": "Full class name for Value"
     },
     {
-      "label": "keyFields",
-      "type": "text",
+      "label": "Key fields",
+      "type": "fieldsMetadata",
       "model": "keyFields",
-      "required": true,
-      "placeholder": "TODO"
+      "tip": ["Collection of key fields descriptions."]
     },
     {
       "label": "valFields",
-      "type": "text",
-      "model": "valFields",
-      "required": true,
-      "placeholder": "TODO"
+      "type": "fieldsMetadata",
+      "model": "valueFields",
+      "tip": ["Collection of value fields descriptions."]
     },
     {
-      "label": "qryFlds",
+      "label": "Query fields",
       "type": "text",
-      "model": "qryFlds",
-      "required": true,
-      "placeholder": "TODO"
+      "model": "queryFields",
+      "tip": ["TODO."]
     },
     {
-      "label": "ascFlds",
+      "label": "Ascending fields",
       "type": "text",
-      "model": "ascFlds",
-      "required": true,
-      "placeholder": "TODO"
+      "model": "ascendingFields",
+      "tip": ["TODO."]
     },
     {
-      "label": "descFlds",
+      "label": "Descending fields",
       "type": "text",
-      "model": "descFlds",
-      "required": true,
-      "placeholder": "TODO"
+      "model": "descendingFields",
+      "tip": ["TODO."]
     },
     {
-      "label": "txtFlds",
-      "type": "text",
-      "model": "txtFlds",
-      "required": true,
-      "placeholder": "TODO"
+      "label": "Text fields",
+      "type": "table-simple",
+      "model": "textFields",
+      "tip": ["TODO."]
     },
     {
-      "label": "grps",
-      "type": "text",
-      "model": "grps",
-      "required": true,
-      "placeholder": "TODO"
+      "label": "Groups",
+      "type": "groupsMetadata",
+      "model": "groups",
+      "tip": ["TODO."]
     }
   ]
 }
