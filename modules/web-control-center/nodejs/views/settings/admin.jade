@@ -45,7 +45,7 @@ block container
                                 span {{row.lastLogin | date:'medium'}}
                             td(style='text-align: center;')
                                 input(type='checkbox' ng-disabled='row.adminChanging || row._id == user._id'
-                                    ng-model='row.admin' ng-change='toggleAdmin(user)')
+                                    ng-model='row.admin' ng-change='toggleAdmin(row)')
                             td(style='text-align: center;')
                                 a(ng-click='removeUser(row)' ng-show='row._id != user._id' title='Remove user')
                                     i.fa.fa-remove

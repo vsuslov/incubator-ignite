@@ -63,9 +63,7 @@ router.get('/become', function(req, res) {
     if (!viewedUserId) {
         req.session.viewedUser = null;
 
-        res.redirect('/');
-
-        return
+        return res.redirect('/admin');
     }
 
     db.Account.findById(viewedUserId, function(err, viewedUser) {

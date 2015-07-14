@@ -759,6 +759,10 @@ button .caret {
 }
 
 .theme-line table.admin {
+  tr:hover {
+    cursor: default;
+  }
+
   thead > tr th.header {
     padding: 0 0 0.65em;
 
@@ -1008,12 +1012,13 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
 }
 
 .viewedUser {
-  display: inline;
+  position: absolute;
+  width: 100%;
+  left: 0;
 
-  padding: 6px;
-  margin: 7px;
+  text-align: center;
 
-  border-radius: 4px;
+  margin-top: -15px;
 
   background-color: #f8d5d8;
 }

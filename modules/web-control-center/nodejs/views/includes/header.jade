@@ -18,10 +18,10 @@ mixin header-item(active, ref, txt)
         a(ng-class='{active: isActive("#{active}")}' href='#{ref}') #{txt}
 
 header.header(id='header')
-    div.viewedUser(ng-show='becomeUsed') You're working as&nbsp;
-        strong {{user.username}}&nbsp;
-        a(href='/admin/become')
-            span.fa.fa-remove(title='Unlogin')
+    .viewedUser(ng-show='becomeUsed') Currently assuming "
+        strong {{user.username}}
+        | ",&nbsp;&nbsp;
+        a(href='/admin/become') revert to your identity.
     .container
         h1.navbar-brand
             a(href='/') Apache Ignite Web Configurator
@@ -39,9 +39,9 @@ header.header(id='header')
                         ul.dropdown-menu
                             li
                                 a(href='/profile') Profile
-                            li(ng-if='user.admin')
+                            li(ng-if='!becomeUsed && user.admin')
                                 a(href='/admin') Admin Panel
-                            li
+                            li(ng-if='!becomeUsed')
                                 a(href='/logout') Log Out
                 li.nav-login(ng-show='!user')
                     a(ng-click='login()' href='#') Log In
