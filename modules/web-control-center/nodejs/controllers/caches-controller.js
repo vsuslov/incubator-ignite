@@ -212,5 +212,47 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                     commonFunctions.showError(errMsg);
                 });
         };
+
+        $scope.checkIndexedTypes = function (keyCls, valCls) {
+            if (!keyCls) {
+                commonFunctions.showError('Key class name should be non empty!');
+
+                return false;
+            }
+
+            if (!valCls) {
+                commonFunctions.showError('Value class name should be non empty!');
+
+                return false;
+            }
+
+            return true;
+        };
+
+        $scope.addIndexedTypes = function (keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return;
+
+            var idxTypes = $scope.backupItem.indexedTypes;
+
+            var newItem = {keyClass: keyCls, valueClass: valCls};
+
+            if (idxTypes)
+                idxTypes.push(newItem);
+            else
+                $scope.backupItem.indexedTypes = [newItem];
+        };
+
+        $scope.saveIndexedType = function (idx, keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return idx;
+
+            var idxType = $scope.backupItem.indexedTypes[idx];
+
+            idxType.keyClass = keyCls;
+            idxType.valueClass = valCls;
+
+            return -1;
+        };
     }]
 );
