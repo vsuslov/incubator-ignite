@@ -35,8 +35,6 @@ var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
 
-var uiUtils = require('./helpers/ui-utils');
-
 var passport = require('passport');
 
 var db = require('./db');
@@ -95,12 +93,6 @@ var adminOnly = function(req, res, next) {
 };
 
 app.all('/configuration/*', mustAuthenticated);
-
-for (var p in uiUtils) {
-    if (uiUtils.hasOwnProperty(p)) {
-        app.locals[p] = uiUtils[p];
-    }
-}
 
 app.all('*', function(req, res, next) {
     var becomeUsed = req.session.viewedUser && req.user.admin;
