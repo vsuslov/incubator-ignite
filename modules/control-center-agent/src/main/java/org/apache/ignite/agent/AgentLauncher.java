@@ -77,7 +77,7 @@ public class AgentLauncher {
         String uri = cmd.getOptionValue('u');
 
         if (uri == null)
-            cfg.setUri("ws://localhost:8088");
+            cfg.setUri("ws://localhost:3001");
         else
             cfg.setUri(uri);
 

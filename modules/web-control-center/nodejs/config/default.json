@@ -4,5 +4,8 @@
     },
     "mongoDB": {
         "url": "mongodb://localhost/web-control-center"
+    },
+    "monitor": {
+        "agentsServerPort": 3001
     }
 }

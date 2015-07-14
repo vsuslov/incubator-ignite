@@ -17,6 +17,8 @@
 
 var WebSocketServer = require('ws').Server;
 
+var config = require('../helpers/configuration-loader.js');
+
 var http = require('http');
 
 var db = require('../db');
@@ -83,7 +85,8 @@ function Client(ws) {
 
 function Server() {
     var server = http.createServer();
-    server.listen(8088);
+
+    server.listen(config.get('monitor:agentsServerPort'));
 
     var wss = new WebSocketServer({ server: server });
 
