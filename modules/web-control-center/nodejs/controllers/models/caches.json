@@ -44,6 +44,7 @@
       "label": "Backups",
       "type": "number",
       "model": "backups",
+      "hide": "backupItem.mode == 'LOCAL'",
       "placeholder": 0,
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
@@ -54,7 +55,7 @@
       "type": "check",
       "model": "readFromBackup",
       "checked": true,
-      "hide": "!backupItem.backups",
+      "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
       "tip": [
         "Flag indicating whether data can be read from backup.",
         "If not set then always get data from primary node (never from backup)."
