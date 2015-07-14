@@ -17,7 +17,6 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../helpers/ui-utils');
 
 router.all('/profile/*', function (req, res, next) {
     var userId = req.body._id;
@@ -54,7 +53,7 @@ router.post('/saveUser', function (req, res) {
         if (!newPassword || newPassword.length == 0)
             return res.status(500).send('Wrong value for new password');
 
-        db.Account.findById(params._id, function (err, user) {
+        db.Account.findById(params._id).select('-attempts -hash -salt').exec(function (err, user) {
             if (err)
                 return res.status(500).send(err);
 
@@ -72,7 +71,7 @@ router.post('/saveUser', function (req, res) {
                     if (err)
                         return res.status(500).send(err.message);
 
-                    res.json(uiUtils.filterUser(user));
+                    res.json(user);
                 });
             });
         });
@@ -86,11 +85,11 @@ router.post('/saveUser', function (req, res) {
         if (params.email)
             upd.email = params.email;
 
-        db.Account.findByIdAndUpdate(params._id, upd, {new: true}, function (err, val) {
+        db.Account.findByIdAndUpdate(params._id, upd, {new: true}).select('-attempts -hash -salt').exec(function (err, val) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.json(uiUtils.filterUser(val));
+            res.json(val);
         })
     }
 });

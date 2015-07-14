@@ -34,7 +34,8 @@ var AccountSchema = new Schema({
     admin: Boolean
 });
 
-AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin', usernameLowerCase: true});
+AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin',
+    usernameLowerCase: true});
 
 exports.Account = mongoose.model('Account', AccountSchema);
 
