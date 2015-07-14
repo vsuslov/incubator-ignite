@@ -25,7 +25,7 @@ router.get('/', function (req, res) {
 /**
  * Get list of user accounts.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     db.Account.find({}).select('-attempts -hash -salt').exec(function (err, users) {
         if (err)
             return res.status(500).send(err.message);
