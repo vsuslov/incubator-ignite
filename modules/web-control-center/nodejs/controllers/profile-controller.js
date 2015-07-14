@@ -16,17 +16,17 @@
  */
 
 controlCenterModule.controller('profileController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-    $scope.profileUser = angular.copy($scope.loggedInUser);
+    $scope.profileUser = angular.copy($scope.user);
 
     $scope.saveUser = function() {
         var profile = $scope.profileUser;
 
         if (profile) {
             var userName = profile.username;
-            var changeUsername = userName != $scope.loggedInUser.username;
+            var changeUsername = userName != $scope.user.username;
 
             var email = profile.email;
-            var changeEmail = email != $scope.loggedInUser.email;
+            var changeEmail = email != $scope.user.email;
 
             if (changeUsername || changeEmail || profile.changePassword) {
                 $http.post('/profile/saveUser', {
@@ -34,14 +34,14 @@ controlCenterModule.controller('profileController', ['$scope', '$http', 'commonF
                     userName: changeUsername ? userName : undefined,
                     email: changeEmail ? email : undefined,
                     newPassword: profile.changePassword ? profile.newPassword : undefined
-                }).success(function () {
+                }).success(function (user) {
                     commonFunctions.showInfo('Profile saved.');
 
                     if (changeUsername)
-                        $scope.loggedInUser.username = userName;
+                        $scope.user.username = userName;
 
                     if (changeEmail)
-                        $scope.loggedInUser.email = email;
+                        $scope.user.email = email;
                 }).error(function (err) {
                     commonFunctions.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
                 });

@@ -26,7 +26,7 @@ router.get('/', function(req, res) {
  * Get list of user accounts.
  */
 router.post('/list', function(req, res) {
-    db.Account.find({}).select('_id username email lastLogin admin').exec(function (err, users) {
+    db.Account.find({}).select('-attempts -hash -salt').exec(function (err, users) {
         if (err)
             return res.status(500).send(err.message);
 
