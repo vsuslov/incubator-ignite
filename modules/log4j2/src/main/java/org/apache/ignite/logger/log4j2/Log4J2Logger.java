@@ -258,14 +258,38 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      * @param level Log level to set.
      */
     public void setLevel(Level level) {
-        impl.setLevel(level);
+        LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
+
+        Configuration conf = ctx.getConfiguration();
+
+        conf.getLoggerConfig(impl.getName()).setLevel(level);
+
+        ctx.updateLoggers(conf);
     }
 
     /** {@inheritDoc} */
     @Nullable @Override public String fileName() {
-        FileAppender fapp = F.first(fileAppenders);
+        // TODO
+        // It was.
+//        FileAppender fapp = F.first(fileAppenders);
+//
+//        return fapp != null ? fapp.getFile() : null;
 
-        return fapp != null ? fapp.getFile() : null;
+        // New logic.
+        // TODO cast, RollingFileAppender and etc.
+        org.apache.logging.log4j.core.Logger logImpl = (org.apache.logging.log4j.core.Logger)impl;
+
+        Collection<Appender> appenders = logImpl.getAppenders().values();
+
+        for (Appender a : appenders) {
+            if (a instanceof FileAppender)
+                return ((FileAppender)a).getFileName();
+
+            if (a instanceof RollingFileAppender)
+                return ((RollingFileAppender)a).getFileName();
+        }
+
+        return null;
     }
 
     /**
@@ -443,9 +467,13 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4jFileA
      * @return {@link IgniteLogger} wrapper around log4j logger.
      */
     @Override public Log4J2Logger getLogger(Object ctgr) {
-        return new Log4J2Logger(ctgr == null ? Logger.getRootLogger() :
-            ctgr instanceof Class ? Logger.getLogger(((Class<?>)ctgr).getName()) :
-                Logger.getLogger(ctgr.toString()));
+        if (ctgr == null)
+            return new Log4J2Logger(LogManager.getRootLogger());
+
+        if (ctgr instanceof Class)
+            return new Log4J2Logger(LogManager.getLogger(((Class<?>)ctgr).getName()));
+
+        return new Log4J2Logger(LogManager.getLogger(ctgr.toString()));
     }
 
     /** {@inheritDoc} */
