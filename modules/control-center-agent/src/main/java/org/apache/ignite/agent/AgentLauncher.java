@@ -18,6 +18,7 @@
 package org.apache.ignite.agent;
 
 import org.apache.commons.cli.*;
+import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
 import java.net.*;
@@ -77,7 +78,7 @@ public class AgentLauncher {
         String uri = cmd.getOptionValue('u');
 
         if (uri == null)
-            cfg.setUri("ws://localhost:3001");
+            cfg.setUri("wss://localhost:3001"); // todo set something like wss://control-center.gridgain.com
         else
             cfg.setUri(uri);
 
@@ -86,18 +87,23 @@ public class AgentLauncher {
         agent.start();
 
         try {
-            WebSocketClient client = new WebSocketClient();
+            SslContextFactory sslCtxFactory = new SslContextFactory();
 
-            AgentSocket agentSocket = new AgentSocket(cfg, agent);
+            if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
+                sslCtxFactory.setTrustAll(true);
+
+            WebSocketClient client = new WebSocketClient(sslCtxFactory);
+
+            AgentSocket agentSock = new AgentSocket(cfg, agent);
 
             client.start();
 
             try {
-                client.connect(agentSocket, new URI(cfg.getUri()));
+                client.connect(agentSock, new URI(cfg.getUri()));
 
                 System.out.printf("Connecting to : %s%n", cfg.getUri());
 
-                agentSocket.waitForClose();
+                agentSock.waitForClose();
             }
             finally {
                 client.stop();

@@ -19,9 +19,11 @@ var WebSocketServer = require('ws').Server;
 
 var config = require('../helpers/configuration-loader.js');
 
-var http = require('http');
+var https = require('https');
 
 var db = require('../db');
+
+var fs = require('fs');
 
 var srv;
 
@@ -84,9 +86,13 @@ function Client(ws) {
 }
 
 function Server() {
-    var server = http.createServer();
+    var server = https.createServer({
+        key: fs.readFileSync(config.get('monitor:server:key')),
+        cert: fs.readFileSync(config.get('monitor:server:cert')),
+        passphrase: config.get('monitor:server:keyPassphrase')
+    });
 
-    server.listen(config.get('monitor:agentsServerPort'));
+    server.listen(config.get('monitor:server:port'));
 
     var wss = new WebSocketServer({ server: server });
 

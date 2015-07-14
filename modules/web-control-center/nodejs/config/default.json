@@ -6,6 +6,11 @@
         "url": "mongodb://localhost/web-control-center"
     },
     "monitor": {
-        "agentsServerPort": 3001
+        "server": {
+            "port": 3001,
+            "key": "keys/test.key",
+            "cert": "keys/test.crt",
+            "keyPassphrase": "password"
+        }
     }
 }
