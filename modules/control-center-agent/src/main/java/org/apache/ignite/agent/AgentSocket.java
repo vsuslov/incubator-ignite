@@ -1,4 +1,4 @@
-package org.apache.ignite.agent;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,6 +14,8 @@ package org.apache.ignite.agent;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.apache.ignite.agent;
 
 import org.apache.ignite.agent.messages.*;
 import org.eclipse.jetty.websocket.api.*;
@@ -94,11 +96,10 @@ public class AgentSocket {
         if (m instanceof AuthResult) {
             if (((AuthResult)m).isSuccess())
                 System.out.println("Authentication success");
-            else {
+            else
                 System.out.println("Authentication failed: " + ((AuthResult)m).getMessage());
 
-                ses.close();
-            }
+            ses.close();
         }
         else if (m instanceof ExecuteRest) {
             ExecuteRest execRest = (ExecuteRest)m;
