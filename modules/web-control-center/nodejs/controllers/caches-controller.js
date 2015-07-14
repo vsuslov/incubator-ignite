@@ -149,7 +149,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         // Add new cache.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true};
+            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 

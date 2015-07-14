@@ -53,9 +53,21 @@
       "label": "Read from backup",
       "type": "check",
       "model": "readFromBackup",
+      "checked": true,
+      "hide": "!backupItem.backups",
       "tip": [
         "Flag indicating whether data can be read from backup.",
         "If not set then always get data from primary node (never from backup)."
+      ]
+    },
+    {
+      "label": "Copy on read",
+      "type": "check",
+      "model": "copyOnRead",
+      "checked": true,
+      "tip": [
+        "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
+        "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
       ]
     },
     {
@@ -304,15 +316,6 @@
           "model": "swapEnabled",
           "tip": [
             "Flag indicating whether swap storage is enabled or not for this cache."
-          ]
-        },
-        {
-          "label": "Copy on read",
-          "type": "check",
-          "model": "copyOnRead",
-          "tip": [
-            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
-            "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
           ]
         }
       ]
