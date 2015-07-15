@@ -24,8 +24,7 @@
       "label": "Metadata for",
       "type": "dropdown",
       "model": "kind",
-      "items": "templates",
-      "placeholder": "Select kind",
+      "items": "kinds",
       "tip": ["TODO."]
     },
     {

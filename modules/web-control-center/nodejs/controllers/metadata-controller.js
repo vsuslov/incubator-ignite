@@ -26,6 +26,12 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
             {value: {kind: 'both'}, label: 'both'}
         ];
 
+        $scope.kinds = [
+            {value: 'query', label: 'query'},
+            {value: 'store', label: 'store'},
+            {value: 'both', label: 'both'}
+        ];
+
         $scope.template = $scope.templates[0].value;
 
         $scope.metadata = [];

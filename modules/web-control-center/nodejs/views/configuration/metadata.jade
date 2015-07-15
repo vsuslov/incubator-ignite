@@ -34,14 +34,28 @@ block content
                     tr(ng-repeat='row in metadata track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-        button.btn.btn-primary(ng-click='createItem()') &nbspAdd metadata
-        label(style='margin-left: 15px; margin-right: 10px') for:
-        button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
-        i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
-        hr
-        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
-            .panel-body
-                .settings-row(ng-repeat='field in general')
-                    +form-row
-            button#save-btn.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
-            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
+        panel-group(bs-collapse data-allow-multiple="false")
+            .panel.panel-default
+                .panel-heading
+                    h3
+                        a(bs-collapse-toggle) Manual
+                .panel-collapse(role="tabpanel" bs-collapse-target)
+                    .panel-body
+                        button.btn.btn-primary(ng-click='createItem()') &nbspAdd metadata
+                        label(style='margin-left: 15px; margin-right: 10px') for:
+                        button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
+                        i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
+                        hr
+                        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
+                            .panel-body
+                                .settings-row(ng-repeat='field in general')
+                                    +form-row
+                            button#save-btn.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
+                            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
+            .panel.panel-default
+                .panel-heading
+                    h3
+                        a(bs-collapse-toggle) Load from database
+                .panel-collapse(role="tabpanel" bs-collapse-target)
+                    .panel-body
+                        p TODO 2
