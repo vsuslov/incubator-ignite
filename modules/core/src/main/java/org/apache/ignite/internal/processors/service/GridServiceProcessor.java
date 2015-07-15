@@ -621,6 +621,10 @@ public class GridServiceProcessor extends GridProcessorAdapter {
     private void reassign(GridServiceDeployment dep, long topVer) throws IgniteCheckedException {
         ServiceConfiguration cfg = dep.configuration();
 
+        Object nodeFilter = cfg.getNodeFilter();
+        if (nodeFilter != null)
+            ctx.resource().injectGeneric(nodeFilter);
+
         int totalCnt = cfg.getTotalCount();
         int maxPerNodeCnt = cfg.getMaxPerNodeCount();
         String cacheName = cfg.getCacheName();
