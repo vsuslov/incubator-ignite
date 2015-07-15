@@ -145,7 +145,8 @@ controlCenterModule.config(function ($selectProvider) {
         maxLength: '1',
         allText: 'Select All',
         noneText: 'Clear All',
-        templateUrl: '/select'
+        templateUrl: '/select',
+        iconCheckmark: 'fa fa-check'
     });
 });
 
@@ -247,7 +248,7 @@ controlCenterModule.controller('auth', [
         $scope.userDropdown = [{"text": "Profile", "href": "/profile"}];
 
         if (!$scope.becomeUsed) {
-            if ($scope.user.admin)
+            if ($scope.user && $scope.user.admin)
                 $scope.userDropdown.push({"text": "Admin Panel", "href": "/admin"});
 
             $scope.userDropdown.push({"text": "Log Out", "href": "/logout"});

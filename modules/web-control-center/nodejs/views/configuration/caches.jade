@@ -45,7 +45,7 @@ block content
                     .panel-collapse(bs-collapse-target)
                         .panel-body
                             .settings-row(ng-repeat='field in general')
-                                +form-row
+                                +form-row(['col-sm-3'], ['col-sm-3'])
             div(bs-collapse data-start-collapsed='true')
                 .panel-title(ng-show='expanded')
                     h3

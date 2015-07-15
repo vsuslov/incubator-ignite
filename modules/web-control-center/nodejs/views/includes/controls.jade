@@ -94,8 +94,9 @@ mixin details-row
                 +exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin form-row
-    - var lblClasses = ['col-sm-2']
+    +form-row-custom(['col-sm-2'], ['col-sm-4'])
 
+mixin form-row-custom(lblClasses, fieldClasses)
     - var fieldMdl = 'getModel(backupItem, field.path)[field.model]';
     - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
     - var fieldRequiredClass = '{true: "required"}[field.required || required(field)]'

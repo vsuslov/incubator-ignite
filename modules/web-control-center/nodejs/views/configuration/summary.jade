@@ -116,7 +116,7 @@ block content
                         .panel-body
                             .configBox(ng-show='selectedItem && !generateError')
                                 .settings-row(ng-repeat='field in clientFields')
-                                    +form-row
+                                    +form-row-custom(['col-sm-3'], ['col-sm-3'])
                                 ul.nav.nav-tabs
                                     li(ng-class='{active: cfgLangClient == "xml"}')
                                         a(href, ng-click='cfgLangClient = "xml"')
