@@ -24,9 +24,14 @@ router.get('/select', function (req, res) {
     res.render('templates/select', {});
 });
 
-// GET dropdown-menu template.
+// GET confirmation dialog.
 router.get('/confirm', function (req, res) {
     res.render('templates/confirm', {});
+});
+
+// GET save as dialog.
+router.get('/saveAs', function (req, res) {
+    res.render('templates/saveAs', {});
 });
 
 /* GET login page. */

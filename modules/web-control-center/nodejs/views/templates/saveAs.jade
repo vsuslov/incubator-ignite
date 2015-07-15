@@ -19,9 +19,13 @@
         .modal-content
             .modal-header
                 button.close(type="button" ng-click="$hide()") &times;
-                h4.modal-title Confirmation
-            .modal-body(ng-show='content')
-                p(ng-bind-html='content' style='text-align: center;')
+                h4.modal-title Save as
+            form.form-horizontal(name='inputForm' novalidate)
+                .modal-body.row
+                    .col-sm-9.login.col-sm-offset-1
+                        label.required.labelFormField() New name:&nbsp;
+                        .col-sm-9
+                            input.form-control(type="text" ng-model='newName' required)
             .modal-footer
                 button.btn.btn-default(type="button" ng-click="$hide()") Cancel
-                button.btn.btn-primary(type="button" ng-click="ok()") Confirm
+                button.btn.btn-primary(type="button" ng-disabled='inputForm.$invalid' ng-click="ok(newName)") Confirm

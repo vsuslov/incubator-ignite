@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveAs', '$confirm', 'commonFunctions', function ($scope, $http, $saveAs, $confirm, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -145,15 +145,17 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$confi
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
-        // Save cluster in db.
-        $scope.saveItem = function () {
-            var item = $scope.backupItem;
+        $scope.indexOfCache = function (cacheId) {
+            return _.findIndex($scope.caches, function (cache) {
+                return cache.value == cacheId;
+            });
+        };
 
+        // Check cluster logical consistency.
+        $scope.checkItem = function (item) {
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind) {
-                for (var cacheId in item.caches) {
-                    var idx = _.findIndex($scope.caches, function (cache) {
-                        return cache._id == cacheId.value;
-                    });
+                for (var i = 0; i < item.caches.length; i++) {
+                    var idx = $scope.indexOfCache(item.caches[i]);
 
                     if (idx >= 0) {
                         var cache = $scope.caches[idx];
@@ -161,12 +163,17 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$confi
                         if (cache.swapEnabled) {
                             commonFunctions.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
 
-                            return;
+                            return false;
                         }
                     }
                 }
             }
 
+            return true;
+        };
+
+        // Save cluster in database.
+        $scope.saveItemToDb = function (item) {
             $http.post('clusters/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.clusters, function (cluster) {
@@ -190,31 +197,55 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$confi
                 });
         };
 
-        // Save cluster in db with new name.
-        $scope.saveItemAs = function () {
+        // Save cluster.
+        $scope.saveItem = function () {
+            var item = $scope.backupItem;
 
+            if ($scope.checkItem(item))
+                $scope.saveItemToDb(item);
+        };
+
+        // Save cluster with new name.
+        $scope.saveItemAs = function () {
+            var item = $scope.backupItem;
+
+            if ($scope.checkItem(item))
+                $saveAs.show($scope.backupItem.name).then(function (newName) {
+                    item._id = undefined;
+                    item.name = newName;
+
+                    $scope.saveItemToDb(item);
+                });
         };
 
         // Remove cluster from db.
         $scope.removeItem = function () {
-            $confirm.show('Are you sure you want to remove cluster: "' + $scope.selectedItem.name + '"?').then(
+            var selectedItem = $scope.selectedItem;
+
+            $confirm.show('Are you sure you want to remove cluster: "' + selectedItem.name + '"?').then(
                 function () {
-                    var _id = $scope.selectedItem._id;
+                    var _id = selectedItem._id;
 
                     $http.post('clusters/remove', {_id: _id})
                         .success(function () {
-                            var idx = _.findIndex($scope.clusters, function (cluster) {
+                            commonFunctions.showInfo('Cluster has been removed: ' + selectedItem.name);
+
+                            var clusters = $scope.clusters;
+
+                            var idx = _.findIndex(clusters, function (cluster) {
                                 return cluster._id == _id;
                             });
 
                             if (idx >= 0) {
-                                $scope.clusters.splice(idx, 1);
+                                clusters.splice(idx, 1);
 
-                                $scope.selectedItem = undefined;
-                                $scope.backupItem = undefined;
+                                if (clusters.length > 0)
+                                    $scope.selectItem(clusters[0]);
+                                else {
+                                    $scope.selectedItem = undefined;
+                                    $scope.backupItem = undefined;
+                                }
                             }
-
-                            commonFunctions.showInfo('Cluster has been removed: ' + $scope.selectedItem.label);
                         })
                         .error(function (errMsg) {
                             commonFunctions.showError(errMsg);

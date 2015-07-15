@@ -67,21 +67,19 @@ router.post('/download', function (req, res) {
 
         var archiver = require('archiver');
 
-        // creating archives
+        // Creating archive.
         var zip = archiver('zip');
 
         zip.on('error', function (err) {
             res.status(500).send({error: err.message});
         });
 
-        //on stream closed we can end the request
+        // On stream closed we can end the request.
         res.on('close', function () {
-            console.log('Archive wrote %d bytes', archive.pointer());
-
             return res.status(200).send('OK').end();
         });
 
-        //set the archive name
+        // Set the archive name.
         res.attachment(cluster.name + (clientCache ? '-client' : '') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');
