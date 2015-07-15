@@ -18,7 +18,6 @@
 package org.apache.ignite.logger.log4j2;
 
 import org.apache.ignite.*;
-import org.apache.ignite.internal.util.*;
 import org.apache.ignite.internal.util.tostring.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
@@ -67,10 +66,9 @@ import static org.apache.ignite.IgniteSystemProperties.*;
  * logger in your task/job code. See {@link org.apache.ignite.resources.LoggerResource} annotation about logger
  * injection.
  */
-public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2FileAware {
+public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     public static final String LOGGER_NAME = "Log4J2Logger";
-    /** Appenders. */
-    private static Collection<FileAppender> fileAppenders = new GridConcurrentHashSet<>();
+    public static final String NODE_ID = "nodeId";
 
     /** */
     private static volatile boolean inited;
@@ -417,57 +415,22 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
         return console;
     }
 
-    /**
-     * Adds file appender.
-     *
-     * @param a Appender.
-     */
-    public static void addAppender(FileAppender a) {
-        A.notNull(a, "a");
-
-        fileAppenders.add(a);
-    }
-
-    /**
-     * Removes file appender.
-     *
-     * @param a Appender.
-     */
-    public static void removeAppender(FileAppender a) {
-        A.notNull(a, "a");
-
-        fileAppenders.remove(a);
-    }
-
     /** {@inheritDoc} */
     @Override public void setNodeId(UUID nodeId) {
         A.notNull(nodeId, "nodeId");
 
         this.nodeId = nodeId;
 
-        // TODO implement
-        updateFilePath(new Log4j2NodeIdFilePath(nodeId));
+        // Set nodeId at context to be used at configuration.
+        ThreadContext.put(NODE_ID, U.id8(nodeId));
+
+        ((LoggerContext) LogManager.getContext(false)).reconfigure();
     }
 
     /** {@inheritDoc} */
     @Override public UUID getNodeId() {
         return nodeId;
     }
-
-    // TODO implement.
-//    /**
-//     * Gets files for all registered file appenders.
-//     *
-//     * @return List of files.
-//     */
-//    public static Collection<String> logFiles() {
-//        Collection<String> res = new ArrayList<>(fileAppenders.size());
-//
-//        for (FileAppender a : fileAppenders)
-//            res.add(a.getFile());
-//
-//        return res;
-//    }
 
     /**
      * Gets {@link IgniteLogger} wrapper around log4j logger for the given
@@ -555,21 +518,5 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
     /** {@inheritDoc} */
     @Override public String toString() {
         return S.toString(Log4J2Logger.class, this);
-    }
-
-    /** {@inheritDoc} */
-    // TODO implement.
-    @Override public void updateFilePath(IgniteClosure<String, String> filePathClos) {
-        A.notNull(filePathClos, "filePathClos");
-
-//        new RollingFileAppender()
-
-//        for (FileAppender a : fileAppenders) {
-//            if (a instanceof Log4j2FileAware) {
-//                ((Log4j2FileAware)a).updateFilePath(filePathClos);
-//
-//                a.activateOptions();
-//            }
-//        }
     }
 }

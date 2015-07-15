@@ -17,34 +17,35 @@
 
 package org.apache.ignite.logger.log4j2;
 
-import org.apache.ignite.internal.util.typedef.internal.*;
-import org.apache.logging.log4j.*;
-import org.apache.logging.log4j.core.config.*;
-
-import java.net.*;
+import org.apache.ignite.*;
+import org.apache.ignite.configuration.*;
 
 /**
  * TODO: Add class description.
  */
 public class Log4j2TestTmp {
     public static void main(String[] args) throws Exception {
-        URL url = U.resolveIgniteUrl("config/ignite-log4j2.xml");
-
-        System.out.println(url);
-
-        Configurator.initialize("test logger", url.toString());
-
-        LogManager.getLogger("test logger").info("******************************");
-
-//        IgniteConfiguration cfg = new IgniteConfiguration()
-//            .setGridLogger(new Log4J2Logger("config/ignite-log4j2.xml"));
+//        URL url = U.resolveIgniteUrl("config/ignite-log4j2.xml");
 //
-//        try(Ignite ignite = Ignition.start(cfg)) {
-//            ignite.log().info("********** Hi! **************");
+//        System.out.println(url);
 //
-//            Thread.sleep(5_000);
+//        Configurator.initialize("test logger", url.toString());
 //
-//            ignite.log().info("********** Hi! **************");
-//        }
+//        LogManager.getLogger("test logger").info("******************************1");
+//
+//        ThreadContext.put("nodeId", "12345");
+//
+//        LogManager.getLogger("test logger").info("******************************2");
+
+        IgniteConfiguration cfg = new IgniteConfiguration()
+            .setGridLogger(new Log4J2Logger("config/ignite-log4j2.xml"));
+
+        try (Ignite ignite = Ignition.start(cfg.setGridName("grid1"))) {
+            ignite.log().info("****** smf 1 ********");
+            try (Ignite ignite2 = Ignition.start(cfg.setGridName("grid2"))) {
+                ignite.log().info("****** smf 2 ********");
+                ignite2.log().info("****** smf 3 ********");
+            }
+        }
     }
 }

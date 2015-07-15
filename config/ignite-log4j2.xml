@@ -23,19 +23,33 @@
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
         </Console>
 
-        <!--TODO-->
-        <!--<param name="MaxFileSize" value="10MB"/>-->
-        <!--<param name="MaxBackupIndex" value="10"/>-->
-        <IgniteRollingFile name="FILE" fileName="work/log/ignite-id2.log"
-                     filePattern="work/log/$${date:yyyy-MM}/ignite-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout>
-                <pattern>[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n</pattern>
-            </PatternLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="250 MB"/>
-            </Policies>
-        </IgniteRollingFile>
+        <Routing name="Routing">
+            <Routes pattern="$${ctx:nodeId}">
+                <Route>
+                    <RollingFile name="Rolling-${ctx:nodeId}" fileName="work/log/ignite-${ctx:nodeId}.log"
+                                 filePattern="work/log/ignite-${ctx:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
+                        <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="6" modulate="true" />
+                            <SizeBasedTriggeringPolicy size="10 MB" />
+                        </Policies>
+                    </RollingFile>
+                </Route>
+
+                <!--
+                <Route key="$${ctx:nodeId}">
+                    <RollingFile name="Rolling-default" fileName="work/log/ignite-default.log"
+                                 filePattern="work/log/ignite-default-%i-%d{yyyy-MM-dd}.log.gz">
+                        <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="6" modulate="true" />
+                            <SizeBasedTriggeringPolicy size="10 MB" />
+                        </Policies>
+                    </RollingFile>
+                </Route>
+                 -->
+            </Routes>
+        </Routing>
     </Appenders>
 
     <Loggers>
@@ -47,7 +61,7 @@
 
         <Root level="INFO">
             <AppenderRef ref="CONSOLE_ERR"/>
-            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="Routing"/>
         </Root>
     </Loggers>
 </Configuration>
