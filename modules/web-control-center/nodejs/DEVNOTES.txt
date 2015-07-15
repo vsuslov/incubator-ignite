@@ -6,7 +6,7 @@ How to deploy:
 1. Install locally NodeJS using installer from site https://nodejs.org for your OS.
 2. Install locally MongoDB folow instructions from site http://docs.mongodb.org/manual/installation
 3. Checkout ignite-843 branch.
-4. Change directory '$IGNITE_HOME/modules/webconfig/nodejs'.
+4. Change directory '$IGNITE_HOME/modules/web-control-center/nodejs'.
 5. Run "npm install" in terminal for download all dependencies.
 
 Steps 1 - 5 should be executed once.
@@ -16,6 +16,6 @@ How to run:
 1. Run MongoDB.
  1.1 In terminal change dir to $MONGO_ISNTALL_DIR/server/3.0/bin.
  1.2 Run "mongod".
-2. In new terminal change directory '$IGNITE_HOME/modules/webconfig/nodejs'.
+2. In new terminal change directory '$IGNITE_HOME/modules/web-control-center/nodejs'.
 3. Start application by executing "npm start".
 4. In browser open: http://localhost:3000
