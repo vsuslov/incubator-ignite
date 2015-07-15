@@ -17,7 +17,7 @@
   limitations under the License.
 -->
 
-<Configuration status="info">
+<Configuration status="trace">
     <Appenders>
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
@@ -26,26 +26,24 @@
         <!--TODO-->
         <!--<param name="MaxFileSize" value="10MB"/>-->
         <!--<param name="MaxBackupIndex" value="10"/>-->
-        <File name="FILE" fileName="${IGNITE_HOME}/work/log/ignite.log" append="true">
-            <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
-        </File>
+        <RollingFile name="FILE" fileName="work/log/ignite-id.log"
+                     filePattern="work/log/$${date:yyyy-MM}/ignite-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
-        <!--<Logger name="org.springframework" level="WARN">-->
-        <!--</Logger>-->
-
-        <!--<Logger name="org.eclipse.jetty" level="WARN">-->
-        <!--</Logger>-->
-
-        <!--<Logger name="org.eclipse.jetty.util.log" level="ERROR">-->
-        <!--</Logger>-->
-
-        <!--<Logger name="org.eclipse.jetty.util.component" level="ERROR">-->
-        <!--</Logger>-->
-
-        <!--<Logger name="com.amazonaws" level="WARN">-->
-        <!--</Logger>-->
+        <Logger name="org.springframework" level="WARN"/>
+        <Logger name="org.eclipse.jetty" level="WARN"/>
+        <Logger name="org.eclipse.jetty.util.log" level="ERROR"/>
+        <Logger name="org.eclipse.jetty.util.component" level="ERROR"/>
+        <Logger name="com.amazonaws" level="WARN"/>
 
         <Root level="INFO">
             <AppenderRef ref="CONSOLE_ERR"/>
