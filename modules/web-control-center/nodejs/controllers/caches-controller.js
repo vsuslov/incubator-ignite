@@ -159,14 +159,22 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            if (item.cacheStoreFactory && item.cacheStoreFactory.kind && !(item.readThrough || item.writeThrough)) {
+            var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
+
+            if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
                 commonFunctions.showError('Store is configured but read/write through are not enabled!');
 
                 return;
             }
 
-            if ((item.readThrough || item.writeThrough) && (!item.cacheStoreFactory || !item.cacheStoreFactory.kind)) {
-                commonFunctions.showError('Read / write through are enabled but strore is not configured!');
+            if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
+                commonFunctions.showError('Read / write through are enabled but store is not configured!');
+
+                return;
+            }
+
+            if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
+                commonFunctions.showError('Write behind enabled but store is not configured!');
 
                 return;
             }

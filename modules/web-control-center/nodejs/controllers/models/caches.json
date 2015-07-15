@@ -328,7 +328,7 @@
       ],
       "fields": [
         {
-          "label": "Escape all",
+          "label": "Escape table and filed names",
           "type": "check",
           "model": "sqlEscapeAll",
           "tip": [
@@ -859,6 +859,7 @@
           "label": "Batch size",
           "type": "number",
           "model": "writeBehindBatchSize",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 512,
           "tip": [
             "Maximum batch size for write-behind cache store operations.",
@@ -869,6 +870,7 @@
           "label": "Flush size",
           "type": "number",
           "model": "writeBehindFlushSize",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 10240,
           "tip": [
             "Maximum size of the write-behind cache.<br>",
@@ -879,6 +881,7 @@
           "label": "Flush frequency",
           "type": "number",
           "model": "writeBehindFlushFrequency",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 5000,
           "tip": [
             "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
@@ -888,6 +891,7 @@
           "label": "Flush threads count",
           "type": "number",
           "model": "writeBehindFlushThreadCount",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 1,
           "tip": [
             "Number of threads that will perform cache flushing."

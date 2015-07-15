@@ -380,7 +380,7 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
         res.startBlock('<property name="indexedTypes">');
-        res.startBlock('<array>');
+        res.startBlock('<list>');
 
         for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
             var pair = cacheCfg.indexedTypes[i];
@@ -389,7 +389,7 @@ function generateCacheConfiguration(cacheCfg, res) {
             res.line('<value>' + escape(pair.valueClass) + '</value>');
         }
 
-        res.endBlock('</array>');
+        res.endBlock('</list>');
         res.endBlock('</property>');
     }
 
