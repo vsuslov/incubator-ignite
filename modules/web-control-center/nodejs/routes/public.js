@@ -42,7 +42,7 @@ router.get('/login', function (req, res) {
 /**
  * Register new account.
  */
-router.post('/register', function (req, res, next) {
+router.post('/register', function (req, res) {
     db.Account.count(function (err, cnt) {
         if (err)
             return res.status(401).send(err.message);
