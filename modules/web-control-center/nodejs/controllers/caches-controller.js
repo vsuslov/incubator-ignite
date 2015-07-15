@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
+controlCenterModule.controller('cachesController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -202,25 +202,37 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                 });
         };
 
+        // Save cache in db with new name.
+        $scope.saveItemAs = function () {
+
+        };
+
+        // Remove cache from db.
         $scope.removeItem = function () {
-            var _id = $scope.selectedItem._id;
+            $confirm.show('Are you sure you want to remove cache: "' + $scope.selectedItem.name + '"?').then(
+                function () {
+                    var _id = $scope.selectedItem._id;
 
-            $http.post('caches/remove', {_id: _id})
-                .success(function () {
-                    var i = _.findIndex($scope.caches, function (cache) {
-                        return cache._id == _id;
-                    });
+                    $http.post('caches/remove', {_id: _id})
+                        .success(function () {
+                            var idx = _.findIndex($scope.caches, function (cache) {
+                                return cache._id == _id;
+                            });
 
-                    if (i >= 0) {
-                        $scope.caches.splice(i, 1);
+                            if (idx >= 0) {
+                                $scope.caches.splice(idx, 1);
 
-                        $scope.selectedItem = undefined;
-                        $scope.backupItem = undefined;
-                    }
-                })
-                .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
-                });
+                                $scope.selectedItem = undefined;
+                                $scope.backupItem = undefined;
+                            }
+
+                            commonFunctions.showInfo('Cache has been removed: ' + $scope.selectedItem.label);
+                        })
+                        .error(function (errMsg) {
+                            commonFunctions.showError(errMsg);
+                        });
+                }
+            );
         };
 
         $scope.checkIndexedTypes = function (keyCls, valCls) {

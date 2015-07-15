@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -190,27 +190,37 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
                 });
         };
 
+        // Save cluster in db with new name.
+        $scope.saveItemAs = function () {
+
+        };
+
+        // Remove cluster from db.
         $scope.removeItem = function () {
-            var _id = $scope.selectedItem._id;
+            $confirm.show('Are you sure you want to remove cluster: "' + $scope.selectedItem.name + '"?').then(
+                function () {
+                    var _id = $scope.selectedItem._id;
 
-            $http.post('clusters/remove', {_id: _id})
-                .success(function () {
-                    var i = _.findIndex($scope.clusters, function (cluster) {
-                        return cluster._id == _id;
-                    });
+                    $http.post('clusters/remove', {_id: _id})
+                        .success(function () {
+                            var idx = _.findIndex($scope.clusters, function (cluster) {
+                                return cluster._id == _id;
+                            });
 
-                    if (i >= 0) {
-                        $scope.clusters.splice(i, 1);
+                            if (idx >= 0) {
+                                $scope.clusters.splice(idx, 1);
 
-                        $scope.selectedItem = undefined;
-                        $scope.backupItem = undefined;
-                    }
+                                $scope.selectedItem = undefined;
+                                $scope.backupItem = undefined;
+                            }
 
-                    commonFunctions.showInfo("Cluster has been removed: " + $scope.selectedItem.label);
-                })
-                .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
-                });
+                            commonFunctions.showInfo('Cluster has been removed: ' + $scope.selectedItem.label);
+                        })
+                        .error(function (errMsg) {
+                            commonFunctions.showError(errMsg);
+                        });
+                }
+            );
         };
     }]
 );
