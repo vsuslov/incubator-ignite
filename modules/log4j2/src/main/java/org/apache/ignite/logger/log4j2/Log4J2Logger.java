@@ -68,6 +68,7 @@ import static org.apache.ignite.IgniteSystemProperties.*;
  * injection.
  */
 public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2FileAware {
+    public static final String LOGGER_NAME = "Log4J2Logger";
     /** Appenders. */
     private static Collection<FileAppender> fileAppenders = new GridConcurrentHashSet<>();
 
@@ -174,7 +175,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
             @Override public Logger apply(Boolean init) {
                 if (init)
                     // TODO review
-                    Configurator.initialize("Log4J2Logger", cfgUrl.toString());
+                    Configurator.initialize(LOGGER_NAME, cfgUrl.toString());
 
                 return LogManager.getRootLogger();
             }
@@ -202,7 +203,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    Configurator.initialize("Log4J2Logger", path);
+                    Configurator.initialize(LOGGER_NAME, path);
 
                 return LogManager.getRootLogger();
             }
@@ -227,7 +228,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    Configurator.initialize("Log4J2Logger", cfgUrl.toString());
+                    Configurator.initialize(LOGGER_NAME, cfgUrl.toString());
 
                 return LogManager.getRootLogger();
             }
@@ -243,7 +244,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
      */
     // TODO review
     public static boolean isConfigured() {
-        return LogManager.getLogger("Log4J2Logger") != null;
+        return LogManager.getLogger(LOGGER_NAME) != null;
     }
 
     /**
@@ -560,6 +561,8 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware, Log4j2File
     // TODO implement.
     @Override public void updateFilePath(IgniteClosure<String, String> filePathClos) {
         A.notNull(filePathClos, "filePathClos");
+
+//        new RollingFileAppender()
 
 //        for (FileAppender a : fileAppenders) {
 //            if (a instanceof Log4j2FileAware) {

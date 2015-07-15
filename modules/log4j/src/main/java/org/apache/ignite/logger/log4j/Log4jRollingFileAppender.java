@@ -73,12 +73,16 @@ public class Log4jRollingFileAppender extends RollingFileAppender implements Log
 
     /** {@inheritDoc} */
     @Override public synchronized void updateFilePath(IgniteClosure<String, String> filePathClos) {
+        U.debug("**************** updateFilePath ************");
+
         A.notNull(filePathClos, "filePathClos");
 
         if (baseFileName == null)
             baseFileName = fileName;
 
         fileName = filePathClos.apply(baseFileName);
+
+        U.debug("**************** fileName=" + fileName + " appender=" + System.identityHashCode(this) + " ************");
     }
 
     /** {@inheritDoc} */

@@ -23,14 +23,14 @@
 <!--
     Default log4j configuration for Ignite.
 -->
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="true">
     <!--
         Logs System.out messages to console.
 
         Note, this appender is disabled by default.
         To enable, uncomment the section below and also CONSOLE appender in the <root> element.
     -->
-    <!--
+    <!--&lt;!&ndash;-->
     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
 
@@ -45,7 +45,7 @@
             <param name="levelMax" value="WARN"/>
         </filter>
     </appender>
-    -->
+    <!--&ndash;&gt;-->
 
     <!--
         Logs all ERROR messages to console.
@@ -123,9 +123,9 @@
         <level value="INFO"/>
 
         <!-- Uncomment to enable logging to console. -->
-        <!--
+        <!--&lt;!&ndash;-->
         <appender-ref ref="CONSOLE"/>
-        -->
+        <!--&ndash;&gt;-->
 
         <appender-ref ref="CONSOLE_ERR"/>
         <appender-ref ref="FILE"/>
