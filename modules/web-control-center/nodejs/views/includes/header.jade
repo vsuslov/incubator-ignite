@@ -32,16 +32,8 @@ header.header(id='header')
                 //+header-item('/sql', '/sql', 'SQL')
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
-                li(ng-show='user')
-                    a.dropdown-toggle(data-toggle='dropdown' aria-expanded='true' bs-dropdown data-template='user-dropdown' data-placement='bottom-right') {{user.username}}
+                li(ng-if='user')
+                    a.dropdown-toggle(data-toggle='dropdown' bs-dropdown='userDropdown' data-placement='bottom-right') {{user.username}}
                         span.caret
-                    script#user-dropdown(type='text/ng-template')
-                        ul.dropdown-menu
-                            li
-                                a(href='/profile') Profile
-                            li(ng-if='!becomeUsed && user.admin')
-                                a(href='/admin') Admin Panel
-                            li(ng-if='!becomeUsed')
-                                a(href='/logout') Log Out
-                li.nav-login(ng-show='!user')
+                li.nav-login(ng-if='!user')
                     a(ng-click='login()' href='#') Log In

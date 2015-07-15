@@ -114,7 +114,7 @@ controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
         confirm.hide();
     };
 
-    var confirm = $modal({template: '/confirm', scope: scope, placement: 'center', show: false});
+    var confirm = $modal({templateUrl: '/confirm', scope: scope, placement: 'center', show: false});
 
     var parentShow = confirm.show;
 
@@ -145,7 +145,7 @@ controlCenterModule.config(function ($selectProvider) {
         maxLength: '1',
         allText: 'Select All',
         noneText: 'Clear All',
-        template: '/select'
+        templateUrl: '/select'
     });
 });
 
@@ -244,8 +244,17 @@ controlCenterModule.controller('auth', [
 
         $scope.valid = false;
 
+        $scope.userDropdown = [{"text": "Profile", "href": "/profile"}];
+
+        if (!$scope.becomeUsed) {
+            if ($scope.user.admin)
+                $scope.userDropdown.push({"text": "Admin Panel", "href": "/admin"});
+
+            $scope.userDropdown.push({"text": "Log Out", "href": "/logout"});
+        }
+
         // Pre-fetch an external template populated with a custom scope
-        var authModal = $modal({scope: $scope, template: '/login', show: false});
+        var authModal = $modal({scope: $scope, templateUrl: '/login', show: false});
 
         $scope.login = function () {
             // Show when some event occurs (use $promise property to ensure the template has been loaded)
@@ -254,7 +263,7 @@ controlCenterModule.controller('auth', [
 
         $scope.auth = function (action, user_info) {
             $http.post('/' + action, user_info)
-                .success(function (data) {
+                .success(function () {
                     authModal.hide();
 
                     $window.location = '/configuration/clusters';

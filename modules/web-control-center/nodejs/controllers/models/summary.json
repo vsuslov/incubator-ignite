@@ -4,7 +4,7 @@
   ],
   "clientFields": [
     {
-      "label": "Start size",
+      "label": "Near cache start size",
       "type": "number",
       "path": "nearConfiguration",
       "model": "nearStartSize",
@@ -14,7 +14,7 @@
       ]
     },
     {
-      "label": "Eviction policy",
+      "label": "Near cache eviction policy",
       "type": "dropdown-details",
       "path": "nearConfiguration.nearEvictionPolicy",
       "model": "kind",

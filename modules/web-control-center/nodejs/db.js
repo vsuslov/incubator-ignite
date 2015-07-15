@@ -37,6 +37,18 @@ var AccountSchema = new Schema({
 AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin',
     usernameLowerCase: true});
 
+AccountSchema.set('toJSON', {
+    transform: function(doc, ret) {
+        return {
+            _id: ret._id,
+            email: ret.email,
+            username: ret.username,
+            admin: ret.admin,
+            lastLogin: ret.lastLogin
+        };
+    }
+});
+
 exports.Account = mongoose.model('Account', AccountSchema);
 
 // Define space model.

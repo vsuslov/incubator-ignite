@@ -26,7 +26,7 @@ router.get('/', function (req, res) {
  * Get list of user accounts.
  */
 router.post('/list', function (req, res) {
-    db.Account.find({}).select('-attempts -hash -salt').exec(function (err, users) {
+    db.Account.find({}, function (err, users) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -66,7 +66,7 @@ router.get('/become', function (req, res) {
         return res.redirect('/admin');
     }
 
-    db.Account.findById(viewedUserId, function (err, viewedUser) {
+    db.Account.findById(viewedUserId).exec(function (err, viewedUser) {
         if (err)
             return res.sendStatus(404);
 
