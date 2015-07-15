@@ -145,6 +145,10 @@
               "tip": [
                 "Bucket name for IP finder."
               ]
+            },
+            {
+              "label": "Note, AWS credentials will be generated as stubs.",
+              "type": "label"
             }
           ]
         },

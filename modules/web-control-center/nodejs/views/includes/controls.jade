@@ -34,6 +34,8 @@ mixin details-row
     - var customValidators = {'ng-attr-ipaddress': '{{detail.ipaddress}}'}
 
     div(ng-switch='detail.type')
+        div(ng-switch-when='label')
+            label {{detail.label}}
         div.checkbox(ng-switch-when='check')
             label
                 input(type='checkbox')&attributes(detailCommon)
@@ -100,6 +102,8 @@ mixin form-row
     - var fieldHide = '{{field.hide}}'
 
     div(ng-switch='field.type')
+        div.col-sm-6(ng-switch-when='label')
+            label {{field.label}}
         div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
                 input(type='checkbox' ng-checked='field.placeholder')&attributes(fieldCommon)
