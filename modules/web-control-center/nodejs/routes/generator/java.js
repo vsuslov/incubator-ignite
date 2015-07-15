@@ -19,7 +19,7 @@ var _ = require('lodash');
 
 var generatorUtils = require("./common");
 
-exports.generateClusterConfiguration = function(cluster, javaClass) {
+exports.generateClusterConfiguration = function(cluster, javaClass, clientCache) {
     var res = generatorUtils.builder();
 
     res.datasourceBeans = [];
@@ -40,6 +40,12 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
     res.line('IgniteConfiguration cfg = new IgniteConfiguration();');
     res.line();
 
+    if (clientCache) {
+        res.line('cfg.setClientMode(true);');
+
+        res.line();
+    }
+
     if (cluster.discovery) {
         var d = cluster.discovery;
 
@@ -48,8 +54,10 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
 
         switch (d.kind) {
             case 'Multicast':
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder');
+
                 addBeanWithProperties(res, d.Multicast, 'discovery', 'ipFinder', 'ipFinder',
-                    'org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder', {
+                    'TcpDiscoveryMulticastIpFinder', {
                         multicastGroup: null,
                         multicastPort: null,
                         responseWaitTime: null,
@@ -60,30 +68,29 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
                 break;
 
             case 'Vm':
-                addBeanWithProperties(res, d.Vm, 'discovery', 'ipFinder', 'ipFinder',
-                    'org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder', {
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder');
+
+                addBeanWithProperties(res, d.Vm, 'discovery', 'ipFinder', 'ipFinder', 'TcpDiscoveryVmIpFinder', {
                         addresses: {type: 'list'}
                     }, true);
 
                 break;
 
             case 'S3':
-                if (d.S3) {
-                    addBeanWithProperties(res, d.S3, 'discovery', 'ipFinder', 'ipFinder',
-                        'org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder', {bucketName: null}, 
-                        true);
-                }
-                else {
-                    res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
-                    
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder');
+
+                if (d.S3)
+                    addBeanWithProperties(res, d.S3, 'discovery', 'ipFinder', 'ipFinder', 'TcpDiscoveryS3IpFinder',
+                        {bucketName: null}, true);
+                else
                     res.line('discovery.setIpFinder(new TcpDiscoveryS3IpFinder());');
-                }
 
                 break;
 
             case 'Cloud':
-                addBeanWithProperties(res, d.Cloud, 'discovery', 'ipFinder', 'ipFinder',
-                    'org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder', {
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.cloud.TcpDiscoveryCloudIpFinder');
+
+                addBeanWithProperties(res, d.Cloud, 'discovery', 'ipFinder', 'ipFinder', 'TcpDiscoveryCloudIpFinder', {
                         credential: null,
                         credentialPath: null,
                         identity: null,
@@ -95,8 +102,10 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
                 break;
 
             case 'GoogleStorage':
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder');
+
                 addBeanWithProperties(res, d.GoogleStorage, 'discovery', 'ipFinder', 'ipFinder',
-                    'org.apache.ignite.spi.discovery.tcp.ipfinder.gce.TcpDiscoveryGoogleStorageIpFinder', {
+                    'TcpDiscoveryGoogleStorageIpFinder', {
                         projectName: null,
                         bucketName: null,
                         serviceAccountP12FilePath: null
@@ -119,9 +128,10 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
                 break;
 
             case 'SharedFs':
+                res.importClass('org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder');
+
                 addBeanWithProperties(res, d.SharedFs, 'discovery', 'ipFinder', 'ipFinder',
-                    'org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder', {path: null}, 
-                    true);
+                    'TcpDiscoverySharedFsIpFinder', {path: null}, true);
 
                 break;
 
@@ -149,6 +159,9 @@ exports.generateClusterConfiguration = function(cluster, javaClass) {
             var cacheName = 'cache' + generatorUtils.toJavaName(cache.name);
 
             names.push(cacheName);
+
+            if (clientCache)
+                _.merge(cache, clientCache);
 
             generateCacheConfiguration(cache, cacheName, res);
 
@@ -352,12 +365,13 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     createEvictionPolicy(res, cacheCfg.evictionPolicy, varName, 'evictionPolicy');
 
-    if (cacheCfg.nearConfiguration && (cacheCfg.nearConfiguration.nearStartSize || cacheCfg.nearConfiguration.nearEvictionPolicy.kind)) {
+    if (cacheCfg.nearCacheEnabled) {
         res.needEmptyLine = true;
 
+        res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
+
         addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
-            'org.apache.ignite.configuration.NearCacheConfiguration',
-            {nearStartSize: null, atomicSequenceReserveSize: null}, true);
+            'NearCacheConfiguration', {nearStartSize: null}, true);
 
         if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
             createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');

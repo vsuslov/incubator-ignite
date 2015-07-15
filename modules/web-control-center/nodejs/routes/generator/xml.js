@@ -20,7 +20,7 @@ var _ = require('lodash');
 var generatorUtils = require("./common");
 var dataStructures = require("../../helpers/data-structures.js");
 
-exports.generateClusterConfiguration = function(cluster) {
+exports.generateClusterConfiguration = function(cluster, clientCache) {
     var res = generatorUtils.builder();
 
     res.datasources = [];
@@ -28,6 +28,12 @@ exports.generateClusterConfiguration = function(cluster) {
 
     // Generate Ignite Configuration.
     res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
+
+    if (clientCache) {
+        res.line('<property name="clientMode" value="true" />');
+
+        res.line();
+    }
 
     // Generate discovery.
     if (cluster.discovery) {
@@ -157,9 +163,8 @@ exports.generateClusterConfiguration = function(cluster) {
         
         res.startBlock('<property name="includeEventTypes">');
         
-        if (cluster.includeEventTypes.length == 1) {
-            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>')
-        }
+        if (cluster.includeEventTypes.length == 1)
+            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>');
         else {
             res.startBlock('<array>');
 
@@ -253,7 +258,12 @@ exports.generateClusterConfiguration = function(cluster) {
             if (i > 0)
                 res.line();
 
-            generateCacheConfiguration(cluster.caches[i], res);
+            var cache = cluster.caches[i];
+
+            if (clientCache)
+                _.merge(cache, clientCache);
+
+            generateCacheConfiguration(cache, res);
         }
 
         res.endBlock('</list>');
