@@ -49,5 +49,5 @@ block container
                             td(style='text-align: center;')
                                 a(ng-click='removeUser(row)' ng-show='row._id != user._id' title='Remove user')
                                     i.fa.fa-remove
-                                a(style='margin-left: 5px' ng-href='admin/become?viewedUserId={{row._id}}' ng-show='row._id != user._id' title='View user\'s configurations')
+                                a(style='margin-left: 5px' ng-href='admin/become?viewedUserId={{row._id}}' ng-show='row._id != user._id' title='Become this user')
                                     i.fa.fa-eye

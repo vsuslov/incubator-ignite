@@ -37,10 +37,18 @@ router.post('/generator', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
+        var clientTemplate = req.body.clientTemplate;
+
+        if (clientTemplate)
+            return res.send({
+                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientTemplate),
+                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientTemplate)
+            });
+
         return res.send({
-            xml: generatorXml.generateClusterConfiguration(cluster),
-            javaSnippet: generatorJava.generateClusterConfiguration(cluster, false),
-            javaClass: generatorJava.generateClusterConfiguration(cluster, true),
+            xmlServer: generatorXml.generateClusterConfiguration(cluster),
+            javaSnippetServer: generatorJava.generateClusterConfiguration(cluster, false),
+            javaClassServer: generatorJava.generateClusterConfiguration(cluster, true),
             docker: generatorDocker.generateClusterConfiguration(cluster, '%OS%')
         });
     });
@@ -54,6 +62,8 @@ router.post('/download', function (req, res) {
 
         if (!cluster)
             return res.sendStatus(404);
+
+        var client = req.body.type == 'client';
 
         var archiver = require('archiver');
 
@@ -81,15 +91,18 @@ router.post('/download', function (req, res) {
         // Send the file to the page output.
         zip.pipe(res);
 
-        var props = generatorCommon.generateProperties(cluster);
+        if (!client) {
+            zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
 
-        if (props)
-            zip.append(props, {name: "secret.properties"});
+            var props = generatorCommon.generateProperties(cluster, client);
 
-        zip.append(generatorXml.generateClusterConfiguration(cluster), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, req.body.javaClass),
-            {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
-            .append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"})
+            if (props)
+                zip.append(props, {name: "secret.properties"});
+        }
+
+        zip.append(generatorXml.generateClusterConfiguration(cluster, client), {name: cluster.name + ".xml"})
+            .append(generatorJava.generateClusterConfiguration(cluster, client, req.body.javaClass),
+                {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
             .finalize();
     });
 });

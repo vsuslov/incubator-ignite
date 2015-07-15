@@ -17,14 +17,27 @@
 
 controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
     $scope.joinTip = commonFunctions.joinTip;
+    $scope.getModel = commonFunctions.getModel;
 
     $scope.javaClassItems = [
         { label: 'snippet',value: false},
         { label: 'factory class',value: true}
     ];
 
+    $scope.evictionPolicies = [
+        {value: 'LRU', label: 'LRU'},
+        {value: 'RND', label: 'Random'},
+        {value: 'FIFO', label: 'FIFO'},
+        {value: 'SORTED', label: 'Sorted'},
+        {value: undefined, label: 'Not set'}
+    ];
+
+    $scope.backupItem = {nearCacheEnabled: true};
+
     $http.get('/models/summary.json')
         .success(function (data) {
+            $scope.clientFields = data.clientFields;
+
             $scope.screenTip = data.screenTip;
         })
         .error(function (errMsg) {
@@ -33,46 +46,89 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
 
-    $scope.cfgLang = 'xml';
+    $scope.cfgLangServer = 'xml';
+    $scope.cfgLangClient = 'xml';
 
-    $scope.javaClass = false;
+    $scope.javaClassServer = false;
+    $scope.javaClassClient = false;
+
     $scope.os = undefined;
 
     $scope.generated = undefined;
     $scope.clusters = [];
 
-    $scope.reload = function() {
-        $("<pre class='brush:java' />").text($scope.javaClass ? $scope.generated.javaClass : $scope.generated.javaSnippet).appendTo($('#javaResultDiv').empty());
+    $scope.reloadServer = function() {
+        if (!$scope.generated)
+            return;
 
-        $("<pre class='brush:xml' />").text($scope.generated.xml).appendTo($('#xmlResultDiv').empty());
+        $("<pre class='brush:xml'/>").text($scope.generated.xmlServer).appendTo($('#xmlServer').empty());
+        $("<pre class='brush:java'/>").text($scope.javaClassServer ? $scope.generated.javaClassServer : $scope.generated.javaSnippetServer).appendTo($('#javaServer').empty());
 
         var os = $scope.os ? $scope.os : $scope.oss[0];
 
-        $("<pre class='brush:plain' />").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#dockerResultDiv').empty());
+        $("<pre class='brush:plain'/>").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#docker').empty());
+
+
+        $("<pre class='brush:xml'/>").text($scope.generated.xmlClient).appendTo($('#xmlClient').empty());
+        $("<pre class='brush:java'/>").text($scope.javaClassClient ? $scope.generated.javaClassClient : $scope.generated.javaSnippetClient).appendTo($('#javaClient').empty());
 
         SyntaxHighlighter.highlight();
     };
 
-    $scope.generate = function(item) {
-        if (!item)
+    $scope.reloadServer = function() {
+        if (!$scope.generated)
             return;
 
-        $scope.selectedItem = item;
+        $("<pre class='brush:xml'/>").text($scope.generated.xmlServer).appendTo($('#xmlServer').empty());
+        $("<pre class='brush:java'/>").text($scope.javaClassServer ? $scope.generated.javaClassServer : $scope.generated.javaSnippetServer).appendTo($('#javaServer').empty());
 
-        $scope.loading = true;
+        var os = $scope.os ? $scope.os : $scope.oss[0];
 
-        $http.post('summary/generator', {_id: $scope.selectedItem._id})
+        $("<pre class='brush:plain'/>").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#docker').empty());
+
+        SyntaxHighlighter.highlight();
+    };
+
+    $scope.selectItem = function(cluster) {
+        if (!cluster)
+            return;
+
+        $scope.selectedItem = cluster;
+
+        $scope.$watch('javaClassServer', $scope.reloadServer);
+        $scope.$watch('os', $scope.reloadServer);
+
+        $scope.generateServer(cluster);
+
+        $scope.reloadServer();
+
+        $scope.$watch('backupItem', function() {
+            $scope.generateClient();
+        }, true);
+
+        $scope.$watch('javaClassClient', $scope.generateClient);
+    };
+
+    $scope.generateServer = function(cluster) {
+        $http.post('summary/generator', {_id: cluster._id})
             .success(function (data) {
                 $scope.generated = data;
 
-                $scope.$watch('javaClass', $scope.reload);
-                $scope.$watch('os', $scope.reload);
+                $scope.reloadServer();
+            }).error(function (errMsg) {
+                commonFunctions.showError('Failed to generate config: ' + errMsg);
+            });
+    };
 
-                $scope.loading = false;
-            }).error(function (data) {
-                $scope.generateError = "Failed to generate config: " + data;
+    $scope.generateClient = function() {
+        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientTemplate: $scope.backupItem})
+            .success(function (data) {
+                $("<pre class='brush:xml'/>").text(data.xmlClient).appendTo($('#xmlClient').empty());
+                $("<pre class='brush:java'/>").text(data.javaClient).appendTo($('#javaClient').empty());
 
-                $scope.loading = false;
+                SyntaxHighlighter.highlight();
+            }).error(function (errMsg) {
+                commonFunctions.showError('Failed to generate config: ' + errMsg);
             });
     };
 
@@ -92,8 +148,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
 
                 document.body.removeChild(file);
             })
-            .error(function (data) {
-                $scope.generateError = "Failed to generate zip: " + data;
+            .error(function (errMsg) {
+                commonFunctions.showError('Failed to generate zip: ' + errMsg);
             });
     };
 
