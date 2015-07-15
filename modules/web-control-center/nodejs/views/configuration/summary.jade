@@ -47,14 +47,11 @@ block content
         div(ng-if='clusters.length > 0')
             p Following cluster configurations were created, you can download them as XML, java code or as docker file.
             .links
-                table.col-sm-12(st-table='clusters')
+                table(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                                 a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-        br
-        br
-        br
         div(ng-show='selectedItem && generated' role="tab" method='post' action='summary/download')
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default

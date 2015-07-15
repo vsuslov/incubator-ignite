@@ -29,7 +29,7 @@ block content
         .block-callout
             p(ng-bind-html='joinTip(screenTip)')
         .links(ng-hide='metadata.length == 0')
-            table.col-sm-12(st-table='metadata')
+            table(st-table='metadata')
                 tbody
                     tr(ng-repeat='row in metadata track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
