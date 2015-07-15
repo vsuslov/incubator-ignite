@@ -79,10 +79,57 @@ function Client(ws) {
 
                 break;
 
+            case 'RestResult':
+                var cb = self.cbMap[m.requestId];
+
+                if (!cb)
+                    break;
+
+                delete self.cbMap[m.requestId];
+
+                if (!m.executed) {
+                    cb("Failed to execute RESQ query: " + m.message)
+                }
+                else {
+                    cb(null, m.code, m.message)
+                }
+
+                break;
+
             default:
                 ws.close()
         }
     });
+
+    this.sendMessage = function(msg, cb) {
+        if (typeof(msg) == 'object') {
+            msg = JSON.stringify(msg);
+        }
+
+        ws.send(msg, cb);
+    };
+
+    this.restCounter = 0;
+
+    this.cbMap = {};
+
+    this.restQuery = function(url, cb) {
+        var reqId = this.restCounter++;
+
+        this.cbMap[reqId] = cb;
+
+        this.sendMessage({
+            id: reqId,
+            type: 'RestRequest',
+            url: url
+        }, function(err) {
+            if (err) {
+                delete this.cbMap[reqId];
+
+                cb(err)
+            }
+        })
+    }
 }
 
 function Server() {
@@ -114,5 +161,10 @@ exports.startServer = function() {
 };
 
 exports.findClient = function(userId) {
-    return clients[userId];
+    var clientsList = clients[userId];
+
+    if (!clientsList)
+        return null;
+
+    return clientsList[0];
 };

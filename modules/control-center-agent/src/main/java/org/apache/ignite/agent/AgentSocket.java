@@ -96,27 +96,31 @@ public class AgentSocket {
         if (m instanceof AuthResult) {
             if (((AuthResult)m).isSuccess())
                 System.out.println("Authentication success");
-            else
+            else {
                 System.out.println("Authentication failed: " + ((AuthResult)m).getMessage());
 
-            ses.close();
+                ses.close();
+            }
         }
-        else if (m instanceof ExecuteRest) {
-            ExecuteRest execRest = (ExecuteRest)m;
+        else if (m instanceof RestRequest) {
+            RestRequest restReq = (RestRequest)m;
 
-            RestResult res;
+            RestResult restRes;
 
             try {
-                res = agent.executeRest(execRest.getUrl());
+                restRes = agent.executeRest(restReq.getUrl());
             }
             catch (IOException e) {
-                res = new RestResult();
+                restRes = new RestResult();
 
-                res.setCode(500);
+                restRes.setCode(500);
+                restRes.setMessage(e.getMessage());
             }
 
+            restRes.setRequestId(((RestRequest)m).getId());
+
             try {
-                ses.getRemote().sendString(MessageFactory.toString(res));
+                ses.getRemote().sendString(MessageFactory.toString(restRes));
             }
             catch (IOException e) {
                 e.printStackTrace();

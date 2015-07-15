@@ -34,7 +34,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
-var bridge = require('./bridge/bridge');
+var agentManager = require('./agents/agentManager');
 
 var passport = require('passport');
 
@@ -154,6 +154,6 @@ app.use(function (err, req, res) {
     });
 });
 
-bridge.startServer();
+agentManager.startServer();
 
 module.exports = app;

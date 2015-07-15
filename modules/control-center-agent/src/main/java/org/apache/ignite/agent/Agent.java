@@ -66,10 +66,6 @@ public class Agent {
 
         CloseableHttpResponse resp = httpclient.execute(get);
 
-        RestResult res = new RestResult();
-
-        res.setCode(resp.getStatusLine().getStatusCode());
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         resp.getEntity().writeTo(out);
@@ -84,6 +80,10 @@ public class Agent {
             charset = Charsets.toCharset(encoding);
         }
 
+        RestResult res = new RestResult();
+
+        res.setCode(resp.getStatusLine().getStatusCode());
+        res.setExecuted(true);
         res.setMessage(new String(out.toByteArray(), charset));
 
         return res;

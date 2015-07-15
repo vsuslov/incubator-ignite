@@ -15,75 +15,60 @@ package org.apache.ignite.agent.messages;/*
  * limitations under the License.
  */
 
+import java.util.*;
+
 /**
  *
  */
-public class RestResult extends AbstractMessage {
+public class RestRequest extends AbstractMessage {
     /** */
-    private int requestId;
+    private int id;
 
     /** */
-    private boolean executed;
+    private String url;
 
     /** */
-    private int code;
-
-    /** */
-    private String message;
+    private Map<String, String> params;
 
     /**
      *
      */
-    public int getRequestId() {
-        return requestId;
+    public int getId() {
+        return id;
     }
 
     /**
-     * @param reqId Request id.
+     * @param id Id.
      */
-    public void setRequestId(int reqId) {
-        this.requestId = reqId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
      *
      */
-    public int getCode() {
-        return code;
+    public String getUrl() {
+        return url;
     }
 
     /**
-     * @param code Code.
+     * @param url Url.
      */
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    /**
-     *
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     * @param msg Message.
-     */
-    public void setMessage(String msg) {
-        this.message = msg;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     /**
      *
      */
-    public boolean isExecuted() {
-        return executed;
+    public Map<String, String> getParams() {
+        return params;
     }
 
     /**
-     * @param executed Executed.
+     * @param params Params.
      */
-    public void setExecuted(boolean executed) {
-        this.executed = executed;
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 }

@@ -1,4 +1,4 @@
-package org.apache.ignite.agent.messages;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,43 +15,28 @@ package org.apache.ignite.agent.messages;/*
  * limitations under the License.
  */
 
-import java.util.*;
+var router = require('express').Router();
+var bridge = require('../agents/agentManager');
 
-/**
- *
- */
-public class ExecuteRest extends AbstractMessage {
-    /** */
-    private String url;
 
-    /** */
-    private Map<String, String> params;
 
-    /**
-     *
-     */
-    public String getUrl() {
-        return url;
+/* GET summary page. */
+router.get('/', function(req, res) {
+    var c = bridge.findClient("55a2ca51eef88f6c775ed9d0");
+
+    if (!c) {
+        return res.send("Client not found");
     }
 
-    /**
-     * @param url Url.
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
+    c.restQuery("http://ya.ru/", function(error, code, message) {
+        if (error) {
+            res.send("Failed to execute REST query: " + error);
 
-    /**
-     *
-     */
-    public Map<String, String> getParams() {
-        return params;
-    }
+            return
+        }
 
-    /**
-     * @param params Params.
-     */
-    public void setParams(Map<String, String> params) {
-        this.params = params;
-    }
-}
+        res.send("code: " + code + '<br>message: ' + message);
+    });
+});
+
+module.exports = router;
