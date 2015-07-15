@@ -85,7 +85,6 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                 commonFunctions.showError(errMsg);
             });
 
-        $scope.firstTime = true;
         $scope.caches = [];
 
         $scope.required = function (field) {
@@ -115,21 +114,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
 
-                if ($scope.firstTime) {
-                    console.log("firstTime");
-                    $scope.firstTime = false;
+                var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
-                    if ($scope.caches.length > 0)
-                        $scope.selectItem($scope.caches[0]);
-
-                    sessionStorage.removeItem('cacheBackupItem');
-                }
-                else {
-                    console.log("not firstTime");
-
-                    var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
-
-                    if (restoredItem && restoredItem._id) {
+                if (restoredItem) {
+                    if (restoredItem._id) {
                         var idx = _.findIndex($scope.caches, function (cache) {
                             return cache._id == restoredItem._id;
                         });
@@ -143,8 +131,9 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                     }
                     else
                         $scope.backupItem = restoredItem;
-
                 }
+                else if ($scope.caches.length > 0)
+                    $scope.selectItem($scope.caches[0]);
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)

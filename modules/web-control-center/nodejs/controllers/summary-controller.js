@@ -39,10 +39,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
     $scope.os = undefined;
 
     $scope.generated = undefined;
-
-    $http.post('clusters/list').success(function (data) {
-        $scope.clusters = data.clusters;
-    });
+    $scope.clusters = [];
 
     $scope.reload = function() {
         $("<pre class='brush:java' />").text($scope.javaClass ? $scope.generated.javaClass : $scope.generated.javaSnippet).appendTo($('#javaResultDiv').empty());
@@ -99,4 +96,11 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
                 $scope.generateError = "Failed to generate zip: " + data;
             });
     };
+
+    $http.post('clusters/list').success(function (data) {
+        $scope.clusters = data.clusters;
+
+        if ($scope.clusters.length > 0)
+            $scope.generate($scope.clusters[0]);
+    });
 }]);
