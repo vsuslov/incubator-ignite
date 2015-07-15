@@ -100,7 +100,26 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
     $http.post('clusters/list').success(function (data) {
         $scope.clusters = data.clusters;
 
-        if ($scope.clusters.length > 0)
-            $scope.generate($scope.clusters[0]);
+        if ($scope.clusters.length > 0) {
+            var restoredItem = angular.fromJson(sessionStorage.summaryBackupItem);
+
+            var selectIdx = 0;
+
+            if (restoredItem && restoredItem._id) {
+                var idx = _.findIndex($scope.clusters, function (clusters) {
+                    return clusters._id == restoredItem._id;
+                });
+
+                if (idx >= 0)
+                    selectIdx = idx;
+            }
+
+            $scope.generate($scope.clusters[selectIdx]);
+        }
+
+        $scope.$watch('selectedItem', function (val) {
+            if (val)
+                sessionStorage.summaryBackupItem = angular.toJson(val);
+        }, true);
     });
 }]);
