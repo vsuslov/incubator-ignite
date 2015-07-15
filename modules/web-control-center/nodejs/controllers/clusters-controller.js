@@ -21,9 +21,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
         $scope.getModel = commonFunctions.getModel;
 
         $scope.templates = [
-            {value: {discovery: {Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'none'},
-            {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
-            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'}
+            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'},
+            {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
         $scope.discoveries = [

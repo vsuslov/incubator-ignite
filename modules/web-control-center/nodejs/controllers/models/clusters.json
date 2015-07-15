@@ -3,11 +3,10 @@
     "Configure cluster, link caches to them and go to Summary for configuration generation."
   ],
   "templateTip": [
-    "Use following template for add cluster:",
+    "Use following template to add a new cluster:",
     "<ul>",
-    "  <li>none - Empty configuration.</li>",
-    "  <li>local - Configuration with static ips discovery and pre-configured list of IP addresses.</li>",
-    "  <li>multicast - Configuration with multicast discovery.</li>",
+    "  <li>multicast - cluster with multicast discovery.</li>",
+    "  <li>local - cluster with static ips discovery and pre-configured list of IP addresses.</li>",
     "</ul>"
   ],
   "general": [
@@ -25,7 +24,7 @@
       "placeholder": "Choose caches",
       "items": "caches",
       "tip": [
-        "Select caches to start in cluster."
+        "Select caches to start in cluster or add a new cache."
       ],
       "addLink": {
         "label": "Add cache(s)",
