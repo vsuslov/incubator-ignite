@@ -63,7 +63,7 @@ router.post('/download', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var client = req.body.type == 'client';
+        var clientCache = req.body.clientTemplate;
 
         var archiver = require('archiver');
 
@@ -82,26 +82,26 @@ router.post('/download', function (req, res) {
         });
 
         //set the archive name
-        res.attachment(cluster.name + '-configuration.zip');
+        res.attachment(cluster.name + (clientCache ? '-client' : '') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');
-
-        var javaClass = req.body.javaClass;
 
         // Send the file to the page output.
         zip.pipe(res);
 
-        if (!client) {
+        var javaClass = req.body.javaClass;
+
+        if (!clientCache) {
             zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
 
-            var props = generatorCommon.generateProperties(cluster, client);
+            var props = generatorCommon.generateProperties(cluster);
 
             if (props)
                 zip.append(props, {name: "secret.properties"});
         }
 
-        zip.append(generatorXml.generateClusterConfiguration(cluster, client), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, client, req.body.javaClass),
+        zip.append(generatorXml.generateClusterConfiguration(cluster, clientCache), {name: cluster.name + ".xml"})
+            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientCache),
                 {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
             .finalize();
     });

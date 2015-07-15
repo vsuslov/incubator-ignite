@@ -157,25 +157,27 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
         $scope.clusters = data.clusters;
 
         if ($scope.clusters.length > 0) {
-            var restoredItem = angular.fromJson(sessionStorage.summaryBackupItem);
+            var restoredId = sessionStorage.summarySelectedId;
 
             var selectIdx = 0;
 
-            if (restoredItem && restoredItem._id) {
-                var idx = _.findIndex($scope.clusters, function (clusters) {
-                    return clusters._id == restoredItem._id;
+            if (restoredId) {
+                var idx = _.findIndex($scope.clusters, function (cluster) {
+                    return cluster._id == restoredId;
                 });
 
                 if (idx >= 0)
                     selectIdx = idx;
+                else
+                    delete sessionStorage.summarySelectedId;
             }
 
-            $scope.generate($scope.clusters[selectIdx]);
-        }
+            $scope.selectItem($scope.clusters[selectIdx]);
 
-        $scope.$watch('selectedItem', function (val) {
-            if (val)
-                sessionStorage.summaryBackupItem = angular.toJson(val);
-        }, true);
+            $scope.$watch('selectedItem', function (val) {
+                if (val)
+                    sessionStorage.summarySelectedId = val._id;
+            }, true);
+        }
     });
 }]);
