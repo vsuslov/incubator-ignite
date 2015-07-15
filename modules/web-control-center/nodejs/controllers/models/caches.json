@@ -476,6 +476,7 @@
           "type": "number",
           "path": "nearConfiguration",
           "model": "nearStartSize",
+          "hide": "!backupItem.nearCacheEnabled",
           "placeholder": 375000,
           "tip": [
             "Initial cache size for near cache which will be used to pre-create internal hash table after start."
@@ -488,6 +489,7 @@
           "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
+          "hide": "!backupItem.nearCacheEnabled",
           "tip": [
             "Cache expiration policy."
           ],
