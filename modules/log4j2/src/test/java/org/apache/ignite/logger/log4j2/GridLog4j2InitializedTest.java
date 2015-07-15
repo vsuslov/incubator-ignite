@@ -26,19 +26,11 @@ import org.apache.ignite.testframework.junits.common.*;
  */
 @GridCommonTest(group = "Logger")
 public class GridLog4j2InitializedTest extends TestCase {
-
-    /**
-     * @throws Exception If failed.
-     */
-    @Override protected void setUp() throws Exception {
-        BasicConfigurator.configure();
-    }
-
     /** */
     public void testLogInitialize() {
-        IgniteLogger log = new Log4JLogger();
+        IgniteLogger log = new Log4J2Logger();
 
-        assert log.isInfoEnabled() == true;
+        assert log.isInfoEnabled();
 
         if (log.isDebugEnabled())
             log.debug("This is 'debug' message.");
@@ -47,8 +39,7 @@ public class GridLog4j2InitializedTest extends TestCase {
         log.warning("This is 'warning' message.");
         log.warning("This is 'warning' message.", new Exception("It's a test warning exception"));
         log.error("This is 'error' message.");
-        log.error("This is 'error' message.", new Exception("It's a test error exception"));
 
-        assert log.getLogger(GridLog4j2InitializedTest.class.getName()) instanceof Log4JLogger;
+        assert log.getLogger(GridLog4j2InitializedTest.class.getName()) instanceof Log4J2Logger;
     }
 }

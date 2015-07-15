@@ -18,6 +18,7 @@
 package org.apache.ignite.testsuites;
 
 import junit.framework.*;
+import org.apache.ignite.logger.log4j2.*;
 
 /**
  * Log4j2 logging tests.
@@ -29,6 +30,11 @@ public class IgniteLog4j2TestSuite extends TestSuite {
      */
     public static TestSuite suite() throws Exception {
         TestSuite suite = new TestSuite("Log4j2 Logging Test Suite");
+
+//        suite.addTest(new TestSuite(GridLog4j2InitializedTest.class));
+        suite.addTest(new TestSuite(GridLog4j2NotInitializedTest.class));
+        suite.addTest(new TestSuite(GridLog4j2CorrectFileNameTest.class));
+        suite.addTest(new TestSuite(GridLog4j2InitiallizationTest.class));
 
         return suite;
     }

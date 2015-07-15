@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.ignite.logger.log4j2;
 
 import junit.framework.*;
@@ -25,39 +24,12 @@ import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.testframework.junits.common.*;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Tests that several grids log to files with correct names.
  */
 @GridCommonTest(group = "Logger")
 public class GridLog4j2CorrectFileNameTest extends TestCase {
-    /** Appender */
-    private Log4jRollingFileAppender appender;
-
-    /** {@inheritDoc} */
-    @Override protected void setUp() throws Exception {
-        Logger root = Logger.getRootLogger();
-
-        for (Enumeration appenders = root.getAllAppenders(); appenders.hasMoreElements(); ) {
-            if (appenders.nextElement() instanceof Log4jRollingFileAppender)
-                return;
-        }
-
-        appender = createAppender();
-
-        root.addAppender(appender);
-    }
-
-    /** {@inheritDoc} */
-    @Override public void tearDown() {
-        if (appender != null) {
-            Logger.getRootLogger().removeAppender(Log4jRollingFileAppender.class.getSimpleName());
-
-            Log4JLogger.removeAppender(appender);
-        }
-    }
-
     /**
      * Tests correct behaviour in case 2 local nodes are started.
      *
@@ -76,19 +48,24 @@ public class GridLog4j2CorrectFileNameTest extends TestCase {
      * @throws Exception If error occurred.
      */
     private void checkOneNode(int id) throws Exception {
+        String id8 = null;
+        
         try (Ignite ignite = G.start(getConfiguration("grid" + id))) {
-            String id8 = U.id8(ignite.cluster().localNode().id());
-            String logPath = "work/log/ignite-" + id8 + ".log";
-            File logFile = U.resolveIgnitePath(logPath);
-
-            assertNotNull("Failed to resolve path: " + logPath, logFile);
-            assertTrue("Log file does not exist: " + logFile, logFile.exists());
-
-            String logContent = U.readFileToString(logFile.getAbsolutePath(), "UTF-8");
-
-            assertTrue("Log file does not contain it's node ID: " + logFile,
-                logContent.contains(">>> Local node [ID=" + id8.toUpperCase()));
+            id8 = U.id8(ignite.cluster().localNode().id());
         }
+
+        String logPath = "work/log/ignite-" + id8 + ".log";
+        File logFile = U.resolveIgnitePath(logPath);
+
+        assertNotNull("Failed to resolve path: " + logPath, logFile);
+        assertTrue("Log file does not exist: " + logFile, logFile.exists());
+        // We have a row in log with the following content
+        // con >>> Local node [ID=NodeId ]
+        String logContent = U.readFileToString(logFile.getAbsolutePath(), "UTF-8");
+
+        assertTrue("Log file does not contain it's node ID: " + logFile,
+            logContent.contains(">>> Local node [ID="+ id8.toUpperCase()));
+
     }
 
     /**
@@ -98,37 +75,15 @@ public class GridLog4j2CorrectFileNameTest extends TestCase {
      * @return Grid configuration.
      * @throws Exception If error occurred.
      */
-    private static IgniteConfiguration getConfiguration(String gridName) throws Exception {
+    private static IgniteConfiguration getConfiguration(String gridName)
+        throws Exception {
         IgniteConfiguration cfg = new IgniteConfiguration();
 
         cfg.setGridName(gridName);
-        cfg.setGridLogger(new Log4JLogger());
+
+        cfg.setGridLogger(new Log4J2Logger("config/ignite-log4j2.xml"));
         cfg.setConnectorConfiguration(null);
 
         return cfg;
     }
-
-    /**
-     * Creates new GridLog4jRollingFileAppender.
-     *
-     * @return GridLog4jRollingFileAppender.
-     * @throws Exception If error occurred.
-     */
-    private static Log4jRollingFileAppender createAppender() throws Exception {
-        Log4jRollingFileAppender appender = new Log4jRollingFileAppender();
-
-        appender.setLayout(new PatternLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"));
-        appender.setFile("work/log/ignite.log");
-        appender.setName(Log4jRollingFileAppender.class.getSimpleName());
-
-        LevelRangeFilter lvlFilter = new LevelRangeFilter();
-
-        lvlFilter.setLevelMin(Level.DEBUG);
-        lvlFilter.setLevelMax(Level.INFO);
-
-        appender.addFilter(lvlFilter);
-
-        return appender;
-    }
 }
-

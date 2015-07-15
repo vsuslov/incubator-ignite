@@ -19,34 +19,69 @@ package org.apache.ignite.logger.log4j2;
 
 import junit.framework.*;
 import org.apache.ignite.*;
+import org.apache.ignite.logger.*;
 import org.apache.ignite.testframework.*;
 import org.apache.ignite.testframework.junits.common.*;
 
 import java.io.*;
+import java.util.*;
 
 /**
- * Grid Log4j SPI test.
+ * Grid Log4j2 SPI test.
  */
 @GridCommonTest(group = "Logger")
-public class GridLog4j2LoggingUrlTest extends TestCase {
+public class GridLog4j2InitiallizationTest extends TestCase {
     /** */
-    private IgniteLogger log;
+    public static final String LOG_PATH = "modules/core/src/test/config/log4j2-test.xml";
 
-    /** {@inheritDoc} */
-    @Override protected void setUp() throws Exception {
-        File xml = GridTestUtils.resolveIgnitePath("modules/core/src/test/config/log4j-test.xml");
+    /**
+     * @throws Exception If failed.
+     */
+    public void testFile() throws Exception {
+        File xml = GridTestUtils.resolveIgnitePath(LOG_PATH);
 
         assert xml != null;
         assert xml.exists();
 
-        log = new Log4JLogger(xml.toURI().toURL()).getLogger(getClass());
+        IgniteLogger log = new Log4J2Logger(xml).getLogger(getClass());
+
+        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+
+        checkLog(log);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testUrl() throws Exception {
+        File xml = GridTestUtils.resolveIgnitePath(LOG_PATH);
+
+        assert xml != null;
+        assert xml.exists();
+
+        IgniteLogger log = new Log4J2Logger(xml.toURI().toURL()).getLogger(getClass());
+
+        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+
+        checkLog(log);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testPath() throws Exception {
+        IgniteLogger log = new Log4J2Logger(LOG_PATH).getLogger(getClass());
+
+        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+
+        checkLog(log);
     }
 
     /**
      * Tests log4j logging SPI.
      */
-    public void testLog() {
-        assert log.isDebugEnabled();
+    private void checkLog(IgniteLogger log) {
+        assert !log.isDebugEnabled();
         assert log.isInfoEnabled();
 
         log.debug("This is 'debug' message.");
