@@ -339,8 +339,10 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     res.emptyLineIfNeeded();
 
+    res.importClass('org.apache.ignite.cache.CacheAtomicityMode');
+    res.importClass('org.apache.ignite.cache.CacheMode');
     res.importClass('org.apache.ignite.configuration.CacheConfiguration');
-    
+
     res.line('CacheConfiguration ' + varName + ' = new CacheConfiguration();');
 
     res.needEmptyLine = true;
