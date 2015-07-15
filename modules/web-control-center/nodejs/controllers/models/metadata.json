@@ -12,7 +12,7 @@
     "  <li>both - Create cache type metadata to use with query and store.</li>",
     "</ul>"
   ],
-  "general": [
+  "metadataManual": [
     {
       "label": "Name",
       "type": "text",
@@ -109,6 +109,70 @@
       "model": "groups",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
+    }
+  ],
+  "metadataDb": [
+    {
+      "label": "Name",
+      "type": "text",
+      "model": "name",
+      "required": true
+    },
+    {
+      "label": "Database type",
+      "type": "dropdown",
+      "model": "dbType",
+      "placeholder": "Choose database",
+      "items": "databases",
+      "tip": [
+        "Select database type to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Database name",
+      "type": "text",
+      "model": "dbName",
+      "tip": [
+        "Database name to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Host",
+      "type": "text",
+      "model": "host",
+      "placeholder": "IP address or host",
+      "tip": [
+        "IP address or host name where database server deployed."
+      ]
+    },
+    {
+      "label": "Port",
+      "type": "number",
+      "model": "port",
+      "max": 65535,
+      "placeholder": "",
+      "tip": [
+        "Port number for connecting to database."
+      ]
+    },
+    {
+      "label": "User",
+      "type": "text",
+      "model": "user",
+      "placeholder": "",
+      "tip": [
+        "User name for connecting to database."
+      ]
+    },
+    {
+      "label": "Password",
+      "type": "password",
+      "model": "password",
+      "placeholder": "",
+      "tip": [
+        "Password for connecting to database.",
+        "Note, password would not be saved."
+      ]
     }
   ]
 }
