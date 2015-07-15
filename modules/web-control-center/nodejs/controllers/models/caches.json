@@ -54,7 +54,7 @@
       "label": "Read from backup",
       "type": "check",
       "model": "readFromBackup",
-      "checked": true,
+      "placeholder": true,
       "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
       "tip": [
         "Flag indicating whether data can be read from backup.",
@@ -65,7 +65,7 @@
       "label": "Copy on read",
       "type": "check",
       "model": "copyOnRead",
-      "checked": true,
+      "placeholder": true,
       "tip": [
         "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
         "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."

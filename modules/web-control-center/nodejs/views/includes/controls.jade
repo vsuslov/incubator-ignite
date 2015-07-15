@@ -102,7 +102,7 @@ mixin form-row
     div(ng-switch='field.type')
         div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
-                input(type='checkbox' ng-checked='#{fieldMdl} = field.checked')&attributes(fieldCommon)
+                input(type='checkbox' ng-checked='field.placeholder')&attributes(fieldCommon)
                 | {{field.label}}
                 +tipLabel('field.tip')
         div(ng-switch-when='text' ng-hide=fieldHide)
