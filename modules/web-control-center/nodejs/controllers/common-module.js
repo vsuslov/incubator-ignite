@@ -25,9 +25,13 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
         return errMsg ? errMsg : 'Internal server error.';
     }
 
+    function isDefined(v) {
+        return !(v === undefined || v === null);
+    }
+
     return {
         getModel: function (obj, path) {
-            if (!path)
+            if (!isDefined(path))
                 return obj;
 
             path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
@@ -70,6 +74,7 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
 
             return lines.join("");
         },
+        isDefined: isDefined,
         errorMessage: errorMessage,
         showError: function (msg) {
             if (msgModal)
@@ -90,6 +95,42 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
     }
 }]);
 
+controlCenterModule.config(function($modalProvider) {
+    angular.extend($modalProvider.defaults, {
+        html: true
+    });
+});
+
+controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
+    var scope = $rootScope.$new();
+
+    var deferred;
+
+    scope.title = 'Confirmation';
+
+    scope.ok = function() {
+        deferred.resolve();
+
+        confirm.hide();
+    };
+
+    var confirm = $modal({templateUrl: '/confirm', scope: scope, placement: 'center', show: false});
+
+    var parentShow = confirm.show;
+
+    confirm.show = function(content) {
+        scope.content = content || 'Confirm deletion?';
+
+        deferred = $q.defer();
+
+        parentShow();
+
+        return deferred.promise;
+    };
+
+    return confirm;
+});
+
 controlCenterModule.config(function ($tooltipProvider) {
     angular.extend($tooltipProvider.defaults, {
         container: 'body',
@@ -104,7 +145,8 @@ controlCenterModule.config(function ($selectProvider) {
         maxLength: '1',
         allText: 'Select All',
         noneText: 'Clear All',
-        template: '/select'
+        templateUrl: '/select',
+        iconCheckmark: 'fa fa-check'
     });
 });
 
@@ -203,8 +245,17 @@ controlCenterModule.controller('auth', [
 
         $scope.valid = false;
 
+        $scope.userDropdown = [{"text": "Profile", "href": "/profile"}];
+
+        if (!$scope.becomeUsed) {
+            if ($scope.user && $scope.user.admin)
+                $scope.userDropdown.push({"text": "Admin Panel", "href": "/admin"});
+
+            $scope.userDropdown.push({"text": "Log Out", "href": "/logout"});
+        }
+
         // Pre-fetch an external template populated with a custom scope
-        var authModal = $modal({scope: $scope, template: '/login', show: false});
+        var authModal = $modal({scope: $scope, templateUrl: '/login', show: false});
 
         $scope.login = function () {
             // Show when some event occurs (use $promise property to ensure the template has been loaded)
@@ -213,7 +264,7 @@ controlCenterModule.controller('auth', [
 
         $scope.auth = function (action, user_info) {
             $http.post('/' + action, user_info)
-                .success(function (data) {
+                .success(function () {
                     authModal.hide();
 
                     $window.location = '/configuration/clusters';

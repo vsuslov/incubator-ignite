@@ -17,69 +17,60 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../helpers/ui-utils');
 
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('settings/admin');
 });
 
 /**
  * Get list of user accounts.
  */
-router.post('/list', function(req, res) {
+router.post('/list', function (req, res) {
     db.Account.find({}, function (err, users) {
         if (err)
             return res.status(500).send(err.message);
 
-        var uiUsers = [];
-
-        for (var i = 0; i < users.length; i++) {
-            uiUsers.push(uiUtils.filterUser(users[i]))
-        }
-
-        res.json(uiUsers);
+        res.json(users);
     });
 });
 
-router.post('/remove', function(req, res) {
+router.post('/remove', function (req, res) {
     var userId = req.body.userId;
 
-    db.Account.findByIdAndRemove(userId, function(err) {
-        if (!err)
-            res.sendStatus(200);
-        else
-            res.status(500).send(err);
+    db.Account.findByIdAndRemove(userId, function (err) {
+        if (err)
+            return res.status(500).send(err);
+
+        res.sendStatus(200);
     });
 });
 
-router.post('/save', function(req, res) {
+router.post('/save', function (req, res) {
     var userId = req.body.userId;
     var adminFlag = req.body.adminFlag;
 
-    db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function(err) {
-        if (!err)
-            res.sendStatus(200);
-        else
-            res.status(500).send(err);
+    db.Account.findByIdAndUpdate(userId, {admin: adminFlag}, function (err) {
+        if (err)
+            return res.status(500).send(err.message);
+
+        res.sendStatus(200);
     });
 });
 
-router.get('/become', function(req, res) {
+router.get('/become', function (req, res) {
     var viewedUserId = req.query.viewedUserId;
 
     if (!viewedUserId) {
         req.session.viewedUser = null;
 
-        res.redirect('/');
-
-        return
+        return res.redirect('/admin');
     }
 
-    db.Account.findById(viewedUserId, function(err, viewedUser) {
+    db.Account.findById(viewedUserId).exec(function (err, viewedUser) {
         if (err)
             return res.sendStatus(404);
 
-        req.session.viewedUser = {_id: viewedUser._id, username: viewedUser.username};
+        req.session.viewedUser = viewedUser;
 
         res.redirect('/');
     })

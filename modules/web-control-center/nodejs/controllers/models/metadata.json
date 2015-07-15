@@ -1,11 +1,178 @@
 {
-  "general": [
+  "screenTip": [
+    "Optional cache type metadata configuration.",
+    "Enter metadata manually or load from database.",
+    "Generate cache for metadata if needed."
+  ],
+  "templateTip": [
+    "Use following template for metadata:",
+    "<ul>",
+    "  <li>query - Create cache type metadata to use with queries only.</li>",
+    "  <li>store - Create cache type metadata to use with JDBC POJO store only.</li>",
+    "  <li>both - Create cache type metadata to use with query and store.</li>",
+    "</ul>"
+  ],
+  "metadataManual": [
     {
       "label": "Name",
       "type": "text",
       "model": "name",
       "required": true,
       "placeholder": "Input name"
+    },
+    {
+      "label": "Metadata for",
+      "type": "dropdown",
+      "model": "kind",
+      "items": "kinds",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Database schema",
+      "type": "text",
+      "model": "databaseSchema",
+      "required": true,
+      "hide": "backupItem.kind == 'query'",
+      "placeholder": "Input DB schema name",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Database table",
+      "type": "text",
+      "model": "databaseTable",
+      "required": true,
+      "hide": "backupItem.kind == 'query'",
+      "placeholder": "Input DB table name",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Key type",
+      "type": "text",
+      "model": "keyType",
+      "required": true,
+      "placeholder": "Full class name for Key",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Value type",
+      "type": "text",
+      "model": "value Type",
+      "required": true,
+      "placeholder": "Full class name for Value",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Key fields",
+      "type": "fieldsMetadata",
+      "model": "keyFields",
+      "hide": "backupItem.kind == 'query'",
+      "tip": ["Collection of key fields descriptions."]
+    },
+    {
+      "label": "Value fields",
+      "type": "fieldsMetadata",
+      "model": "valueFields",
+      "hide": "backupItem.kind == 'query'",
+      "tip": ["Collection of value fields descriptions."]
+    },
+    {
+      "label": "Query fields",
+      "type": "text",
+      "model": "queryFields",
+      "hide": "backupItem.kind != 'query'",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Ascending fields",
+      "type": "text",
+      "model": "ascendingFields",
+      "hide": "backupItem.kind != 'query'",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Descending fields",
+      "type": "text",
+      "model": "descendingFields",
+      "hide": "backupItem.kind != 'query'",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Text fields",
+      "type": "table-simple",
+      "model": "textFields",
+      "hide": "backupItem.kind != 'query'",
+      "tip": ["TODO."]
+    },
+    {
+      "label": "Groups",
+      "type": "groupsMetadata",
+      "model": "groups",
+      "hide": "backupItem.kind != 'query'",
+      "tip": ["TODO."]
+    }
+  ],
+  "metadataDb": [
+    {
+      "label": "Name",
+      "type": "text",
+      "model": "name",
+      "required": true
+    },
+    {
+      "label": "Database type",
+      "type": "dropdown",
+      "model": "dbType",
+      "placeholder": "Choose database",
+      "items": "databases",
+      "tip": [
+        "Select database type to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Database name",
+      "type": "text",
+      "model": "dbName",
+      "tip": [
+        "Database name to connect for loading tables metadata."
+      ]
+    },
+    {
+      "label": "Host",
+      "type": "text",
+      "model": "host",
+      "placeholder": "IP address or host",
+      "tip": [
+        "IP address or host name where database server deployed."
+      ]
+    },
+    {
+      "label": "Port",
+      "type": "number",
+      "model": "port",
+      "max": 65535,
+      "placeholder": "",
+      "tip": [
+        "Port number for connecting to database."
+      ]
+    },
+    {
+      "label": "User",
+      "type": "text",
+      "model": "user",
+      "placeholder": "",
+      "tip": [
+        "User name for connecting to database."
+      ]
+    },
+    {
+      "label": "Password",
+      "type": "password",
+      "model": "password",
+      "placeholder": "",
+      "tip": [
+        "Password for connecting to database.",
+        "Note, password would not be saved."
+      ]
     }
   ]
 }

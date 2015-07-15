@@ -18,6 +18,9 @@
 @logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 @input-height: 28px;
 @ignite-red: #ec1c24;
+@ignite-block-callout-background: #f3f8f3;
+@ignite-block-callout-border: #50af51;
+
 
 .main-header .logo {
   height: auto;
@@ -53,11 +56,9 @@
 
 .modal.center .modal-dialog {
   position: fixed;
-  top: 40%;
+  top: 50%;
   left: 50%;
-  min-width: 320px;
-  max-width: 630px;
-  width: 50%;
+  -webkit-transform:translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
 
@@ -191,9 +192,11 @@
   border-bottom: 4px solid #888;
 }
 
-.theme-line ul li > a.active {
-  cursor: default;
-  pointer-events: none;
+.theme-line .navbar-nav, .theme-line  .sidebar-nav {
+  ul li > a.active {
+    cursor: default;
+    pointer-events: none;
+  }
 }
 
 .theme-line .sidebar-nav {
@@ -588,7 +591,7 @@ h1.ignite-logo {
 
 .greedy {
   min-height: 200px;
-  height: ~"calc(100vh - 230px)";
+  height: ~"calc(100vh - 290px)";
 }
 
 @media (min-width: 768px) {
@@ -760,6 +763,35 @@ button .caret {
   }
 }
 
+.theme-line table.admin {
+  tr:hover {
+    cursor: default;
+  }
+
+  thead > tr th.header {
+    padding: 0 0 0.65em;
+
+    div {
+      padding: 0
+    }
+  }
+
+  margin-bottom: 10px;
+
+  label {
+    line-height: @input-height;
+    color: #666;
+  }
+
+  thead > tr th, td {
+    padding: 0.65em 0.65em;
+
+    .input-tip {
+      padding: 0;
+    }
+  }
+}
+
 .btn {
   padding: 3px 6px;
 }
@@ -809,12 +841,6 @@ label {
 .labelFormField {
   float: left;
   line-height: @input-height;
-}
-
-.stackTipField {
-  float: right;
-  line-height: @input-height;
-  margin-left: 5px;
 }
 
 .form-horizontal .form-group {
@@ -991,16 +1017,38 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
 }
 
 .viewedUser {
-  display: inline;
+  position: absolute;
+  width: 100%;
+  left: 0;
 
-  padding: 6px;
-  margin: 7px;
+  text-align: center;
 
-  border-radius: 4px;
+  margin-top: -15px;
 
   background-color: #f8d5d8;
 }
 
 a {
   cursor: pointer;
+}
+
+.st-sort-ascent:after{
+  content: '\25B2';
+}
+
+.st-sort-descent:after{
+  content: '\25BC';
+}
+
+.block-callout {
+  background-color: @ignite-block-callout-background;
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-color: @ignite-block-callout-border;
+
+  margin-bottom: 20px;
+
+  p {
+    padding: 10px 0 10px 10px;
+  }
 }

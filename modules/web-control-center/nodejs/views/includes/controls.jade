@@ -34,6 +34,8 @@ mixin details-row
     - var customValidators = {'ng-attr-ipaddress': '{{detail.ipaddress}}'}
 
     div(ng-switch='detail.type')
+        div(ng-switch-when='label')
+            label {{detail.label}}
         div.checkbox(ng-switch-when='check')
             label
                 input(type='checkbox')&attributes(detailCommon)
@@ -74,14 +76,14 @@ mixin details-row
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
                             div(ng-show='detail.editIdx != {{$index}}')
-                                i.stackTipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
-                                i.stackTipField.fa.fa-arrow-down(ng-if='detail.reordering' ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
-                                i.stackTipField.fa.fa-arrow-up(ng-if='detail.reordering' ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
+                                i.tipField.fa.fa-remove(ng-click='detail.editIdx = -1; #{detailMdl}.splice($index, 1)')
+                                i.tipField.fa.fa-arrow-down(ng-if='detail.reordering' ng-show='$index < #{detailMdl}.length - 1' ng-click='swapSimpleItems(#{detailMdl}, $index, $index + 1); detail.editIdx = -1;')
+                                i.tipField.fa.fa-arrow-up(ng-if='detail.reordering' ng-show='$index > 0' ng-click='swapSimpleItems(#{detailMdl}, $index, $index - 1); detail.editIdx = -1;')
                                 .input-tip
                                     a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
                             div(ng-show='detail.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.stackTipField.fa.fa-floppy-o(ng-click='#{detailMdl}[$index] = curValue ? curValue : #{detailMdl}[$index]; detail.editIdx = curValue ? -1 : detail.editIdx')
+                                i.tipField.fa.fa-floppy-o(ng-click='#{detailMdl}[$index] = curValue ? curValue : #{detailMdl}[$index]; detail.editIdx = curValue ? -1 : detail.editIdx')
                                 .input-tip.form-group.has-feedback
                                     input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                                     +exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
@@ -92,31 +94,36 @@ mixin details-row
                 +exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin form-row
-    - var lblClasses = ['col-sm-2']
+    +form-row-custom(['col-sm-2'], ['col-sm-4'])
 
+mixin form-row-custom(lblClasses, fieldClasses)
     - var fieldMdl = 'getModel(backupItem, field.path)[field.model]';
-    - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required'};
+    - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
+    - var fieldRequiredClass = '{true: "required"}[field.required || required(field)]'
+    - var fieldHide = '{{field.hide}}'
 
     div(ng-switch='field.type')
-        div.checkbox.col-sm-6(ng-switch-when='check')
+        div.col-sm-6(ng-switch-when='label')
+            label {{field.label}}
+        div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
-                input(type='checkbox')&attributes(fieldCommon)
+                input(type='checkbox' ng-checked='field.placeholder')&attributes(fieldCommon)
                 | {{field.label}}
                 +tipLabel('field.tip')
-        div(ng-switch-when='text')
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+        div(ng-switch-when='text' ng-hide=fieldHide)
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
-        div(ng-switch-when='password')
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+        div(ng-switch-when='password' ng-hide=fieldHide)
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='password' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
-        div(ng-switch-when='number' ng-hide='{{field.hide}}')
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+        div(ng-switch-when='number' ng-hide=fieldHide)
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
@@ -124,23 +131,23 @@ mixin form-row
                     +exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
-        div(ng-switch-when='dropdown' ng-hide='{{field.hide}}')
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+        div(ng-switch-when='dropdown' ng-hide=fieldHide)
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
-        div(ng-switch-when='dropdown-multiple' ng-hide='{{field.hide}}')
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+        div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
-        div(ng-switch-when='dropdown-details' ng-hide='{{field.hide}}')
+        div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
-            label(class=lblClasses ng-class='{required: field.required}') {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
             .col-sm-4
                 +tipField('field.tip')
                 .input-tip
@@ -149,7 +156,7 @@ mixin form-row
             .col-sm-6.panel-details(ng-show='#{expanded} && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
-        div(ng-switch-when='table-simple')&attributes(fieldCommon)
+        div(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             div
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
@@ -162,7 +169,55 @@ mixin form-row
                                 i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{fieldMdl}.splice($index, 1)')
                             div(ng-show='field.editIdx == {{$index}}')
                                 label.labelField {{$index + 1}})
-                                i.stackTipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
+                                i.tipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
+                                .input-tip
+                                    input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
+                        td.col-sm-1(ng-if='field.reordering')
+                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index - 1); field.editIdx = -1;')
+                            i.fa.fa-arrow-down(ng-show='$index < #{fieldMdl}.length - 1' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index + 1); field.editIdx = -1;')
+            .col-sm-6
+                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{fieldMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; #{fieldMdl} ? #{fieldMdl}.push(newValue) : #{fieldMdl} = [newValue];') Add
+                +tipField('field.tip')
+                .input-tip
+                    input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
+        div(ng-switch-when='fieldsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
+            div
+                label.table-header {{field.label}}:
+                +tipLabel('field.tableTip')
+            table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
+                tbody
+                    tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
+                        td.col-sm-6
+                            div(ng-show='field.editIdx != {{$index}}')
+                                a(ng-click='field.editIdx = $index; curValue = #{fieldMdl}[$index]') {{$index + 1}}) {{item | compact}}
+                                i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{fieldMdl}.splice($index, 1)')
+                            div(ng-show='field.editIdx == {{$index}}')
+                                label.labelField {{$index + 1}})
+                                i.tipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
+                                .input-tip
+                                    input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
+                        td.col-sm-1(ng-if='field.reordering')
+                            i.fa.fa-arrow-up(ng-show='$index > 0' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index - 1); field.editIdx = -1;')
+                            i.fa.fa-arrow-down(ng-show='$index < #{fieldMdl}.length - 1' ng-click='swapSimpleItems(#{fieldMdl}, $index, $index + 1); field.editIdx = -1;')
+            .col-sm-6
+                button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{fieldMdl}.indexOf(newValue) >= 0' ng-click='field.editIdx = -1; #{fieldMdl} ? #{fieldMdl}.push(newValue) : #{fieldMdl} = [newValue];') Add
+                +tipField('field.tip')
+                .input-tip
+                    input.form-control(type='text' ng-model='newValue' ng-focus='field.editIdx = -1'  placeholder='{{field.placeholder}}')
+        div(ng-switch-when='groupsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
+            div
+                label.table-header {{field.label}}:
+                +tipLabel('field.tableTip')
+            table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
+                tbody
+                    tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
+                        td.col-sm-6
+                            div(ng-show='field.editIdx != {{$index}}')
+                                a(ng-click='field.editIdx = $index; curValue = #{fieldMdl}[$index]') {{$index + 1}}) {{item | compact}}
+                                i.tipField.fa.fa-remove(ng-click='field.editIdx = -1; #{fieldMdl}.splice($index, 1)')
+                            div(ng-show='field.editIdx == {{$index}}')
+                                label.labelField {{$index + 1}})
+                                i.tipField.fa.fa-floppy-o(ng-click='#{fieldMdl}[$index] = curValue ? curValue : #{fieldMdl}[$index]; field.editIdx = curValue ? -1 : field.editIdx')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
                         td.col-sm-1(ng-if='field.reordering')

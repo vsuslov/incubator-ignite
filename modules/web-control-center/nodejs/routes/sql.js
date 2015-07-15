@@ -17,8 +17,6 @@
 
 var router = require('express').Router();
 var db = require('../db');
-var uiUtils = require('../helpers/ui-utils');
-
 router.get('/', function(req, res) {
     res.render('sql/sql');
 });

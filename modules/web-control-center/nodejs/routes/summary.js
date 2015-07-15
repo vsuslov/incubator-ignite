@@ -24,11 +24,11 @@ var generatorJava = require('./generator/java');
 var generatorDocker = require('./generator/docker');
 
 /* GET summary page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     res.render('configuration/summary');
 });
 
-router.post('/generator', function(req, res) {
+router.post('/generator', function (req, res) {
     // Get cluster.
     db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
@@ -37,16 +37,24 @@ router.post('/generator', function(req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
+        var clientTemplate = req.body.clientTemplate;
+
+        if (clientTemplate)
+            return res.send({
+                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientTemplate),
+                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientTemplate)
+            });
+
         return res.send({
-            xml: generatorXml.generateClusterConfiguration(cluster),
-            javaSnippet: generatorJava.generateClusterConfiguration(cluster, false),
-            javaClass: generatorJava.generateClusterConfiguration(cluster, true),
+            xmlServer: generatorXml.generateClusterConfiguration(cluster),
+            javaSnippetServer: generatorJava.generateClusterConfiguration(cluster, false),
+            javaClassServer: generatorJava.generateClusterConfiguration(cluster, true),
             docker: generatorDocker.generateClusterConfiguration(cluster, '%OS%')
         });
     });
 });
 
-router.post('/download', function(req, res) {
+router.post('/download', function (req, res) {
     // Get cluster.
     db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
         if (err)
@@ -54,42 +62,47 @@ router.post('/download', function(req, res) {
 
         if (!cluster)
             return res.sendStatus(404);
+
+        var clientCache = req.body.clientTemplate;
 
         var archiver = require('archiver');
 
         // creating archives
         var zip = archiver('zip');
 
-        zip.on('error', function(err) {
+        zip.on('error', function (err) {
             res.status(500).send({error: err.message});
         });
 
         //on stream closed we can end the request
-        res.on('close', function() {
+        res.on('close', function () {
             console.log('Archive wrote %d bytes', archive.pointer());
 
             return res.status(200).send('OK').end();
         });
 
         //set the archive name
-        res.attachment(cluster.name + '-configuration.zip');
+        res.attachment(cluster.name + (clientCache ? '-client' : '') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');
-
-        var javaClass = req.body.javaClass;
 
         // Send the file to the page output.
         zip.pipe(res);
 
-        var props = generatorCommon.generateProperties(cluster);
+        var javaClass = req.body.javaClass;
 
-        if (props)
-            zip.append(props, {name: "secret.properties"});
+        if (!clientCache) {
+            zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
 
-        zip.append(generatorXml.generateClusterConfiguration(cluster), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, req.body.javaClass),
+            var props = generatorCommon.generateProperties(cluster);
+
+            if (props)
+                zip.append(props, {name: "secret.properties"});
+        }
+
+        zip.append(generatorXml.generateClusterConfiguration(cluster, clientCache), {name: cluster.name + ".xml"})
+            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientCache),
                 {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
-            .append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"})
             .finalize();
     });
 });

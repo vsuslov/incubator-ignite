@@ -20,17 +20,75 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
 
+        $scope.templates = [
+            {value: {kind: 'query'}, label: 'query'},
+            {value: {kind: 'store'}, label: 'store'},
+            {value: {kind: 'both'}, label: 'both'}
+        ];
+
+        $scope.template = $scope.templates[0].value;
+
+        $scope.kinds = [
+            {value: 'query', label: 'query'},
+            {value: 'store', label: 'store'},
+            {value: 'both', label: 'both'}
+        ];
+
+        $scope.databases = [
+            {value: 'oracle', label: 'Oracle database'},
+            {value: 'db2', label: 'IBM DB2'},
+            {value: 'mssql', label: 'MS SQL Server'},
+            {value: 'postgre', label: 'PostgreSQL'},
+            {value: 'mysql', label: 'MySQL'},
+            {value: 'h2', label: 'H2 database'}
+        ];
+
+        $scope.data = {
+            curTableIdx: 0,
+            curFieldIdx: 0,
+            curKeyClass: '',
+            curValueClass: '',
+            curJavaName: '',
+            curJavaType: '',
+            tables: [
+                {schemaName: 'Schema1', use: true},
+                {schemaName: 'Schema1', use: true, tableName: 'Table1', keyClass: 'KeyClass1', valueClass: 'ValueClass1',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name1', dbType: 'dbType1', javaName: 'javaName1', javaType: 'javaType1'},
+                        {use: true, key: false, ak: false, dbName: 'name2', dbType: 'dbType2', javaName: 'javaName2', javaType: 'javaType2'},
+                        {use: false, key: false, ak: false, dbName: 'name3', dbType: 'dbType3', javaName: 'javaName3', javaType: 'javaType3'}
+                    ]
+                },
+                {schemaName: 'Schema2 with very long name', use: false},
+                {schemaName: 'Schema2', use: false, tableName: 'Table2', keyClass: 'KeyClass2', valueClass: 'ValueClass2',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name4', dbType: 'dbType4', javaName: 'javaName4', javaType: 'javaType4'},
+                        {use: true, key: false, ak: false, dbName: 'name5', dbType: 'dbType5', javaName: 'javaName5', javaType: 'javaType5'},
+                        {use: false, key: false, ak: false, dbName: 'name6', dbType: 'dbType6', javaName: 'javaName6', javaType: 'javaType6'}
+                    ]},
+                {schemaName: 'Schema2', use: false, tableName: 'Table3', keyClass: 'KeyClass3', valueClass: 'ValueClass3',
+                    fields: [
+                        {use: true, key: true, ak: true, dbName: 'name7', dbType: 'dbType7', javaName: 'javaName7', javaType: 'javaType7'},
+                        {use: true, key: false, ak: false, dbName: 'name8', dbType: 'dbType8', javaName: 'javaName8', javaType: 'javaType8'},
+                        {use: false, key: false, ak: false, dbName: 'name9', dbType: 'dbType9', javaName: 'javaName9', javaType: 'javaType9'},
+                        {use: false, key: false, ak: false, dbName: 'name10', dbType: 'dbType10', javaName: 'javaName10', javaType: 'javaType10'},
+                        {use: false, key: false, ak: false, dbName: 'name11', dbType: 'dbType11', javaName: 'javaName11', javaType: 'javaType11'},
+                        {use: false, key: false, ak: false, dbName: 'name12', dbType: 'dbType12', javaName: 'javaName12', javaType: 'javaType12'}
+                    ]}]
+        };
+
         $scope.metadata = [];
 
         $http.get('/models/metadata.json')
             .success(function (data) {
-                $scope.general = data.general;
+                $scope.screenTip = data.screenTip;
+                $scope.templateTip = data.templateTip;
+                $scope.metadataManual = data.metadataManual;
+                $scope.metadataDb = data.metadataDb;
             })
             .error(function (errMsg) {
                 commonFunctions.showError(errMsg);
             });
-
-        $scope.metadatas = [];
 
         // When landing on the page, get metadatas and show them.
         $http.post('metadata/list')
@@ -67,13 +125,12 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
         $scope.selectItem = function (item) {
             $scope.selectedItem = item;
-
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new metadata.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true};
+            $scope.backupItem = angular.copy($scope.template);
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
@@ -125,46 +182,50 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                 });
         };
 
-        $scope.checkIndexedTypes = function (keyCls, valCls) {
-            if (!keyCls) {
-                commonFunctions.showError('Key class name should be non empty!');
+        $scope.selectSchema = function (idx) {
+            var data = $scope.data;
+            var tables = data.tables;
+            var schemaName = tables[idx].schemaName;
+            var use = tables[idx].use;
 
-                return false;
+            for (var i = idx + 1; i < tables.length; i++) {
+                var item = tables[i];
+
+                if (item.schemaName == schemaName && item.tableName)
+                    item.use = use;
+                else
+                    break;
             }
 
-            if (!valCls) {
-                commonFunctions.showError('Value class name should be non empty!');
+            data.curTableIdx = -1;
+            data.curFieldIdx = -1;
+        };
 
-                return false;
+        $scope.selectTable = function (idx) {
+            var data = $scope.data;
+
+            data.curTableIdx = idx;
+            data.curFieldIdx = -1;
+
+            if (idx >= 0) {
+                var tbl = data.tables[idx];
+
+                data.curKeyClass = tbl.keyClass;
+                data.curValueClass = tbl.valueClass;
             }
-
-            return true;
         };
 
-        $scope.addIndexedTypes = function (keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
-                return;
+        $scope.selectField = function (idx) {
+            var data = $scope.data;
 
-            var idxTypes = $scope.backupItem.indexedTypes;
+            data.curFieldIdx = idx;
 
-            var newItem = {keyClass: keyCls, valueClass: valCls};
+            if (idx >= 0) {
+                var fld = data.tables[data.curTableIdx].fields[idx];
 
-            if (idxTypes)
-                idxTypes.push(newItem);
-            else
-                $scope.backupItem.indexedTypes = [newItem];
-        };
-
-        $scope.saveIndexedType = function (idx, keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
-                return idx;
-
-            var idxType = $scope.backupItem.indexedTypes[idx];
-
-            idxType.keyClass = keyCls;
-            idxType.valueClass = valCls;
-
-            return -1;
+                data.curJavaName = fld.javaName;
+                data.curJavaType = fld.javaType;
+            }
         };
     }]
 );

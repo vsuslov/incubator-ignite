@@ -20,26 +20,31 @@ var passport = require('passport');
 var db = require('../db');
 
 // GET dropdown-menu template.
-router.get('/select', function(req, res) {
-    res.render('templates/select', { });
+router.get('/select', function (req, res) {
+    res.render('templates/select', {});
+});
+
+// GET dropdown-menu template.
+router.get('/confirm', function (req, res) {
+    res.render('templates/confirm', {});
 });
 
 /* GET login page. */
-router.get('/login', function(req, res) {
+router.get('/login', function (req, res) {
     res.render('login');
 });
 
 /**
  * Register new account.
  */
-router.post('/register', function(req, res, next) {
+router.post('/register', function (req, res, next) {
     db.Account.count(function (err, cnt) {
         if (err)
             return res.status(401).send(err.message);
 
         req.body.admin = cnt == 0;
 
-        db.Account.register(new db.Account(req.body), req.body.password, function(err, account) {
+        db.Account.register(new db.Account(req.body), req.body.password, function (err, account) {
             if (err)
                 return res.status(401).send(err.message);
 
@@ -48,7 +53,7 @@ router.post('/register', function(req, res, next) {
 
             new db.Space({name: 'Personal space', owner: account._id}).save();
 
-            req.logIn(account, {}, function(err) {
+            req.logIn(account, {}, function (err) {
                 if (err)
                     return res.status(401).send(err.message);
 
@@ -61,15 +66,15 @@ router.post('/register', function(req, res, next) {
 /**
  * Login in exist account.
  */
-router.post('/login', function(req, res, next) {
-    passport.authenticate('local', function(err, user) {
+router.post('/login', function (req, res, next) {
+    passport.authenticate('local', function (err, user) {
         if (err)
             return res.status(401).send(err.message);
 
         if (!user)
             return res.status(401).send('Invalid email or password');
 
-        req.logIn(user, {}, function(err) {
+        req.logIn(user, {}, function (err) {
             if (err)
                 return res.status(401).send(err.message);
 
@@ -81,14 +86,14 @@ router.post('/login', function(req, res, next) {
 /**
  * Logout.
  */
-router.get('/logout', function(req, res) {
+router.get('/logout', function (req, res) {
     req.logout();
 
     res.redirect('/');
 });
 
 /* GET home page. */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     if (req.isAuthenticated())
         res.redirect('/configuration/clusters');
     else

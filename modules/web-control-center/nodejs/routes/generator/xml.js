@@ -20,7 +20,7 @@ var _ = require('lodash');
 var generatorUtils = require("./common");
 var dataStructures = require("../../helpers/data-structures.js");
 
-exports.generateClusterConfiguration = function(cluster) {
+exports.generateClusterConfiguration = function(cluster, clientCache) {
     var res = generatorUtils.builder();
 
     res.datasources = [];
@@ -28,6 +28,12 @@ exports.generateClusterConfiguration = function(cluster) {
 
     // Generate Ignite Configuration.
     res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
+
+    if (clientCache) {
+        res.line('<property name="clientMode" value="true" />');
+
+        res.line();
+    }
 
     // Generate discovery.
     if (cluster.discovery) {
@@ -157,9 +163,8 @@ exports.generateClusterConfiguration = function(cluster) {
         
         res.startBlock('<property name="includeEventTypes">');
         
-        if (cluster.includeEventTypes.length == 1) {
-            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>')
-        }
+        if (cluster.includeEventTypes.length == 1)
+            res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>');
         else {
             res.startBlock('<array>');
 
@@ -253,7 +258,12 @@ exports.generateClusterConfiguration = function(cluster) {
             if (i > 0)
                 res.line();
 
-            generateCacheConfiguration(cluster.caches[i], res);
+            var cache = cluster.caches[i];
+
+            if (clientCache)
+                _.merge(cache, clientCache);
+
+            generateCacheConfiguration(cache, res);
         }
 
         res.endBlock('</list>');
@@ -370,7 +380,7 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
         res.startBlock('<property name="indexedTypes">');
-        res.startBlock('<array>');
+        res.startBlock('<list>');
 
         for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
             var pair = cacheCfg.indexedTypes[i];
@@ -379,7 +389,7 @@ function generateCacheConfiguration(cacheCfg, res) {
             res.line('<value>' + escape(pair.valueClass) + '</value>');
         }
 
-        res.endBlock('</array>');
+        res.endBlock('</list>');
         res.endBlock('</property>');
     }
 
@@ -454,7 +464,7 @@ exports.generateCacheConfiguration = generateCacheConfiguration;
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
-    if (val) {
+    if (generatorUtils.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line('<property name="' + (setterName ? setterName : propName) + '" value="' + escapeAttr(val) + '"/>');
@@ -503,13 +513,11 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                             res.endBlock('</property>');
                         }
                     }
-                    else {
+                    else
                         addProperty(res, bean, propName, descr.setterName);
-                    }
                 }
-                else {
+                else
                     addProperty(res, bean, propName);
-                }
             }
         }
 

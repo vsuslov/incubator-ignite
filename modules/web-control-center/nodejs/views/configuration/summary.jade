@@ -30,66 +30,108 @@ append css
     link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/styles/shCore.css')
     link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/styles/shThemeDefault.css')
 
+include ../includes/controls
+
 block content
     .docs-header
         h1 Configurations summary
         hr
     .docs-body(ng-controller='summaryController')
-        div(ng-show='clusters.length == 0')
+        div
+            .block-callout
+                p(ng-bind-html='joinTip(screenTip)')
+        div(ng-if='clusters.length == 0')
             | No cluster configured. You can&nbsp;
             a(href='clusters') configure
             | &nbsp;it.
-        div(ng-show='clusters.length > 0')
+        div(ng-if='clusters.length > 0')
             p Following cluster configurations were created, you can download them as XML, java code or as docker file.
             .links
-                table.col-sm-12(st-table='clusters')
+                table(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                                a(ng-click='generate(row)') {{$index + 1}}) {{row.name}}
-            #cfgResult.configBox(ng-show='selectedItem && !generateError && !loading', style='margin-top: 20px')
-                ul.nav.nav-tabs
-                    li(ng-class='{active: cfgLang == "xml"}')
-                        a(href, ng-click='cfgLang = "xml"')
-                            img(src='/images/xml.png', width='16px' height='16px')
-                            |  XML
-                    li(ng-class='{active: cfgLang=="java"}')
-                        a(href, ng-click='cfgLang = "java"')
-                            img(src='/images/java.png', width='16px' height='16px')
-                            |  Java
-                    li(ng-class="{active: cfgLang=='docker'}")
-                        a(href, ng-click='cfgLang = "docker"')
-                            img(src='/images/docker.png', width='16px' height='16px')
-                            |  Dockerfile
-                form.settings-row(method='post' action='summary/download')
-                    input(type="hidden" name="_id" value="{{selectedItem._id}}")
-                    input(type="hidden" name="javaClass" value="{{javaClass}}")
-                    input(type="hidden" name="os" value="{{os}}")
+                                a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+        div(ng-show='selectedItem && generated' role="tab" method='post' action='summary/download')
+            div(bs-collapse data-start-collapsed='false')
+                .panel.panel-default
+                    form.panel-heading(role='tab' method='post' action='summary/download')
+                        input(type="hidden" name="_id" value="{{selectedItem._id}}")
+                        input(type="hidden" name="os" value="{{os}}")
+                        input(type="hidden" name="javaClass" value="{{javaClassServer}}")
+                        h3
+                            a(bs-collapse-toggle) Server
+                            button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
+                    .panel-collapse(role="tabpanel" bs-collapse-target)
+                        .panel-body
+                            .configBox(ng-show='selectedItem && !generateError')
+                                ul.nav.nav-tabs
+                                    li(ng-class='{active: cfgLangServer == "xml"}')
+                                        a(href, ng-click='cfgLangServer = "xml"')
+                                            img(src='/images/xml.png', width='16px' height='16px')
+                                            |  XML
+                                    li(ng-class='{active: cfgLangServer =="java"}')
+                                        a(href, ng-click='cfgLangServer = "java"')
+                                            img(src='/images/java.png', width='16px' height='16px')
+                                            |  Java
+                                    li(ng-class="{active: cfgLangServer =='docker'}")
+                                        a(href, ng-click='cfgLangServer = "docker"')
+                                            img(src='/images/docker.png', width='16px' height='16px')
+                                            |  Dockerfile
+                                .settings-row
+                                    div(ng-show="cfgLangServer == 'xml'")
+                                        #xmlServer
+                                    div(ng-show="cfgLangServer == 'java'")
+                                        .col-sm-1
+                                            label Generate:
+                                        .col-sm-3
+                                            button.form-control(type='button' ng-model='javaClassServer' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                        #javaServer
+                                    div(ng-show="cfgLangServer == 'docker'")
+                                        p
+                                            a(style='color:#ec1c24' href='https://docs.docker.com/reference/builder' target="_blank") Docker
+                                            | &nbsp;file is a text file with instructions to create Docker image.<br/>
+                                            | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
+                                            | Also you could use predefined&nbsp;
+                                            a(style='color:#ec1c24' href='https://ignite.incubator.apache.org/download.html#docker' target="_blank") Apache Ignite docker image
+                                            | . For more information about using Ignite with Docker please read&nbsp;
+                                            a(style='color:#ec1c24' href='http://apacheignite.readme.io/docs/docker-deployment' target="_blank") documentation
+                                            |.
+                                        .col-sm-2
+                                            label(for='os') Operation System:
+                                        .col-sm-4
+                                            input#os.form-control(type='text', ng-model='os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
+                                        .settings-row#docker(style='margin-top: 15px')
+            div(bs-collapse data-start-collapsed='false')
+                .panel.panel-default
+                    form.panel-heading(role='tab' method='post' action='summary/download')
+                        input(type="hidden" name="_id" value="{{selectedItem._id}}")
+                        input(type="hidden" name="javaClass" value="{{javaClassClient}}")
+                        input(type="hidden" name="clientTemplate" value="{{backupItem}}")
 
-                    #xmlResult(ng-show="cfgLang == 'xml'")
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -45px' type='submit') Download
-                        #xmlResultDiv
-                    #javaResult(ng-show="cfgLang == 'java'")
-                        .col-sm-1
-                            label Generate:
-                        .col-sm-3
-                            button.form-control(type='button' ng-model='javaClass' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' type='submit') Download
-                        #javaResultDiv
-                    #dockerResult(ng-show="cfgLang == 'docker'")
-                        button.btn.btn-primary.pull-right(style='margin-right: 0px;margin-top: -40px' type='submit') Download
-                        p
-                            a(style='color:#ec1c24' href='https://docs.docker.com/reference/builder' target="_blank") Docker
-                            | &nbsp;file is a text file with instructions to create Docker image.<br/>
-                            | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
-                            | Also you could use predefined&nbsp;
-                            a(style='color:#ec1c24' href='https://ignite.incubator.apache.org/download.html#docker' target="_blank") Apache Ignite docker image
-                            | . For more information about using Ignite with Docker please read&nbsp;
-                            a(style='color:#ec1c24' href='http://apacheignite.readme.io/docs/docker-deployment' target="_blank") documentation
-                            |.
-                        .col-sm-2
-                            label(for='os') Operation System:
-                        .col-sm-4
-                            input#os.form-control(type='text', ng-model='os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
-                        .settings-row#dockerResultDiv(style='margin-top: 15px')
-                div(ng-show='generateError') {{generateError}}
+                        h3
+                            a(bs-collapse-toggle) Client
+                            button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
+                    .panel-collapse(role="tabpanel" bs-collapse-target)
+                        .panel-body
+                            .configBox(ng-show='selectedItem && !generateError')
+                                .settings-row(ng-repeat='field in clientFields')
+                                    +form-row-custom(['col-sm-3'], ['col-sm-3'])
+                                ul.nav.nav-tabs
+                                    li(ng-class='{active: cfgLangClient == "xml"}')
+                                        a(href, ng-click='cfgLangClient = "xml"')
+                                            img(src='/images/xml.png', width='16px' height='16px')
+                                            |  XML
+                                    li(ng-class='{active: cfgLangClient =="java"}')
+                                        a(href, ng-click='cfgLangClient = "java"')
+                                            img(src='/images/java.png', width='16px' height='16px')
+                                            |  Java
+                                .settings-row
+                                    div(ng-show="cfgLangClient == 'xml'")
+                                        #xmlClient
+                                    div(ng-show="cfgLangClient == 'java'")
+                                        .col-sm-1
+                                            label Generate:
+                                        .col-sm-4
+                                            button.form-control(type='button' ng-model='javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                        #javaClient

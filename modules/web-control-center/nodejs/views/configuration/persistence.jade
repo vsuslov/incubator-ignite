@@ -30,7 +30,7 @@ block content
         hr
     .docs-body(ng-controller='persistenceController')
         .links(ng-hide='persistences.length == 0')
-            table.col-sm-12(st-table='persistences')
+            table(st-table='persistences')
                 tbody
                     tr(ng-repeat='row in persistences track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')

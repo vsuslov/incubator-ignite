@@ -77,6 +77,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         $http.get('/models/caches.json')
             .success(function (data) {
+                $scope.screenTip = data.screenTip;
                 $scope.general = data.general;
                 $scope.advanced = data.advanced;
             })
@@ -86,6 +87,27 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         $scope.caches = [];
 
+        $scope.required = function (field) {
+            var model = commonFunctions.isDefined(field.path) ? field.path + '.' + field.model : field.model;
+
+            var backupItem = $scope.backupItem;
+
+            var memoryMode = backupItem.memoryMode;
+
+            var onHeapTired = memoryMode == 'ONHEAP_TIERED';
+            var offHeapTired = memoryMode == 'OFFHEAP_TIERED';
+
+            var offHeapMaxMemory = backupItem.offHeapMaxMemory;
+
+            if (model == 'offHeapMaxMemory' && offHeapTired)
+                return true;
+
+            if (model == 'evictionPolicy.kind' && onHeapTired)
+                return backupItem.swapEnabled || (commonFunctions.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
+
+            return false;
+        };
+
         // When landing on the page, get caches and show them.
         $http.post('caches/list')
             .success(function (data) {
@@ -94,21 +116,24 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
                 var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
-                if (restoredItem && restoredItem._id) {
-                    var idx = _.findIndex($scope.caches, function (cache) {
-                        return cache._id == restoredItem._id;
-                    });
+                if (restoredItem) {
+                    if (restoredItem._id) {
+                        var idx = _.findIndex($scope.caches, function (cache) {
+                            return cache._id == restoredItem._id;
+                        });
 
-                    if (idx >= 0) {
-                        $scope.selectedItem = $scope.caches[idx];
-
-                        $scope.backupItem = restoredItem;
+                        if (idx >= 0) {
+                            $scope.selectedItem = $scope.caches[idx];
+                            $scope.backupItem = restoredItem;
+                        }
+                        else
+                            sessionStorage.removeItem('cacheBackupItem');
                     }
                     else
-                        sessionStorage.removeItem('cacheBackupItem');
+                        $scope.backupItem = restoredItem;
                 }
-                else
-                    $scope.backupItem = restoredItem;
+                else if ($scope.caches.length > 0)
+                    $scope.selectItem($scope.caches[0]);
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
@@ -121,13 +146,12 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         $scope.selectItem = function (item) {
             $scope.selectedItem = item;
-
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new cache.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true};
+            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
@@ -135,14 +159,22 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            if (item.cacheStoreFactory && item.cacheStoreFactory.kind && !(item.readThrough || item.writeThrough)) {
+            var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
+
+            if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
                 commonFunctions.showError('Store is configured but read/write through are not enabled!');
 
                 return;
             }
 
-            if ((item.readThrough || item.writeThrough) && (!item.cacheStoreFactory || !item.cacheStoreFactory.kind)) {
-                commonFunctions.showError('Read / write through are enabled but strore is not configured!');
+            if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
+                commonFunctions.showError('Read / write through are enabled but store is not configured!');
+
+                return;
+            }
+
+            if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
+                commonFunctions.showError('Write behind enabled but store is not configured!');
 
                 return;
             }
@@ -189,6 +221,48 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);
                 });
+        };
+
+        $scope.checkIndexedTypes = function (keyCls, valCls) {
+            if (!keyCls) {
+                commonFunctions.showError('Key class name should be non empty!');
+
+                return false;
+            }
+
+            if (!valCls) {
+                commonFunctions.showError('Value class name should be non empty!');
+
+                return false;
+            }
+
+            return true;
+        };
+
+        $scope.addIndexedTypes = function (keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return;
+
+            var idxTypes = $scope.backupItem.indexedTypes;
+
+            var newItem = {keyClass: keyCls, valueClass: valCls};
+
+            if (idxTypes)
+                idxTypes.push(newItem);
+            else
+                $scope.backupItem.indexedTypes = [newItem];
+        };
+
+        $scope.saveIndexedType = function (idx, keyCls, valCls) {
+            if (!$scope.checkIndexedTypes(keyCls, valCls))
+                return idx;
+
+            var idxType = $scope.backupItem.indexedTypes[idx];
+
+            idxType.keyClass = keyCls;
+            idxType.valueClass = valCls;
+
+            return -1;
         };
     }]
 );

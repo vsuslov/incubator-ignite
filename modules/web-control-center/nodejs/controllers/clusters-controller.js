@@ -21,9 +21,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
         $scope.getModel = commonFunctions.getModel;
 
         $scope.templates = [
-            {value: {discovery: {Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'none'},
-            {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'},
-            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'}
+            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'},
+            {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
         $scope.discoveries = [
@@ -88,6 +87,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
 
         $http.get('/models/clusters.json')
             .success(function (data) {
+                $scope.screenTip = data.screenTip;
                 $scope.templateTip = data.templateTip;
 
                 $scope.general = data.general;
@@ -106,21 +106,24 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
 
                 var restoredItem = angular.fromJson(sessionStorage.clusterBackupItem);
 
-                if (restoredItem && restoredItem._id) {
-                    var idx = _.findIndex($scope.clusters, function (cluster) {
-                        return cluster._id == restoredItem._id;
-                    });
+                if (restoredItem) {
+                    if (restoredItem._id) {
+                        var idx = _.findIndex($scope.clusters, function (cluster) {
+                            return cluster._id == restoredItem._id;
+                        });
 
-                    if (idx >= 0) {
-                        $scope.selectedItem = $scope.clusters[idx];
-
-                        $scope.backupItem = restoredItem;
+                        if (idx >= 0) {
+                            $scope.selectedItem = $scope.clusters[idx];
+                            $scope.backupItem = restoredItem;
+                        }
+                        else
+                            sessionStorage.removeItem('clusterBackupItem');
                     }
                     else
-                        sessionStorage.removeItem('clusterBackupItem');
+                        $scope.backupItem = restoredItem;
                 }
-                else
-                    $scope.backupItem = restoredItem;
+                else if ($scope.clusters.length > 0)
+                    $scope.selectItem($scope.clusters[0]);
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
@@ -133,14 +136,12 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
 
         $scope.selectItem = function (item) {
             $scope.selectedItem = item;
-
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new cluster.
         $scope.createItem = function () {
             $scope.backupItem = angular.copy($scope.create.template);
-
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
@@ -204,6 +205,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', 'common
                         $scope.selectedItem = undefined;
                         $scope.backupItem = undefined;
                     }
+
+                    commonFunctions.showInfo("Cluster has been removed: " + $scope.selectedItem.label);
                 })
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);

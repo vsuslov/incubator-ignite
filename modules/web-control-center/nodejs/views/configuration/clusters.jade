@@ -26,13 +26,15 @@ block content
         h1 Create and configure Ignite clusters
         hr
     .docs-body(ng-controller='clustersController')
+        .block-callout
+            p(ng-bind-html='joinTip(screenTip)')
         .links(ng-hide='clusters.length == 0')
-            table.col-sm-12(st-table='clusters')
+            table(st-table='clusters')
                 tbody
                     tr(ng-repeat='row in clusters track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
-        button.btn.btn-primary(ng-click='createItem()' ng-disabled='!create.template') &nbspAdd cluster
+        button.btn.btn-primary(ng-click='createItem()') &nbspAdd cluster
         label(style='margin-left: 15px; margin-right: 10px') Use template:
         button.btn.btn-default(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose cluster template' bs-options='item.value as item.label for item in templates' bs-select)
         i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')

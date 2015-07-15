@@ -1,4 +1,8 @@
 {
+  "screenTip": [
+    "Optional cache configuration.",
+    "Configure caches, link them to clusters and go to Summary page for configuration generation."
+  ],
   "general": [
     {
       "label": "Name",
@@ -40,6 +44,7 @@
       "label": "Backups",
       "type": "number",
       "model": "backups",
+      "hide": "backupItem.mode == 'LOCAL'",
       "placeholder": 0,
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
@@ -49,9 +54,21 @@
       "label": "Read from backup",
       "type": "check",
       "model": "readFromBackup",
+      "placeholder": true,
+      "hide": "!backupItem.backups || backupItem.mode == 'LOCAL'",
       "tip": [
         "Flag indicating whether data can be read from backup.",
         "If not set then always get data from primary node (never from backup)."
+      ]
+    },
+    {
+      "label": "Copy on read",
+      "type": "check",
+      "model": "copyOnRead",
+      "placeholder": true,
+      "tip": [
+        "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
+        "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
       ]
     },
     {
@@ -301,15 +318,6 @@
           "tip": [
             "Flag indicating whether swap storage is enabled or not for this cache."
           ]
-        },
-        {
-          "label": "Copy on read",
-          "type": "check",
-          "model": "copyOnRead",
-          "tip": [
-            "Flag indicating whether copy of of the value stored in cache should be created for cache operation implying return value.",
-            "Also if this flag is set copies are created for values passed to CacheInterceptor and to CacheEntryProcessor."
-          ]
         }
       ]
     },
@@ -320,7 +328,7 @@
       ],
       "fields": [
         {
-          "label": "Escape all",
+          "label": "Escape table and filed names",
           "type": "check",
           "model": "sqlEscapeAll",
           "tip": [
@@ -468,6 +476,7 @@
           "type": "number",
           "path": "nearConfiguration",
           "model": "nearStartSize",
+          "hide": "!backupItem.nearCacheEnabled",
           "placeholder": 375000,
           "tip": [
             "Initial cache size for near cache which will be used to pre-create internal hash table after start."
@@ -480,6 +489,7 @@
           "model": "kind",
           "placeholder": "Choose eviction policy",
           "items": "evictionPolicies",
+          "hide": "!backupItem.nearCacheEnabled",
           "tip": [
             "Cache expiration policy."
           ],
@@ -849,6 +859,7 @@
           "label": "Batch size",
           "type": "number",
           "model": "writeBehindBatchSize",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 512,
           "tip": [
             "Maximum batch size for write-behind cache store operations.",
@@ -859,6 +870,7 @@
           "label": "Flush size",
           "type": "number",
           "model": "writeBehindFlushSize",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 10240,
           "tip": [
             "Maximum size of the write-behind cache.<br>",
@@ -869,6 +881,7 @@
           "label": "Flush frequency",
           "type": "number",
           "model": "writeBehindFlushFrequency",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 5000,
           "tip": [
             "Frequency with which write-behind cache is flushed to the cache store in milliseconds."
@@ -878,6 +891,7 @@
           "label": "Flush threads count",
           "type": "number",
           "model": "writeBehindFlushThreadCount",
+          "hide": "!backupItem.writeBehindEnabled",
           "placeholder": 1,
           "tip": [
             "Number of threads that will perform cache flushing."
