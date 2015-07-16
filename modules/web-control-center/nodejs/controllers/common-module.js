@@ -172,7 +172,8 @@ controlCenterModule.config(function ($selectProvider) {
         allText: 'Select All',
         noneText: 'Clear All',
         templateUrl: '/select',
-        iconCheckmark: 'fa fa-check'
+        iconCheckmark: 'fa fa-check',
+        caretHtml: '<span class="caret"></span>'
     });
 });
 

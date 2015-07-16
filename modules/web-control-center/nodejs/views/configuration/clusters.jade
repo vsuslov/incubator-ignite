@@ -36,7 +36,7 @@ block content
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
         button.btn.btn-primary(ng-click='createItem()') &nbspAdd cluster
         label(style='margin-left: 15px; margin-right: 10px') Use template:
-        button.btn.btn-default(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose cluster template' bs-options='item.value as item.label for item in templates' bs-select)
+        button.btn.btn-default.base-control(ng-init='create.template = templates[0].value' ng-model='create.template' data-template='/select' data-placeholder='Choose cluster template' bs-options='item.value as item.label for item in templates' bs-select)
         i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
