@@ -32,7 +32,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
         {value: undefined, label: 'Not set'}
     ];
 
-    $scope.backupItem = {nearCacheEnabled: true};
+    $scope.backupItem = {};
 
     $http.get('/models/summary.json')
         .success(function (data) {

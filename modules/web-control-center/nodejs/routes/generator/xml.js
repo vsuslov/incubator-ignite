@@ -274,9 +274,6 @@ exports.generateClusterConfiguration = function(cluster, clientCache) {
 
             var cache = cluster.caches[i];
 
-            if (clientCache)
-                _.merge(cache, clientCache);
-
             generateCacheConfiguration(cache, res);
         }
 
