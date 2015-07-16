@@ -27,11 +27,13 @@ import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.*;
+import org.apache.logging.log4j.core.appender.routing.*;
 import org.apache.logging.log4j.core.config.*;
 import org.apache.logging.log4j.core.layout.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -67,7 +69,11 @@ import static org.apache.ignite.IgniteSystemProperties.*;
  * injection.
  */
 public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
-    public static final String LOGGER_NAME = "Log4J2Logger";
+    /** */
+    // TODO review.
+    public static final String LOGGER_NAME = LogManager.ROOT_LOGGER_NAME;
+
+    /** */
     public static final String NODE_ID = "nodeId";
 
     /** */
@@ -172,7 +178,6 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
         addConsoleAppenderIfNeeded(null, new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
                 if (init)
-                    // TODO review
                     Configurator.initialize(LOGGER_NAME, cfgUrl.toString());
 
                 return LogManager.getRootLogger();
@@ -188,7 +193,6 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      * @param cfgFile Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
-    // TODO create test
     public Log4J2Logger(File cfgFile) throws IgniteCheckedException {
         if (cfgFile == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
@@ -216,7 +220,6 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      * @param cfgUrl URL for Log4j configuration XML file.
      * @throws IgniteCheckedException Thrown in case logger can't be created.
      */
-    // TODO test it.
     public Log4J2Logger(final URL cfgUrl) throws IgniteCheckedException {
         if (cfgUrl == null)
             throw new IgniteCheckedException("Configuration XML file for Log4j must be specified.");
@@ -262,24 +265,40 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
     /** {@inheritDoc} */
     @Nullable @Override public String fileName() {
-        // TODO
-        // It was.
-//        FileAppender fapp = F.first(fileAppenders);
-//
-//        return fapp != null ? fapp.getFile() : null;
+        for (org.apache.logging.log4j.core.Logger log = (org.apache.logging.log4j.core.Logger)impl;
+            log != null; log = log.getParent()) {
+            for (Appender a : log.getAppenders().values()) {
+                if (a instanceof FileAppender)
+                    return ((FileAppender)a).getFileName();
 
-        // New logic.
-        // TODO cast, RollingFileAppender and etc.
-        org.apache.logging.log4j.core.Logger logImpl = (org.apache.logging.log4j.core.Logger)impl;
+                if (a instanceof RollingFileAppender)
+                    return ((RollingFileAppender)a).getFileName();
 
-        Collection<Appender> appenders = logImpl.getAppenders().values();
+                if (a instanceof RoutingAppender) {
+                    try {
+                        RoutingAppender routing = (RoutingAppender)a;
 
-        for (Appender a : appenders) {
-            if (a instanceof FileAppender)
-                return ((FileAppender)a).getFileName();
+                        Field appsFiled = routing.getClass().getDeclaredField("appenders");
 
-            if (a instanceof RollingFileAppender)
-                return ((RollingFileAppender)a).getFileName();
+                        appsFiled.setAccessible(true);
+
+                        Map<String, AppenderControl> appenders = (Map<String, AppenderControl>)appsFiled.get(routing);
+
+                        for (AppenderControl control : appenders.values()) {
+                            Appender innerApp = control.getAppender();
+
+                            if (innerApp instanceof FileAppender)
+                                return ((FileAppender)innerApp).getFileName();
+
+                            if (innerApp instanceof RollingFileAppender)
+                                return ((RollingFileAppender)innerApp).getFileName();
+                        }
+                    }
+                    catch (IllegalAccessException | NoSuchFieldException e) {
+                        error("Faild to get file name. Looks like the implementation of log4j 2 was changed.", e);
+                    }
+                }
+            }
         }
 
         return null;
@@ -421,10 +440,14 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
         this.nodeId = nodeId;
 
-        // Set nodeId at context to be used at configuration.
-        ThreadContext.put(NODE_ID, U.id8(nodeId));
+        // Set nodeId as system variable to be used at configuration.
+        System.setProperty("nodeId", U.id8(nodeId));
 
         ((LoggerContext) LogManager.getContext(false)).reconfigure();
+
+        // Hack. To touch the logger to create all log resources (files). Then #fileName() will work properly.
+        // TODO review it
+        impl.log(Level.OFF, "");
     }
 
     /** {@inheritDoc} */

@@ -48,13 +48,17 @@ public class GridLog4j2CorrectFileNameTest extends TestCase {
      * @throws Exception If error occurred.
      */
     private void checkOneNode(int id) throws Exception {
-        String id8 = null;
-        
+        String id8;
+        String logPath;
+
         try (Ignite ignite = G.start(getConfiguration("grid" + id))) {
             id8 = U.id8(ignite.cluster().localNode().id());
+
+            logPath = "work/log/ignite-" + id8 + ".log";
+
+            assertEquals(logPath, ignite.log().fileName());
         }
 
-        String logPath = "work/log/ignite-" + id8 + ".log";
         File logFile = U.resolveIgnitePath(logPath);
 
         assertNotNull("Failed to resolve path: " + logPath, logFile);

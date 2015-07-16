@@ -27,11 +27,11 @@
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
         </Console>
 
-        <Routing name="Routing">
-            <Routes pattern="$${ctx:nodeId}">
+        <Routing name="FILE">
+            <Routes pattern="$${sys:nodeId}">
                 <Route>
-                    <RollingFile name="Rolling-${ctx:nodeId}" fileName="work/log/ignite-${ctx:nodeId}.log"
-                                 filePattern="work/log/ignite-${ctx:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
+                    <RollingFile name="Rolling-${sys:nodeId}" fileName="work/log/ignite-${sys:nodeId}.log"
+                                 filePattern="work/log/ignite-${sys:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
                         <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
                         <Policies>
                             <TimeBasedTriggeringPolicy interval="6" modulate="true" />
@@ -41,7 +41,7 @@
                 </Route>
 
                 <!--
-                <Route key="$${ctx:nodeId}">
+                <Route key="$${sys:nodeId}">
                     <RollingFile name="Rolling-default" fileName="work/log/ignite-default.log"
                                  filePattern="work/log/ignite-default-%i-%d{yyyy-MM-dd}.log.gz">
                         <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
@@ -87,7 +87,7 @@
             -->
 
             <AppenderRef ref="CONSOLE_ERR" level="ERROR"/>
-            <AppenderRef ref="Routing" level="DEBUG"/>
+            <AppenderRef ref="FILE" level="DEBUG"/>
         </Root>
     </Loggers>
 </Configuration>

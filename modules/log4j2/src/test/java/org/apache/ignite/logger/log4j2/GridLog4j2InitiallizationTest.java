@@ -19,6 +19,7 @@ package org.apache.ignite.logger.log4j2;
 
 import junit.framework.*;
 import org.apache.ignite.*;
+import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.logger.*;
 import org.apache.ignite.testframework.*;
 import org.apache.ignite.testframework.junits.common.*;
@@ -90,5 +91,16 @@ public class GridLog4j2InitiallizationTest extends TestCase {
         log.warning("This is 'warning' message.", new Exception("It's a test warning exception"));
         log.error("This is 'error' message.");
         log.error("This is 'error' message.", new Exception("It's a test error exception"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testSystemNodeId() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        new Log4J2Logger().setNodeId(id);
+
+        assertEquals(U.id8(id), System.getProperty("nodeId"));
     }
 }

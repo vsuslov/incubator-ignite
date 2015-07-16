@@ -123,9 +123,9 @@
         <level value="INFO"/>
 
         <!-- Uncomment to enable logging to console. -->
-        <!--&lt;!&ndash;-->
+        <!--
         <appender-ref ref="CONSOLE"/>
-        <!--&ndash;&gt;-->
+        -->
 
         <appender-ref ref="CONSOLE_ERR"/>
         <appender-ref ref="FILE"/>
