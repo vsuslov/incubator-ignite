@@ -21,14 +21,33 @@ var bridge = require('../agents/agentManager');
 
 
 /* GET summary page. */
-router.get('/', function(req, res) {
+router.get('/testGet', function(req, res) {
     var c = bridge.findClient("55a2ca51eef88f6c775ed9d0");
 
     if (!c) {
         return res.send("Client not found");
     }
 
-    c.restQuery("http://ya.ru/", function(error, code, message) {
+    c.restGet("http://ya.ru/", function(error, code, message) {
+        if (error) {
+            res.send("Failed to execute REST query: " + error);
+
+            return
+        }
+
+        res.send("code: " + code + '<br>message: ' + message);
+    });
+});
+
+/* GET summary page. */
+router.get('/testPost', function(req, res) {
+    var c = bridge.findClient("55a2ca51eef88f6c775ed9d0");
+
+    if (!c) {
+        return res.send("Client not found");
+    }
+
+    c.restPost("http://localhost:3000/configuration/caches/save", {_id: 555}, function(error, code, message) {
         if (error) {
             res.send("Failed to execute REST query: " + error);
 

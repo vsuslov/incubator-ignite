@@ -19,12 +19,15 @@ package org.apache.ignite.agent;
 
 import org.apache.commons.codec.*;
 import org.apache.http.*;
+import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
+import org.apache.http.message.*;
 import org.apache.ignite.agent.messages.*;
 
 import java.io.*;
 import java.nio.charset.*;
+import java.util.*;
 
 /**
  *
@@ -59,33 +62,56 @@ public class Agent {
     }
 
     /**
-     * @param uri Url.
+     * @param restReq Request.
      */
-    public RestResult executeRest(String uri) throws IOException {
-        HttpGet get = new HttpGet(uri);
+    public RestResult executeRest(RestRequest restReq) throws IOException {
+        HttpRequestBase httpReq;
 
-        CloseableHttpResponse resp = httpclient.execute(get);
+        if ("GET".equalsIgnoreCase(restReq.getMethod())) {
+            httpReq = new HttpGet(restReq.getUrl());
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        resp.getEntity().writeTo(out);
-
-        Charset charset = Charsets.UTF_8;
-
-        Header encodingHdr = resp.getEntity().getContentEncoding();
-
-        if (encodingHdr != null) {
-            String encoding = encodingHdr.getValue();
-
-            charset = Charsets.toCharset(encoding);
+            if (restReq.getParams() != null)
+                throw new IOException("Parameters of GET method should be passed in URL");
         }
+        else if ("POST".equalsIgnoreCase(restReq.getMethod())) {
+            HttpPost post = new HttpPost(restReq.getUrl());
 
-        RestResult res = new RestResult();
+            if (restReq.getParams() != null) {
+                List<NameValuePair> nvps = new ArrayList<>();
 
-        res.setCode(resp.getStatusLine().getStatusCode());
-        res.setExecuted(true);
-        res.setMessage(new String(out.toByteArray(), charset));
+                for (Map.Entry<String, String> entry : restReq.getParams().entrySet())
+                    nvps.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 
-        return res;
+                post.setEntity(new UrlEncodedFormEntity(nvps));
+            }
+
+            httpReq = post;
+        }
+        else
+            throw new IOException("Unknown HTTP-method: " + restReq.getMethod());
+
+        try (CloseableHttpResponse resp = httpclient.execute(httpReq)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            resp.getEntity().writeTo(out);
+
+            Charset charset = Charsets.UTF_8;
+
+            Header encodingHdr = resp.getEntity().getContentEncoding();
+
+            if (encodingHdr != null) {
+                String encoding = encodingHdr.getValue();
+
+                charset = Charsets.toCharset(encoding);
+            }
+
+            RestResult res = new RestResult();
+
+            res.setCode(resp.getStatusLine().getStatusCode());
+            res.setExecuted(true);
+            res.setMessage(new String(out.toByteArray(), charset));
+
+            return res;
+        }
     }
 }

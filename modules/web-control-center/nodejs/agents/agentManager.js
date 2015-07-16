@@ -113,7 +113,7 @@ function Client(ws) {
 
     this.cbMap = {};
 
-    this.restQuery = function(url, cb) {
+    this.invokeRest = function(url, method, params, cb) {
         var reqId = this.restCounter++;
 
         this.cbMap[reqId] = cb;
@@ -121,6 +121,8 @@ function Client(ws) {
         this.sendMessage({
             id: reqId,
             type: 'RestRequest',
+            method: method,
+            params: params,
             url: url
         }, function(err) {
             if (err) {
@@ -129,6 +131,24 @@ function Client(ws) {
                 cb(err)
             }
         })
+    };
+
+
+    this.restGet = function(url, cb) {
+        this.invokeRest(url, 'GET', null, cb);
+    };
+
+    this.restPost = function(url, params, cb) {
+        if (typeof(params) == 'function' && !cb) {
+            cb = params;
+
+            params = undefined
+        }
+
+        if (params && typeof(params) != 'object')
+            throw "'params' argument must be an object";
+
+        this.invokeRest(url, 'POST', params, cb);
     }
 }
 

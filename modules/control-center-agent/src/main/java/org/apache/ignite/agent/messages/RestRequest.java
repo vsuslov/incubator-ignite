@@ -30,6 +30,9 @@ public class RestRequest extends AbstractMessage {
     /** */
     private Map<String, String> params;
 
+    /** */
+    private String method;
+
     /**
      *
      */
@@ -70,5 +73,19 @@ public class RestRequest extends AbstractMessage {
      */
     public void setParams(Map<String, String> params) {
         this.params = params;
+    }
+
+    /**
+     *
+     */
+    public String getMethod() {
+        return method;
+    }
+
+    /**
+     * @param mtd Method.
+     */
+    public void setMethod(String mtd) {
+        this.method = mtd;
     }
 }

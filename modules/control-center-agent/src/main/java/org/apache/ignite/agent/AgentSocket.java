@@ -108,7 +108,7 @@ public class AgentSocket {
             RestResult restRes;
 
             try {
-                restRes = agent.executeRest(restReq.getUrl());
+                restRes = agent.executeRest(restReq);
             }
             catch (IOException e) {
                 restRes = new RestResult();
