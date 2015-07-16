@@ -54,7 +54,7 @@ controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm'
 
         user.adminChanging = true;
 
-        $http.post('admin/save', {userId: user._id, adminFlag: !user.admin}).success(
+        $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
             function () {
                 commonFunctions.showInfo('Admin right was successfully toggled for user: "' + user.username + '"');
 
