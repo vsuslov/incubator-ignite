@@ -49,22 +49,19 @@ public class GridLog4j2CorrectFileNameTest extends TestCase {
      */
     private void checkOneNode(int id) throws Exception {
         String id8;
-        String logPath;
+        File logFile;
 
         try (Ignite ignite = G.start(getConfiguration("grid" + id))) {
             id8 = U.id8(ignite.cluster().localNode().id());
 
-            logPath = "work/log/ignite-" + id8 + ".log";
+            String logPath = "work/log/ignite-" + id8 + ".log";
 
-            assertEquals(logPath, ignite.log().fileName());
+            logFile = U.resolveIgnitePath(logPath);
+            assertNotNull("Failed to resolve path: " + logPath, logFile);
+            assertTrue("Log file does not exist: " + logFile, logFile.exists());
+
+            assertEquals(logFile.getAbsolutePath(), ignite.log().fileName());
         }
-
-        File logFile = U.resolveIgnitePath(logPath);
-
-        assertNotNull("Failed to resolve path: " + logPath, logFile);
-        assertTrue("Log file does not exist: " + logFile, logFile.exists());
-        // We have a row in log with the following content
-        // con >>> Local node [ID=NodeId ]
         String logContent = U.readFileToString(logFile.getAbsolutePath(), "UTF-8");
 
         assertTrue("Log file does not contain it's node ID: " + logFile,
