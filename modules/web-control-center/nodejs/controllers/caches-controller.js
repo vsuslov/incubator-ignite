@@ -215,7 +215,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
 
         // Save cache with new name.
         $scope.saveItemAs = function () {
-           if (validate($scope.backupItem))
+            if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
                     var item = angular.copy($scope.backupItem);
 
@@ -262,7 +262,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
             );
         };
 
-        $scope.checkIndexedTypes = function (keyCls, valCls) {
+        function tablePairValid(keyCls, valCls) {
             if (!keyCls) {
                 commonFunctions.showError('Key class name should be non empty!');
 
@@ -276,10 +276,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
             }
 
             return true;
-        };
+        }
 
-        $scope.addIndexedTypes = function (keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
+        $scope.tablePairAdd = function (fld, keyCls, valCls) {
+            if (!tablePairValid(keyCls, valCls))
                 return;
 
             var idxTypes = $scope.backupItem.indexedTypes;
@@ -292,8 +292,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                 $scope.backupItem.indexedTypes = [newItem];
         };
 
-        $scope.saveIndexedType = function (idx, keyCls, valCls) {
-            if (!$scope.checkIndexedTypes(keyCls, valCls))
+        $scope.tablePairSave = function (idx, fld, keyCls, valCls) {
+            if (!tablePairValid(keyCls, valCls))
                 return idx;
 
             var idxType = $scope.backupItem.indexedTypes[idx];
