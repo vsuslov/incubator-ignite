@@ -43,7 +43,7 @@ router.post('/list', function (req, res) {
         });
 
         // Get all persistences for spaces.
-        db.Persistence.find({space: {$in: space_ids}}, function (err, persistences) {
+        db.Persistence.find({space: {$in: space_ids}}).sort('name').exec(function (err, persistences) {
             if (err)
                 return res.status(500).send(err.message);
 

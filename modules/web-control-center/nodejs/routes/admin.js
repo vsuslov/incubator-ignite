@@ -26,7 +26,7 @@ router.get('/', function (req, res) {
  * Get list of user accounts.
  */
 router.post('/list', function (req, res) {
-    db.Account.find({}, function (err, users) {
+    db.Account.find({}).sort('username').exec(function (err, users) {
         if (err)
             return res.status(500).send(err.message);
 

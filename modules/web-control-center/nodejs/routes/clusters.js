@@ -46,7 +46,7 @@ router.post('/list', function (req, res) {
                 return res.status(500).send(err);
 
             // Get all clusters for spaces.
-            db.Cluster.find({space: {$in: space_ids}}, function (err, clusters) {
+            db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {
                 if (err)
                     return res.status(500).send(err.message);
 

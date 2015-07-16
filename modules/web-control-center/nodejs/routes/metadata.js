@@ -42,7 +42,7 @@ router.post('/list', function (req, res) {
         });
 
         // Get all metadata for spaces.
-        db.CacheTypeMetadata.find({space: {$in: space_ids}}, function (err, metadata) {
+        db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadata) {
             if (err)
                 return res.status(500).send(err.message);
 
