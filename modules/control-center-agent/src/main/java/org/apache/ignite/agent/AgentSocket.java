@@ -110,7 +110,7 @@ public class AgentSocket {
             try {
                 restRes = agent.executeRest(restReq);
             }
-            catch (IOException e) {
+            catch (Throwable e) {
                 restRes = new RestResult();
 
                 restRes.setCode(500);

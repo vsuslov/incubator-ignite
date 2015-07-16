@@ -17,10 +17,18 @@
 
 package org.apache.ignite.agent;
 
+import java.net.*;
+
 /**
  *
  */
 public class AgentConfiguration {
+    /** */
+    public static final URI DFLT_NODE_URI = URI.create("http://localhost:8080");
+
+    /** todo set something like wss://control-center.gridgain.com */
+    public static final URI DFLT_SERVER_URI = URI.create("wss://localhost:3001");
+
     /** */
     private String login;
 
@@ -28,7 +36,10 @@ public class AgentConfiguration {
     private String pwd;
 
     /** */
-    private String uri;
+    private URI serverUri = DFLT_SERVER_URI;
+
+    /** */
+    private URI nodeUri = DFLT_NODE_URI;
 
     /**
      *
@@ -61,14 +72,28 @@ public class AgentConfiguration {
     /**
      *
      */
-    public String getUri() {
-        return uri;
+    public URI getServerUri() {
+        return serverUri;
     }
 
     /**
-     * @param uri Uri.
+     * @param srvUri Uri.
      */
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setServerUri(URI srvUri) {
+        this.serverUri = srvUri;
+    }
+
+    /**
+     *
+     */
+    public URI getNodeUri() {
+        return nodeUri;
+    }
+
+    /**
+     * @param nodeUri Node uri.
+     */
+    public void setNodeUri(URI nodeUri) {
+        this.nodeUri = nodeUri;
     }
 }

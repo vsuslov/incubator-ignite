@@ -27,7 +27,7 @@ public class RestRequest extends AbstractMessage {
     private int id;
 
     /** */
-    private String url;
+    private String path;
 
     /** */
     private Map<String, String> params;
@@ -52,15 +52,15 @@ public class RestRequest extends AbstractMessage {
     /**
      *
      */
-    public String getUrl() {
-        return url;
+    public String getPath() {
+        return path;
     }
 
     /**
-     * @param url Url.
+     * @param path Url.
      */
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**

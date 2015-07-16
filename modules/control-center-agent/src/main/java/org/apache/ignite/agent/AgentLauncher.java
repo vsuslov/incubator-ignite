@@ -31,7 +31,8 @@ public class AgentLauncher {
     private static final Options options = new Options()
         .addOption("l", "login", true, "User's login (email) on web-control-center")
         .addOption("p", "password", true, "User's password")
-        .addOption("u", "url", true, "web-control-center URL");
+        .addOption("s", "serverUrl", true, "web-control-center URL")
+        .addOption("n", "nodeUrl", true, "ignite REST server");
 
     /**
      *
@@ -75,12 +76,15 @@ public class AgentLauncher {
         cfg.setLogin(login);
         cfg.setPassword(pwd);
 
-        String uri = cmd.getOptionValue('u');
+        String srvUri = cmd.getOptionValue('s');
 
-        if (uri == null)
-            cfg.setUri("wss://localhost:3001"); // todo set something like wss://control-center.gridgain.com
-        else
-            cfg.setUri(uri);
+        if (srvUri != null)
+            cfg.setServerUri(URI.create(srvUri));
+
+        String nodeUri = cmd.getOptionValue('n');
+
+        if (nodeUri != null)
+            cfg.setNodeUri(URI.create(nodeUri));
 
         Agent agent = new Agent(cfg);
 
@@ -99,9 +103,9 @@ public class AgentLauncher {
             client.start();
 
             try {
-                client.connect(agentSock, new URI(cfg.getUri()));
+                client.connect(agentSock, cfg.getServerUri());
 
-                System.out.printf("Connecting to : %s%n", cfg.getUri());
+                System.out.printf("Connecting to : %s%n", cfg.getServerUri());
 
                 agentSock.waitForClose();
             }

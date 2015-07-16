@@ -113,7 +113,21 @@ function Client(ws) {
 
     this.cbMap = {};
 
-    this.invokeRest = function(url, method, params, cb) {
+    this.invokeRest = function(path, params, cb, method) {
+        if (typeof(params) != 'object')
+            throw "'params' argument must be an object";
+
+        if (typeof(cb) != 'function')
+            throw "callback must be a function";
+
+        if (!method)
+            method = 'GET';
+        else
+            method = method.toUpperCase();
+
+        if (method != 'GET' && method != 'POST')
+            throw "Unknown HTTP method: " + method;
+
         var reqId = this.restCounter++;
 
         this.cbMap[reqId] = cb;
@@ -123,7 +137,7 @@ function Client(ws) {
             type: 'RestRequest',
             method: method,
             params: params,
-            url: url
+            path: path
         }, function(err) {
             if (err) {
                 delete this.cbMap[reqId];
@@ -133,22 +147,12 @@ function Client(ws) {
         })
     };
 
-
-    this.restGet = function(url, cb) {
-        this.invokeRest(url, 'GET', null, cb);
+    this.restGet = function(path, params, cb) {
+        this.invokeRest(path, params, cb, 'GET');
     };
 
-    this.restPost = function(url, params, cb) {
-        if (typeof(params) == 'function' && !cb) {
-            cb = params;
-
-            params = undefined
-        }
-
-        if (params && typeof(params) != 'object')
-            throw "'params' argument must be an object";
-
-        this.invokeRest(url, 'POST', params, cb);
+    this.restPost = function(path, params, cb) {
+        this.invokeRest(path, params, cb, 'POST');
     }
 }
 
@@ -187,4 +191,20 @@ exports.findClient = function(userId) {
         return null;
 
     return clientsList[0];
+};
+
+/**
+ * For tests only!!!
+ */
+exports.getOneClient = function() {
+    for (var userId in clients) {
+        if (clients.hasOwnProperty(userId)) {
+            var m = clients[userId];
+
+            if (m.length > 0)
+                return m[0];
+        }
+    }
+
+    return null;
 };

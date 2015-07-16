@@ -21,11 +21,13 @@ import org.apache.commons.codec.*;
 import org.apache.http.*;
 import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.*;
 import org.apache.ignite.agent.messages.*;
 
 import java.io.*;
+import java.net.*;
 import java.nio.charset.*;
 import java.util.*;
 
@@ -64,26 +66,36 @@ public class Agent {
     /**
      * @param restReq Request.
      */
-    public RestResult executeRest(RestRequest restReq) throws IOException {
+    public RestResult executeRest(RestRequest restReq) throws IOException, URISyntaxException {
         HttpRequestBase httpReq;
 
-        if ("GET".equalsIgnoreCase(restReq.getMethod())) {
-            httpReq = new HttpGet(restReq.getUrl());
+        URIBuilder builder = new URIBuilder(cfg.getNodeUri());
 
-            if (restReq.getParams() != null)
-                throw new IOException("Parameters of GET method should be passed in URL");
+        String path = restReq.getPath();
+
+        if (path != null) {
+            if (!path.startsWith("/") && !cfg.getNodeUri().toString().endsWith("/"))
+                path = '/' +  path;
+
+            builder.setPath(path);
         }
+
+        if (restReq.getParams() != null) {
+            for (Map.Entry<String, String> entry : restReq.getParams().entrySet())
+                builder.addParameter(entry.getKey(), entry.getValue());
+        }
+
+        if ("GET".equalsIgnoreCase(restReq.getMethod()))
+            httpReq = new HttpGet(builder.build());
         else if ("POST".equalsIgnoreCase(restReq.getMethod())) {
-            HttpPost post = new HttpPost(restReq.getUrl());
+            List<NameValuePair> nvps = builder.getQueryParams();
 
-            if (restReq.getParams() != null) {
-                List<NameValuePair> nvps = new ArrayList<>();
+            builder.clearParameters();
 
-                for (Map.Entry<String, String> entry : restReq.getParams().entrySet())
-                    nvps.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            HttpPost post = new HttpPost(builder.build());
 
+            if (nvps.size() > 0)
                 post.setEntity(new UrlEncodedFormEntity(nvps));
-            }
 
             httpReq = post;
         }
