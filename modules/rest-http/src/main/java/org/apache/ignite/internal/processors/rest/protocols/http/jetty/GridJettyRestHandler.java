@@ -23,6 +23,7 @@ import org.apache.ignite.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.request.*;
+import org.apache.ignite.internal.processors.scripting.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
@@ -71,20 +72,26 @@ public class GridJettyRestHandler extends AbstractHandler {
     /** Authentication checker. */
     private final IgniteClosure<String, Boolean> authChecker;
 
+    /** Ignite scripting processor. */
+    IgniteScriptingProcessor proc;
+
     /**
      * Creates new HTTP requests handler.
      *
+     * @param proc Scripting processor.
      * @param hnd Handler.
      * @param authChecker Authentication checking closure.
      * @param log Logger.
      */
-    GridJettyRestHandler(GridRestProtocolHandler hnd, IgniteClosure<String, Boolean> authChecker, IgniteLogger log) {
+    GridJettyRestHandler(IgniteScriptingProcessor proc, GridRestProtocolHandler hnd,
+        IgniteClosure<String, Boolean> authChecker, IgniteLogger log) {
         assert hnd != null;
         assert log != null;
 
         this.hnd = hnd;
         this.log = log;
         this.authChecker = authChecker;
+        this.proc = proc;
 
         // Init default page and favicon.
         try {
@@ -291,6 +298,8 @@ public class GridJettyRestHandler extends AbstractHandler {
         JSON json;
 
         try {
+            createResponse(req, cmd, cmdRes);
+
             json = JSONSerializer.toJSON(cmdRes, cfg);
         }
         catch (JSONException e) {
@@ -314,6 +323,34 @@ public class GridJettyRestHandler extends AbstractHandler {
     }
 
     /**
+     * @param req Request.
+     * @param cmd Rest command.
+     * @param cmdRes Rest response.
+     */
+    private void createResponse(HttpServletRequest req, GridRestCommand cmd,
+        GridRestResponse cmdRes) {
+        if (cmdRes.getResponse() == null || req.getHeader("JSONObject") == null)
+            return;
+
+        if (cmd == CACHE_GET_ALL) {
+            Map o = (Map)cmdRes.getResponse();
+
+            List<Object> res = new ArrayList<>();
+
+            for (Object k : o.keySet())
+                res.add(proc.createScriptingEntry(k, o.get(k)));
+
+            cmdRes.setResponse(res);
+
+        }
+        else {
+            Object o = cmdRes.getResponse();
+
+            cmdRes.setResponse(o);
+        }
+    }
+
+    /**
      * Creates REST request.
      *
      * @param cmd Command.
@@ -323,11 +360,21 @@ public class GridJettyRestHandler extends AbstractHandler {
      * @throws IgniteCheckedException If creation failed.
      */
     @Nullable private GridRestRequest createRequest(GridRestCommand cmd,
-        Map<String, Object> params,
-        ServletRequest req) throws IgniteCheckedException {
+        Map<String, Object> params, HttpServletRequest req) throws IgniteCheckedException {
         GridRestRequest restReq;
 
         switch (cmd) {
+            case GET_OR_CREATE_CACHE:
+            case DESTROY_CACHE: {
+                GridRestCacheRequest restReq0 = new GridRestCacheRequest();
+
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
             case ATOMIC_DECREMENT:
             case ATOMIC_INCREMENT: {
                 DataStructuresRequest restReq0 = new DataStructuresRequest();
@@ -341,15 +388,25 @@ public class GridJettyRestHandler extends AbstractHandler {
                 break;
             }
 
+            case CACHE_CONTAINS_KEY:
+            case CACHE_CONTAINS_KEYS:
             case CACHE_GET:
             case CACHE_GET_ALL:
+            case CACHE_GET_AND_PUT:
+            case CACHE_GET_AND_REPLACE:
+            case CACHE_PUT_IF_ABSENT:
+            case CACHE_GET_AND_PUT_IF_ABSENT:
             case CACHE_PUT:
             case CACHE_PUT_ALL:
             case CACHE_REMOVE:
+            case CACHE_REMOVE_VALUE:
+            case CACHE_REPLACE_VALUE:
+            case CACHE_GET_AND_REMOVE:
             case CACHE_REMOVE_ALL:
             case CACHE_ADD:
             case CACHE_CAS:
             case CACHE_METRICS:
+            case CACHE_SIZE:
             case CACHE_REPLACE:
             case CACHE_APPEND:
             case CACHE_PREPEND: {
@@ -357,35 +414,103 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 String cacheName = (String)params.get("cacheName");
 
-                restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
-                restReq0.key(params.get("key"));
-                restReq0.value(params.get("val"));
-                restReq0.value2(params.get("val2"));
+                if (req.getHeader("JSONObject") != null) {
+                    Object o = proc.toJavaObject(parseRequest(req));
 
-                Object val1 = params.get("val1");
+                    Map<Object, Object> map = new HashMap<>();
 
-                if (val1 != null)
-                    restReq0.value(val1);
+                    switch (cmd) {
+                        case CACHE_PUT_ALL: {
+                            List entries = (List)proc.getField("entries", o);
 
-                restReq0.cacheFlags(intValue("cacheFlags", params, 0));
-                restReq0.ttl(longValue("exp", params, null));
+                            for (Object entry : entries) {
+                                Object key = proc.getField("key", entry);
+                                Object val = proc.getField("value", entry);
 
-                if (cmd == CACHE_GET_ALL || cmd == CACHE_PUT_ALL || cmd == CACHE_REMOVE_ALL) {
-                    List<Object> keys = values("k", params);
-                    List<Object> vals = values("v", params);
+                                map.put(key, val);
+                            }
 
-                    if (keys.size() < vals.size())
-                        throw new IgniteCheckedException("Number of keys must be greater or equals to number of values.");
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
 
-                    Map<Object, Object> map = U.newHashMap(keys.size());
+                            restReq0.values(map);
 
-                    Iterator<Object> keyIt = keys.iterator();
-                    Iterator<Object> valIt = vals.iterator();
+                            break;
+                        }
 
-                    while (keyIt.hasNext())
-                        map.put(keyIt.next(), valIt.hasNext() ? valIt.next() : null);
+                        case CACHE_GET_ALL:
+                        case CACHE_REMOVE_ALL:
+                        case CACHE_CONTAINS_KEYS: {
+                            Object cacheObj = proc.toJavaObject(o);
 
-                    restReq0.values(map);
+                            List keys = (List)proc.getField("keys", cacheObj);
+
+                            for (Object key : keys)
+                                map.put(key, null);
+
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+
+                            restReq0.values(map);
+
+                            break;
+                        }
+
+                        case CACHE_GET:
+                        case CACHE_PUT:
+                        case CACHE_REMOVE:
+                        case CACHE_CONTAINS_KEY:
+                        case CACHE_GET_AND_PUT:
+                        case CACHE_GET_AND_PUT_IF_ABSENT:
+                        case CACHE_GET_AND_REMOVE:
+                        case CACHE_PUT_IF_ABSENT:
+                        case CACHE_REMOVE_VALUE:
+                        case CACHE_REPLACE:
+                        case CACHE_GET_AND_REPLACE:
+                        case CACHE_REPLACE_VALUE: {
+                            Object cacheObj = proc.toJavaObject(o);
+
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+
+                            restReq0.key(proc.getField("key", cacheObj));
+                            restReq0.value(proc.getField("val", cacheObj));
+                            restReq0.value2(proc.getField("oldVal", cacheObj));
+                            break;
+                        }
+
+                        default:
+                            throw new IgniteCheckedException("Invalid command: " + cmd);
+                    }
+                }
+                else {
+                    restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+                    restReq0.key(params.get("key"));
+                    restReq0.value(params.get("val"));
+                    restReq0.value2(params.get("val2"));
+
+                    Object val1 = params.get("val1");
+
+                    if (val1 != null)
+                        restReq0.value(val1);
+
+                    restReq0.cacheFlags(intValue("cacheFlags", params, 0));
+                    restReq0.ttl(longValue("exp", params, null));
+
+                    if (cmd == CACHE_GET_ALL || cmd == CACHE_PUT_ALL || cmd == CACHE_REMOVE_ALL) {
+                        List<Object> keys = values("k", params);
+                        List<Object> vals = values("v", params);
+
+                        if (keys.size() < vals.size())
+                            throw new IgniteCheckedException("Number of keys must be greater or equals to number of values.");
+
+                        Map<Object, Object> map = U.newHashMap(keys.size());
+
+                        Iterator<Object> keyIt = keys.iterator();
+                        Iterator<Object> valIt = vals.iterator();
+
+                        while (keyIt.hasNext())
+                            map.put(keyIt.next(), valIt.hasNext() ? valIt.next() : null);
+
+                        restReq0.values(map);
+                    }
                 }
 
                 restReq = restReq0;
@@ -441,8 +566,97 @@ public class GridJettyRestHandler extends AbstractHandler {
                 break;
             }
 
+            case NAME:
             case VERSION: {
                 restReq = new GridRestRequest();
+
+                break;
+            }
+
+            case RUN_SCRIPT: {
+                RestRunScriptRequest restReq0 = new RestRunScriptRequest();
+
+                restReq0.script((String)params.get("func"));
+
+                JSONObject o = parseRequest(req);
+                restReq0.argument(o.get("arg"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case AFFINITY_RUN_SCRIPT: {
+                RestRunScriptRequest restReq0 = new RestRunScriptRequest();
+
+                restReq0.script((String)params.get("func"));
+                restReq0.cacheName((String) params.get("cacheName"));
+
+                JSONObject o = parseRequest(req);
+                restReq0.argument(o.get("arg"));
+
+                Object cacheObj = proc.toJavaObject(o.get("key"));
+                restReq0.affinityKey(cacheObj);
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case EXECUTE_MAP_REDUCE_SCRIPT: {
+                RestMapReduceScriptRequest restReq0 = new RestMapReduceScriptRequest();
+
+                restReq0.mapFunction((String) params.get("map"));
+
+                JSONObject o = parseRequest(req);
+                restReq0.argument(o.get("arg"));
+
+                restReq0.reduceFunction((String) params.get("reduce"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case EXECUTE_SQL_QUERY:
+            case EXECUTE_SQL_FIELDS_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                restReq0.sqlQuery((String)params.get("qry"));
+
+                JSONObject o = parseRequest(req);
+
+                List args = (List)o.get("arg");
+
+                restReq0.arguments(args.toArray());
+                restReq0.typeName((String)params.get("type"));
+                restReq0.pageSize(Integer.parseInt((String) params.get("psz")));
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case FETCH_SQL_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                restReq0.queryId(Long.parseLong((String)params.get("qryId")));
+                restReq0.pageSize(Integer.parseInt((String)params.get("psz")));
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case CLOSE_SQL_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                restReq0.queryId(Long.parseLong((String)params.get("qryId")));
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
 
                 break;
             }
@@ -630,5 +844,28 @@ public class GridJettyRestHandler extends AbstractHandler {
             return ((String[])obj)[0];
 
         return null;
+    }
+
+    /**
+     * @param req Request.
+     * @return JSON object.
+     * @throws IgniteCheckedException If failed.
+     */
+    private JSONObject parseRequest(HttpServletRequest req) throws IgniteCheckedException{
+        StringBuilder builder = new StringBuilder();
+
+        Scanner reader;
+
+        try {
+            reader = new Scanner(req.getInputStream());
+        }
+        catch (IOException e) {
+            throw new IgniteCheckedException(e);
+        }
+
+        while (reader.hasNext())
+            builder.append(reader.nextLine() + "\n");
+
+        return JSONObject.fromObject(builder.toString());
     }
 }

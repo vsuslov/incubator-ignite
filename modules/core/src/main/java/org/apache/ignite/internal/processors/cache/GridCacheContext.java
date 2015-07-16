@@ -133,9 +133,6 @@ public class GridCacheContext<K, V> implements Externalizable {
     /** Replication manager. */
     private GridCacheDrManager drMgr;
 
-    /** JTA manager. */
-    private CacheJtaManagerAdapter jtaMgr;
-
     /** Conflict resolver manager. */
     private CacheConflictResolutionManager rslvrMgr;
 
@@ -223,7 +220,6 @@ public class GridCacheContext<K, V> implements Externalizable {
      * @param dataStructuresMgr Cache dataStructures manager.
      * @param ttlMgr TTL manager.
      * @param drMgr Data center replication manager.
-     * @param jtaMgr JTA manager.
      * @param rslvrMgr Conflict resolution manager.
      * @param pluginMgr Cache plugin manager.
      */
@@ -251,7 +247,6 @@ public class GridCacheContext<K, V> implements Externalizable {
         CacheDataStructuresManager dataStructuresMgr,
         GridCacheTtlManager ttlMgr,
         GridCacheDrManager drMgr,
-        CacheJtaManagerAdapter jtaMgr,
         CacheConflictResolutionManager<K, V> rslvrMgr,
         CachePluginManager pluginMgr
     ) {
@@ -292,7 +287,6 @@ public class GridCacheContext<K, V> implements Externalizable {
         this.dataStructuresMgr = add(dataStructuresMgr);
         this.ttlMgr = add(ttlMgr);
         this.drMgr = add(drMgr);
-        this.jtaMgr = add(jtaMgr);
         this.rslvrMgr = add(rslvrMgr);
         this.pluginMgr = add(pluginMgr);
 
@@ -539,7 +533,7 @@ public class GridCacheContext<K, V> implements Externalizable {
     public void incrementPublicSize(GridCacheMapEntry e) {
         assert deferredDelete();
         assert e != null;
-        assert !e.isInternal();
+        assert !e.isInternal() : e;
 
         cache.map().incrementSize(e);
 
@@ -557,7 +551,7 @@ public class GridCacheContext<K, V> implements Externalizable {
     public void decrementPublicSize(GridCacheMapEntry e) {
         assert deferredDelete();
         assert e != null;
-        assert !e.isInternal();
+        assert !e.isInternal() : e;
 
         cache.map().decrementSize(e);
 
@@ -771,7 +765,7 @@ public class GridCacheContext<K, V> implements Externalizable {
      * @return Partition topology.
      */
     public GridDhtPartitionTopology topology() {
-        assert isNear() || isDht() || isColocated() || isDhtAtomic();
+        assert isNear() || isDht() || isColocated() || isDhtAtomic() : cache;
 
         return isNear() ? near().dht().topology() : dht().topology();
     }
@@ -780,7 +774,7 @@ public class GridCacheContext<K, V> implements Externalizable {
      * @return Topology version future.
      */
     public GridDhtTopologyFuture topologyVersionFuture() {
-        assert isNear() || isDht() || isColocated() || isDhtAtomic();
+        assert isNear() || isDht() || isColocated() || isDhtAtomic() : cache;
 
         GridDhtTopologyFuture fut = null;
 
@@ -1018,7 +1012,7 @@ public class GridCacheContext<K, V> implements Externalizable {
      * @return JTA manager.
      */
     public CacheJtaManagerAdapter jta() {
-        return jtaMgr;
+        return sharedCtx.jta();
     }
 
     /**
@@ -1605,9 +1599,9 @@ public class GridCacheContext<K, V> implements Externalizable {
      */
     public void onDeferredDelete(GridCacheEntryEx entry, GridCacheVersion ver) {
         assert entry != null;
-        assert !Thread.holdsLock(entry);
+        assert !Thread.holdsLock(entry) : entry;
         assert ver != null;
-        assert deferredDelete();
+        assert deferredDelete() : cache;
 
         cache.onDeferredDelete(entry, ver);
     }
@@ -1765,7 +1759,7 @@ public class GridCacheContext<K, V> implements Externalizable {
      * @throws IgniteCheckedException If failed.
      */
     public CacheObject fromOffheap(long valPtr, boolean tmp) throws IgniteCheckedException {
-        assert config().getMemoryMode() == OFFHEAP_TIERED || config().getMemoryMode() == OFFHEAP_VALUES;
+        assert config().getMemoryMode() == OFFHEAP_TIERED || config().getMemoryMode() == OFFHEAP_VALUES : cacheCfg;
         assert valPtr != 0;
 
         return ctx.cacheObjects().toCacheObject(this, valPtr, tmp);

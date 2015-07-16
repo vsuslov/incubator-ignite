@@ -120,14 +120,6 @@ public final class GridJavaProcess {
     public static GridJavaProcess exec(String clsName, String params, @Nullable IgniteLogger log,
         @Nullable IgniteInClosure<String> printC, @Nullable GridAbsClosure procKilledC,
         @Nullable Collection<String> jvmArgs, @Nullable String cp) throws Exception {
-        if (!(U.isLinux() || U.isMacOs() || U.isWindows()))
-            throw new Exception("Your OS is not supported.");
-
-        GridJavaProcess gjProc = new GridJavaProcess();
-
-        gjProc.log = log;
-        gjProc.procKilledC = procKilledC;
-
         List<String> procParams = params == null || params.isEmpty() ?
             Collections.<String>emptyList() : Arrays.asList(params.split(" "));
 
@@ -159,6 +151,52 @@ public final class GridJavaProcess {
         ProcessBuilder builder = new ProcessBuilder(procCommands);
 
         builder.redirectErrorStream(true);
+
+        return startProcess(builder, log, printC, procKilledC);
+    }
+
+    /**
+     * Executes cmd in a separate system process.
+     *
+     * @param cmd Commands to run.
+     * @param env Environment variable.
+     * @param log Log to use.
+     * @param printC Optional closure to be called each time wrapped process prints line to system.out or system.err.
+     * @param procKilledC Optional closure to be called when process termination is detected.
+     * @return Wrapper around {@link Process}
+     * @throws Exception If any problem occurred.
+     */
+    public static GridJavaProcess exec(List<String> cmd, Map<String, String> env, @Nullable IgniteLogger log,
+        @Nullable IgniteInClosure<String> printC, @Nullable GridAbsClosure procKilledC)
+        throws Exception {
+        ProcessBuilder builder = new ProcessBuilder(cmd);
+
+        builder.redirectErrorStream(true);
+
+        builder.environment().putAll(env);
+
+        return startProcess(builder, log, printC, procKilledC);
+    }
+
+
+    /**
+     * @param builder Process builder.
+     * @param log Log to use.
+     * @param printC Optional closure to be called each time wrapped process prints line to system.out or system.err.
+     * @param procKilledC Optional closure to be called when process termination is detected.
+     * @return Wrapper around {@link Process}
+     * @throws Exception If any problem occurred.
+     */
+    private static GridJavaProcess startProcess(ProcessBuilder builder,
+        @Nullable IgniteLogger log, @Nullable IgniteInClosure<String> printC,
+        @Nullable GridAbsClosure procKilledC) throws Exception {
+        if (!(U.isLinux() || U.isMacOs() || U.isWindows()))
+            throw new Exception("Your OS is not supported.");
+
+        GridJavaProcess gjProc = new GridJavaProcess();
+
+        gjProc.log = log;
+        gjProc.procKilledC = procKilledC;
 
         Process proc = builder.start();
 

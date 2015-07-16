@@ -49,6 +49,7 @@ import org.apache.ignite.internal.processors.query.*;
 import org.apache.ignite.internal.processors.resource.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.schedule.*;
+import org.apache.ignite.internal.processors.scripting.*;
 import org.apache.ignite.internal.processors.security.*;
 import org.apache.ignite.internal.processors.segmentation.*;
 import org.apache.ignite.internal.processors.service.*;
@@ -233,6 +234,13 @@ public interface GridKernalContext extends Iterable<GridComponent> {
      * @return REST processor.
      */
     public GridRestProcessor rest();
+
+    /**
+     * Gets Scripting processor.
+     *
+     * @return Scripting processor.
+     */
+    public IgniteScriptingProcessor scripting();
 
     /**
      * Gets segmentation processor.
@@ -557,4 +565,9 @@ public interface GridKernalContext extends Iterable<GridComponent> {
      * @return {@code True} if local node is client node (has flag {@link IgniteConfiguration#isClientMode()} set).
      */
     public boolean clientNode();
+
+    /**
+     * @return {@code True} if local node in disconnected state.
+     */
+    public boolean clientDisconnected();
 }

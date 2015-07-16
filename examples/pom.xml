@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>ignite-examples</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -46,6 +46,12 @@
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-hibernate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-rest-http</artifactId>
             <version>${project.version}</version>
         </dependency>
 

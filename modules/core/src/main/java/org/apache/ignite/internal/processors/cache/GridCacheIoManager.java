@@ -445,8 +445,7 @@ public class GridCacheIoManager extends GridCacheSharedManagerAdapter {
             case 50: {
                 GridNearGetResponse res = (GridNearGetResponse)msg;
 
-                GridPartitionedGetFuture fut = (GridPartitionedGetFuture)ctx.mvcc().future(
-                    res.version(), res.futureId());
+                GridCacheFuture fut = ctx.mvcc().future(res.version(), res.futureId());
 
                 if (fut == null) {
                     if (log.isDebugEnabled())
@@ -457,7 +456,10 @@ public class GridCacheIoManager extends GridCacheSharedManagerAdapter {
 
                 res.error(res.classError());
 
-                fut.onResult(nodeId, res);
+                if (fut instanceof GridNearGetFuture)
+                    ((GridNearGetFuture)fut).onResult(nodeId, res);
+                else
+                    ((GridPartitionedGetFuture)fut).onResult(nodeId, res);
             }
 
             break;
@@ -888,6 +890,14 @@ public class GridCacheIoManager extends GridCacheSharedManagerAdapter {
             if (key.cacheId == cacheId)
                 iter.remove();
         }
+    }
+
+    /**
+     * @param cacheId Cache ID to remove handlers for.
+     * @param type Message type.
+     */
+    public void removeHandler(int cacheId, Class<? extends GridCacheMessage> type) {
+        clsHandlers.remove(new ListenerKey(cacheId, type));
     }
 
     /**

@@ -626,6 +626,15 @@ public abstract class IgniteUtils {
             }
         });
 
+        m.put(IgniteClientDisconnectedCheckedException.class, new C1<IgniteCheckedException, IgniteException>() {
+            @Override public IgniteException apply(IgniteCheckedException e) {
+                return new IgniteClientDisconnectedException(
+                    ((IgniteClientDisconnectedCheckedException)e).reconnectFuture(),
+                    e.getMessage(),
+                    e);
+            }
+        });
+
         return m;
     }
 
@@ -673,6 +682,25 @@ public abstract class IgniteUtils {
      * @return Ignite runtime exception.
      */
     public static IgniteException convertException(IgniteCheckedException e) {
+        IgniteClientDisconnectedException e0 = e.getCause(IgniteClientDisconnectedException.class);
+
+        if (e0 != null) {
+            assert e0.reconnectFuture() != null : e0;
+
+            throw e0;
+        }
+
+        IgniteClientDisconnectedCheckedException disconnectedErr =
+            e instanceof IgniteClientDisconnectedCheckedException ?
+            (IgniteClientDisconnectedCheckedException)e
+            : e.getCause(IgniteClientDisconnectedCheckedException.class);
+
+        if (disconnectedErr != null) {
+            assert disconnectedErr.reconnectFuture() != null : disconnectedErr;
+
+            e = disconnectedErr;
+        }
+
         C1<IgniteCheckedException, IgniteException> converter = exceptionConverters.get(e.getClass());
 
         if (converter != null)
@@ -8048,13 +8076,9 @@ public abstract class IgniteUtils {
     public static String consistentId(Collection<String> addrs, int port) {
         assert !F.isEmpty(addrs);
 
-        List<String> sortedAddrs = new ArrayList<>(addrs);
-
-        Collections.sort(sortedAddrs);
-
         StringBuilder sb = new StringBuilder();
 
-        for (String addr : sortedAddrs)
+        for (String addr : addrs)
             sb.append(addr).append(',');
 
         sb.delete(sb.length() - 1, sb.length());

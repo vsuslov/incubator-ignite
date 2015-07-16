@@ -24,7 +24,9 @@ import org.apache.ignite.internal.processors.*;
 import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.handlers.*;
 import org.apache.ignite.internal.processors.rest.handlers.cache.*;
+import org.apache.ignite.internal.processors.rest.handlers.query.*;
 import org.apache.ignite.internal.processors.rest.handlers.datastructures.*;
+import org.apache.ignite.internal.processors.rest.handlers.scripting.IgniteScriptingCommandHandler;
 import org.apache.ignite.internal.processors.rest.handlers.task.*;
 import org.apache.ignite.internal.processors.rest.handlers.top.*;
 import org.apache.ignite.internal.processors.rest.handlers.version.*;
@@ -248,13 +250,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
     /** {@inheritDoc} */
     @Override public void start() throws IgniteCheckedException {
         if (isRestEnabled()) {
-            // Register handlers.
-            addHandler(new GridCacheCommandHandler(ctx));
-            addHandler(new GridTaskCommandHandler(ctx));
-            addHandler(new GridTopologyCommandHandler(ctx));
-            addHandler(new GridVersionCommandHandler(ctx));
-            addHandler(new DataStructuresCommandHandler(ctx));
-
             // Start protocols.
             startTcpProtocol();
             startHttpProtocol();
@@ -278,10 +273,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 }
             }
         }
-    }
 
-    /** {@inheritDoc} */
-    @Override public void onKernalStart() throws IgniteCheckedException {
         if (isRestEnabled()) {
             for (GridRestProtocol proto : protos)
                 proto.onKernalStart();
@@ -290,6 +282,15 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
             if (log.isDebugEnabled())
                 log.debug("REST processor started.");
+
+            // Register handlers.
+            addHandler(new GridCacheCommandHandler(ctx));
+            addHandler(new GridTaskCommandHandler(ctx));
+            addHandler(new GridTopologyCommandHandler(ctx));
+            addHandler(new GridVersionNameCommandHandler(ctx));
+            addHandler(new DataStructuresCommandHandler(ctx));
+            addHandler(new QueryCommandHandler(ctx));
+            addHandler(new IgniteScriptingCommandHandler(ctx));
         }
     }
 
@@ -384,6 +385,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
         if (interceptor != null && res.getResponse() != null) {
             switch (req.command()) {
+                case CACHE_CONTAINS_KEYS:
+                case CACHE_CONTAINS_KEY:
                 case CACHE_GET:
                 case CACHE_GET_ALL:
                 case CACHE_PUT:
@@ -527,6 +530,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
         switch (req.command()) {
             case CACHE_GET:
+            case CACHE_CONTAINS_KEY:
+            case CACHE_CONTAINS_KEYS:
             case CACHE_GET_ALL:
                 perm = SecurityPermission.CACHE_READ;
                 name = ((GridRestCacheRequest)req).cacheName();
@@ -540,6 +545,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
             case CACHE_CAS:
             case CACHE_APPEND:
             case CACHE_PREPEND:
+            case CACHE_GET_AND_PUT:
+            case CACHE_GET_AND_REPLACE:
+            case CACHE_GET_AND_PUT_IF_ABSENT:
+            case CACHE_PUT_IF_ABSENT:
+            case CACHE_REPLACE_VALUE:
                 perm = SecurityPermission.CACHE_PUT;
                 name = ((GridRestCacheRequest)req).cacheName();
 
@@ -547,6 +557,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
             case CACHE_REMOVE:
             case CACHE_REMOVE_ALL:
+            case CACHE_GET_AND_REMOVE:
+            case CACHE_REMOVE_VALUE:
                 perm = SecurityPermission.CACHE_REMOVE;
                 name = ((GridRestCacheRequest)req).cacheName();
 
@@ -560,6 +572,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 break;
 
             case CACHE_METRICS:
+            case CACHE_SIZE:
             case TOPOLOGY:
             case NODE:
             case VERSION:
