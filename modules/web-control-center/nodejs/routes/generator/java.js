@@ -160,9 +160,6 @@ exports.generateClusterConfiguration = function(cluster, javaClass, clientCache)
 
             names.push(cacheName);
 
-            if (clientCache)
-                _.merge(cache, clientCache);
-
             generateCacheConfiguration(cache, cacheName, res);
 
             res.needEmptyLine = true;

@@ -43,7 +43,7 @@ router.post('/list', function (req, res) {
         });
 
         // Get all persistences for spaces.
-        db.Persistence.find({space: {$in: space_ids}}, function (err, persistences) {
+        db.Persistence.find({space: {$in: space_ids}}).sort('name').exec(function (err, persistences) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -64,13 +64,19 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        var persistence = new db.Persistence(req.body);
-
-        persistence.save(function (err, persistence) {
+        db.CacheTypeMetadata.findOne({name: req.body.name}, function (err, persistence) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.send(persistence._id);
+            if (persistence)
+                return res.status(500).send('Persistence with name: "' + persistence.name + '" already exist.');
+
+            (new db.Persistence(req.body)).save(function (err, persistence) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.send(persistence._id);
+            });
         });
     }
 });

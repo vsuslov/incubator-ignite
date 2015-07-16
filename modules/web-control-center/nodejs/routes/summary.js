@@ -37,12 +37,12 @@ router.post('/generator', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientTemplate = req.body.clientTemplate;
+        var clientCache = req.body.clientCache;
 
-        if (clientTemplate)
+        if (clientCache)
             return res.send({
-                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientTemplate),
-                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientTemplate)
+                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientCache),
+                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
             });
 
         return res.send({
@@ -63,25 +63,23 @@ router.post('/download', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientCache = req.body.clientTemplate;
+        var clientCache = req.body.clientCache;
 
         var archiver = require('archiver');
 
-        // creating archives
+        // Creating archive.
         var zip = archiver('zip');
 
         zip.on('error', function (err) {
             res.status(500).send({error: err.message});
         });
 
-        //on stream closed we can end the request
+        // On stream closed we can end the request.
         res.on('close', function () {
-            console.log('Archive wrote %d bytes', archive.pointer());
-
             return res.status(200).send('OK').end();
         });
 
-        //set the archive name
+        // Set the archive name.
         res.attachment(cluster.name + (clientCache ? '-client' : '') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');

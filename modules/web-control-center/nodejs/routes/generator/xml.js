@@ -26,6 +26,20 @@ exports.generateClusterConfiguration = function(cluster, clientCache) {
     res.datasources = [];
     res.deep = 1;
 
+    if (clientCache && clientCache.nearConfiguration) {
+        res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
+
+        if (clientCache.nearConfiguration.nearStartSize)
+            addProperty(res, clientCache.nearConfiguration, 'nearStartSize');
+
+        if (clientCache.nearConfiguration.nearEvictionPolicy && clientCache.nearConfiguration.nearEvictionPolicy.kind)
+            createEvictionPolicy(res, clientCache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+
+        res.endBlock('</bean>');
+
+        res.line();
+    }
+
     // Generate Ignite Configuration.
     res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
 

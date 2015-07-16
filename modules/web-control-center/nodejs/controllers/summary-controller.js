@@ -121,7 +121,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
     };
 
     $scope.generateClient = function() {
-        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientTemplate: $scope.backupItem})
+        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientCache: $scope.backupItem})
             .success(function (data) {
                 $("<pre class='brush:xml'/>").text(data.xmlClient).appendTo($('#xmlClient').empty());
                 $("<pre class='brush:java'/>").text(data.javaClient).appendTo($('#javaClient').empty());

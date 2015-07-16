@@ -106,19 +106,17 @@ controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
 
     var deferred;
 
-    scope.title = 'Confirmation';
-
     scope.ok = function() {
         deferred.resolve();
 
-        confirm.hide();
+        confirmModal.hide();
     };
 
-    var confirm = $modal({templateUrl: '/confirm', scope: scope, placement: 'center', show: false});
+    var confirmModal = $modal({templateUrl: '/confirm', scope: scope, placement: 'center', show: false});
 
-    var parentShow = confirm.show;
+    var parentShow = confirmModal.show;
 
-    confirm.show = function(content) {
+    confirmModal.show = function(content) {
         scope.content = content || 'Confirm deletion?';
 
         deferred = $q.defer();
@@ -128,7 +126,35 @@ controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
         return deferred.promise;
     };
 
-    return confirm;
+    return confirmModal;
+});
+
+controlCenterModule.service('$saveAs', function($modal, $rootScope, $q) {
+    var scope = $rootScope.$new();
+
+    var deferred;
+
+    scope.ok = function(newName) {
+        deferred.resolve(newName);
+
+        saveAsModal.hide();
+    };
+
+    var saveAsModal = $modal({templateUrl: '/saveAs', scope: scope, placement: 'center', show: false});
+
+    var parentShow = saveAsModal.show;
+
+    saveAsModal.show = function(oldName) {
+        scope.newName = oldName + '(1)';
+
+        deferred = $q.defer();
+
+        parentShow();
+
+        return deferred.promise;
+    };
+
+    return saveAsModal;
 });
 
 controlCenterModule.config(function ($tooltipProvider) {
@@ -146,7 +172,8 @@ controlCenterModule.config(function ($selectProvider) {
         allText: 'Select All',
         noneText: 'Clear All',
         templateUrl: '/select',
-        iconCheckmark: 'fa fa-check'
+        iconCheckmark: 'fa fa-check',
+        caretHtml: '<span class="caret"></span>'
     });
 });
 

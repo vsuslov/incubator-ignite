@@ -24,9 +24,14 @@ router.get('/select', function (req, res) {
     res.render('templates/select', {});
 });
 
-// GET dropdown-menu template.
+// GET confirmation dialog.
 router.get('/confirm', function (req, res) {
     res.render('templates/confirm', {});
+});
+
+// GET save as dialog.
+router.get('/saveAs', function (req, res) {
+    res.render('templates/saveAs', {});
 });
 
 /* GET login page. */
@@ -37,7 +42,7 @@ router.get('/login', function (req, res) {
 /**
  * Register new account.
  */
-router.post('/register', function (req, res, next) {
+router.post('/register', function (req, res) {
     db.Account.count(function (err, cnt) {
         if (err)
             return res.status(401).send(err.message);

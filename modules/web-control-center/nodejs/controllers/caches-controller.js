@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
+controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs', '$confirm', 'commonFunctions', function ($scope, $http, $saveAs, $confirm, commonFunctions) {
         $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
         $scope.joinTip = commonFunctions.joinTip;
         $scope.getModel = commonFunctions.getModel;
@@ -151,34 +151,37 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
 
         // Add new cache.
         $scope.createItem = function () {
-            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC'};
+            $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true, copyOnRead: true};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
-        // Save cache in db.
-        $scope.saveItem = function () {
-            var item = $scope.backupItem;
-
+        // Check cache logical consistency.
+        function validate(item) {
             var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
 
             if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
                 commonFunctions.showError('Store is configured but read/write through are not enabled!');
 
-                return;
+                return false;
             }
 
             if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
                 commonFunctions.showError('Read / write through are enabled but store is not configured!');
 
-                return;
+                return false;
             }
 
             if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
                 commonFunctions.showError('Write behind enabled but store is not configured!');
 
-                return;
+                return false;
             }
 
+            return true;
+        }
+
+        // Save cache into database.
+        function save(item) {
             $http.post('caches/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.caches, function (cache) {
@@ -200,27 +203,63 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', 'commonFu
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);
                 });
+        }
+
+        // Save cache.
+        $scope.saveItem = function () {
+            var item = $scope.backupItem;
+
+            if (validate(item))
+                save(item);
         };
 
-        $scope.removeItem = function () {
-            var _id = $scope.selectedItem._id;
+        // Save cache with new name.
+        $scope.saveItemAs = function () {
+           if (validate($scope.backupItem))
+                $saveAs.show($scope.backupItem.name).then(function (newName) {
+                    var item = angular.copy($scope.backupItem);
 
-            $http.post('caches/remove', {_id: _id})
-                .success(function () {
-                    var i = _.findIndex($scope.caches, function (cache) {
-                        return cache._id == _id;
-                    });
+                    item._id = undefined;
+                    item.name = newName;
 
-                    if (i >= 0) {
-                        $scope.caches.splice(i, 1);
-
-                        $scope.selectedItem = undefined;
-                        $scope.backupItem = undefined;
-                    }
-                })
-                .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    save(item);
                 });
+        };
+
+        // Remove cache from db.
+        $scope.removeItem = function () {
+            var selectedItem = $scope.selectedItem;
+
+            $confirm.show('Are you sure you want to remove cache: "' + selectedItem.name + '"?').then(
+                function () {
+                    var _id = selectedItem._id;
+
+                    $http.post('caches/remove', {_id: _id})
+                        .success(function () {
+                            commonFunctions.showInfo('Cache has been removed: ' + selectedItem.name);
+
+                            var caches = $scope.caches;
+
+                            var idx = _.findIndex(caches, function (cache) {
+                                return cache._id == _id;
+                            });
+
+                            if (idx >= 0) {
+                                caches.splice(idx, 1);
+
+                                if (caches.length > 0)
+                                    $scope.selectItem(caches[0]);
+                                else {
+                                    $scope.selectedItem = undefined;
+                                    $scope.backupItem = undefined;
+                                }
+                            }
+                        })
+                        .error(function (errMsg) {
+                            commonFunctions.showError(errMsg);
+                        });
+                }
+            );
         };
 
         $scope.checkIndexedTypes = function (keyCls, valCls) {

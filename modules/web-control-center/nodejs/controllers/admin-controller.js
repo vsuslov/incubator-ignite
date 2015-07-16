@@ -16,53 +16,53 @@
  */
 
 controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
-        $scope.users = null;
+    $scope.users = null;
 
-        function reload() {
-            $http.post('admin/list')
-                .success(function (data) {
-                    $scope.users = data;
-                })
-                .error(function (errMsg) {
-                    commonFunctions.showError(commonFunctions.errorMessage(errMsg));
-                });
-        }
-
-        reload();
-
-        $scope.removeUser = function (user) {
-            $confirm.show("Are you sure you want to delete user: '" + user.username + "'?").then(function() {
-                $http.post('admin/remove', {userId: user._id}).success(
-                    function () {
-                        var i = _.findIndex($scope.users, function (u) {
-                            return u._id == user._id;
-                        });
-
-                        if (i >= 0)
-                            $scope.users.splice(i, 1);
-
-                        commonFunctions.showInfo("User has been removed: '" + user.username + "'");
-                    }).error(function (errMsg) {
-                        commonFunctions.showError("Failed to remove user: " + commonFunctions.errorMessage(errMsg));
-                    });
+    function reload() {
+        $http.post('admin/list')
+            .success(function (data) {
+                $scope.users = data;
+            })
+            .error(function (errMsg) {
+                commonFunctions.showError(commonFunctions.errorMessage(errMsg));
             });
-        };
+    }
 
-        $scope.toggleAdmin = function (user) {
-            if (user.adminChanging)
-                return;
+    reload();
 
-            user.adminChanging = true;
-
-            $http.post('admin/save', {userId: user._id, adminFlag: !user.admin}).success(
+    $scope.removeUser = function (user) {
+        $confirm.show('Are you sure you want to remove user: "' + user.username + '"?').then(function () {
+            $http.post('admin/remove', {userId: user._id}).success(
                 function () {
-                    commonFunctions.showInfo("Admin right was successfully toggled for user: '" + user.username + "'");
+                    var i = _.findIndex($scope.users, function (u) {
+                        return u._id == user._id;
+                    });
 
-                    user.adminChanging = false;
+                    if (i >= 0)
+                        $scope.users.splice(i, 1);
+
+                    commonFunctions.showInfo('User has been removed: "' + user.username + '"');
                 }).error(function (errMsg) {
-                    commonFunctions.showError("Failed to toggle admin right for user: " + commonFunctions.errorMessage(errMsg));
-
-                    user.adminChanging = false;
+                    commonFunctions.showError('Failed to remove user: "' + commonFunctions.errorMessage(errMsg) + '"');
                 });
-        }
-    }]);
+        });
+    };
+
+    $scope.toggleAdmin = function (user) {
+        if (user.adminChanging)
+            return;
+
+        user.adminChanging = true;
+
+        $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
+            function () {
+                commonFunctions.showInfo('Admin right was successfully toggled for user: "' + user.username + '"');
+
+                user.adminChanging = false;
+            }).error(function (errMsg) {
+                commonFunctions.showError('Failed to toggle admin right for user: "' + commonFunctions.errorMessage(errMsg) + '"');
+
+                user.adminChanging = false;
+            });
+    }
+}]);

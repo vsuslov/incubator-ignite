@@ -42,7 +42,7 @@ router.post('/list', function (req, res) {
         });
 
         // Get all caches for spaces.
-        db.Cache.find({space: {$in: space_ids}}, function (err, caches) {
+        db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -63,13 +63,19 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        var cache = new db.Cache(req.body);
-
-        cache.save(function (err, cache) {
+        db.Cache.findOne({name: req.body.name}, function (err, cache) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.send(cache._id);
+            if (cache)
+                return res.status(500).send('Cache with name: "' + cache.name + '" already exist.');
+
+            (new db.Cache(req.body)).save(function (err, cache) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.send(cache._id);
+            });
         });
     }
 });

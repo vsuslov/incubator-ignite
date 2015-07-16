@@ -107,24 +107,24 @@ mixin form-row-custom(lblClasses, fieldClasses)
             label {{field.label}}
         div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
-                input(type='checkbox' ng-checked='field.placeholder')&attributes(fieldCommon)
+                input(type='checkbox')&attributes(fieldCommon)
                 | {{field.label}}
                 +tipLabel('field.tip')
         div(ng-switch-when='text' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='text' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
         div(ng-switch-when='password' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(type='password' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
         div(ng-switch-when='number' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     input.form-control(name='{{field.model}}' type='number' placeholder='{{field.placeholder}}' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
@@ -133,13 +133,13 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     +exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
@@ -148,7 +148,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
             label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
-            .col-sm-4
+            div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
