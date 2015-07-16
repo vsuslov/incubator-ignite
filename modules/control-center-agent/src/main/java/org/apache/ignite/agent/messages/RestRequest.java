@@ -35,6 +35,12 @@ public class RestRequest extends AbstractMessage {
     /** */
     private String method;
 
+    /** */
+    private Map<String, String> headers;
+
+    /** */
+    private String body;
+
     /**
      *
      */
@@ -89,5 +95,33 @@ public class RestRequest extends AbstractMessage {
      */
     public void setMethod(String mtd) {
         this.method = mtd;
+    }
+
+    /**
+     *
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    /**
+     * @param headers Headers.
+     */
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    /**
+     *
+     */
+    public String getBody() {
+        return body;
+    }
+
+    /**
+     * @param body Body.
+     */
+    public void setBody(String body) {
+        this.body = body;
     }
 }

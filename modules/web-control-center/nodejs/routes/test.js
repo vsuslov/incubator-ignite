@@ -16,45 +16,34 @@
  */
 
 var router = require('express').Router();
-var bridge = require('../agents/agentManager');
+var agentManager = require('../agents/agent-manager');
 
 
 
 /* GET summary page. */
-router.get('/testGet', function(req, res) {
-    var c = bridge.getOneClient();
+router.get('/', function(req, res) {
+    var c = agentManager.getOrCreate().getOneClient();
 
     if (!c) {
         return res.send("Client not found");
     }
 
-    c.restGet("ignite", {cmd: 'version'}, function(error, code, message) {
-        if (error) {
-            res.send("Failed to execute REST query: " + error);
+    var html = "";
 
-            return
+    var ignite = c.ignite();
+
+    ignite.version().then(function (ver) {
+        html += "version: " + ver + "<br>";
+
+        return ignite.cluster()
+    }).then(function (cluster) {
+        html += "cluster size: " + cluster.length + "<br>";
+
+        for (var i = 0; i < cluster.length; i++) {
+            html += "#" + cluster[i].nodeId();
         }
 
-        res.send("code: " + code + '<br>message: ' + message);
-    });
-});
-
-/* GET summary page. */
-router.get('/testPost', function(req, res) {
-    var c = bridge.getOneClient();
-
-    if (!c) {
-        return res.send("Client not found");
-    }
-
-    c.restPost("ignite", {cmd: 'version'}, function(error, code, message) {
-        if (error) {
-            res.send("Failed to execute REST query: " + error);
-
-            return
-        }
-
-        res.send("code: " + code + '<br>message: ' + message);
+        res.send(html);
     });
 });
 

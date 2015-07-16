@@ -22,6 +22,7 @@ import org.apache.http.*;
 import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.*;
+import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.*;
 import org.apache.ignite.agent.messages.*;
@@ -85,17 +86,29 @@ public class Agent {
                 builder.addParameter(entry.getKey(), entry.getValue());
         }
 
+        if (restReq.getHeaders() != null)
+            restReq.setHeaders(restReq.getHeaders());
+
         if ("GET".equalsIgnoreCase(restReq.getMethod()))
             httpReq = new HttpGet(builder.build());
         else if ("POST".equalsIgnoreCase(restReq.getMethod())) {
-            List<NameValuePair> nvps = builder.getQueryParams();
+            HttpPost post;
 
-            builder.clearParameters();
+            if (restReq.getBody() == null) {
+                List<NameValuePair> nvps = builder.getQueryParams();
 
-            HttpPost post = new HttpPost(builder.build());
+                builder.clearParameters();
 
-            if (nvps.size() > 0)
-                post.setEntity(new UrlEncodedFormEntity(nvps));
+                post = new HttpPost(builder.build());
+
+                if (nvps.size() > 0)
+                    post.setEntity(new UrlEncodedFormEntity(nvps));
+            }
+            else {
+                post = new HttpPost(builder.build());
+
+                post.setEntity(new StringEntity(restReq.getBody()));
+            }
 
             httpReq = post;
         }
