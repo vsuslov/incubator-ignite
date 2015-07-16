@@ -29,7 +29,6 @@ var publicRoutes = require('./routes/public');
 var clustersRouter = require('./routes/clusters');
 var cachesRouter = require('./routes/caches');
 var metadataRouter = require('./routes/metadata');
-var persistenceRouter = require('./routes/persistence');
 var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
@@ -121,7 +120,6 @@ app.use('/profile', mustAuthenticated, profileRouter);
 app.use('/configuration/clusters', clustersRouter);
 app.use('/configuration/caches', cachesRouter);
 app.use('/configuration/metadata', metadataRouter);
-app.use('/configuration/persistence', persistenceRouter);
 app.use('/configuration/summary', summary);
 app.use('/sql', sqlRouter);
 

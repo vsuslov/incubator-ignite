@@ -42,11 +42,11 @@ router.post('/list', function (req, res) {
         });
 
         // Get all metadata for spaces.
-        db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadata) {
+        db.CacheTypeMetadata.find({space: {$in: space_ids}}).sort('name').exec(function (err, metadatas) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.json({spaces: spaces, metadata: metadata});
+            res.json({spaces: spaces, metadatas: metadatas});
         });
     });
 });

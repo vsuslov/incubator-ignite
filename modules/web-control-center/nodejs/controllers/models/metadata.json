@@ -31,7 +31,6 @@
       "label": "Database schema",
       "type": "text",
       "model": "databaseSchema",
-      "required": true,
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB schema name",
       "tip": ["TODO."]
@@ -40,7 +39,6 @@
       "label": "Database table",
       "type": "text",
       "model": "databaseTable",
-      "required": true,
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB table name",
       "tip": ["TODO."]
@@ -77,21 +75,21 @@
     },
     {
       "label": "Query fields",
-      "type": "text",
+      "type": "fieldsMetadata",
       "model": "queryFields",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Ascending fields",
-      "type": "text",
+      "type": "fieldsMetadata",
       "model": "ascendingFields",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
     {
       "label": "Descending fields",
-      "type": "text",
+      "type": "fieldsMetadata",
       "model": "descendingFields",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
@@ -115,8 +113,7 @@
     {
       "label": "Name",
       "type": "text",
-      "model": "name",
-      "required": true
+      "model": "name"
     },
     {
       "label": "Database type",

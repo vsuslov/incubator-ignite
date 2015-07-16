@@ -32,6 +32,9 @@ append css
 
 include ../includes/controls
 
+mixin hard-link(ref, txt)
+    a(style='color:#ec1c24' href=ref target="_blank") #{txt}
+
 block content
     .docs-header
         h1 Configurations summary
@@ -89,13 +92,13 @@ block content
                                         #javaServer
                                     div(ng-show="cfgLangServer == 'docker'")
                                         p
-                                            a(style='color:#ec1c24' href='https://docs.docker.com/reference/builder' target="_blank") Docker
+                                            +hard-link('https://docs.docker.com/reference/builder', 'Docker')
                                             | &nbsp;file is a text file with instructions to create Docker image.<br/>
                                             | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
                                             | Also you could use predefined&nbsp;
-                                            a(style='color:#ec1c24' href='https://ignite.incubator.apache.org/download.html#docker' target="_blank") Apache Ignite docker image
+                                            +hard-link('https://ignite.incubator.apache.org/download.html#docker', 'Apache Ignite docker image')
                                             | . For more information about using Ignite with Docker please read&nbsp;
-                                            a(style='color:#ec1c24' href='http://apacheignite.readme.io/docs/docker-deployment' target="_blank") documentation
+                                            +hard-link('http://apacheignite.readme.io/docs/docker-deployment', 'documentation')
                                             |.
                                         .col-sm-2
                                             label(for='os') Operation System:
