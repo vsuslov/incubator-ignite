@@ -107,7 +107,7 @@ block content
                     form.panel-heading(role='tab' method='post' action='summary/download')
                         input(type="hidden" name="_id" value="{{selectedItem._id}}")
                         input(type="hidden" name="javaClass" value="{{javaClassClient}}")
-                        input(type="hidden" name="clientTemplate" value="{{backupItem}}")
+                        input(type="hidden" name="clientCache" value="{{backupItem}}")
 
                         h3
                             a(bs-collapse-toggle) Client

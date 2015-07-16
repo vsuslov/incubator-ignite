@@ -152,7 +152,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
         };
 
         // Check cluster logical consistency.
-        $scope.checkItem = function (item) {
+        function validate(item) {
             if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind) {
                 for (var i = 0; i < item.caches.length; i++) {
                     var idx = $scope.indexOfCache(item.caches[i]);
@@ -170,10 +170,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
             }
 
             return true;
-        };
+        }
 
         // Save cluster in database.
-        $scope.saveItemToDb = function (item) {
+        function save(item) {
             $http.post('clusters/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.clusters, function (cluster) {
@@ -195,26 +195,26 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);
                 });
-        };
+        }
 
         // Save cluster.
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            if ($scope.checkItem(item))
-                $scope.saveItemToDb(item);
+            if (validate(item))
+                save(item);
         };
 
         // Save cluster with new name.
         $scope.saveItemAs = function () {
-            var item = $scope.backupItem;
-
-            if ($scope.checkItem(item))
+            if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
+                    var item = angular.copy($scope.backupItem);
+
                     item._id = undefined;
                     item.name = newName;
 
-                    $scope.saveItemToDb(item);
+                    save(item);
                 });
         };
 

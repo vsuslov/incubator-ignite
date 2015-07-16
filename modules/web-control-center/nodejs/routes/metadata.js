@@ -63,13 +63,19 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        var metadata = new db.CacheTypeMetadata(req.body);
-
-        metadata.save(function (err, metadata) {
+        db.CacheTypeMetadata.findOne({name: req.body.name}, function (err, metadata) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.send(metadata._id);
+            if (metadata)
+                return res.status(500).send('Cache type metadata with name: "' + metadata.name + '" already exist.');
+
+            (new db.CacheTypeMetadata(req.body)).save(function (err, metadata) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.send(metadata._id);
+            });
         });
     }
 });

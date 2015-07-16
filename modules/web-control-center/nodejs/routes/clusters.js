@@ -72,13 +72,19 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        var cluster = new db.Cluster(req.body);
-
-        cluster.save(function (err, cluster) {
+        db.Cluster.findOne({name: req.body.name}, function (err, cluster) {
             if (err)
                 return res.status(500).send(err.message);
 
-            res.send(cluster._id);
+            if (cluster)
+                return res.status(500).send('Cluster with name: "' + cluster.name + '" already exist.');
+
+            (new db.Cluster(req.body)).save(function (err, cluster) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                res.send(cluster._id);
+            });
         });
     }
 });

@@ -156,7 +156,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
         };
 
         // Check cache logical consistency.
-        $scope.checkItem = function (item) {
+        function validate(item) {
             var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
 
             if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
@@ -178,10 +178,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
             }
 
             return true;
-        };
+        }
 
         // Save cache into database.
-        $scope.saveItemToDb = function (item) {
+        function save(item) {
             $http.post('caches/save', item)
                 .success(function (_id) {
                     var idx = _.findIndex($scope.caches, function (cache) {
@@ -203,26 +203,26 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                 .error(function (errMsg) {
                     commonFunctions.showError(errMsg);
                 });
-        };
+        }
 
         // Save cache.
         $scope.saveItem = function () {
             var item = $scope.backupItem;
 
-            if ($scope.checkItem(item))
-                $scope.saveItemToDb(item);
+            if (validate(item))
+                save(item);
         };
 
         // Save cache with new name.
         $scope.saveItemAs = function () {
-            var item = $scope.backupItem;
-
-            if ($scope.checkItem(item))
+           if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
+                    var item = angular.copy($scope.backupItem);
+
                     item._id = undefined;
                     item.name = newName;
 
-                    $scope.saveItemToDb(item);
+                    save(item);
                 });
         };
 

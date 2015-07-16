@@ -37,12 +37,12 @@ router.post('/generator', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientTemplate = req.body.clientTemplate;
+        var clientCache = req.body.clientCache;
 
-        if (clientTemplate)
+        if (clientCache)
             return res.send({
-                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientTemplate),
-                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientTemplate)
+                xmlClient: generatorXml.generateClusterConfiguration(cluster, clientCache),
+                javaClient: generatorJava.generateClusterConfiguration(cluster, req.body.javaClass, clientCache)
             });
 
         return res.send({
@@ -63,7 +63,7 @@ router.post('/download', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientCache = req.body.clientTemplate;
+        var clientCache = req.body.clientCache;
 
         var archiver = require('archiver');
 
