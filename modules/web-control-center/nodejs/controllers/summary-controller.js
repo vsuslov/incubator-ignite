@@ -46,47 +46,29 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
 
-    $scope.cfgLangServer = 'xml';
-    $scope.cfgLangClient = 'xml';
-
     $scope.javaClassServer = false;
     $scope.javaClassClient = false;
 
     $scope.os = undefined;
 
-    $scope.generated = undefined;
+    $scope.configServer = {};
     $scope.clusters = [];
 
-    $scope.reloadServer = function() {
-        if (!$scope.generated)
-            return;
+    $scope.aceInit = function(editor) {
+        editor.setReadOnly(true);
+        editor.setOption("highlightActiveLine", false);
 
-        $("<pre class='brush:xml'/>").text($scope.generated.xmlServer).appendTo($('#xmlServer').empty());
-        $("<pre class='brush:java'/>").text($scope.javaClassServer ? $scope.generated.javaClassServer : $scope.generated.javaSnippetServer).appendTo($('#javaServer').empty());
-
-        var os = $scope.os ? $scope.os : $scope.oss[0];
-
-        $("<pre class='brush:plain'/>").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#docker').empty());
-
-
-        $("<pre class='brush:xml'/>").text($scope.generated.xmlClient).appendTo($('#xmlClient').empty());
-        $("<pre class='brush:java'/>").text($scope.javaClassClient ? $scope.generated.javaClassClient : $scope.generated.javaSnippetClient).appendTo($('#javaClient').empty());
-
-        SyntaxHighlighter.highlight();
+        editor.setTheme('chrome');
     };
 
     $scope.reloadServer = function() {
-        if (!$scope.generated)
-            return;
+        $scope.javaServer = $scope.javaClass ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
 
-        $("<pre class='brush:xml'/>").text($scope.generated.xmlServer).appendTo($('#xmlServer').empty());
-        $("<pre class='brush:java'/>").text($scope.javaClassServer ? $scope.generated.javaClassServer : $scope.generated.javaSnippetServer).appendTo($('#javaServer').empty());
+        if ($scope.configServer.docker) {
+            var os = $scope.os ? $scope.os : $scope.oss[0];
 
-        var os = $scope.os ? $scope.os : $scope.oss[0];
-
-        $("<pre class='brush:plain'/>").text($scope.generated.docker.replace(new RegExp('\%OS\%', 'g'), os)).appendTo($('#docker').empty());
-
-        SyntaxHighlighter.highlight();
+            $scope.dockerServer = $scope.configServer.docker.replace(new RegExp('\%OS\%', 'g'), os);
+        }
     };
 
     $scope.selectItem = function(cluster) {
@@ -112,7 +94,11 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
     $scope.generateServer = function(cluster) {
         $http.post('summary/generator', {_id: cluster._id})
             .success(function (data) {
-                $scope.generated = data;
+                $scope.xmlServer = data.xmlServer;
+
+                $scope.configServer.javaClass = data.javaClassServer;
+                $scope.configServer.javaSnippet = data.javaSnippetServer;
+                $scope.configServer.docker = data.docker;
 
                 $scope.reloadServer();
             }).error(function (errMsg) {
@@ -123,10 +109,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
     $scope.generateClient = function() {
         $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientCache: $scope.backupItem})
             .success(function (data) {
-                $("<pre class='brush:xml'/>").text(data.xmlClient).appendTo($('#xmlClient').empty());
-                $("<pre class='brush:java'/>").text(data.javaClient).appendTo($('#javaClient').empty());
-
-                SyntaxHighlighter.highlight();
+                $scope.xmlClient = data.xmlClient;
+                $scope.javaClient = data.javaClient;
             }).error(function (errMsg) {
                 commonFunctions.showError('Failed to generate config: ' + errMsg);
             });
