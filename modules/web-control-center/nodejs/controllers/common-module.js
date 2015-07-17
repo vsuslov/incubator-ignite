@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-var controlCenterModule = angular.module('ignite-web-control-center', ['smart-table', 'mgcrea.ngStrap', 'ngSanitize']);
+var controlCenterModule = angular.module('ignite-web-control-center', ['smart-table', 'mgcrea.ngStrap', 'ui.ace', 'ngSanitize']);
 
 // Common functions to be used in controllers.
 controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
