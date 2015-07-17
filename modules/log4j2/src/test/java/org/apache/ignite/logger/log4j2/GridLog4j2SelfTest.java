@@ -127,18 +127,7 @@ public class GridLog4j2SelfTest extends TestCase {
 
             System.setProperty("IGNITE_QUIET", "false");
 
-            TcpDiscoverySpi disco = new TcpDiscoverySpi();
-
-            disco.setIpFinder(new TcpDiscoveryVmIpFinder(false) {{
-                setAddresses(Collections.singleton("127.0.0.1:47500..47509"));
-            }});
-
-            IgniteConfiguration cfg = new IgniteConfiguration()
-                .setGridLogger(new Log4J2Logger(LOG_PATH_VERBOSE_TEST))
-                .setConnectorConfiguration(null)
-                .setDiscoverySpi(disco);
-
-            try (Ignite ignite = G.start(cfg)) {
+            try (Ignite ignite = G.start(getConfiguration("verboseLogGrid", LOG_PATH_VERBOSE_TEST))) {
                 String testInfoMsg = "******* Hello Tester! INFO message *******";
                 String testDebugMsg = "******* Hello Tester! DEBUG message *******";
 
@@ -152,9 +141,12 @@ public class GridLog4j2SelfTest extends TestCase {
             }
         }
         finally {
+            System.setProperty("IGNITE_QUIET", "true");
+
             // Restore the stdout and write the String to stdout.
             System.setOut(backupSysOut);
 
+            System.out.println("***** It was at output *****");
             System.out.println(testOut.toString());
         }
     }
@@ -180,7 +172,7 @@ public class GridLog4j2SelfTest extends TestCase {
         String id8;
         File logFile;
 
-        try (Ignite ignite = G.start(getConfiguration("grid" + id))) {
+        try (Ignite ignite = G.start(getConfiguration("grid" + id, LOG_PATH_TEST))) {
             id8 = U.id8(ignite.cluster().localNode().id());
 
             String logPath = "work/log/ignite-" + id8 + ".log";
@@ -202,17 +194,23 @@ public class GridLog4j2SelfTest extends TestCase {
      * Creates grid configuration.
      *
      * @param gridName Grid name.
+     * @param logPath
      * @return Grid configuration.
      * @throws Exception If error occurred.
      */
-    private static IgniteConfiguration getConfiguration(String gridName)
+    private static IgniteConfiguration getConfiguration(String gridName, String logPath)
         throws Exception {
-        IgniteConfiguration cfg = new IgniteConfiguration();
+        TcpDiscoverySpi disco = new TcpDiscoverySpi();
 
-        cfg.setGridName(gridName);
+        disco.setIpFinder(new TcpDiscoveryVmIpFinder(false) {{
+            setAddresses(Collections.singleton("127.0.0.1:47500..47509"));
+        }});
 
-        cfg.setGridLogger(new Log4J2Logger(LOG_PATH_MAIN));
-        cfg.setConnectorConfiguration(null);
+        IgniteConfiguration cfg = new IgniteConfiguration()
+            .setGridName(gridName)
+            .setGridLogger(new Log4J2Logger(logPath))
+            .setConnectorConfiguration(null)
+            .setDiscoverySpi(disco);
 
         return cfg;
     }
