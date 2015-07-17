@@ -357,6 +357,8 @@
         {
           "type": "indexedTypes",
           "model": "indexedTypes",
+          "keyName": "keyClass",
+          "valueName": "valueClass",
           "tip": [
             "Collection of types to index."
           ]

@@ -108,6 +108,158 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
             return false;
         };
 
+        $scope.tableSimple = {name: 'none', editIndex: -1};
+
+        $scope.tablePair = {name: 'none', editIndex: -1};
+
+        function tableSimpleReset() {
+            $scope.tableSimple.name = 'none';
+            $scope.tableSimple.editIndex = -1;
+        }
+
+        function tablePairReset() {
+            $scope.tablePair.name = 'none';
+            $scope.tablePair.editIndex = -1;
+        }
+
+        function tableSimpleState(name, editIndex) {
+            $scope.tableSimple.name = name;
+            $scope.tableSimple.editIndex = editIndex;
+
+            tablePairReset();
+        }
+
+        function tablePairState(name, editIndex) {
+            $scope.tablePair.name = name;
+            $scope.tablePair.editIndex = editIndex;
+
+            tableSimpleReset();
+        }
+
+        $scope.tableSimpleNewItem = function (field) {
+            tableSimpleState(field.model, -1);
+        };
+
+        $scope.tablePairNewItem = function (field) {
+            tablePairState(field.model, -1);
+        };
+
+        $scope.tableSimpleNewItemActive = function (field) {
+            return $scope.tableSimple.name == field.model && $scope.tableSimple.editIndex < 0;
+        };
+
+        $scope.tablePairNewItemActive = function (field) {
+            return $scope.tablePair.name == field.model && $scope.tablePair.editIndex < 0;
+        };
+
+        $scope.tableSimpleSave = function (field, newValue, index) {
+            tableSimpleReset();
+
+            var item = $scope.backupItem;
+
+            if (index < 0) {
+                if (item[field.model])
+                    item[field.model].push(newValue);
+                else
+                    item[field.model] = [newValue];
+            }
+            else
+                item[field.model][index] = newValue;
+        };
+
+        function tablePairValid(keyCls, valCls) {
+            if (!keyCls) {
+                commonFunctions.showError('Key class name should be non empty!');
+
+                return false;
+            }
+
+            if (!valCls) {
+                commonFunctions.showError('Value class name should be non empty!');
+
+                return false;
+            }
+
+            return true;
+        }
+
+        $scope.tablePairSave = function (field, newKey, newValue, index) {
+            if (tablePairValid(newKey, newValue)) {
+                tableSimpleReset();
+                tablePairReset();
+
+                var item = $scope.backupItem;
+
+                var pair = {};
+
+                if (index < 0) {
+                    pair[field.keyName] = newKey;
+                    pair[field.valueName] = newValue;
+
+                    if (item[field.model])
+                        item[field.model].push(pair);
+                    else
+                        item[field.model] = [pair];
+                }
+                else {
+                    pair = item[field.model][index];
+
+                    pair[field.keyName] = newKey;
+                    pair[field.valueName] = newValue;
+                }
+            }
+        };
+
+        $scope.tableSimpleStartEdit = function (field, index) {
+            tableSimpleState(field.model, index);
+
+            return $scope.backupItem[field.model][index];
+        };
+
+        $scope.tablePairStartEdit = function (field, index) {
+            tablePairState(field.model, index);
+
+            return $scope.backupItem[field.model][index];
+        };
+
+        $scope.tableSimpleEditing = function (field, index) {
+            return $scope.tableSimple.name == field.model && $scope.tableSimple.editIndex == index;
+        };
+
+        $scope.tablePairEditing = function (field, index) {
+            return $scope.tablePair.name == field.model && $scope.tablePair.editIndex == index;
+        };
+
+        $scope.tableSimpleRemove = function (field, index) {
+            tableSimpleReset();
+            tablePairReset();
+
+            $scope.backupItem[field.model].splice(index, 1);
+        };
+
+        $scope.tablePairRemove = function (field, index) {
+            tableSimpleReset();
+            tablePairReset();
+
+            $scope.backupItem[field.model].splice(index, 1);
+        };
+
+        $scope.tableSimpleUp = function (field, index) {
+            tableSimpleReset();
+
+            swapSimpleItems($scope.backupItem[field.model], index, index - 1);
+        };
+
+        $scope.tableSimpleDown = function (field, index) {
+            tableSimpleReset();
+
+            swapSimpleItems($scope.backupItem[field.model], index, index + 1);
+        };
+
+        $scope.tableSimpleDownVisible = function (field, index) {
+            return index < $scope.backupItem[field.model].length - 1;
+        };
+
         // When landing on the page, get caches and show them.
         $http.post('caches/list')
             .success(function (data) {
@@ -260,48 +412,6 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                         });
                 }
             );
-        };
-
-        function tablePairValid(keyCls, valCls) {
-            if (!keyCls) {
-                commonFunctions.showError('Key class name should be non empty!');
-
-                return false;
-            }
-
-            if (!valCls) {
-                commonFunctions.showError('Value class name should be non empty!');
-
-                return false;
-            }
-
-            return true;
-        }
-
-        $scope.tablePairAdd = function (fld, keyCls, valCls) {
-            if (!tablePairValid(keyCls, valCls))
-                return;
-
-            var idxTypes = $scope.backupItem.indexedTypes;
-
-            var newItem = {keyClass: keyCls, valueClass: valCls};
-
-            if (idxTypes)
-                idxTypes.push(newItem);
-            else
-                $scope.backupItem.indexedTypes = [newItem];
-        };
-
-        $scope.tablePairSave = function (idx, fld, keyCls, valCls) {
-            if (!tablePairValid(keyCls, valCls))
-                return idx;
-
-            var idxType = $scope.backupItem.indexedTypes[idx];
-
-            idxType.keyClass = keyCls;
-            idxType.valueClass = valCls;
-
-            return -1;
         };
     }]
 );

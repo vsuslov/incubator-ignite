@@ -63,6 +63,8 @@
       "label": "Key fields",
       "type": "fieldsMetadata",
       "model": "keyFields",
+      "keyName": "name",
+      "valueName": "className",
       "hide": "backupItem.kind == 'query'",
       "tip": ["Collection of key fields descriptions."]
     },
@@ -70,6 +72,8 @@
       "label": "Value fields",
       "type": "fieldsMetadata",
       "model": "valueFields",
+      "keyName": "name",
+      "valueName": "className",
       "hide": "backupItem.kind == 'query'",
       "tip": ["Collection of value fields descriptions."]
     },
@@ -77,6 +81,8 @@
       "label": "Query fields",
       "type": "fieldsMetadata",
       "model": "queryFields",
+      "keyName": "name",
+      "valueName": "className",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
@@ -84,6 +90,8 @@
       "label": "Ascending fields",
       "type": "fieldsMetadata",
       "model": "ascendingFields",
+      "keyName": "name",
+      "valueName": "className",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
@@ -91,6 +99,8 @@
       "label": "Descending fields",
       "type": "fieldsMetadata",
       "model": "descendingFields",
+      "keyName": "name",
+      "valueName": "className",
       "hide": "backupItem.kind != 'query'",
       "tip": ["TODO."]
     },
