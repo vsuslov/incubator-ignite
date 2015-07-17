@@ -25,17 +25,17 @@ mixin tipLabel(lines)
 mixin ico-exclamation(mdl, err, msg)
     i.fa.fa-exclamation-triangle.form-control-feedback(ng-show='inputForm["#{mdl}"].$error.#{err}' bs-tooltip data-title='#{msg}' type='button')
 
-mixin btn-save(click)
-    i.tipField.fa.fa-floppy-o(ng-click=click)
+mixin btn-save(show, click)
+    i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click)
 
 mixin btn-remove(click)
     i.tipField.fa.fa-remove(ng-click=click)
 
-mixin btn-up(iff, show, click)
-    i.fa.fa-arrow-up(ng-if=iff ng-show=show ng-click=click)
+mixin btn-up(show, click)
+    i.tipField.fa.fa-arrow-up(ng-show=show ng-click=click)
 
-mixin btn-down(iff, show, click)
-    i.fa.fa-arrow-down(ng-if=iff ng-show=show ng-click=click)
+mixin btn-down(show, click)
+    i.tipField.fa.fa-arrow-down(ng-show=show ng-click=click)
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
     .col-sm-6
@@ -47,11 +47,11 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
             tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                 td.col-sm-6
                     div(ng-show='!tablePairEditing(field, $index)')
-                        a(ng-click='curPair = tablePairStartEdit(field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
-                        +btn-remove('tablePairRemove(field, $index)')
+                        a(ng-click='curPair = tablePairStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
+                        +btn-remove('tablePairRemove(backupItem, field, $index)')
                     div(ng-show='tablePairEditing(field, $index)')
                         label.labelField {{$index + 1}})
-                        +btn-save('tablePairSave(field, curKey, curValue, $index)')
+                        +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
                         .input-tip
                             .col-sm-12
                                 input.form-control.table-form-control(type='text' ng-model='curKey' placeholder=keyPlaceholder)
@@ -59,7 +59,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                                 input.form-control.table-form-control(type='text' ng-model='curValue' placeholder=valPlaceholder)
     .settings-row(ng-show='tablePairNewItemActive(field)')
         .col-sm-6
-            +btn-save('tablePairSave(field, newKey, newValue, -1)')
+            +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
             .input-tip
                 input.form-control.table-form-control(type='text' ng-model='newKey' placeholder=keyPlaceholder)
                 label &nbsp;/&nbsp;
@@ -69,7 +69,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
 
-    - var detailMdl = 'getModel(backupItem, detail.path)[detail.model]';
+    - var detailMdl = 'getModel(backupItem, detail)[detail.model]';
     - var detailCommon = {'ng-model': detailMdl, 'ng-required': 'detail.required'};
 
     - var customValidators = {'ng-attr-ipaddress': '{{detail.ipaddress}}'}
@@ -109,7 +109,7 @@ mixin details-row
                 button.form-control(bs-select data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
             +tipField('detail.tip')
         div(ng-switch-when='table-simple')&attributes(detailCommon)
-            div(ng-if="detail.label")
+            div(ng-if='detail.label')
                 label.table-header {{detail.label}}:
                 +tipLabel('detail.tableTip')
             table.col-sm-12.links-edit-details(st-table='#{detailMdl}' ng-show='#{detailMdl}.length > 0')
@@ -117,18 +117,18 @@ mixin details-row
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
                             div(ng-show='!tableSimpleEditing(detail, $index)')
-                                +btn-remove(ng-click='tableSimpleRemove(detail, $index)')
-                                +btn-down('detail.reordering', 'tableSimpleDownVisible(detail, $index)', 'tableSimpleDown(detail, $index)')
-                                +btn-up('detail.reordering', '$index > 0', 'tableSimpleUp(detail, $index)')
+                                +btn-remove('tableSimpleRemove(backupItem, detail, $index)')
+                                +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
+                                +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
                                 .input-tip
-                                    a(ng-click='detail.editIdx = $index; curValue = #{detailMdl}[$index]') {{$index + 1}}) {{item}}
+                                    a(ng-click='curValue = tableSimpleStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
                             div(ng-show='tableSimpleEditing(detail, $index)')
                                 label.labelField {{$index + 1}})
-                                +btn-save('tableSimpleSave(detail, curValue, $index)')
+                                +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
                                 .input-tip.form-group.has-feedback
                                     input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                                     +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
-            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='tableSimpleSave(detail, newValue, -1)') Add
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
                 input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableSimpleNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)
@@ -138,7 +138,7 @@ mixin form-row
     +form-row-custom(['col-sm-2'], ['col-sm-4'])
 
 mixin form-row-custom(lblClasses, fieldClasses)
-    - var fieldMdl = 'getModel(backupItem, field.path)[field.model]';
+    - var fieldMdl = 'getModel(backupItem, field)[field.model]';
     - var fieldCommon = {'ng-model': fieldMdl, 'ng-required': 'field.required || required(field)'};
     - var fieldRequiredClass = '{true: "required"}[field.required || required(field)]'
     - var fieldHide = '{{field.hide}}'
@@ -207,19 +207,18 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
                         td.col-sm-6
                             div(ng-show='!tableSimpleEditing(field, $index)')
-                                a(ng-click='curValue = tableSimpleStartEdit(field, $index)') {{$index + 1}}) {{item | compact}}
-                                +btn-remove('tableSimpleRemove(field, $index)')
+                                a(ng-click='curValue = tableSimpleStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
+                                +btn-remove('tableSimpleRemove(backupItem, field, $index)')
+                                +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
+                                +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')
                             div(ng-show='tableSimpleEditing(field, $index)')
                                 label.labelField {{$index + 1}})
-                                +btn-save('tableSimpleSave(field, curValue, $index)')
+                                +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
-                        td.col-sm-1(ng-if='field.reordering')
-                            +btn-up(true, '$index > 0', 'tableSimpleUp(field, $index)')
-                            +btn-down(true, 'tableSimpleDownVisible(field, $index)', 'tableSimpleDown(field, $index)')
             .settings-row(ng-show='tableSimpleNewItemActive(field)')
                 .col-sm-6
-                    +btn-save('tableSimpleSave(field, newValue, -1)')
+                    +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                     .input-tip
                         input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
         div(ng-switch-when='fieldsMetadata' ng-hide=fieldHide)

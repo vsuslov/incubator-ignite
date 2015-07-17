@@ -109,6 +109,7 @@
       "type": "table-simple",
       "model": "textFields",
       "hide": "backupItem.kind != 'query'",
+      "placeholder": "Field name",
       "tip": ["TODO."]
     },
     {

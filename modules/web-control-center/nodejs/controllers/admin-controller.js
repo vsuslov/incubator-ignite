@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm', 'commonFunctions', function ($scope, $http, $confirm, commonFunctions) {
+controlCenterModule.controller('adminController', ['$scope', '$http', '$common', '$confirm', function ($scope, $http, $common, $confirm) {
     $scope.users = null;
 
     function reload() {
@@ -24,7 +24,7 @@ controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm'
                 $scope.users = data;
             })
             .error(function (errMsg) {
-                commonFunctions.showError(commonFunctions.errorMessage(errMsg));
+                $common.showError($common.errorMessage(errMsg));
             });
     }
 
@@ -41,9 +41,9 @@ controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm'
                     if (i >= 0)
                         $scope.users.splice(i, 1);
 
-                    commonFunctions.showInfo('User has been removed: "' + user.username + '"');
+                    $common.showInfo('User has been removed: "' + user.username + '"');
                 }).error(function (errMsg) {
-                    commonFunctions.showError('Failed to remove user: "' + commonFunctions.errorMessage(errMsg) + '"');
+                    $common.showError('Failed to remove user: "' + $common.errorMessage(errMsg) + '"');
                 });
         });
     };
@@ -56,11 +56,11 @@ controlCenterModule.controller('adminController', ['$scope', '$http', '$confirm'
 
         $http.post('admin/save', {userId: user._id, adminFlag: user.admin}).success(
             function () {
-                commonFunctions.showInfo('Admin right was successfully toggled for user: "' + user.username + '"');
+                $common.showInfo('Admin right was successfully toggled for user: "' + user.username + '"');
 
                 user.adminChanging = false;
             }).error(function (errMsg) {
-                commonFunctions.showError('Failed to toggle admin right for user: "' + commonFunctions.errorMessage(errMsg) + '"');
+                $common.showError('Failed to toggle admin right for user: "' + $common.errorMessage(errMsg) + '"');
 
                 user.adminChanging = false;
             });

@@ -15,13 +15,27 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveAs', '$confirm', 'commonFunctions', function ($scope, $http, $saveAs, $confirm, commonFunctions) {
-        $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
-        $scope.joinTip = commonFunctions.joinTip;
-        $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$confirm', '$saveAs', '$table', function ($scope, $http, $common, $confirm, $saveAs, $table) {
+        $scope.joinTip = $common.joinTip;
+        $scope.getModel = $common.getModel;
+
+        $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
+        $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
+        $scope.tableSimpleValid = $table.tableSimpleValid;
+        $scope.tableSimpleSave = $table.tableSimpleSave;
+        $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
+        $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
+        $scope.tableSimpleEditing = $table.tableSimpleEditing;
+        $scope.tableSimpleRemove = $table.tableSimpleRemove;
+        $scope.tableSimpleUp = $table.tableSimpleUp;
+        $scope.tableSimpleDown = $table.tableSimpleDown;
+        $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
 
         $scope.templates = [
-            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}}, label: 'multicast'},
+            {
+                value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}},
+                label: 'multicast'
+            },
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
@@ -94,7 +108,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
                 $scope.advanced = data.advanced;
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         // When landing on the page, get clusters and show them.
@@ -131,7 +145,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
                 }, true);
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -161,7 +175,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
                         var cache = $scope.caches[idx];
 
                         if (cache.swapEnabled) {
-                            commonFunctions.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
+                            $common.showError('Swap space SPI is not configured, but cache "' + cache.label + '" configured to use swap!');
 
                             return false;
                         }
@@ -190,10 +204,10 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
 
                     $scope.selectItem(item);
 
-                    commonFunctions.showInfo('Cluster "' + item.name + '" saved.');
+                    $common.showInfo('Cluster "' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         }
 
@@ -228,7 +242,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
 
                     $http.post('clusters/remove', {_id: _id})
                         .success(function () {
-                            commonFunctions.showInfo('Cluster has been removed: ' + selectedItem.name);
+                            $common.showInfo('Cluster has been removed: ' + selectedItem.name);
 
                             var clusters = $scope.clusters;
 
@@ -248,7 +262,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$saveA
                             }
                         })
                         .error(function (errMsg) {
-                            commonFunctions.showError(errMsg);
+                            $common.showError(errMsg);
                         });
                 }
             );

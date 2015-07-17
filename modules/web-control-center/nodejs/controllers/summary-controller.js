@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-    $scope.joinTip = commonFunctions.joinTip;
-    $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('summaryController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
+    $scope.joinTip = $common.joinTip;
+    $scope.getModel = $common.getModel;
 
     $scope.javaClassItems = [
         { label: 'snippet',value: false},
@@ -41,7 +41,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
             $scope.screenTip = data.screenTip;
         })
         .error(function (errMsg) {
-            commonFunctions.showError(errMsg);
+            $common.showError(errMsg);
         });
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
@@ -102,7 +102,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
 
                 $scope.reloadServer();
             }).error(function (errMsg) {
-                commonFunctions.showError('Failed to generate config: ' + errMsg);
+                $common.showError('Failed to generate config: ' + errMsg);
             });
     };
 
@@ -112,7 +112,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
                 $scope.xmlClient = data.xmlClient;
                 $scope.javaClient = data.javaClient;
             }).error(function (errMsg) {
-                commonFunctions.showError('Failed to generate config: ' + errMsg);
+                $common.showError('Failed to generate config: ' + errMsg);
             });
     };
 
@@ -133,7 +133,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
                 document.body.removeChild(file);
             })
             .error(function (errMsg) {
-                commonFunctions.showError('Failed to generate zip: ' + errMsg);
+                $common.showError('Failed to generate zip: ' + errMsg);
             });
     };
 

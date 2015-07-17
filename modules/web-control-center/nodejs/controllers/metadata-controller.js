@@ -15,10 +15,29 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('metadataController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-        $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
-        $scope.joinTip = commonFunctions.joinTip;
-        $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$table', function ($scope, $http, $common, $table) {
+        $scope.joinTip = $common.joinTip;
+        $scope.getModel = $common.getModel;
+
+        $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
+        $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
+        $scope.tableSimpleValid = $table.tableSimpleValid;
+        $scope.tableSimpleSave = $table.tableSimpleSave;
+        $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
+        $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
+        $scope.tableSimpleEditing = $table.tableSimpleEditing;
+        $scope.tableSimpleRemove = $table.tableSimpleRemove;
+        $scope.tableSimpleUp = $table.tableSimpleUp;
+        $scope.tableSimpleDown = $table.tableSimpleDown;
+        $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
+
+        $scope.tablePairNewItem = $table.tablePairNewItem;
+        $scope.tablePairNewItemActive = $table.tablePairNewItemActive;
+        $scope.tablePairSave = $table.tablePairSave;
+        $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
+        $scope.tablePairStartEdit = $table.tablePairStartEdit;
+        $scope.tablePairEditing = $table.tablePairEditing;
+        $scope.tablePairRemove = $table.tablePairRemove;
 
         $scope.templates = [
             {value: {kind: 'query'}, label: 'query'},
@@ -200,7 +219,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                 $scope.metadataDb = data.metadataDb;
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         // When landing on the page, get metadatas and show them.
@@ -233,7 +252,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                 }, true);
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -253,7 +272,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
             $http.post('metadata/save', item)
                 .success(function (_id) {
-                    commonFunctions.showInfo('Metadata "' + item.name + '" saved.');
+                    $common.showInfo('Metadata "' + item.name + '" saved.');
 
                     var idx = _.findIndex($scope.metadatas, function (metadata) {
                         return metadata._id == _id;
@@ -271,7 +290,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         };
 
@@ -292,160 +311,20 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                     }
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         };
 
-        $scope.tableSimple = {name: 'none', editIndex: -1};
+        $scope.tablePairValid = function (item, field, name, clsName) {
+            var model = item[field.model];
 
-        $scope.tablePair = {name: 'none', editIndex: -1};
-
-        function tableSimpleReset() {
-            $scope.tableSimple.name = 'none';
-            $scope.tableSimple.editIndex = -1;
-        }
-
-        function tablePairReset() {
-            $scope.tablePair.name = 'none';
-            $scope.tablePair.editIndex = -1;
-        }
-
-        function tableSimpleState(name, editIndex) {
-            $scope.tableSimple.name = name;
-            $scope.tableSimple.editIndex = editIndex;
-
-            tablePairReset();
-        }
-
-        function tablePairState(name, editIndex) {
-            $scope.tablePair.name = name;
-            $scope.tablePair.editIndex = editIndex;
-
-            tableSimpleReset();
-        }
-
-        $scope.tableSimpleNewItem = function (field) {
-            tableSimpleState(field.model, -1);
-        };
-
-        $scope.tablePairNewItem = function (field) {
-            tablePairState(field.model, -1);
-        };
-
-        $scope.tableSimpleNewItemActive = function (field) {
-            return $scope.tableSimple.name == field.model && $scope.tableSimple.editIndex < 0;
-        };
-
-        $scope.tablePairNewItemActive = function (field) {
-            return $scope.tablePair.name == field.model && $scope.tablePair.editIndex < 0;
-        };
-
-        $scope.tableSimpleSave = function (field, newValue, index) {
-            tableSimpleReset();
-
-            var item = $scope.backupItem;
-
-            if (index < 0) {
-                if (item[field.model])
-                    item[field.model].push(newValue);
-                else
-                    item[field.model] = [newValue];
-            }
-            else
-                item[field.model][index] = newValue;
-        };
-
-        function tablePairValid(fld, cls) {
-            if (!fld) {
-                commonFunctions.showError('Field name should be non empty!');
-
-                return false;
-            }
-
-            if (!cls) {
-                commonFunctions.showError('Field class name should be non empty!');
+            if ($common.isDefined(model) && _.findIndex(model, function (pair) {return pair.name == name}) >= 0) {
+                $common.showError('Field with such name already exists!');
 
                 return false;
             }
 
             return true;
-        }
-
-        $scope.tablePairSave = function (field, newKey, newValue, index) {
-            if (tablePairValid(newKey, newValue)) {
-                tableSimpleReset();
-                tablePairReset();
-
-                var item = $scope.backupItem;
-
-                var pair = {};
-
-                if (index < 0) {
-                    pair[field.keyName] = newKey;
-                    pair[field.valueName] = newValue;
-
-                    if (item[field.model])
-                        item[field.model].push(pair);
-                    else
-                        item[field.model] = [pair];
-                }
-                else {
-                    pair = item[field.model][index];
-
-                    pair[field.keyName] = newKey;
-                    pair[field.valueName] = newValue;
-                }
-            }
-        };
-
-        $scope.tableSimpleStartEdit = function (field, index) {
-            tableSimpleState(field.model, index);
-
-            return $scope.backupItem[field.model][index];
-        };
-
-        $scope.tablePairStartEdit = function (field, index) {
-            tablePairState(field.model, index);
-
-            return $scope.backupItem[field.model][index];
-        };
-
-        $scope.tableSimpleEditing = function (field, index) {
-            return $scope.tableSimple.name == field.model && $scope.tableSimple.editIndex == index;
-        };
-
-        $scope.tablePairEditing = function (field, index) {
-            return $scope.tablePair.name == field.model && $scope.tablePair.editIndex == index;
-        };
-
-        $scope.tableSimpleRemove = function (field, index) {
-            tableSimpleReset();
-            tablePairReset();
-
-            $scope.backupItem[field.model].splice(index, 1);
-        };
-
-        $scope.tablePairRemove = function (field, index) {
-            tableSimpleReset();
-            tablePairReset();
-
-            $scope.backupItem[field.model].splice(index, 1);
-        };
-
-        $scope.tableSimpleUp = function (field, index) {
-            tableSimpleReset();
-
-            swapSimpleItems($scope.backupItem[field.model], index, index - 1);
-        };
-
-        $scope.tableSimpleDown = function (field, index) {
-            tableSimpleReset();
-
-            swapSimpleItems($scope.backupItem[field.model], index, index + 1);
-        };
-
-        $scope.tableSimpleDownVisible = function (field, index) {
-            return index < $scope.backupItem[field.model].length - 1;
         };
 
         $scope.selectSchema = function (idx) {
