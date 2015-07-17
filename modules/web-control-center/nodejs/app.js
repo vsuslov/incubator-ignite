@@ -33,7 +33,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
-var agentManager = require('./agents/agentManager');
+var agentManager = require('./agents/agent-manager');
 
 var passport = require('passport');
 
@@ -152,6 +152,6 @@ app.use(function (err, req, res) {
     });
 });
 
-agentManager.startServer();
+agentManager.getOrCreate();
 
 module.exports = app;
