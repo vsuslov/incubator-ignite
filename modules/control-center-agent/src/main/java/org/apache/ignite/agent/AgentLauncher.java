@@ -98,13 +98,13 @@ public class AgentLauncher {
 
             WebSocketClient client = new WebSocketClient(sslCtxFactory);
 
+            client.setMaxIdleTimeout(Long.MAX_VALUE);
+
             AgentSocket agentSock = new AgentSocket(cfg, agent);
 
             client.start();
 
             try {
-                client.setMaxIdleTimeout(Long.MAX_VALUE);
-
                 client.connect(agentSock, cfg.getServerUri());
 
                 System.out.printf("Connecting to : %s%n", cfg.getServerUri());
