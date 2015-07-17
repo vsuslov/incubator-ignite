@@ -47,7 +47,7 @@ AgentServer.prototype.runCommand = function(cmd, callback) {
     if (cmd._isPost()) {
         body = cmd.postData();
 
-        headers = {'Content-Length': body.length, 'JSONObject': 'true'};
+        headers = {'Content-Length': body.length, 'JSONObject': 'application/json'};
     }
 
     this._client.invokeRest("ignite", params, function(error, code, message) {
