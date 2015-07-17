@@ -6,7 +6,7 @@
 var http = require('http');
 var config = require('../helpers/configuration-loader.js');
 var app = require('../app');
-var agentServer = require('./agents/agent-manager');
+var agentServer = require('../agents/agent-manager');
 
 var debug = require('debug')('ignite-web-control-center:server');
 
