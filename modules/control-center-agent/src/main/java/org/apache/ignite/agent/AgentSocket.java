@@ -22,6 +22,7 @@ import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
 import java.io.*;
+import java.net.*;
 import java.util.concurrent.*;
 
 /**
@@ -79,9 +80,10 @@ public class AgentSocket {
      */
     @OnWebSocketError
     public void onError(Session ses, Throwable error) {
-        System.out.printf("Error: " + ses);
-
-        error.printStackTrace();
+        if (error instanceof ConnectException)
+            System.out.println(error.getMessage());
+        else
+            error.printStackTrace();
 
         closeLatch.countDown();
     }

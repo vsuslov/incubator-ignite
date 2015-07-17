@@ -100,16 +100,20 @@ public class AgentLauncher {
 
             client.setMaxIdleTimeout(Long.MAX_VALUE);
 
-            AgentSocket agentSock = new AgentSocket(cfg, agent);
-
             client.start();
 
             try {
-                client.connect(agentSock, cfg.getServerUri());
+                while (true) {
+                    AgentSocket agentSock = new AgentSocket(cfg, agent);
 
-                System.out.printf("Connecting to : %s%n", cfg.getServerUri());
+                    System.out.printf("Connecting to : %s%n", cfg.getServerUri());
 
-                agentSock.waitForClose();
+                    client.connect(agentSock, cfg.getServerUri());
+
+                    agentSock.waitForClose();
+
+                    Thread.sleep(3000);
+                }
             }
             finally {
                 client.stop();
