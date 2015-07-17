@@ -235,8 +235,11 @@ controlCenterModule.service('$table', ['$common', function ($common) {
         tableSimpleNewItemActive: function (field) {
             return tableSimple.name == field.model && tableSimple.editIndex < 0;
         },
+        tableSimpleValid: function(item, field, newValue, index) {
+            return $common.isDefined(item) && $common.isDefined(field) && $common.isDefined(newValue);
+        },
         tableSimpleSave: function (valueValid, item, field, newValue, index) {
-            if (valueValid(newValue)) {
+            if (valueValid(item, field, newValue, index)) {
                 tableSimpleReset();
                 tablePairReset();
 
@@ -249,9 +252,6 @@ controlCenterModule.service('$table', ['$common', function ($common) {
                 else
                     model(item, field)[field.model][index] = newValue;
             }
-        },
-        tableSimpleValid: function(newValue) {
-            return true;
         },
         tableSimpleSaveVisible: function(newValue) {
             return $common.isDefined(newValue) && newValue.trim().length > 0;
@@ -289,11 +289,11 @@ controlCenterModule.service('$table', ['$common', function ($common) {
         tablePairNewItemActive: function (field) {
             return tablePair.name == field.model && tablePair.editIndex < 0;
         },
-        tablePairValid: function(item, field, newKey, newValue) {
+        tablePairValid: function(item, field, newKey, newValue, index) {
             return $common.isDefined(item) && $common.isDefined(newKey) && $common.isDefined(newValue);
         },
         tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
-            if (pairValid(item, field, newKey, newValue)) {
+            if (pairValid(item, field, newKey, newValue, index)) {
                 tableSimpleReset();
                 tablePairReset();
 

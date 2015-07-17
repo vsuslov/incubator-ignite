@@ -128,7 +128,7 @@ mixin details-row
                                 .input-tip.form-group.has-feedback
                                     input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                                     +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
-            button.btn.btn-primary.fieldButton(ng-disabled='!newValue || #{detailMdl}.indexOf(newValue) >= 0' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
+            button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
                 input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableSimpleNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)

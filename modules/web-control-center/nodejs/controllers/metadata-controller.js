@@ -21,7 +21,6 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
         $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
-        $scope.tableSimpleValid = $table.tableSimpleValid;
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
         $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
@@ -315,13 +314,43 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 });
         };
 
-        $scope.tablePairValid = function (item, field, name, clsName) {
+        $scope.tableSimpleValid = function (item, field, name, index) {
             var model = item[field.model];
 
-            if ($common.isDefined(model) && _.findIndex(model, function (pair) {return pair.name == name}) >= 0) {
-                $common.showError('Field with such name already exists!');
+            if ($common.isDefined(model)) {
+                var idx = _.indexOf(model, name);
 
-                return false;
+                // Found itself.
+                if (index > 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Field with such name already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $scope.tablePairValid = function (item, field, name, clsName, index) {
+            var model = item[field.model];
+
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (pair) {return pair.name == name});
+
+                // Found itself.
+                if (index > 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Field with such name already exists!');
+
+                    return false;
+                }
             }
 
             return true;

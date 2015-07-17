@@ -21,7 +21,6 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
         $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
         $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
-        $scope.tableSimpleValid = $table.tableSimpleValid;
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
         $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
@@ -96,6 +95,34 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'},
             {value: 'JdkMarshaller', label: 'JdkMarshaller'}
         ];
+
+        $scope.tableSimpleValid = function (item, field, val, index) {
+            var model = $common.getModel(item, field)[field.model];
+
+            if ($common.isDefined(model)) {
+                var idx = _.indexOf(model, val);
+
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    var msg = 'Such IP address already exists!';
+
+                    if (field.model == 'regions')
+                        msg = 'Such region already exists!';
+                    if (field.model == 'zones')
+                        msg = 'Such zone already exists!';
+
+                    $common.showError(msg);
+
+                    return false;
+                }
+            }
+
+            return true;
+        };
 
         $scope.clusters = [];
 

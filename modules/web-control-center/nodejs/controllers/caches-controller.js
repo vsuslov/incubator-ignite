@@ -21,7 +21,6 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
         $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
-        $scope.tableSimpleValid = $table.tableSimpleValid;
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
         $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
@@ -127,13 +126,43 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             return false;
         };
 
-        $scope.tablePairValid = function (item, field, keyCls, valCls) {
+        $scope.tableSimpleValid = function (item, field, fx, index) {
             var model = item[field.model];
 
-            if ($common.isDefined(model) && _.findIndex(model, function (pair) {return pair.keyClass == keyCls}) >= 0) {
-                $common.showError('Indexed type with such key class already exists!');
+            if ($common.isDefined(model)) {
+                var idx = _.indexOf(model, fx);
 
-                return false;
+                // Found itself.
+                if (index > 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('SQL function such class name already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $scope.tablePairValid = function (item, field, keyCls, valCls, index) {
+            var model = item[field.model];
+
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (pair) {return pair.keyClass == keyCls});
+
+                // Found itself.
+                if (index > 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Indexed type with such key class already exists!');
+
+                    return false;
+                }
             }
 
             return true;
