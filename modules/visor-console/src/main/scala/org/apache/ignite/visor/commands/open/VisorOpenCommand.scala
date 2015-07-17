@@ -25,9 +25,13 @@ import org.apache.ignite.internal.IgniteComponentType._
 import org.apache.ignite.internal.IgniteEx
 import org.apache.ignite.internal.util.scala.impl
 import org.apache.ignite.internal.util.spring.IgniteSpringHelper
+import org.apache.ignite.internal.util.typedef.X
 import org.apache.ignite.internal.util.{IgniteUtils => U}
+import org.apache.ignite.internal.visor.util.VisorTaskUtils._
 import org.apache.ignite.logger.NullLogger
+import org.apache.ignite.spi.IgniteSpiException
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
 import org.apache.ignite.visor.commands.common.{VisorConsoleCommand, VisorTextTable}
 import org.apache.ignite.visor.visor._
 import org.apache.ignite.visor.{VisorTag, visor}
@@ -230,6 +234,10 @@ class VisorOpenCommand extends VisorConsoleCommand {
 
         val shutdownHook = IgniteSystemProperties.getString(IGNITE_NO_SHUTDOWN_HOOK, "false")
 
+        // Make sure visor starts in client mode.
+        cfg.setClientMode(true)
+        cfg.getDiscoverySpi.asInstanceOf[TcpDiscoverySpi].setJoinTimeout(10000)
+
         // Make sure Visor console starts as daemon node.
         Ignition.setDaemon(true)
 
@@ -255,6 +263,11 @@ class VisorOpenCommand extends VisorConsoleCommand {
             catch {
                 case _: IllegalStateException =>
                     throw new IgniteException("Named grid unavailable: " + startedGridName)
+                case e: Throwable =>
+                    if (X.hasCause(e, classOf[IgniteSpiException]) && joinTimedOut(X.cause(e, classOf[IgniteSpiException]).getMessage))
+                        throw new IgniteException("Visor console failed to connect to any of server nodes", e)
+                    else
+                        throw e
             }
 
         visor.open(startedGridName, cfgPath)
