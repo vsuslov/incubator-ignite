@@ -15,39 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.json;
+package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 
+import org.apache.ignite.internal.processors.scripting.*;
+import org.apache.ignite.json.*;
+
+import javax.json.*;
 import java.util.*;
 
 /**
- * JSON cache object.
+ * Converter for glassfish objects.
  */
-public class JSONCacheObject extends HashMap<Object, Object> {
-    /** */
-    private static final long serialVersionUID = 0L;
-
-    /**
-     * Empty constructor.
-     */
-    public JSONCacheObject() {
-        // No-op.
-    }
-
-    /**
-     * @param key Field name.
-     * @return Field value.
-     */
-    public Object getField(Object key) {
-        return get(key);
-    }
-
-    /**
-     * Convert JSON object to RestJSONCacheObject
-     *
-     * @param o Object to convert.
-     * @return Converted object.
-     */
-    public static Object toSimpleObject(Object o) {
+public class RestGlassFishScriptingConverter extends IgniteScriptingConverter {
+    /** {@inheritDoc} */
+    @Override public Object toJavaObject(Object o) {
         if (o == null)
             return null;
 
@@ -57,7 +38,7 @@ public class JSONCacheObject extends HashMap<Object, Object> {
             JSONCacheObject res = new JSONCacheObject();
 
             for (Object key : o1.keySet())
-                res.put(toSimpleObject(key), toSimpleObject(o1.get(key)));
+                res.put(toJavaObject(key), toJavaObject(o1.get(key)));
 
             return res;
         }
@@ -67,29 +48,21 @@ public class JSONCacheObject extends HashMap<Object, Object> {
             List<Object> val = new ArrayList<>();
 
             for (Object v : o1)
-                val.add(toSimpleObject(v));
+                val.add(toJavaObject(v));
 
             return val;
         }
-        else if (o.getClass().isArray()) {
-            Object[] o1 = (Object[]) o;
-
-            List<Object> val = new ArrayList<>();
-
-            for (Object v : o1)
-                val.add(toSimpleObject(v));
-
-            return val;
-        }
+        else if (o instanceof JsonString)
+            return ((JsonString) o).getString();
+        else if (o instanceof JsonNumber)
+            return ((JsonNumber) o).intValue();
+        else if (o.equals(JsonValue.FALSE))
+            return false;
+        else if (o.equals(JsonValue.TRUE))
+            return true;
+        else if (o.equals(JsonValue.NULL))
+            return null;
 
         return o;
-    }
-
-    /** {@inheritDoc} */
-    @Override public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof JSONCacheObject))
-            return false;
-
-        return super.equals(obj);
     }
 }

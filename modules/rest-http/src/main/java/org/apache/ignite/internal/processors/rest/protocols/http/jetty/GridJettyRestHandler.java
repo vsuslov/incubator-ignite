@@ -20,16 +20,17 @@ package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 import net.sf.json.*;
 import net.sf.json.processors.*;
 import org.apache.ignite.*;
+import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.request.*;
-import org.apache.ignite.internal.processors.scripting.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
 import org.apache.ignite.plugin.security.*;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.*;
+import org.glassfish.json.*;
 import org.jetbrains.annotations.*;
 
 import javax.servlet.*;
@@ -72,18 +73,18 @@ public class GridJettyRestHandler extends AbstractHandler {
     /** Authentication checker. */
     private final IgniteClosure<String, Boolean> authChecker;
 
-    /** Ignite scripting processor. */
-    IgniteScriptingProcessor proc;
+    /** Grid context. */
+    GridKernalContext ctx;
 
     /**
      * Creates new HTTP requests handler.
      *
-     * @param proc Scripting processor.
+     * @param ctx Grid context.
      * @param hnd Handler.
      * @param authChecker Authentication checking closure.
      * @param log Logger.
      */
-    GridJettyRestHandler(IgniteScriptingProcessor proc, GridRestProtocolHandler hnd,
+    GridJettyRestHandler(GridKernalContext ctx, GridRestProtocolHandler hnd,
         IgniteClosure<String, Boolean> authChecker, IgniteLogger log) {
         assert hnd != null;
         assert log != null;
@@ -91,7 +92,7 @@ public class GridJettyRestHandler extends AbstractHandler {
         this.hnd = hnd;
         this.log = log;
         this.authChecker = authChecker;
-        this.proc = proc;
+        this.ctx = ctx;
 
         // Init default page and favicon.
         try {
@@ -329,7 +330,8 @@ public class GridJettyRestHandler extends AbstractHandler {
      */
     private void createResponse(HttpServletRequest req, GridRestCommand cmd,
         GridRestResponse cmdRes) {
-        if (cmdRes.getResponse() == null || req.getHeader("JSONObject") == null)
+        if (cmdRes.getResponse() == null || !(req.getHeader("Content-Type") != null &&
+            req.getHeader("Content-Type").contains("json")))
             return;
 
         if (cmd == CACHE_GET_ALL) {
@@ -338,7 +340,7 @@ public class GridJettyRestHandler extends AbstractHandler {
             List<Object> res = new ArrayList<>();
 
             for (Object k : o.keySet())
-                res.add(proc.createScriptingEntry(k, o.get(k)));
+                res.add(ctx.scripting().createScriptingEntry(k, o.get(k)));
 
             cmdRes.setResponse(res);
 
@@ -414,18 +416,18 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 String cacheName = (String)params.get("cacheName");
 
-                if (req.getHeader("JSONObject") != null) {
-                    Object o = proc.toJavaObject(parseRequest(req));
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Object o = ctx.scripting().toJavaObject(parseRequest(req));
 
                     Map<Object, Object> map = new HashMap<>();
 
                     switch (cmd) {
                         case CACHE_PUT_ALL: {
-                            List entries = (List)proc.getField("entries", o);
+                            List entries = (List)ctx.scripting().getField("entries", o);
 
                             for (Object entry : entries) {
-                                Object key = proc.getField("key", entry);
-                                Object val = proc.getField("value", entry);
+                                Object key = ctx.scripting().getField("key", entry);
+                                Object val = ctx.scripting().getField("value", entry);
 
                                 map.put(key, val);
                             }
@@ -440,9 +442,9 @@ public class GridJettyRestHandler extends AbstractHandler {
                         case CACHE_GET_ALL:
                         case CACHE_REMOVE_ALL:
                         case CACHE_CONTAINS_KEYS: {
-                            Object cacheObj = proc.toJavaObject(o);
+                            Object cacheObj = ctx.scripting().toJavaObject(o);
 
-                            List keys = (List)proc.getField("keys", cacheObj);
+                            List keys = (List)ctx.scripting().getField("keys", cacheObj);
 
                             for (Object key : keys)
                                 map.put(key, null);
@@ -466,13 +468,13 @@ public class GridJettyRestHandler extends AbstractHandler {
                         case CACHE_REPLACE:
                         case CACHE_GET_AND_REPLACE:
                         case CACHE_REPLACE_VALUE: {
-                            Object cacheObj = proc.toJavaObject(o);
+                            Object cacheObj = ctx.scripting().toJavaObject(o);
 
                             restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
 
-                            restReq0.key(proc.getField("key", cacheObj));
-                            restReq0.value(proc.getField("val", cacheObj));
-                            restReq0.value2(proc.getField("oldVal", cacheObj));
+                            restReq0.key(ctx.scripting().getField("key", cacheObj));
+                            restReq0.value(ctx.scripting().getField("val", cacheObj));
+                            restReq0.value2(ctx.scripting().getField("oldVal", cacheObj));
                             break;
                         }
 
@@ -578,8 +580,8 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 restReq0.script((String)params.get("func"));
 
-                JSONObject o = parseRequest(req);
-                restReq0.argument(o.get("arg"));
+                Map o = parseRequest(req);
+                restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
 
                 restReq = restReq0;
 
@@ -592,10 +594,10 @@ public class GridJettyRestHandler extends AbstractHandler {
                 restReq0.script((String)params.get("func"));
                 restReq0.cacheName((String) params.get("cacheName"));
 
-                JSONObject o = parseRequest(req);
-                restReq0.argument(o.get("arg"));
+                Map o = parseRequest(req);
+                restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
 
-                Object cacheObj = proc.toJavaObject(o.get("key"));
+                Object cacheObj = ctx.scripting().toJavaObject(o.get("key"));
                 restReq0.affinityKey(cacheObj);
 
                 restReq = restReq0;
@@ -608,8 +610,8 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 restReq0.mapFunction((String) params.get("map"));
 
-                JSONObject o = parseRequest(req);
-                restReq0.argument(o.get("arg"));
+                Map o = parseRequest(req);
+                restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
 
                 restReq0.reduceFunction((String) params.get("reduce"));
 
@@ -624,9 +626,8 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 restReq0.sqlQuery((String)params.get("qry"));
 
-                JSONObject o = parseRequest(req);
-
-                List args = (List)o.get("arg");
+                Map o = parseRequest(req);
+                List args = (List)ctx.scripting().toJavaObject(o.get("arg"));
 
                 restReq0.arguments(args.toArray());
                 restReq0.typeName((String)params.get("type"));
@@ -851,21 +852,12 @@ public class GridJettyRestHandler extends AbstractHandler {
      * @return JSON object.
      * @throws IgniteCheckedException If failed.
      */
-    private JSONObject parseRequest(HttpServletRequest req) throws IgniteCheckedException{
-        StringBuilder builder = new StringBuilder();
-
-        Scanner reader;
-
+    private Map parseRequest(HttpServletRequest req) throws IgniteCheckedException{
         try {
-            reader = new Scanner(req.getInputStream());
+            return new JsonProviderImpl().createReader(req.getInputStream()).readObject();
         }
         catch (IOException e) {
             throw new IgniteCheckedException(e);
         }
-
-        while (reader.hasNext())
-            builder.append(reader.nextLine() + "\n");
-
-        return JSONObject.fromObject(builder.toString());
     }
 }
