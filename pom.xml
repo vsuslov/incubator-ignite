@@ -67,7 +67,6 @@
         <module>modules/log4j</module>
         <module>modules/slf4j</module>
         <module>modules/jcl</module>
-        <module>modules/webconfig</module>
         <module>modules/codegen</module>
         <module>modules/gce</module>
         <module>modules/cloud</module>
