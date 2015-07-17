@@ -38,27 +38,48 @@ public class ContextTestTmp {
     public static void main(String[] args) throws Exception {
         final Level maxLevel = Level.DEBUG;
 
-        final URL cfgUrl = U.resolveIgniteUrl("config/ignite-log4j2.xml");
+        final URL cfgUrl = U.resolveIgniteUrl("modules/core/src/test/config/log4j2-verbose-test.xml");
 
         Configurator.initialize(LogManager.ROOT_LOGGER_NAME, cfgUrl.toString());
 
-//        addConsoleAppender(LogManager.getRootLogger(), Level.INFO);
-//
-//        logTest();
-
-//        Appender appender = FileAppender.createAppender(U.getIgniteHome() + "/work/log/test.log", "false", "false", "File", "true",
-//            "false", "false", "4000", PatternLayout.createDefaultLayout(), null, "false", null,
-//            ((LoggerContext) LogManager.getContext(false)).getConfiguration());
-//
-//        addAppender(LogManager.getRootLogger(), appender, Level.INFO);
-
-        System.out.println(((org.apache.logging.log4j.core.Logger)LogManager.getRootLogger()).getAppenders());
-
-        Configuration cfg = ((LoggerContext)LogManager.getContext(false)).getConfiguration();
-        System.out.println(cfg.getAppenders().containsKey("Console"));
-//        System.out.println(cfg.getA.containsKey("Console"));
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        AbstractConfiguration cfg = (AbstractConfiguration) ctx.getConfiguration();
+        ConsoleAppender appender = ConsoleAppender.createDefaultAppenderForLayout(PatternLayout.createDefaultLayout());
+        appender.start();
+        cfg.addAppender(appender);
+        AppenderRef[] refs = new AppenderRef[] { AppenderRef.createAppenderRef(appender.getName(), null, null) };
+        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.ALL, LogManager.ROOT_LOGGER_NAME, "true", refs, null, cfg, null);
+        loggerConfig.addAppender(appender, null, null);
+        cfg.addLogger(LogManager.ROOT_LOGGER_NAME, loggerConfig);
+        ctx.updateLoggers();
 
         logTest();
+
+        System.out.println("FInish");
+    }
+
+    private static void doIt(org.apache.logging.log4j.core.Logger log){
+        ConsoleAppender console = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
+            "SYSTEM_OUT", "consoleApp", null, null);
+
+        final LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
+
+        final Configuration cfg = ctx.getConfiguration();
+
+        console.start();
+
+        cfg.addAppender(console);
+
+        AppenderRef ref = AppenderRef.createAppenderRef("consoleApp", null, null);
+
+        LoggerConfig loggerConfig = LoggerConfig.createLogger("true", Level.ALL, LogManager.ROOT_LOGGER_NAME,
+            "true", new AppenderRef[] {ref}, null, cfg, null );
+
+        loggerConfig.addAppender(console, null, null);
+
+        cfg.addLogger(LogManager.ROOT_LOGGER_NAME, loggerConfig);
+
+        ctx.updateLoggers();
     }
 
     private static void logTest() {
@@ -73,37 +94,9 @@ public class ContextTestTmp {
     }
 
     private static void addConsoleAppender(final Logger logger, final Level maxLevel) {
-        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-
-        final Configuration cfg = ctx.getConfiguration();
-
-//        for (Appender a : loggerConfig.getAppenders().values()) {
-//            if (a instanceof ConsoleAppender)
-//                return;
-//        }
-
         ConsoleAppender appender = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
             "SYSTEM_OUT", CONSOLE_APPENDER, null, null);
 
-        appender.start();
-
-        cfg.addAppender(appender);
-
-        LoggerConfig oldLogCfg = cfg.getLoggerConfig(logger.getName());
-
-        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, maxLevel, null);
-
-        LoggerConfig newLogCfg = LoggerConfig.createLogger("false", oldLogCfg.getLevel(),
-            oldLogCfg.getName(), "true", new AppenderRef[]{ref}, null, cfg, null);
-
-        newLogCfg.addAppender(appender, maxLevel, null);
-
-        cfg.addLogger(logger.getName(), oldLogCfg);
-
-        ctx.updateLoggers();
-    }
-
-    private static void addAppender(final Logger logger, Appender appender, final Level maxLevel) {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         final Configuration cfg = ctx.getConfiguration();
@@ -114,7 +107,7 @@ public class ContextTestTmp {
 
         LoggerConfig loggerConfig = cfg.getLoggerConfig(logger.getName());
 
-        AppenderRef ref = AppenderRef.createAppenderRef("File", maxLevel, null);
+        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, maxLevel, null);
 
         loggerConfig.getAppenderRefs().add(ref);
 
