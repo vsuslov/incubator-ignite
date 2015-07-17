@@ -29,11 +29,13 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.*;
 import org.apache.logging.log4j.core.appender.routing.*;
 import org.apache.logging.log4j.core.config.*;
+import org.apache.logging.log4j.core.layout.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
+import java.nio.charset.*;
 import java.util.*;
 
 import static org.apache.ignite.IgniteSystemProperties.*;
@@ -72,6 +74,9 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     public static final String NODE_ID = "nodeId";
 
     /** */
+    public static final String CONSOLE_APPENDER = "autoConfiguredIgniteConsoleAppender";
+
+    /** */
     private static volatile boolean inited;
 
     /** */
@@ -85,6 +90,8 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
     private Logger impl;
 
+    private volatile Logger consoleLogger;
+
     /** Quiet flag. */
     private final boolean quiet;
 
@@ -95,9 +102,11 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      * Creates new logger with given implementation.
      *
      * @param impl Log4j implementation to use.
+     * @param consoleLogger
      */
-    public Log4J2Logger(final Logger impl) {
+    public Log4J2Logger(final Logger impl, Logger consoleLogger) {
         assert impl != null;
+        this.consoleLogger = consoleLogger;
 
         addConsoleAppenderIfNeeded(new C1<Boolean, Logger>() {
             @Override public Logger apply(Boolean init) {
@@ -303,75 +312,112 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
                 // User configured console appender, but log is quiet.
                 quiet = false;
 
-//            if (!consoleAppenderFound && !quiet && Boolean.valueOf(System.getProperty(IGNITE_CONSOLE_APPENDER, "true"))) {
-//                // Console appender not found => we've looked through all categories up to root.
-//                assert rootLogger != null;
-//
-//                // User launched ignite in verbose mode and did not add console appender with INFO level
-//                // to configuration and did not set IGNITE_CONSOLE_APPENDER to false.
-//                if (errAppender != null) {
-//                    rootLogger.addAppender(createConsoleAppender(Level.INFO));
-//
-//                    // TODO implement.
-////                    if (errAppender.getThreshold() == Level.ERROR)
-////                        errAppender.setThreshold(Level.WARN);
-////                }
-////                else
-////                    // No error console appender => create console appender with no level limit.
-////                    rootLogger.addAppender(createConsoleAppender(Level.OFF));
-////
-//////                if (logLevel != null)
-//////                    impl.setLevel(logLevel);
-//                }
-//                else
-//                    // No error console appender => create console appender with no level limit.
-//                    rootLogger.addAppender(createConsoleAppender(Level.OFF));
-//
-//                if (logLevel != null)
-//                    impl.setLevel(logLevel);
-//            }
+            if (!consoleAppenderFound && !quiet && Boolean.valueOf(System.getProperty(IGNITE_CONSOLE_APPENDER, "true"))) {
+                // Console appender not found => we've looked through all categories up to root.
+                assert rootLogger != null;
+
+                // User launched ignite in verbose mode and did not add console appender with INFO level
+                // to configuration and did not set IGNITE_CONSOLE_APPENDER to false.
+                if (errAppender != null) {
+                    consoleLogger = createConsoleLogger(rootLogger, Level.INFO);
+
+//                    if (errAppender.getThreshold() == Level.ERROR)
+//                        errAppender.setThreshold(Level.WARN);
+                }
+                else
+                    // No error console appender => create console appender with no level limit.
+                    consoleLogger = createConsoleLogger(rootLogger, Level.ALL);
+            }
 
             quiet0 = quiet;
             inited = true;
         }
     }
 
-//    /**
-//     * Creates console appender with some reasonable default logging settings.
-//     *
-//     * @param maxLevel Max logging level.
-//     * @return New console appender.
-//     */
-//    // TODO review.
-//    private Appender createConsoleAppender(Level maxLevel) {
-//        ConsoleAppender console = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
-//            "SYSTEM_OUT", "console", null, null);
-//
-//        final LoggerContext ctx = new LoggerContext("console");
+//    private void createConsoleLogger(Logger logger, Level maxLevel) {
+//        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 //
 //        final Configuration cfg = ctx.getConfiguration();
 //
-//        console.start();
+//        ConsoleAppender appender = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
+//            "SYSTEM_OUT", CONSOLE_APPENDER, null, null);
 //
-//        cfg.addAppender(console);
+//        appender.start();
 //
-//        AppenderRef ref = AppenderRef.createAppenderRef("console", null, null);
+//        cfg.addAppender(appender);
 //
-//        AppenderRef[] refs = new AppenderRef[] {ref};
+//        LoggerConfig oldLogCfg = cfg.getLoggerConfig(logger.getName());
 //
-//        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.ALL, LogManager.ROOT_LOGGER_NAME,
-//            "true", refs, null, cfg, null);
+//        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, Level.ALL, null);
 //
-//        loggerConfig.addAppender(console, null, null);
+//        LoggerConfig newLogCfg = LoggerConfig.createLogger("false", oldLogCfg.getLevel(),
+//            oldLogCfg.getName(), "true", new AppenderRef[]{ref}, null, cfg, null);
 //
-//        cfg.addLogger("org.apache.logging.log4j", loggerConfig);
+//        newLogCfg.addAppender(appender, Level.ALL, null);
+//
+//        cfg.addLogger(logger.getName(), oldLogCfg);
+//
+//        ctx.reconfigure();
+//        ctx.updateLoggers();
+//    }
+
+    /**
+     * Creates console appender with some reasonable default logging settings.
+     *
+     * @param maxLevel Max logging level.
+     * @return New console appender.
+     */
+    // TODO review.
+//    private void createConsoleLogger(Logger log, Level maxLevel) {
+//        ConsoleAppender consoleApp = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
+//            "SYSTEM_OUT", CONSOLE_APPENDER, null, null);
+//
+//        final LoggerContext ctx = log.getContext();
+//
+//        final Configuration cfg = ctx.getConfiguration();
+//
+//        consoleApp.start();
+//
+//        cfg.addAppender(consoleApp);
+//
+//        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, null, null);
+//
+//        LoggerConfig logCfg = LoggerConfig.createLogger("true", null, log.getName(),
+//            "true", new AppenderRef[] {ref}, null, cfg, null);
+//
+//        logCfg.getAppenderRefs().add(ref);
+//
+//        cfg.addLogger(log.getName(), logCfg);
 //
 //        ctx.updateLoggers();
 //
-//        ctx.getLogger("console").error("");
-//
-//        return console;
+//        return consoleApp;
 //    }
+    /**
+     * Creates console appender with some reasonable default logging settings.
+     *
+     * @param maxLevel Max logging level.
+     * @return New console appender.
+     */
+    // TODO review.
+    private Logger createConsoleLogger(Logger log, Level maxLevel) {
+        LoggerContext context= (LoggerContext) LogManager.getContext();
+        Configuration config= context.getConfiguration();
+
+        PatternLayout layout= PatternLayout.createLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n", null, null, Charset.defaultCharset(),false,false,null,null);
+        Appender appender=ConsoleAppender.createAppender(layout, null, null, "CONSOLE_APPENDER", null, null);
+        appender.start();
+        AppenderRef ref= AppenderRef.createAppenderRef("CONSOLE_APPENDER",null,null);
+        AppenderRef[] refs = new AppenderRef[] {ref};
+        LoggerConfig loggerConfig= LoggerConfig.createLogger("false", Level.INFO,"CONSOLE_LOGGER","CONSOLE_LOGGER",refs,null,null,null);
+        loggerConfig.addAppender(appender,null,null);
+
+        config.addAppender(appender);
+        config.addLogger("CONSOLE_LOGGER", loggerConfig);
+        context.updateLoggers(config);
+
+        return  (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER");
+    }
 
     /** {@inheritDoc} */
     @Override public void setNodeId(UUID nodeId) {
@@ -404,12 +450,12 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      */
     @Override public Log4J2Logger getLogger(Object ctgr) {
         if (ctgr == null)
-            return new Log4J2Logger((Logger)LogManager.getRootLogger());
+            return new Log4J2Logger((Logger)LogManager.getRootLogger(), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
 
         if (ctgr instanceof Class)
-            return new Log4J2Logger((Logger)LogManager.getLogger(((Class<?>)ctgr).getName()));
+            return new Log4J2Logger((Logger)LogManager.getLogger(((Class<?>)ctgr).getName()), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
 
-        return new Log4J2Logger((Logger)LogManager.getLogger(ctgr.toString()));
+        return new Log4J2Logger((Logger)LogManager.getLogger(ctgr.toString()), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
     }
 
     /** {@inheritDoc} */
@@ -418,6 +464,8 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
             warning("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
 
         impl.trace(msg);
+
+        if (consoleLogger != null) consoleLogger.trace(msg);
     }
 
     /** {@inheritDoc} */
@@ -426,6 +474,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
             warning("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
 
         impl.debug(msg);
+        if (consoleLogger != null) consoleLogger.debug(msg);
     }
 
     /** {@inheritDoc} */
@@ -434,26 +483,32 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
             warning("Logging at INFO level without checking if INFO level is enabled: " + msg);
 
         impl.info(msg);
+
+        if (consoleLogger != null) consoleLogger.info(msg);
     }
 
     /** {@inheritDoc} */
     @Override public void warning(String msg) {
         impl.warn(msg);
+        if (LogManager.getContext().getLogger("CONSOLE_LOGGER") != null) LogManager.getContext().getLogger("CONSOLE_LOGGER").warn(msg);
     }
 
     /** {@inheritDoc} */
     @Override public void warning(String msg, @Nullable Throwable e) {
         impl.warn(msg, e);
+        if (consoleLogger != null) consoleLogger.warn(msg, e);
     }
 
     /** {@inheritDoc} */
     @Override public void error(String msg) {
         impl.error(msg);
+        if (consoleLogger != null) consoleLogger.error(msg);
     }
 
     /** {@inheritDoc} */
     @Override public void error(String msg, @Nullable Throwable e) {
         impl.error(msg, e);
+        if (consoleLogger != null) consoleLogger.error(msg, e);
     }
 
     /** {@inheritDoc} */

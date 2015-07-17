@@ -26,6 +26,7 @@ import org.apache.logging.log4j.core.config.*;
 import org.apache.logging.log4j.core.layout.*;
 
 import java.net.*;
+import java.nio.charset.*;
 
 /**
  * TODO: Add class description.
@@ -40,20 +41,30 @@ public class ContextTestTmp {
 
         final URL cfgUrl = U.resolveIgniteUrl("modules/core/src/test/config/log4j2-verbose-test.xml");
 
-        Configurator.initialize(LogManager.ROOT_LOGGER_NAME, cfgUrl.toString());
+        String loggerName = LogManager.ROOT_LOGGER_NAME;
 
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        AbstractConfiguration cfg = (AbstractConfiguration) ctx.getConfiguration();
-        ConsoleAppender appender = ConsoleAppender.createDefaultAppenderForLayout(PatternLayout.createDefaultLayout());
+        Configurator.initialize(loggerName, cfgUrl.toString());
+
+        LoggerContext context= (LoggerContext) LogManager.getContext();
+        Configuration config= context.getConfiguration();
+
+        PatternLayout layout= PatternLayout.createLayout("%m%n", null, null, Charset.defaultCharset(),false,false,null,null);
+        Appender appender=ConsoleAppender.createAppender(layout, null, null, "CONSOLE_APPENDER", null, null);
         appender.start();
-        cfg.addAppender(appender);
-        AppenderRef[] refs = new AppenderRef[] { AppenderRef.createAppenderRef(appender.getName(), null, null) };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.ALL, LogManager.ROOT_LOGGER_NAME, "true", refs, null, cfg, null);
-        loggerConfig.addAppender(appender, null, null);
-        cfg.addLogger(LogManager.ROOT_LOGGER_NAME, loggerConfig);
-        ctx.updateLoggers();
+        AppenderRef ref= AppenderRef.createAppenderRef("CONSOLE_APPENDER",null,null);
+        AppenderRef[] refs = new AppenderRef[] {ref};
+        LoggerConfig loggerConfig= LoggerConfig.createLogger("false", Level.INFO,"CONSOLE_LOGGER","CONSOLE_LOGGER",refs,null,null,null);
+        loggerConfig.addAppender(appender,null,null);
 
-        logTest();
+        config.addAppender(appender);
+        config.addLogger("CONSOLE_LOGGER", loggerConfig);
+        context.updateLoggers(config);
+
+        Logger logger=LogManager.getContext().getLogger("CONSOLE_LOGGER");
+        logger.info("HELLO_WORLD");
+
+        logTest(logger);
+        logTest(LogManager.getRootLogger());
 
         System.out.println("FInish");
     }
@@ -82,15 +93,15 @@ public class ContextTestTmp {
         ctx.updateLoggers();
     }
 
-    private static void logTest() {
-        LogManager.getRootLogger().log(Level.OFF, "*******************");
-        LogManager.getRootLogger().log(Level.FATAL, "*******************");
-        LogManager.getRootLogger().log(Level.ERROR, "*******************");
-        LogManager.getRootLogger().log(Level.WARN, "*******************");
-        LogManager.getRootLogger().log(Level.INFO, "*******************");
-        LogManager.getRootLogger().log(Level.DEBUG, "*******************");
-        LogManager.getRootLogger().log(Level.TRACE, "*******************");
-        LogManager.getRootLogger().log(Level.ALL, "*******************");
+    private static void logTest(Logger logger) {
+        logger.log(Level.OFF, "*******************");
+        logger.log(Level.FATAL, "*******************");
+        logger.log(Level.ERROR, "*******************");
+        logger.log(Level.WARN, "*******************");
+        logger.log(Level.INFO, "*******************");
+        logger.log(Level.DEBUG, "*******************");
+        logger.log(Level.TRACE, "*******************");
+        logger.log(Level.ALL, "*******************");
     }
 
     private static void addConsoleAppender(final Logger logger, final Level maxLevel) {

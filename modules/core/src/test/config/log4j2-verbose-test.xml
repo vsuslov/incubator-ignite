@@ -18,26 +18,26 @@
 -->
 
 <Configuration>
-    <!--<Appenders>-->
-        <!--<Routing name="FILE">-->
-            <!--<Routes pattern="$${sys:nodeId}">-->
-                <!--<Route>-->
-                    <!--<RollingFile name="Rolling-${sys:nodeId}" fileName="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}.log"-->
-                                 <!--filePattern="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">-->
-                        <!--<PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>-->
-                        <!--<Policies>-->
-                            <!--<TimeBasedTriggeringPolicy interval="6" modulate="true" />-->
-                            <!--<SizeBasedTriggeringPolicy size="10 MB" />-->
-                        <!--</Policies>-->
-                    <!--</RollingFile>-->
-                <!--</Route>-->
-            <!--</Routes>-->
-        <!--</Routing>-->
-    <!--</Appenders>-->
+    <Appenders>
+        <Routing name="FILE">
+            <Routes pattern="$${sys:nodeId}">
+                <Route>
+                    <RollingFile name="Rolling-${sys:nodeId}" fileName="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}.log"
+                                 filePattern="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
+                        <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="6" modulate="true" />
+                            <SizeBasedTriggeringPolicy size="10 MB" />
+                        </Policies>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+    </Appenders>
 
-    <!--<Loggers>-->
-        <!--<Root level="INFO">-->
-            <!--&lt;!&ndash;<AppenderRef ref="FILE" level="DEBUG"/>&ndash;&gt;-->
-        <!--</Root>-->
-    <!--</Loggers>-->
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="FILE" level="DEBUG"/>
+        </Root>
+    </Loggers>
 </Configuration>

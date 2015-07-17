@@ -23,13 +23,13 @@ import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.logger.*;
+import org.apache.ignite.spi.discovery.tcp.*;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
 import org.apache.ignite.testframework.*;
 import org.apache.ignite.testframework.junits.common.*;
 
 import java.io.*;
 import java.util.*;
-
-import static org.apache.ignite.IgniteSystemProperties.*;
 
 /**
  * Grid Log4j2 SPI test.
@@ -38,6 +38,9 @@ import static org.apache.ignite.IgniteSystemProperties.*;
 public class GridLog4j2SelfTest extends TestCase {
     /** */
     public static final String LOG_PATH_TEST = "modules/core/src/test/config/log4j2-test.xml";
+
+    /** */
+    public static final String LOG_PATH_VERBOSE_TEST = "modules/core/src/test/config/log4j2-verbose-test.xml";
 
     /** */
     public static final String LOG_PATH_MAIN = "config/ignite-log4j2.xml";
@@ -115,19 +118,45 @@ public class GridLog4j2SelfTest extends TestCase {
      * @throws Exception If failed.
      */
     public void testVerboseMode() throws Exception {
-        System.setProperty(IGNITE_QUIET, "false");
+        final PrintStream backupSysOut = System.out;
+        final ByteArrayOutputStream testOut = new ByteArrayOutputStream();
 
-//        try (Ignite ignite = G.start(getConfiguration("grid" + id))) {
-//            id8 = U.id8(ignite.cluster().localNode().id());
-//
-//            String logPath = "work/log/ignite-" + id8 + ".log";
-//
-//            logFile = U.resolveIgnitePath(logPath);
-//            assertNotNull("Failed to resolve path: " + logPath, logFile);
-//            assertTrue("Log file does not exist: " + logFile, logFile.exists());
-//
-//            assertEquals(logFile.getAbsolutePath(), ignite.log().fileName());
-//        }
+        try {
+            // Redirect the default output to a stream.
+            System.setOut(new PrintStream(testOut));
+
+            System.setProperty("IGNITE_QUIET", "false");
+
+            TcpDiscoverySpi disco = new TcpDiscoverySpi();
+
+            disco.setIpFinder(new TcpDiscoveryVmIpFinder(false) {{
+                setAddresses(Collections.singleton("127.0.0.1:47500..47509"));
+            }});
+
+            IgniteConfiguration cfg = new IgniteConfiguration()
+                .setGridLogger(new Log4J2Logger(LOG_PATH_VERBOSE_TEST))
+                .setConnectorConfiguration(null)
+                .setDiscoverySpi(disco);
+
+            try (Ignite ignite = G.start(cfg)) {
+                String testInfoMsg = "******* Hello Tester! INFO message *******";
+                String testDebugMsg = "******* Hello Tester! DEBUG message *******";
+
+                ignite.log().info(testInfoMsg);
+                ignite.log().debug(testDebugMsg);
+
+                String consoleOut = testOut.toString();
+
+                assertTrue(consoleOut.contains(testInfoMsg));
+                assertTrue(consoleOut.contains(testDebugMsg));
+            }
+        }
+        finally {
+            // Restore the stdout and write the String to stdout.
+            System.setOut(backupSysOut);
+
+            System.out.println(testOut.toString());
+        }
     }
 
     /**
