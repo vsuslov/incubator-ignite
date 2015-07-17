@@ -103,6 +103,8 @@ public class AgentLauncher {
             client.start();
 
             try {
+                client.setMaxIdleTimeout(Long.MAX_VALUE);
+
                 client.connect(agentSock, cfg.getServerUri());
 
                 System.out.printf("Connecting to : %s%n", cfg.getServerUri());
