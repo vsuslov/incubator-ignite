@@ -90,7 +90,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
     private Logger impl;
 
-    private volatile Logger consoleLogger;
+    private volatile Logger consoleLog;
 
     /** Quiet flag. */
     private final boolean quiet;
@@ -102,17 +102,12 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      * Creates new logger with given implementation.
      *
      * @param impl Log4j implementation to use.
-     * @param consoleLogger
+     * @param consoleLog Cosole logger (optional).
      */
-    public Log4J2Logger(final Logger impl, Logger consoleLogger) {
+    private Log4J2Logger(final Logger impl, @Nullable final Logger consoleLog) {
         assert impl != null;
-        this.consoleLogger = consoleLogger;
-
-        addConsoleAppenderIfNeeded(new C1<Boolean, Logger>() {
-            @Override public Logger apply(Boolean init) {
-                return impl;
-            }
-        });
+        this.impl = impl;
+        this.consoleLog = consoleLog;
 
         quiet = quiet0;
     }
@@ -255,25 +250,22 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      */
     private void addConsoleAppenderIfNeeded(@Nullable IgniteClosure<Boolean, Logger> initLogClo) {
         if (inited) {
-            if (initLogClo != null)
-                // Do not init.
-                impl = initLogClo.apply(false);
+            // Do not init.
+            impl = initLogClo.apply(false);
 
             return;
         }
 
         synchronized (mux) {
             if (inited) {
-                if (initLogClo != null)
-                    // Do not init.
-                    impl = initLogClo.apply(false);
+                // Do not init.
+                impl = initLogClo.apply(false);
 
                 return;
             }
 
-            if (initLogClo != null)
-                // Init logger impl.
-                impl = initLogClo.apply(true);
+            // Init logger impl.
+            impl = initLogClo.apply(true);
 
             boolean quiet = Boolean.valueOf(System.getProperty(IGNITE_QUIET, "true"));
 
@@ -319,14 +311,14 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
                 // User launched ignite in verbose mode and did not add console appender with INFO level
                 // to configuration and did not set IGNITE_CONSOLE_APPENDER to false.
                 if (errAppender != null) {
-                    consoleLogger = createConsoleLogger(rootLogger, Level.ALL);
+                    consoleLog = createConsoleLogger(rootLogger, Level.TRACE);
 
 //                    if (errAppender.getThreshold() == Level.ERROR)
 //                        errAppender.setThreshold(Level.WARN);
                 }
                 else
                     // No error console appender => create console appender with no level limit.
-                    consoleLogger = createConsoleLogger(rootLogger, Level.INFO);
+                    consoleLog = createConsoleLogger(rootLogger, Level.INFO);
             }
 
             quiet0 = quiet;
@@ -345,14 +337,14 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
         Configuration cfg = ctx.getConfiguration();
 
-        PatternLayout layout = PatternLayout.createLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n", null, null, 
+        PatternLayout layout = PatternLayout.createLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n", null, null,
             Charset.defaultCharset(), false, false, null, null);
 
-        Appender appender = ConsoleAppender.createAppender(layout, null, null, "CONSOLE_APPENDER", null, null);
+        Appender appender = ConsoleAppender.createAppender(layout, null, null, CONSOLE_APPENDER, null, null);
 
         appender.start();
 
-        AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
+        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, null, null);
 
         LoggerConfig logCfg = LoggerConfig.createLogger("false", Level.INFO, LogManager.ROOT_LOGGER_NAME, "",
             new AppenderRef[] {ref}, null, null, null);
@@ -377,7 +369,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
         // Set nodeId as system variable to be used at configuration.
         System.setProperty(NODE_ID, U.id8(nodeId));
 
-        ((LoggerContext) LogManager.getContext(false)).reconfigure();
+        ((LoggerContext)LogManager.getContext(false)).reconfigure();
 
         // Hack. To touch the logger to create all log resources (files). Then #fileName() will work properly.
         impl.log(Level.OFF, "");
@@ -413,54 +405,78 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     /** {@inheritDoc} */
     @Override public void trace(String msg) {
         if (!impl.isTraceEnabled())
-            warning("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
+            impl.warn("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
 
         impl.trace(msg);
 
-        if (consoleLogger != null) consoleLogger.trace(msg);
+        if (consoleLog != null) {
+            if (!consoleLog.isTraceEnabled())
+                consoleLog.warn("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
+
+            consoleLog.trace(msg);
+        }
     }
 
     /** {@inheritDoc} */
     @Override public void debug(String msg) {
         if (!impl.isDebugEnabled())
-            warning("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
+            impl.warn("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
 
         impl.debug(msg);
-        if (consoleLogger != null) consoleLogger.debug(msg);
+
+        if (consoleLog != null) {
+            if (!consoleLog.isDebugEnabled())
+                consoleLog.warn("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
+
+            consoleLog.debug(msg);
+        }
     }
 
     /** {@inheritDoc} */
     @Override public void info(String msg) {
         if (!impl.isInfoEnabled())
-            warning("Logging at INFO level without checking if INFO level is enabled: " + msg);
+            impl.warn("Logging at INFO level without checking if INFO level is enabled: " + msg);
 
         impl.info(msg);
 
-        if (consoleLogger != null) consoleLogger.info(msg);
+        if (consoleLog != null) {
+            if (!consoleLog.isInfoEnabled())
+                consoleLog.warn("Logging at INFO level without checking if INFO level is enabled: " + msg);
+
+            consoleLog.info(msg);
+        }
     }
 
     /** {@inheritDoc} */
     @Override public void warning(String msg) {
         impl.warn(msg);
-        if (consoleLogger != null) consoleLogger.warn(msg);
+
+        if (consoleLog != null)
+            consoleLog.warn(msg);
     }
 
     /** {@inheritDoc} */
     @Override public void warning(String msg, @Nullable Throwable e) {
         impl.warn(msg, e);
-        if (consoleLogger != null) consoleLogger.warn(msg, e);
+
+        if (consoleLog != null)
+            consoleLog.warn(msg, e);
     }
 
     /** {@inheritDoc} */
     @Override public void error(String msg) {
         impl.error(msg);
-        if (consoleLogger != null) consoleLogger.error(msg);
+
+        if (consoleLog != null)
+            consoleLog.error(msg);
     }
 
     /** {@inheritDoc} */
     @Override public void error(String msg, @Nullable Throwable e) {
         impl.error(msg, e);
-        if (consoleLogger != null) consoleLogger.error(msg, e);
+
+        if (consoleLog != null)
+            consoleLog.error(msg, e);
     }
 
     /** {@inheritDoc} */
