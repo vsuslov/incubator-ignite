@@ -166,6 +166,8 @@ Client.prototype.sendMessage = function(msg, cb) {
  * @param {Object} headers
  */
 Client.prototype.invokeRest = function(path, params, cb, method, body, headers) {
+    var self = this;
+
     if (typeof(params) != 'object')
         throw "'params' argument must be an object";
 
@@ -200,7 +202,7 @@ Client.prototype.invokeRest = function(path, params, cb, method, body, headers) 
         headers: headers
     }, function(err) {
         if (err) {
-            delete this._cbMap[reqId];
+            delete self._cbMap[reqId];
 
             cb(err)
         }
