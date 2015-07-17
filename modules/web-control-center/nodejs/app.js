@@ -33,7 +33,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
-var agentManager = require('./agents/agent-manager');
+var agentRouter = require('./routes/agent');
 
 var passport = require('passport');
 
@@ -122,6 +122,7 @@ app.use('/configuration/caches', cachesRouter);
 app.use('/configuration/metadata', metadataRouter);
 app.use('/configuration/summary', summary);
 app.use('/sql', sqlRouter);
+app.use('/agent', agentRouter);
 
 // Catch 404 and forward to error handler.
 app.use(function (req, res, next) {
@@ -151,7 +152,5 @@ app.use(function (err, req, res) {
         error: {}
     });
 });
-
-agentManager.getOrCreate();
 
 module.exports = app;
