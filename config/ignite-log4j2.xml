@@ -21,10 +21,12 @@
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="OFF" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Routing name="FILE">
@@ -39,19 +41,6 @@
                         </Policies>
                     </RollingFile>
                 </Route>
-
-                <!--
-                <Route key="$${sys:nodeId}">
-                    <RollingFile name="Rolling-default" fileName="work/log/ignite-default.log"
-                                 filePattern="work/log/ignite-default-%i-%d{yyyy-MM-dd}.log.gz">
-                        <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
-                        <Policies>
-                            <TimeBasedTriggeringPolicy interval="6" modulate="true" />
-                            <SizeBasedTriggeringPolicy size="10 MB" />
-                        </Policies>
-                    </RollingFile>
-                </Route>
-                 -->
             </Routes>
         </Routing>
     </Appenders>

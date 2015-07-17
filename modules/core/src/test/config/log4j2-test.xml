@@ -17,21 +17,23 @@
   limitations under the License.
 -->
 
-<Configuration status="info">
+<Configuration>
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="OFF" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Routing name="FILE">
-            <Routes pattern="$${ctx:nodeId}">
+            <Routes pattern="$${sys:nodeId}">
                 <Route>
-                    <RollingFile name="Rolling-${ctx:nodeId}" fileName="work/log/ignite-${ctx:nodeId}.log"
-                                 filePattern="work/log/ignite-${ctx:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
+                    <RollingFile name="Rolling-${sys:nodeId}" fileName="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}.log"
+                                 filePattern="${sys:IGNITE_HOME}/work/log/ignite-${sys:nodeId}-%i-%d{yyyy-MM-dd}.log.gz">
                         <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
                         <Policies>
                             <TimeBasedTriggeringPolicy interval="6" modulate="true" />

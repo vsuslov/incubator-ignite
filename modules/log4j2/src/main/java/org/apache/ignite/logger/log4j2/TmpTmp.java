@@ -17,30 +17,21 @@
 
 package org.apache.ignite.logger.log4j2;
 
-import junit.framework.*;
 import org.apache.ignite.*;
-import org.apache.ignite.testframework.junits.common.*;
+import org.apache.ignite.configuration.*;
 
 /**
- * Log4j not initialized test.
+ * TODO: Add class description.
  */
-@GridCommonTest(group = "Logger")
-public class GridLog4j2NotInitializedTest extends TestCase {
-    /** */
-    public void testLogInitialize() {
-        IgniteLogger log = new Log4J2Logger().getLogger(GridLog4j2NotInitializedTest.class);
+public class TmpTmp {
+    public static void main(String[] args) throws IgniteCheckedException {
+        IgniteConfiguration cfg = new IgniteConfiguration().setGridLogger(
+//            new Log4J2Logger()
+            new Log4J2Logger("config/ignite-log4j2.xml")
+        );
 
-        if (log.isDebugEnabled())
-            log.debug("This is 'debug' message.");
-        else
-            System.out.println("DEBUG level is not enabled.");
-
-        if (log.isInfoEnabled())
-            log.info("This is 'info' message.");
-        else
-            System.out.println("INFO level is not enabled.");
-
-        log.warning("This is 'warning' message.");
-        log.error("This is 'error' message.");
+        try(Ignite ignite = Ignition.start(cfg)) {
+            ignite.log().info("lolol");
+        }
     }
 }

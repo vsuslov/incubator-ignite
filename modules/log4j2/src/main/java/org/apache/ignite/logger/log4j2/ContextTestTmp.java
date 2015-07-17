@@ -42,7 +42,7 @@ public class ContextTestTmp {
 
         Configurator.initialize(LogManager.ROOT_LOGGER_NAME, cfgUrl.toString());
 
-        addConsoleAppender(LogManager.getRootLogger(), Level.INFO);
+//        addConsoleAppender(LogManager.getRootLogger(), Level.INFO);
 //
 //        logTest();
 
@@ -53,6 +53,10 @@ public class ContextTestTmp {
 //        addAppender(LogManager.getRootLogger(), appender, Level.INFO);
 
         System.out.println(((org.apache.logging.log4j.core.Logger)LogManager.getRootLogger()).getAppenders());
+
+        Configuration cfg = ((LoggerContext)LogManager.getContext(false)).getConfiguration();
+        System.out.println(cfg.getAppenders().containsKey("Console"));
+//        System.out.println(cfg.getA.containsKey("Console"));
 
         logTest();
     }
@@ -69,26 +73,32 @@ public class ContextTestTmp {
     }
 
     private static void addConsoleAppender(final Logger logger, final Level maxLevel) {
-        ConsoleAppender appender = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
-            "SYSTEM_OUT", CONSOLE_APPENDER, null, null);
-
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         final Configuration cfg = ctx.getConfiguration();
+
+//        for (Appender a : loggerConfig.getAppenders().values()) {
+//            if (a instanceof ConsoleAppender)
+//                return;
+//        }
+
+        ConsoleAppender appender = ConsoleAppender.createAppender(PatternLayout.createDefaultLayout(), null,
+            "SYSTEM_OUT", CONSOLE_APPENDER, null, null);
 
         appender.start();
 
         cfg.addAppender(appender);
 
-        LoggerConfig loggerConfig = cfg.getLoggerConfig(logger.getName());
+        LoggerConfig oldLogCfg = cfg.getLoggerConfig(logger.getName());
 
         AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, maxLevel, null);
 
-        loggerConfig.getAppenderRefs().add(ref);
+        LoggerConfig newLogCfg = LoggerConfig.createLogger("false", oldLogCfg.getLevel(),
+            oldLogCfg.getName(), "true", new AppenderRef[]{ref}, null, cfg, null);
 
-        loggerConfig.addAppender(appender, maxLevel, null);
+        newLogCfg.addAppender(appender, maxLevel, null);
 
-        cfg.addLogger(logger.getName(), loggerConfig);
+        cfg.addLogger(logger.getName(), oldLogCfg);
 
         ctx.updateLoggers();
     }
