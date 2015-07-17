@@ -75,6 +75,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
     /** */
     public static final String CONSOLE_APPENDER = "autoConfiguredIgniteConsoleAppender";
+    public static final String CONSOLE_LOGGER_NAME = LogManager.ROOT_LOGGER_NAME;
 
     /** */
     private static volatile boolean inited;
@@ -319,14 +320,14 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
                 // User launched ignite in verbose mode and did not add console appender with INFO level
                 // to configuration and did not set IGNITE_CONSOLE_APPENDER to false.
                 if (errAppender != null) {
-                    consoleLogger = createConsoleLogger(rootLogger, Level.INFO);
+                    consoleLogger = createConsoleLogger(rootLogger, Level.ALL);
 
 //                    if (errAppender.getThreshold() == Level.ERROR)
 //                        errAppender.setThreshold(Level.WARN);
                 }
                 else
                     // No error console appender => create console appender with no level limit.
-                    consoleLogger = createConsoleLogger(rootLogger, Level.ALL);
+                    consoleLogger = createConsoleLogger(rootLogger, Level.INFO);
             }
 
             quiet0 = quiet;
@@ -400,8 +401,10 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      * @return New console appender.
      */
     // TODO review.
-    private Logger createConsoleLogger(Logger log, Level maxLevel) {
-        LoggerContext context= (LoggerContext) LogManager.getContext();
+    public static Logger createConsoleLogger(Logger log, Level maxLevel) {
+//        ((Log4jContextFactory)LogManager.getFactory()).getSelector().
+
+        LoggerContext context= (LoggerContext) LogManager.getContext(true);
         Configuration config= context.getConfiguration();
 
         PatternLayout layout= PatternLayout.createLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n", null, null, Charset.defaultCharset(),false,false,null,null);
@@ -409,14 +412,14 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
         appender.start();
         AppenderRef ref= AppenderRef.createAppenderRef("CONSOLE_APPENDER",null,null);
         AppenderRef[] refs = new AppenderRef[] {ref};
-        LoggerConfig loggerConfig= LoggerConfig.createLogger("false", Level.INFO,"CONSOLE_LOGGER","CONSOLE_LOGGER",refs,null,null,null);
+        LoggerConfig loggerConfig= LoggerConfig.createLogger("false", Level.INFO,CONSOLE_LOGGER_NAME,"",refs,null,null,null);
         loggerConfig.addAppender(appender,null,null);
 
         config.addAppender(appender);
-        config.addLogger("CONSOLE_LOGGER", loggerConfig);
+        config.addLogger(CONSOLE_LOGGER_NAME, loggerConfig);
         context.updateLoggers(config);
 
-        return  (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER");
+        return (Logger)LogManager.getContext().getLogger(CONSOLE_LOGGER_NAME);
     }
 
     /** {@inheritDoc} */
@@ -450,12 +453,15 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      */
     @Override public Log4J2Logger getLogger(Object ctgr) {
         if (ctgr == null)
-            return new Log4J2Logger((Logger)LogManager.getRootLogger(), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
+            return new Log4J2Logger((Logger)LogManager.getRootLogger(), (Logger)LogManager.getContext().getLogger(""));
 
-        if (ctgr instanceof Class)
-            return new Log4J2Logger((Logger)LogManager.getLogger(((Class<?>)ctgr).getName()), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
+        if (ctgr instanceof Class) {
+            String name = ((Class<?>)ctgr).getName();
+            return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
+        }
 
-        return new Log4J2Logger((Logger)LogManager.getLogger(ctgr.toString()), (Logger)LogManager.getContext().getLogger("CONSOLE_LOGGER"));
+        String name = ctgr.toString();
+        return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
     }
 
     /** {@inheritDoc} */
@@ -490,7 +496,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     /** {@inheritDoc} */
     @Override public void warning(String msg) {
         impl.warn(msg);
-        if (LogManager.getContext().getLogger("CONSOLE_LOGGER") != null) LogManager.getContext().getLogger("CONSOLE_LOGGER").warn(msg);
+        if (LogManager.getContext().getLogger(CONSOLE_LOGGER_NAME) != null) LogManager.getContext().getLogger(CONSOLE_LOGGER_NAME).warn(msg);
     }
 
     /** {@inheritDoc} */

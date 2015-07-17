@@ -19,6 +19,11 @@
 
 <Configuration>
     <Appenders>
+        <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
+            <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="OFF" onMatch="DENY" onMismatch="ACCEPT"/>
+        </Console>
+
         <Routing name="FILE">
             <Routes pattern="$${sys:nodeId}">
                 <Route>
@@ -37,6 +42,7 @@
 
     <Loggers>
         <Root level="INFO">
+            <AppenderRef ref="CONSOLE_ERR" level="INFO"/>
             <AppenderRef ref="FILE" level="DEBUG"/>
         </Root>
     </Loggers>
