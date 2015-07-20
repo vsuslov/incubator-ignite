@@ -61,7 +61,7 @@
     },
     {
       "label": "Key fields",
-      "type": "fieldsMetadata",
+      "type": "dbFields",
       "model": "keyFields",
       "keyName": "name",
       "valueName": "className",
@@ -70,7 +70,7 @@
     },
     {
       "label": "Value fields",
-      "type": "fieldsMetadata",
+      "type": "dbFields",
       "model": "valueFields",
       "keyName": "name",
       "valueName": "className",
@@ -79,7 +79,7 @@
     },
     {
       "label": "Query fields",
-      "type": "fieldsMetadata",
+      "type": "queryFields",
       "model": "queryFields",
       "keyName": "name",
       "valueName": "className",
@@ -88,7 +88,7 @@
     },
     {
       "label": "Ascending fields",
-      "type": "fieldsMetadata",
+      "type": "queryFields",
       "model": "ascendingFields",
       "keyName": "name",
       "valueName": "className",
@@ -97,7 +97,7 @@
     },
     {
       "label": "Descending fields",
-      "type": "fieldsMetadata",
+      "type": "queryFields",
       "model": "descendingFields",
       "keyName": "name",
       "valueName": "className",

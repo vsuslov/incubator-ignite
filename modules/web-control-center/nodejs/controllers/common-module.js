@@ -110,6 +110,9 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
             return lines.join("");
         },
         isDefined: isDefined,
+        isNonEmpty: function (s) {
+            return isDefined(s) && s.trim().length > 0;
+        },
         errorMessage: errorMessage,
         showError: function (msg) {
             if (msgModal)
@@ -214,6 +217,9 @@ controlCenterModule.service('$table', ['$common', function ($common) {
     }
 
     return {
+        tableReset: function () {
+            _tableReset();
+        },
         tableNewItem: function (field) {
             _tableState(field.model, -1);
         },
@@ -248,7 +254,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
             }
         },
         tableSimpleSaveVisible: function(newValue) {
-            return $common.isDefined(newValue) && newValue.trim().length > 0;
+            return $common.isNonEmpty(newValue);
         },
         tableSimpleUp: function (item, field, index) {
             _tableReset();
@@ -287,8 +293,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
             }
         },
         tablePairSaveVisible: function(newKey, newValue) {
-            return $common.isDefined(newKey) && $common.isDefined(newValue) &&
-                newKey.trim().length > 0 &&  newValue.trim().length > 0;
+            return $common.isNonEmpty(newKey) && $common.isNonEmpty(newValue);
         }
     }
 }]);

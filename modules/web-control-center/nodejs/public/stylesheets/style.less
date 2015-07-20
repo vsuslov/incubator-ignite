@@ -871,6 +871,18 @@ label {
   cursor: pointer;
 }
 
+.fa-floppy-o {
+  cursor: pointer;
+}
+
+.fa-arrow-up {
+  cursor: pointer;
+}
+
+.fa-arrow-down {
+  cursor: pointer;
+}
+
 label.required:after {
   color: @ignite-red;
   content: ' *';
@@ -1062,10 +1074,18 @@ a {
   list-style: none;
   margin: 0;
   padding: 0;
+
+  label {
+    line-height: @input-height;
+  }
 }
 
 .grid-cell {
   flex-basis: 50%;
+}
+
+.grid-cell-4 {
+  flex-basis: 25%;
 }
 
 .grid-fixed-cell {

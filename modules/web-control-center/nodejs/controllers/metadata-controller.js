@@ -57,6 +57,51 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             {value: 'h2', label: 'H2 database'}
         ];
 
+        $scope.jdbcTypes = [
+            {value: 'BIT', label: 'BIT'},
+            {value: 'BOOLEAN', label: 'BOOLEAN'},
+            {value: 'TINYINT', label: 'TINYINT'},
+            {value: 'SMALLINT', label: 'SMALLINT'},
+            {value: 'INTEGER', label: 'INTEGER'},
+            {value: 'BIGINT', label: 'BIGINT'},
+            {value: 'REAL', label: 'REAL'},
+            {value: 'FLOAT', label: 'FLOAT'},
+            {value: 'DOUBLE', label: 'DOUBLE'},
+            {value: 'NUMERIC', label: 'NUMERIC'},
+            {value: 'DECIMAL', label: 'DECIMAL'},
+            {value: 'CHAR', label: 'CHAR'},
+            {value: 'VARCHAR', label: 'VARCHAR'},
+            {value: 'LONGVARCHAR', label: 'LONGVARCHAR'},
+            {value: 'NCHAR', label: 'NCHAR'},
+            {value: 'NVARCHAR', label: 'NVARCHAR'},
+            {value: 'LONGNVARCHAR', label: 'LONGNVARCHAR'},
+            {value: 'DATE', label: 'DATE'},
+            {value: 'TIME', label: 'TIME'},
+            {value: 'TIMESTAMP', label: 'TIMESTAMP'}
+        ];
+
+        $scope.javaTypes = [
+            {value: 'boolean', label: 'boolean'},
+            {value: 'Boolean', label: 'Boolean'},
+            {value: 'byte', label: 'byte'},
+            {value: 'Byte', label: 'Byte'},
+            {value: 'short', label: 'short'},
+            {value: 'Short', label: 'Short'},
+            {value: 'int', label: 'int'},
+            {value: 'Integer', label: 'Integer'},
+            {value: 'long', label: 'long'},
+            {value: 'Long', label: 'Long'},
+            {value: 'float', label: 'float'},
+            {value: 'Float', label: 'Float'},
+            {value: 'double', label: 'double'},
+            {value: 'Double', label: 'Double'},
+            {value: 'BigDecimal', label: 'BigDecimal'},
+            {value: 'String', label: 'String'},
+            {value: 'Date', label: 'Date'},
+            {value: 'Time', label: 'Time'},
+            {value: 'Timestamp', label: 'Timestamp'}
+        ];
+
         $scope.data = {
             curTableIdx: 0,
             curFieldIdx: 0,
@@ -350,6 +395,49 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             }
 
             return true;
+        };
+
+        $scope.tableDbFieldSaveVisible = function(dbName, dbType, javaName, javaType){
+            return $common.isNonEmpty(dbName) && $common.isDefined(dbType) &&
+                $common.isNonEmpty(javaName) && $common.isDefined(javaType);
+        };
+
+        $scope.tableDbFieldSave = function(field, newDbName, newDbType, newJavaName, newJavaType, index) {
+            var item = $scope.backupItem;
+
+            var model = item[field.model];
+
+            var newItem = {dbName: newDbName, dbType: newDbType, javaName: newJavaName, javaType: newJavaType};
+
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (dbMeta) {return dbMeta.dbName == newDbName});
+
+                // Found duplicate.
+                if (idx >= 0 && index != idx) {
+                    $common.showError('DB field with such name already exists!');
+
+                    return;
+                }
+
+                if (index < 0) {
+                    if (model)
+                        model.push(newItem);
+                    else
+                        item[field.model] = [newItem];
+                }
+                else {
+                    var dbField = model[index];
+
+                    dbField.dbName = newDbName;
+                    dbField.dbType = newDbType;
+                    dbField.javaName = newJavaName;
+                    dbField.javaType = newJavaType;
+                }
+            }
+            else
+                item[field.model] = [newItem];
+
+            $table.tableReset();
         };
 
         $scope.selectSchema = function (idx) {
