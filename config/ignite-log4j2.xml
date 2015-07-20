@@ -21,6 +21,7 @@
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
+            <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">

@@ -386,62 +386,53 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
      */
     @Override public Log4J2Logger getLogger(Object ctgr) {
         if (ctgr == null)
-            return new Log4J2Logger((Logger)LogManager.getRootLogger(), (Logger)LogManager.getContext().getLogger(""));
+            return new Log4J2Logger((Logger)LogManager.getRootLogger(),
+                consoleLog == null ? null : (Logger)LogManager.getContext().getLogger(""));
 
         if (ctgr instanceof Class) {
             String name = ((Class<?>)ctgr).getName();
 
-            return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
+            return new Log4J2Logger((Logger)LogManager.getLogger(name),
+                consoleLog == null ? null : (Logger)LogManager.getContext().getLogger(name));
         }
 
         String name = ctgr.toString();
 
-        return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
+        return new Log4J2Logger((Logger)LogManager.getLogger(name),
+            consoleLog == null ? null : (Logger)LogManager.getContext().getLogger(name));
     }
 
     /** {@inheritDoc} */
     @Override public void trace(String msg) {
-        if (!impl.isTraceEnabled())
-            impl.warn("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
+        if (!isTraceEnabled())
+            warning("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
 
         impl.trace(msg);
 
-        if (consoleLog != null) {
-            if (!consoleLog.isTraceEnabled())
-                consoleLog.warn("Logging at TRACE level without checking if TRACE level is enabled: " + msg);
-
+        if (consoleLog != null)
             consoleLog.trace(msg);
-        }
     }
 
     /** {@inheritDoc} */
     @Override public void debug(String msg) {
-        if (!impl.isDebugEnabled())
-            impl.warn("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
+        if (!isDebugEnabled())
+            warning("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
 
         impl.debug(msg);
 
-        if (consoleLog != null) {
-            if (!consoleLog.isDebugEnabled())
-                consoleLog.warn("Logging at DEBUG level without checking if DEBUG level is enabled: " + msg);
-
+        if (consoleLog != null)
             consoleLog.debug(msg);
-        }
     }
 
     /** {@inheritDoc} */
     @Override public void info(String msg) {
-        if (!impl.isInfoEnabled())
-            impl.warn("Logging at INFO level without checking if INFO level is enabled: " + msg);
+        if (!isInfoEnabled())
+            warning("Logging at INFO level without checking if INFO level is enabled: " + msg);
 
         impl.info(msg);
 
-        if (consoleLog != null) {
-            if (!consoleLog.isInfoEnabled())
-                consoleLog.warn("Logging at INFO level without checking if INFO level is enabled: " + msg);
-
+        if (consoleLog != null)
             consoleLog.info(msg);
-        }
     }
 
     /** {@inheritDoc} */
@@ -478,17 +469,17 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
     /** {@inheritDoc} */
     @Override public boolean isTraceEnabled() {
-        return impl.isTraceEnabled();
+        return impl.isTraceEnabled() || (consoleLog != null && consoleLog.isTraceEnabled());
     }
 
     /** {@inheritDoc} */
     @Override public boolean isDebugEnabled() {
-        return impl.isDebugEnabled();
+        return impl.isDebugEnabled() || (consoleLog != null && consoleLog.isDebugEnabled());
     }
 
     /** {@inheritDoc} */
     @Override public boolean isInfoEnabled() {
-        return impl.isInfoEnabled();
+        return impl.isInfoEnabled() || (consoleLog != null && consoleLog.isInfoEnabled());
     }
 
     /** {@inheritDoc} */

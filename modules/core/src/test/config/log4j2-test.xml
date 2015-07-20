@@ -26,7 +26,6 @@
 
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
-            <ThresholdFilter level="OFF" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Routing name="FILE">

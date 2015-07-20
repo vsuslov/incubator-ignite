@@ -27,6 +27,7 @@ import org.apache.ignite.spi.discovery.tcp.*;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
 import org.apache.ignite.testframework.*;
 import org.apache.ignite.testframework.junits.common.*;
+import org.apache.logging.log4j.*;
 
 import java.io.*;
 import java.util.*;
@@ -115,39 +116,61 @@ public class GridLog4j2SelfTest extends TestCase {
     }
 
     /**
+     * Test can be run from IDE
+     *
      * @throws Exception If failed.
      */
-    public void testVerboseMode() throws Exception {
+    public void _testVerboseMode() throws Exception {
         final PrintStream backupSysOut = System.out;
+        final PrintStream backupSysErr = System.err;
+
         final ByteArrayOutputStream testOut = new ByteArrayOutputStream();
+        final ByteArrayOutputStream testErr = new ByteArrayOutputStream();
 
         try {
-            // Redirect the default output to a stream.
             System.setOut(new PrintStream(testOut));
+            System.setErr(new PrintStream(testErr));
 
             System.setProperty("IGNITE_QUIET", "false");
 
             try (Ignite ignite = G.start(getConfiguration("verboseLogGrid", LOG_PATH_VERBOSE_TEST))) {
-                String testInfoMsg = "******* Hello Tester! INFO message *******";
-                String testDebugMsg = "******* Hello Tester! DEBUG message *******";
+                String testMsg = "******* Hello Tester! ******* ";
 
-                ignite.log().info(testInfoMsg);
-                ignite.log().debug(testDebugMsg);
+                ignite.log().error(testMsg + Level.ERROR);
+                ignite.log().warning(testMsg + Level.WARN);
+                ignite.log().info(testMsg + Level.INFO);
+                ignite.log().debug(testMsg + Level.DEBUG);
+                ignite.log().trace(testMsg + Level.TRACE);
 
                 String consoleOut = testOut.toString();
+                String consoleErr = testErr.toString();
 
-                assertTrue(consoleOut.contains(testInfoMsg));
-                assertTrue(consoleOut.contains(testDebugMsg));
+                assertTrue(consoleOut.contains(testMsg + Level.INFO));
+                assertTrue(consoleOut.contains(testMsg + Level.DEBUG));
+                assertTrue(consoleOut.contains(testMsg + Level.TRACE));
+
+                assertTrue(consoleErr.contains(testMsg + Level.ERROR));
+                assertTrue(consoleErr.contains(testMsg + Level.WARN));
+
+                assertTrue(!consoleOut.contains(testMsg + Level.ERROR));
+                assertTrue(!consoleOut.contains(testMsg + Level.WARN));
+
+                assertTrue(!consoleErr.contains(testMsg + Level.INFO));
+                assertTrue(!consoleErr.contains(testMsg + Level.DEBUG));
+                assertTrue(!consoleErr.contains(testMsg + Level.TRACE));
             }
         }
         finally {
             System.setProperty("IGNITE_QUIET", "true");
 
-            // Restore the stdout and write the String to stdout.
             System.setOut(backupSysOut);
+            System.setErr(backupSysErr);
 
-            System.out.println("***** It was at output *****");
+            System.out.println("**************** Out Console content ***************");
             System.out.println(testOut.toString());
+
+            System.err.println("**************** Err Console content ***************");
+            System.err.println(testErr.toString());
         }
     }
 
@@ -172,7 +195,7 @@ public class GridLog4j2SelfTest extends TestCase {
         String id8;
         File logFile;
 
-        try (Ignite ignite = G.start(getConfiguration("grid" + id, LOG_PATH_TEST))) {
+        try (Ignite ignite = G.start(getConfiguration("grid" + id, LOG_PATH_MAIN))) {
             id8 = U.id8(ignite.cluster().localNode().id());
 
             String logPath = "work/log/ignite-" + id8 + ".log";
@@ -194,7 +217,7 @@ public class GridLog4j2SelfTest extends TestCase {
      * Creates grid configuration.
      *
      * @param gridName Grid name.
-     * @param logPath
+     * @param logPath Logger configuration path.
      * @return Grid configuration.
      * @throws Exception If error occurred.
      */
