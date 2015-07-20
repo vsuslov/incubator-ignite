@@ -29,6 +29,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.*;
 import org.apache.logging.log4j.core.appender.routing.*;
 import org.apache.logging.log4j.core.config.*;
+import org.apache.logging.log4j.core.filter.*;
 import org.apache.logging.log4j.core.layout.*;
 import org.jetbrains.annotations.*;
 
@@ -71,10 +72,10 @@ import static org.apache.ignite.IgniteSystemProperties.*;
  */
 public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     /** */
-    public static final String NODE_ID = "nodeId";
+    private static final String NODE_ID = "nodeId";
 
     /** */
-    public static final String CONSOLE_APPENDER = "autoConfiguredIgniteConsoleAppender";
+    private static final String CONSOLE_APPENDER = "autoConfiguredIgniteConsoleAppender";
 
     /** */
     private static volatile boolean inited;
@@ -90,6 +91,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
     private Logger impl;
 
+    /** Auto added at verbose mode console logger (optional). */
     private volatile Logger consoleLog;
 
     /** Quiet flag. */
@@ -310,15 +312,7 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
                 // User launched ignite in verbose mode and did not add console appender with INFO level
                 // to configuration and did not set IGNITE_CONSOLE_APPENDER to false.
-                if (errAppender != null) {
-                    consoleLog = createConsoleLogger(rootLogger, Level.TRACE);
-
-//                    if (errAppender.getThreshold() == Level.ERROR)
-//                        errAppender.setThreshold(Level.WARN);
-                }
-                else
-                    // No error console appender => create console appender with no level limit.
-                    consoleLog = createConsoleLogger(rootLogger, Level.INFO);
+                consoleLog = createConsoleLogger(errAppender != null);
             }
 
             quiet0 = quiet;
@@ -329,10 +323,9 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     /**
      * Creates console appender with some reasonable default logging settings.
      *
-     * @param maxLevel Max logging level.
-     * @return New console appender.
+     * @return Logger with auto configured console appender.
      */
-    public static Logger createConsoleLogger(Logger log, Level maxLevel) {
+    public static Logger createConsoleLogger(boolean errConsoleAppenderWasFound) {
         LoggerContext ctx = (LoggerContext)LogManager.getContext(true);
 
         Configuration cfg = ctx.getConfiguration();
@@ -340,18 +333,23 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
         PatternLayout layout = PatternLayout.createLayout("[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n", null, null,
             Charset.defaultCharset(), false, false, null, null);
 
-        Appender appender = ConsoleAppender.createAppender(layout, null, null, CONSOLE_APPENDER, null, null);
+        ThresholdFilter filter = null;
 
-        appender.start();
+        if (errConsoleAppenderWasFound)
+            filter = ThresholdFilter.createFilter(Level.WARN, Filter.Result.DENY, Filter.Result.ACCEPT);
 
-        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, null, null);
+        final Appender consoleApp = ConsoleAppender.createAppender(layout, filter, null, CONSOLE_APPENDER, null, null);
+        consoleApp.start();
 
-        LoggerConfig logCfg = LoggerConfig.createLogger("false", Level.INFO, LogManager.ROOT_LOGGER_NAME, "",
-            new AppenderRef[] {ref}, null, null, null);
+        AppenderRef ref = AppenderRef.createAppenderRef(CONSOLE_APPENDER, Level.TRACE, null);
 
-        logCfg.addAppender(appender, null, null);
+        AppenderRef[] refs = {ref};
 
-        cfg.addAppender(appender);
+        LoggerConfig logCfg = LoggerConfig.createLogger("false", Level.ALL, LogManager.ROOT_LOGGER_NAME, "",
+            refs, null, null, null);
+
+        logCfg.addAppender(consoleApp, null, null);
+        cfg.addAppender(consoleApp);
 
         cfg.addLogger(LogManager.ROOT_LOGGER_NAME, logCfg);
 
@@ -370,9 +368,6 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
         System.setProperty(NODE_ID, U.id8(nodeId));
 
         ((LoggerContext)LogManager.getContext(false)).reconfigure();
-
-        // Hack. To touch the logger to create all log resources (files). Then #fileName() will work properly.
-        impl.log(Level.OFF, "");
     }
 
     /** {@inheritDoc} */
@@ -395,10 +390,12 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
 
         if (ctgr instanceof Class) {
             String name = ((Class<?>)ctgr).getName();
+
             return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
         }
 
         String name = ctgr.toString();
+
         return new Log4J2Logger((Logger)LogManager.getLogger(name), (Logger)LogManager.getContext().getLogger(name));
     }
 

@@ -1473,10 +1473,22 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
     private void ackAsciiLogo() {
         assert log != null;
 
-        String fileName = log.fileName();
-
         if (System.getProperty(IGNITE_NO_ASCII) == null) {
             String ver = "ver. " + ACK_VER_STR;
+
+            if (log.isInfoEnabled()) {
+                log.info(NL + NL +
+                        ">>>    __________  ________________  " + NL +
+                        ">>>   /  _/ ___/ |/ /  _/_  __/ __/  " + NL +
+                        ">>>  _/ // (7 7    // /  / / / _/    " + NL +
+                        ">>> /___/\\___/_/|_/___/ /_/ /___/   " + NL +
+                        ">>> " + NL +
+                        ">>> " + ver + NL +
+                        ">>> " + COPYRIGHT + NL +
+                        ">>> " + NL +
+                        ">>> Ignite documentation: " + "http://" + SITE + NL
+                );
+            }
 
             // Big thanks to: http://patorjk.com/software/taag
             // Font name "Small Slant"
@@ -1494,26 +1506,14 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
                     "",
                     "Quiet mode.");
 
+                String fileName = log.fileName();
+
                 if (fileName != null)
                     U.quiet(false, "  ^-- Logging to file '" +  fileName + '\'');
 
                 U.quiet(false,
                     "  ^-- To see **FULL** console log here add -DIGNITE_QUIET=false or \"-v\" to ignite.{sh|bat}",
                     "");
-            }
-
-            if (log.isInfoEnabled()) {
-                log.info(NL + NL +
-                        ">>>    __________  ________________  " + NL +
-                        ">>>   /  _/ ___/ |/ /  _/_  __/ __/  " + NL +
-                        ">>>  _/ // (7 7    // /  / / / _/    " + NL +
-                        ">>> /___/\\___/_/|_/___/ /_/ /___/   " + NL +
-                        ">>> " + NL +
-                        ">>> " + ver + NL +
-                        ">>> " + COPYRIGHT + NL +
-                        ">>> " + NL +
-                        ">>> Ignite documentation: " + "http://" + SITE + NL
-                );
             }
         }
     }
