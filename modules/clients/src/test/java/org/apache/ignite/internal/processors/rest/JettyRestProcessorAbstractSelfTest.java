@@ -20,13 +20,19 @@ package org.apache.ignite.internal.processors.rest;
 import net.sf.json.*;
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
+import org.apache.ignite.cache.query.*;
+import org.apache.ignite.cache.query.annotations.*;
 import org.apache.ignite.cluster.*;
+import org.apache.ignite.configuration.*;
+import org.apache.ignite.internal.processors.rest.handlers.*;
 import org.apache.ignite.internal.util.typedef.*;
+import org.apache.ignite.testframework.*;
 
 import java.io.*;
 import java.net.*;
 import java.nio.charset.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.*;
 
 import static org.apache.ignite.IgniteSystemProperties.*;
@@ -44,6 +50,8 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
         System.setProperty(IGNITE_JETTY_PORT, Integer.toString(restPort()));
 
         super.beforeTestsStarted();
+
+        initCache();
     }
 
     /** {@inheritDoc} */
@@ -187,6 +195,18 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
             "\\\"response\\\":null\\," +
             "\\\"sessionToken\\\":\\\"\\\"," +
             "\\\"successStatus\\\":" + (success ? 0 : 1) + "\\}";
+    }
+
+    /**
+     * @param err Error.
+     * @return Regex pattern for JSON.
+     */
+    private String errorPattern(String err) {
+        return "\\{" +
+            "\\\"error\\\":\\\"" + err + "\\\"\\," +
+            "\\\"response\\\":null\\," +
+            "\\\"sessionToken\\\":\\\"\\\"," +
+            "\\\"successStatus\\\":" + 1 + "\\}";
     }
 
     /**
@@ -477,7 +497,176 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
     /**
      * @throws Exception If failed.
      */
+    public void testIncorrectPutPost() throws Exception {
+        String val = "{\"key\":\"key0\"}";
+        String ret = makePostRequest(F.asMap("cmd", "put"), val);
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+        jsonEquals(ret, errorPattern("Failed to find mandatory parameter in request: val"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testContainsKey() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "containskey", "key", "key0"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(true, true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testContainesKeys() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+        grid(0).cache(null).put("key1", "val1");
+
+        String ret = content(F.asMap("cmd", "containskeys", "k1", "key0", "k2", "key1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cacheBulkPattern(true, true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
     public void testGetAndPut() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "getandput", "key", "key0", "val", "val1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern("val0", true));
+
+        assertEquals("val1", grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testGetAndPutIfAbsent() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "getandputifabsent", "key", "key0", "val", "val1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern("val0", true));
+
+        assertEquals("val0", grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testPutIfAbsent2() throws Exception {
+        String ret = content(F.asMap("cmd", "putifabsent", "key", "key0", "val", "val1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(true, true));
+
+        assertEquals("val1", grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testRemoveValue() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "rmvvalue", "key", "key0", "val", "val1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(false, true));
+
+        assertEquals("val0", grid(0).cache(null).get("key0"));
+
+        ret = content(F.asMap("cmd", "rmvvalue", "key", "key0", "val", "val0"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(true, true));
+
+        assertNull(grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testGetAndRemove() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "getandrmv", "key", "key0"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern("val0", true));
+
+        assertNull(grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReplaceValue() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "repval", "key", "key0", "val", "val1", "val2", "val2"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(false, true));
+
+        assertEquals("val0", grid(0).cache(null).get("key0"));
+
+        ret = content(F.asMap("cmd", "repval", "key", "key0", "val", "val1", "val2", "val0"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern(true, true));
+
+        assertEquals("val1", grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testGetAndReplace() throws Exception {
+        grid(0).cache(null).put("key0", "val0");
+
+        String ret = content(F.asMap("cmd", "getandreplace", "key", "key0", "val", "val1"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, cachePattern("val0", true));
+
+        assertEquals("val1", grid(0).cache(null).get("key0"));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testGetAndPutPost() throws Exception {
         String val = "{\"key\":\"key0\", \"val\":\"val0\"}";
         String ret = makePostRequest(F.asMap("cmd", "getandput"), val);
 
@@ -1054,26 +1243,33 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
     /**
      * @throws Exception If failed.
      */
-    public void testRunScript() throws Exception {
-        String f = "function(){return ignite.name();}";
-        String ret = makePostRequest(F.asMap("cmd", "runscript", "func", URLEncoder.encode(f)), "{\"arg\":[]}");
+    public void testRunScriptPost() throws Exception {
+        String f = "function(param){return param;}";
+        String ret = makePostRequest(F.asMap("cmd", "runscript", "func", URLEncoder.encode(f)), "{\"arg\":\"hello\"}");
 
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
-        jsonEquals(ret, stringPattern(getTestGridName(1), true));
+        jsonEquals(ret, stringPattern("hello", true));
     }
 
     /**
      * @throws Exception If failed.
      */
-    public void testRunAffinityScript() throws Exception {
-        String f = "function(){return ignite.name();}";
-        String ret = makePostRequest(F.asMap("cmd", "affrun", "func", URLEncoder.encode(f)), "{\"arg\":[],\"key\":\"key0\"}");
+    public void testRunScript() throws Exception {
+        String f = "function(param){return param;}";
+        String ret = content(F.asMap("cmd", "runscript", "func", URLEncoder.encode(f), "arg", "hello"));
 
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
 
+        jsonEquals(ret, stringPattern("hello", true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testRunAffinityScriptPost() throws Exception {
         ClusterNode node = grid(0).affinity(null).mapKeyToNode("key0");
 
         Ignite ignite = null;
@@ -1085,7 +1281,80 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
 
         assertNotNull(ignite);
 
+        String f = "function(expName){"+
+            "if (expName !== \"hello\") {" +
+            "throw \"Not correct arg.\"" +
+            "}" +
+            "return ignite.name();}";
+
+        String ret = makePostRequest(F.asMap("cmd", "affrun", "func", URLEncoder.encode(f)),
+            "{\"arg\":\"" + "hello" + "\",\"key\":\"key0\"}");
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
         jsonEquals(ret, stringPattern(ignite.name(), true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testRunAffinityScript() throws Exception {
+        ClusterNode node = grid(0).affinity(null).mapKeyToNode("key0");
+
+        Ignite ignite = null;
+
+        for (int i = 0; i < GRID_CNT; ++i) {
+            if (grid(i).localNode().equals(node))
+                ignite = grid(i);
+        }
+
+        assertNotNull(ignite);
+
+        String f = "function(expName){"+
+            "if (expName !== \"hello\") {" +
+            "throw \"Not correct arg.\"" +
+            "}" +
+            "return ignite.name();}";
+
+        String ret = content(F.asMap("cmd", "affrun", "func", URLEncoder.encode(f),
+            "key", "key0", "arg", "hello"));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, stringPattern(ignite.name(), true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testMapReduceScriptPost() throws Exception {
+        String map = "function(nodes, arg) {" +
+            "var words = arg.split(\" \");" +
+            "for (var i = 0; i < words.length; i++) {" +
+            "var f = function(word) {" +
+            "return word.length;" +
+            "};" +
+            "emit(f, words[i], nodes[i %  nodes.length]);" +
+            "}"+
+            "};";
+
+        String reduce =  "function(results) {"+
+            "var sum = 0;"+
+            "for (var i = 0; i < results.size(); ++i) {"+
+            "sum += results.get(i).intValue();"+
+            "}" +
+            "return sum;" +
+            "};";
+
+        String ret = makePostRequest(F.asMap("cmd", "excmapreduce", "map", URLEncoder.encode(map),
+            "reduce", URLEncoder.encode(reduce)), "{\"arg\": \"Hello world!\"}");
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        jsonEquals(ret, integerPattern(11, true));
     }
 
     /**
@@ -1110,8 +1379,8 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
             "return sum;" +
             "};";
 
-        String ret = makePostRequest(F.asMap("cmd", "excmapreduce", "map", URLEncoder.encode(map),
-            "reduce", URLEncoder.encode(reduce)), "{\"arg\": \"Hello world!\"}");
+        String ret = content(F.asMap("cmd", "excmapreduce", "map", URLEncoder.encode(map),
+            "reduce", URLEncoder.encode(reduce), "arg", URLEncoder.encode("Hello world!")));
 
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
@@ -1147,7 +1416,230 @@ abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestProcessorS
         Integer qryId0 = (Integer)((Map)json.get("response")).get("queryId");
 
         assertEquals(qryId0, qryId);
+
+        ret = content(F.asMap("cmd", "qryclose", "qryId", String.valueOf(qryId)));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testQueryArgsPost() throws Exception {
+        String qry = "salary > ? and salary <= ?";
+
+        String ret = makePostRequest(F.asMap("cmd", "qryexecute", "type", "Person", "psz", "10", "cacheName", "person",
+                "qry", URLEncoder.encode(qry)),
+            "{\"arg\": [1000, 2000]}");
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        JSONObject json = JSONObject.fromObject(ret);
+
+        List items = (List)((Map)json.get("response")).get("items");
+
+        assertEquals(2, items.size());
+
+        for (int i = 0; i < GRID_CNT; ++i) {
+            Map<GridRestCommand, GridRestCommandHandler> handlers =
+                GridTestUtils.getFieldValue(grid(i).context().rest(), "handlers");
+
+            GridRestCommandHandler qryHnd = handlers.get(GridRestCommand.CLOSE_SQL_QUERY);
+
+            ConcurrentHashMap<Long, Iterator> its = GridTestUtils.getFieldValue(qryHnd, "curs");
+
+            assertEquals(0, its.size());
+        }
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testQueryArgs() throws Exception {
+        String qry = "salary > ? and salary <= ?";
+
+        Map<String, String> params = new HashMap<>();
+        params.put("cmd", "qryexecute");
+        params.put("type", "Person");
+        params.put("psz", "10");
+        params.put("cacheName", "person");
+        params.put("qry", URLEncoder.encode(qry));
+        params.put("arg1", "1000");
+        params.put("arg2", "2000");
+
+        String ret = content(params);
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        JSONObject json = JSONObject.fromObject(ret);
+
+        List items = (List)((Map)json.get("response")).get("items");
+
+        assertEquals(2, items.size());
+
+        for (int i = 0; i < GRID_CNT; ++i) {
+            Map<GridRestCommand, GridRestCommandHandler> handlers =
+                GridTestUtils.getFieldValue(grid(i).context().rest(), "handlers");
+
+            GridRestCommandHandler qryHnd = handlers.get(GridRestCommand.CLOSE_SQL_QUERY);
+
+            ConcurrentHashMap<Long, Iterator> its = GridTestUtils.getFieldValue(qryHnd, "curs");
+
+            assertEquals(0, its.size());
+        }
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testQueryClose() throws Exception {
+        String qry = "salary > ? and salary <= ?";
+
+        String ret = makePostRequest(F.asMap("cmd", "qryexecute", "type", "Person", "psz", "1", "cacheName", "person",
+                "qry", URLEncoder.encode(qry)),
+            "{\"arg\": [1000, 2000]}");
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        JSONObject json = JSONObject.fromObject(ret);
+
+        List items = (List)((Map)json.get("response")).get("items");
+
+        assertEquals(1, items.size());
+
+        boolean found = false;
+
+        for (int i = 0; i < GRID_CNT; ++i) {
+            Map<GridRestCommand, GridRestCommandHandler> handlers =
+                GridTestUtils.getFieldValue(grid(i).context().rest(), "handlers");
+
+            GridRestCommandHandler qryHnd = handlers.get(GridRestCommand.CLOSE_SQL_QUERY);
+
+            ConcurrentHashMap<Long, Iterator> its = GridTestUtils.getFieldValue(qryHnd, "curs");
+
+            found |= its.size() != 0;
+        }
+
+        assertTrue(found);
+
+        Integer qryId = (Integer)((Map)json.get("response")).get("queryId");
+
+        assertNotNull(qryId);
+
+        ret = content(F.asMap("cmd", "qryclose", "cacheName", "person", "qryId", String.valueOf(qryId)));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        found = false;
+
+        for (int i = 0; i < GRID_CNT; ++i) {
+            Map<GridRestCommand, GridRestCommandHandler> handlers =
+                GridTestUtils.getFieldValue(grid(i).context().rest(), "handlers");
+
+            GridRestCommandHandler qryHnd = handlers.get(GridRestCommand.CLOSE_SQL_QUERY);
+
+            ConcurrentHashMap<Long, Iterator> its = GridTestUtils.getFieldValue(qryHnd, "curs");
+
+            found |= its.size() != 0;
+        }
+
+        assertFalse(found);
     }
 
     protected abstract String signature() throws Exception;
+
+    /**
+     * Init cache.
+     */
+    private void initCache() {
+        CacheConfiguration<Integer, Person> personCacheCfg = new CacheConfiguration<>("person");
+        personCacheCfg.setIndexedTypes(Integer.class, Person.class);
+
+        IgniteCache<Integer, Person> personCache = grid(0).getOrCreateCache(personCacheCfg);
+
+        personCache.clear();
+
+        Person p1 = new Person("John", "Doe", 2000);
+        Person p2 = new Person("Jane", "Doe", 1000);
+        Person p3 = new Person("John", "Smith", 1000);
+        Person p4 = new Person("Jane", "Smith", 2000);
+
+        personCache.put(p1.getId(), p1);
+        personCache.put(p2.getId(), p2);
+        personCache.put(p3.getId(), p3);
+        personCache.put(p4.getId(), p4);
+
+        SqlQuery<Integer, Person> qry = new SqlQuery<>(Person.class, "salary > ? and salary <= ?");
+
+        qry.setArgs(1000, 2000);
+
+        assertEquals(2, personCache.query(qry).getAll().size());
+    }
+
+    /**
+     * Person class.
+     */
+    public static class Person implements Serializable {
+        /** Person id. */
+        private static int PERSON_ID = 0;
+
+        /** Person ID (indexed). */
+        @QuerySqlField(index = true)
+        private Integer id;
+
+        /** First name (not-indexed). */
+        @QuerySqlField
+        private String firstName;
+
+        /** Last name (not indexed). */
+        @QuerySqlField
+        private String lastName;
+
+        /** Salary (indexed). */
+        @QuerySqlField(index = true)
+        private double salary;
+
+        /**
+         * @param firstName First name.
+         * @param lastName Last name.
+         * @param salary Salary.
+         */
+        Person(String firstName, String lastName, double salary) {
+            id = PERSON_ID++;
+
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.salary = salary;
+        }
+
+        /**
+         * @return First name.
+         */
+        public String getFirstName() {
+            return firstName;
+        }
+
+        /**
+         * @return Last name.
+         */
+        public String getLastName() {
+            return lastName;
+        }
+        /**
+         * @return Salary.
+         */
+        public double getSalary() {
+
+            return salary;
+        }
+
+        /**
+         * @return Id.
+         */
+        public Integer getId() {
+            return id;
+        }
+    }
 }
