@@ -19,24 +19,20 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
-        $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
-        $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
+        $scope.tableNewItem = $table.tableNewItem;
+        $scope.tableNewItemActive = $table.tableNewItemActive;
+        $scope.tableEditing = $table.tableEditing;
+        $scope.tableStartEdit = $table.tableStartEdit;
+        $scope.tableRemove = $table.tableRemove;
+
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
-        $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
-        $scope.tableSimpleEditing = $table.tableSimpleEditing;
-        $scope.tableSimpleRemove = $table.tableSimpleRemove;
         $scope.tableSimpleUp = $table.tableSimpleUp;
         $scope.tableSimpleDown = $table.tableSimpleDown;
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
 
-        $scope.tablePairNewItem = $table.tablePairNewItem;
-        $scope.tablePairNewItemActive = $table.tablePairNewItemActive;
         $scope.tablePairSave = $table.tablePairSave;
         $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
-        $scope.tablePairStartEdit = $table.tablePairStartEdit;
-        $scope.tablePairEditing = $table.tablePairEditing;
-        $scope.tablePairRemove = $table.tablePairRemove;
 
         $scope.atomicities = [
             {value: 'ATOMIC', label: 'ATOMIC'},

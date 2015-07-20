@@ -19,13 +19,14 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
-        $scope.tableSimpleNewItem = $table.tableSimpleNewItem;
-        $scope.tableSimpleNewItemActive = $table.tableSimpleNewItemActive;
+        $scope.tableNewItem = $table.tableNewItem;
+        $scope.tableNewItemActive = $table.tableNewItemActive;
+        $scope.tableEditing = $table.tableEditing;
+        $scope.tableStartEdit = $table.tableStartEdit;
+        $scope.tableRemove = $table.tableRemove;
+
         $scope.tableSimpleSave = $table.tableSimpleSave;
         $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
-        $scope.tableSimpleStartEdit = $table.tableSimpleStartEdit;
-        $scope.tableSimpleEditing = $table.tableSimpleEditing;
-        $scope.tableSimpleRemove = $table.tableSimpleRemove;
         $scope.tableSimpleUp = $table.tableSimpleUp;
         $scope.tableSimpleDown = $table.tableSimpleDown;
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;

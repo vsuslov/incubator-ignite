@@ -190,9 +190,6 @@ controlCenterModule.service('$saveAs', function ($modal, $rootScope, $q) {
 
 // Tables support service.
 controlCenterModule.service('$table', ['$common', function ($common) {
-    var tableSimple = {name: 'none', editIndex: -1};
-    var tablePair = {name: 'none', editIndex: -1};
-
     function swapSimpleItems(a, ix1, ix2) {
         var tmp = a[ix1];
 
@@ -204,44 +201,41 @@ controlCenterModule.service('$table', ['$common', function ($common) {
         return $common.getModel(item, field);
     }
 
-    function tableSimpleReset() {
-        tableSimple.name = 'none';
-        tableSimple.editIndex = -1;
+    var table = {name: 'none', editIndex: -1};
+
+    function tableReset() {
+        table.name = 'none';
+        table.editIndex = -1;
     }
 
-    function tablePairReset() {
-        tablePair.name = 'none';
-        tablePair.editIndex = -1;
-    }
-
-    function tableSimpleState(name, editIndex) {
-        tableSimple.name = name;
-        tableSimple.editIndex = editIndex;
-
-        tablePairReset();
-    }
-
-    function tablePairState(name, editIndex) {
-        tablePair.name = name;
-        tablePair.editIndex = editIndex;
-
-        tableSimpleReset();
+    function tableState(name, editIndex) {
+        table.name = name;
+        table.editIndex = editIndex;
     }
 
     return {
-        tableSimpleNewItem: function (field) {
-            tableSimpleState(field.model, -1);
+        tableNewItem: function (field) {
+            tableState(field.model, -1);
         },
-        tableSimpleNewItemActive: function (field) {
-            return tableSimple.name == field.model && tableSimple.editIndex < 0;
+        tableNewItemActive: function (field) {
+            return table.name == field.model && table.editIndex < 0;
         },
-        tableSimpleValid: function(item, field, newValue, index) {
-            return $common.isDefined(item) && $common.isDefined(field) && $common.isDefined(newValue);
+        tableEditing: function (field, index) {
+            return table.name == field.model && table.editIndex == index;
+        },
+        tableStartEdit: function (item, field, index) {
+            tableState(field.model, index);
+
+            return model(item, field)[field.model][index];
+        },
+        tableRemove: function (item, field, index) {
+            tableReset();
+
+            model(item, field)[field.model].splice(index, 1);
         },
         tableSimpleSave: function (valueValid, item, field, newValue, index) {
             if (valueValid(item, field, newValue, index)) {
-                tableSimpleReset();
-                tablePairReset();
+                tableReset();
 
                 if (index < 0) {
                     if (model(item, field)[field.model])
@@ -256,46 +250,22 @@ controlCenterModule.service('$table', ['$common', function ($common) {
         tableSimpleSaveVisible: function(newValue) {
             return $common.isDefined(newValue) && newValue.trim().length > 0;
         },
-        tableSimpleStartEdit: function (item, field, index) {
-            tableSimpleState(field.model, index);
-
-            return model(item, field)[field.model][index];
-        },
-        tableSimpleEditing: function (field, index) {
-            return tableSimple.name == field.model && tableSimple.editIndex == index;
-        },
-        tableSimpleRemove: function (item, field, index) {
-            tableSimpleReset();
-            tablePairReset();
-
-            model(item, field)[field.model].splice(index, 1);
-        },
         tableSimpleUp: function (item, field, index) {
-            tableSimpleReset();
+            tableReset();
 
             swapSimpleItems(model(item, field)[field.model], index, index - 1);
         },
         tableSimpleDown: function (item, field, index) {
-            tableSimpleReset();
+            tableReset();
 
             swapSimpleItems(model(item, field)[field.model], index, index + 1);
         },
         tableSimpleDownVisible: function (item, field, index) {
             return index < model(item, field)[field.model].length - 1;
         },
-        tablePairNewItem: function (field) {
-            tablePairState(field.model, -1);
-        },
-        tablePairNewItemActive: function (field) {
-            return tablePair.name == field.model && tablePair.editIndex < 0;
-        },
-        tablePairValid: function(item, field, newKey, newValue, index) {
-            return $common.isDefined(item) && $common.isDefined(newKey) && $common.isDefined(newValue);
-        },
         tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
             if (pairValid(item, field, newKey, newValue, index)) {
-                tableSimpleReset();
-                tablePairReset();
+                tableReset();
 
                 var pair = {};
 
@@ -319,20 +289,6 @@ controlCenterModule.service('$table', ['$common', function ($common) {
         tablePairSaveVisible: function(newKey, newValue) {
             return $common.isDefined(newKey) && $common.isDefined(newValue) &&
                 newKey.trim().length > 0 &&  newValue.trim().length > 0;
-        },
-        tablePairStartEdit: function (item, field, index) {
-            tablePairState(field.model, index);
-
-            return item[field.model][index];
-        },
-        tablePairEditing: function (field, index) {
-            return tablePair.name == field.model && tablePair.editIndex == index;
-        },
-        tablePairRemove: function (item, field, index) {
-            tableSimpleReset();
-            tablePairReset();
-
-            item[field.model].splice(index, 1);
         }
     }
 }]);

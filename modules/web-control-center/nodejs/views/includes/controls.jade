@@ -41,15 +41,15 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
     .col-sm-6
         label.table-header #{header}:
         +tipLabel('field.tip')
-        button.btn.btn-primary.fieldButton(ng-click='tablePairNewItem(field)') Add
+        button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
     table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
         tbody
             tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                 td.col-sm-6
-                    div(ng-show='!tablePairEditing(field, $index)')
-                        a(ng-click='curPair = tablePairStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
-                        +btn-remove('tablePairRemove(backupItem, field, $index)')
-                    div(ng-show='tablePairEditing(field, $index)')
+                    div(ng-show='!tableEditing(field, $index)')
+                        a(ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
+                        +btn-remove('tableRemove(backupItem, field, $index)')
+                    div(ng-show='tableEditing(field, $index)')
                         label.labelField {{$index + 1}})
                         +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
                         .input-tip
@@ -57,7 +57,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                                 input.form-control.table-form-control(type='text' ng-model='curKey' placeholder=keyPlaceholder)
                                 label &nbsp;/&nbsp;
                                 input.form-control.table-form-control(type='text' ng-model='curValue' placeholder=valPlaceholder)
-    .settings-row(ng-show='tablePairNewItemActive(field)')
+    .settings-row(ng-show='tableNewItemActive(field)')
         .col-sm-6
             +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
             .input-tip
@@ -116,13 +116,13 @@ mixin details-row
                 tbody
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
-                            div(ng-show='!tableSimpleEditing(detail, $index)')
-                                +btn-remove('tableSimpleRemove(backupItem, detail, $index)')
+                            div(ng-show='!tableEditing(detail, $index)')
+                                +btn-remove('tableRemove(backupItem, detail, $index)')
                                 +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
                                 +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
                                 .input-tip
-                                    a(ng-click='curValue = tableSimpleStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
-                            div(ng-show='tableSimpleEditing(detail, $index)')
+                                    a(ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
+                            div(ng-show='tableEditing(detail, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
                                 .input-tip.form-group.has-feedback
@@ -131,7 +131,7 @@ mixin details-row
             button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
-                input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableSimpleNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)
+                input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin form-row
@@ -201,22 +201,22 @@ mixin form-row-custom(lblClasses, fieldClasses)
             .col-sm-6
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
-                button.btn.btn-primary.fieldButton(ng-click='tableSimpleNewItem(field)') Add
+                button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
             table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
                 tbody
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
                         td.col-sm-6
-                            div(ng-show='!tableSimpleEditing(field, $index)')
-                                a(ng-click='curValue = tableSimpleStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
-                                +btn-remove('tableSimpleRemove(backupItem, field, $index)')
+                            div(ng-show='!tableEditing(field, $index)')
+                                a(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
+                                +btn-remove('tableRemove(backupItem, field, $index)')
                                 +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
                                 +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')
-                            div(ng-show='tableSimpleEditing(field, $index)')
+                            div(ng-show='tableEditing(field, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
-            .settings-row(ng-show='tableSimpleNewItemActive(field)')
+            .settings-row(ng-show='tableNewItemActive(field)')
                 .col-sm-6
                     +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                     .input-tip
