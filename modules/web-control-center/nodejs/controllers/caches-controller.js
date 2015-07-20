@@ -129,7 +129,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                 var idx = _.indexOf(model, fx);
 
                 // Found itself.
-                if (index > 0 && index == idx)
+                if (index >= 0 && index == idx)
                     return true;
 
                 // Found duplicate.
@@ -150,7 +150,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                 var idx = _.findIndex(model, function (pair) {return pair.keyClass == keyCls});
 
                 // Found itself.
-                if (index > 0 && index == idx)
+                if (index >= 0 && index == idx)
                     return true;
 
                 // Found duplicate.

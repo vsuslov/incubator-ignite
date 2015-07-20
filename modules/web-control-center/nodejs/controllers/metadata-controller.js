@@ -317,7 +317,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 var idx = _.indexOf(model, name);
 
                 // Found itself.
-                if (index > 0 && index == idx)
+                if (index >= 0 && index == idx)
                     return true;
 
                 // Found duplicate.
@@ -338,7 +338,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 var idx = _.findIndex(model, function (pair) {return pair.name == name});
 
                 // Found itself.
-                if (index > 0 && index == idx)
+                if (index >= 0 && index == idx)
                     return true;
 
                 // Found duplicate.
