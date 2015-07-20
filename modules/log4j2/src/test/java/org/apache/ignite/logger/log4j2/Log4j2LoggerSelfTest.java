@@ -27,7 +27,6 @@ import org.apache.ignite.spi.discovery.tcp.*;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
 import org.apache.ignite.testframework.*;
 import org.apache.ignite.testframework.junits.common.*;
-import org.apache.logging.log4j.*;
 
 import java.io.*;
 import java.util.*;
@@ -36,7 +35,7 @@ import java.util.*;
  * Grid Log4j2 SPI test.
  */
 @GridCommonTest(group = "Logger")
-public class GridLog4j2SelfTest extends TestCase {
+public class Log4j2LoggerSelfTest extends TestCase {
     /** */
     public static final String LOG_PATH_TEST = "modules/core/src/test/config/log4j2-test.xml";
 
@@ -113,63 +112,6 @@ public class GridLog4j2SelfTest extends TestCase {
         new Log4J2Logger(LOG_PATH_TEST).setNodeId(id);
 
         assertEquals(U.id8(id), System.getProperty("nodeId"));
-    }
-
-    /**
-     * Test can be run from IDE
-     *
-     * @throws Exception If failed.
-     */
-    public void _testVerboseMode() throws Exception {
-        final PrintStream backupSysOut = System.out;
-        final PrintStream backupSysErr = System.err;
-
-        final ByteArrayOutputStream testOut = new ByteArrayOutputStream();
-        final ByteArrayOutputStream testErr = new ByteArrayOutputStream();
-
-        try {
-            System.setOut(new PrintStream(testOut));
-            System.setErr(new PrintStream(testErr));
-
-            System.setProperty("IGNITE_QUIET", "false");
-
-            try (Ignite ignite = G.start(getConfiguration("verboseLogGrid", LOG_PATH_VERBOSE_TEST))) {
-                String testMsg = "******* Hello Tester! ******* ";
-
-                ignite.log().error(testMsg + Level.ERROR);
-                ignite.log().warning(testMsg + Level.WARN);
-                ignite.log().info(testMsg + Level.INFO);
-                ignite.log().debug(testMsg + Level.DEBUG);
-                ignite.log().trace(testMsg + Level.TRACE);
-
-                String consoleOut = testOut.toString();
-                String consoleErr = testErr.toString();
-
-                assertTrue(consoleOut.contains(testMsg + Level.INFO));
-                assertTrue(consoleOut.contains(testMsg + Level.DEBUG));
-                assertTrue(consoleOut.contains(testMsg + Level.TRACE));
-                assertTrue(consoleOut.contains(testMsg + Level.ERROR));
-                assertTrue(consoleOut.contains(testMsg + Level.WARN));
-
-                assertTrue(consoleErr.contains(testMsg + Level.ERROR));
-                assertTrue(consoleErr.contains(testMsg + Level.WARN));
-                assertTrue(!consoleErr.contains(testMsg + Level.INFO));
-                assertTrue(consoleErr.contains(testMsg + Level.DEBUG));
-                assertTrue(consoleErr.contains(testMsg + Level.TRACE));
-            }
-        }
-        finally {
-            System.setProperty("IGNITE_QUIET", "true");
-
-            System.setOut(backupSysOut);
-            System.setErr(backupSysErr);
-
-            System.out.println("**************** Out Console content ***************");
-            System.out.println(testOut.toString());
-
-            System.err.println("**************** Err Console content ***************");
-            System.err.println(testErr.toString());
-        }
     }
 
     /**
