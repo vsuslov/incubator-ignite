@@ -53,7 +53,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(require('less-middleware')(path.join(__dirname, 'public'), {
-    debug: true,
     render: {
         compress: false
     }
