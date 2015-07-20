@@ -53,7 +53,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
         editor.setReadOnly(true);
         editor.setOption("highlightActiveLine", false);
 
-        editor.setTheme('chrome');
+        editor.setTheme('ace/theme/chrome');
     };
 
     $scope.reloadServer = function() {
