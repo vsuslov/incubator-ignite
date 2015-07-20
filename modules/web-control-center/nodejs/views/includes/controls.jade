@@ -137,6 +137,23 @@ mixin details-row
                 input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
+mixin table-db-field-edit(dbName, dbType, javaName, javaType)
+    .grid
+        .grid-cell-4
+            input.form-control(type='text' ng-model=dbName placeholder='DB name')
+        div
+            label &nbsp;/&nbsp;
+        .grid-cell-4
+            button.form-control(ng-model=dbType bs-select data-placeholder='JDBC type' bs-options='item.value as item.label for item in {{jdbcTypes}}')
+        div
+            label &nbsp;/&nbsp;
+        .grid-cell-4
+            input.form-control(type='text' ng-model=javaName placeholder='Java name')
+        div
+            label &nbsp;/&nbsp;
+        .grid-cell-4
+            button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
+
 mixin form-row
     +form-row-custom(['col-sm-2'], ['col-sm-4'])
 
@@ -224,9 +241,31 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                     .input-tip
                         input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
-        div(ng-switch-when='fieldsMetadata' ng-hide=fieldHide)
-            +table-pair('{{field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name')
-        div(ng-switch-when='groupsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
-            label.table-header {{field.label}}:
         div(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name')
+        div(ng-switch-when='queryFields' ng-hide=fieldHide)
+            +table-pair('{{field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name')
+        div(ng-switch-when='dbFields' ng-hide=fieldHide)
+            .col-sm-6
+                label.table-header {{field.label}}:
+                +tipLabel('field.tip')
+                button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
+            table.links-edit.col-sm-12(st-table=fieldMdl ng-show='#{fieldMdl}.length > 0')
+                tbody
+                    tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
+                        td.col-sm-6
+                            div(ng-show='!tableEditing(field, $index)')
+                                a(ng-click='curDbFldMeta = tableStartEdit(backupItem, field, $index); curDbName = curDbFldMeta.dbName; curDbType = curDbFldMeta.dbType; curJavaName = curDbFldMeta.javaName; curJavaType = curDbFldMeta.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
+                                +btn-remove('tableRemove(backupItem, field, $index)')
+                            div(ng-if='tableEditing(field, $index)')
+                                label.labelField {{$index + 1}})
+                                +btn-save('tableDbFieldSaveVisible(curDbName, curDbType, curJavaName, curJavaType)', 'tableDbFieldSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
+                                .input-tip
+                                    +table-db-field-edit('curDbName', 'curDbType', 'curJavaName', 'curJavaType')
+            .settings-row(ng-show='tableNewItemActive(field)')
+                .col-sm-6
+                    +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
+                    .input-tip
+                        +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
+        div(ng-switch-when='groupsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
+            label.table-header {{field.label}}:
