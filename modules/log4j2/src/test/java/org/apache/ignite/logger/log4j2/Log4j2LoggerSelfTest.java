@@ -37,13 +37,10 @@ import java.util.*;
 @GridCommonTest(group = "Logger")
 public class Log4j2LoggerSelfTest extends TestCase {
     /** */
-    public static final String LOG_PATH_TEST = "modules/core/src/test/config/log4j2-test.xml";
+    private static final String LOG_PATH_TEST = "modules/core/src/test/config/log4j2-test.xml";
 
     /** */
-    public static final String LOG_PATH_VERBOSE_TEST = "modules/core/src/test/config/log4j2-verbose-test.xml";
-
-    /** */
-    public static final String LOG_PATH_MAIN = "config/ignite-log4j2.xml";
+    private static final String LOG_PATH_MAIN = "config/ignite-log4j2.xml";
 
     /**
      * @throws Exception If failed.
