@@ -37,7 +37,7 @@ router.post('/generator', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientCache = req.body.clientCache;
+        var clientCache = req.body.clientNearConfiguration;
 
         if (clientCache)
             return res.send({
@@ -63,7 +63,7 @@ router.post('/download', function (req, res) {
         if (!cluster)
             return res.sendStatus(404);
 
-        var clientCache = req.body.clientCache;
+        var clientNearConfiguration = req.body.clientNearConfiguration;
 
         var archiver = require('archiver');
 
@@ -80,7 +80,7 @@ router.post('/download', function (req, res) {
         });
 
         // Set the archive name.
-        res.attachment(cluster.name + (clientCache ? '-client' : '') + '-configuration.zip');
+        res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');
 
@@ -89,7 +89,7 @@ router.post('/download', function (req, res) {
 
         var javaClass = req.body.javaClass;
 
-        if (!clientCache) {
+        if (!clientNearConfiguration) {
             zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
 
             var props = generatorCommon.generateProperties(cluster);
@@ -98,8 +98,8 @@ router.post('/download', function (req, res) {
                 zip.append(props, {name: "secret.properties"});
         }
 
-        zip.append(generatorXml.generateClusterConfiguration(cluster, clientCache), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientCache),
+        zip.append(generatorXml.generateClusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + ".xml"})
+            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientNearConfiguration),
                 {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
             .finalize();
     });

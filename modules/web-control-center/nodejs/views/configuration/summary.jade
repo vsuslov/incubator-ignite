@@ -74,7 +74,7 @@ block content
                                         .col-sm-1
                                             label Generate:
                                         .col-sm-3
-                                            button.form-control(type='button' ng-model='javaClassServer' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                            button.form-control(type='button' ng-model='configServer.javaClassServer'  bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                                     .configBox(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaServer')
                                 div(title='<img src="/images/docker.png" width="16px" height="16px"/> Dockerfile' bs-pane)
                                     .settings-row
@@ -90,14 +90,14 @@ block content
                                         .col-sm-2
                                             label(for='os') Operation System:
                                         .col-sm-4
-                                            input#os.form-control(type='text', ng-model='os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
+                                            input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
                                     div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             div(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     form.panel-heading(role='tab' method='post' action='summary/download')
                         input(type="hidden" name="_id" value="{{selectedItem._id}}")
                         input(type="hidden" name="javaClass" value="{{javaClassClient}}")
-                        input(type="hidden" name="clientCache" value="{{backupItem}}")
+                        input(type="hidden" name="clientNearConfiguration" value="{{backupItem}}")
 
                         h3
                             a(bs-collapse-toggle) Client
@@ -115,5 +115,5 @@ block content
                                             .col-sm-1
                                                 label Generate:
                                             .col-sm-4
-                                                button.form-control(type='button' ng-model='javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                                button.form-control(type='button' ng-model='backupItem.javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                                         div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaClient')

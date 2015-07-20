@@ -32,7 +32,10 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
         {value: undefined, label: 'Not set'}
     ];
 
-    $scope.backupItem = {};
+    $scope.oss = ['debian:8', 'ubuntu:14.10'];
+
+    $scope.configServer = {javaClassServer: false, os: undefined};
+    $scope.backupItem = {javaClassClient: false};
 
     $http.get('/models/summary.json')
         .success(function (data) {
@@ -44,14 +47,6 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
             $common.showError(errMsg);
         });
 
-    $scope.oss = ['debian:8', 'ubuntu:14.10'];
-
-    $scope.javaClassServer = false;
-    $scope.javaClassClient = false;
-
-    $scope.os = undefined;
-
-    $scope.configServer = {};
     $scope.clusters = [];
 
     $scope.aceInit = function(editor) {
@@ -62,10 +57,10 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     };
 
     $scope.reloadServer = function() {
-        $scope.javaServer = $scope.javaClass ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
+        $scope.javaServer = $scope.configServer.javaClassServer ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
 
         if ($scope.configServer.docker) {
-            var os = $scope.os ? $scope.os : $scope.oss[0];
+            var os = $scope.configServer.os ? $scope.configServer.os : $scope.oss[0];
 
             $scope.dockerServer = $scope.configServer.docker.replace(new RegExp('\%OS\%', 'g'), os);
         }
@@ -84,11 +79,13 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
         $scope.reloadServer();
 
+        $scope.$watch('configServer', function() {
+            $scope.reloadServer();
+        }, true);
+
         $scope.$watch('backupItem', function() {
             $scope.generateClient();
         }, true);
-
-        $scope.$watch('javaClassClient', $scope.generateClient);
     };
 
     $scope.generateServer = function(cluster) {
@@ -99,15 +96,14 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
                 $scope.configServer.javaClass = data.javaClassServer;
                 $scope.configServer.javaSnippet = data.javaSnippetServer;
                 $scope.configServer.docker = data.docker;
-
-                $scope.reloadServer();
             }).error(function (errMsg) {
                 $common.showError('Failed to generate config: ' + errMsg);
             });
     };
 
     $scope.generateClient = function() {
-        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientCache: $scope.backupItem})
+        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient,
+            clientNearConfiguration: $scope.backupItem.nearConfiguration})
             .success(function (data) {
                 $scope.xmlClient = data.xmlClient;
                 $scope.javaClient = data.javaClient;

@@ -24,6 +24,11 @@ router.get('/select', function (req, res) {
     res.render('templates/select', {});
 });
 
+// GET tabs template.
+router.get('/tab', function (req, res) {
+    res.render('templates/tab', {});
+});
+
 // GET confirmation dialog.
 router.get('/confirm', function (req, res) {
     res.render('templates/confirm', {});

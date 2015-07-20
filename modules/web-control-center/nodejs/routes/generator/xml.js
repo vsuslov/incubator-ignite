@@ -20,20 +20,20 @@ var _ = require('lodash');
 var generatorUtils = require("./common");
 var dataStructures = require("../../helpers/data-structures.js");
 
-exports.generateClusterConfiguration = function(cluster, clientCache) {
+exports.generateClusterConfiguration = function(cluster, clientNearConfiguration) {
     var res = generatorUtils.builder();
 
     res.datasources = [];
     res.deep = 1;
 
-    if (clientCache && clientCache.nearConfiguration) {
+    if (clientNearConfiguration) {
         res.startBlock('<bean id="nearCacheBean" class="org.apache.ignite.configuration.NearCacheConfiguration">');
 
-        if (clientCache.nearConfiguration.nearStartSize)
-            addProperty(res, clientCache.nearConfiguration, 'nearStartSize');
+        if (clientNearConfiguration.nearStartSize)
+            addProperty(res, clientNearConfiguration, 'nearStartSize');
 
-        if (clientCache.nearConfiguration.nearEvictionPolicy && clientCache.nearConfiguration.nearEvictionPolicy.kind)
-            createEvictionPolicy(res, clientCache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+        if (clientNearConfiguration.nearEvictionPolicy && clientNearConfiguration.nearEvictionPolicy.kind)
+            createEvictionPolicy(res, clientNearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
 
         res.endBlock('</bean>');
 
@@ -43,7 +43,7 @@ exports.generateClusterConfiguration = function(cluster, clientCache) {
     // Generate Ignite Configuration.
     res.startBlock('<bean class="org.apache.ignite.configuration.IgniteConfiguration">');
 
-    if (clientCache) {
+    if (clientNearConfiguration) {
         res.line('<property name="clientMode" value="true" />');
 
         res.line();
