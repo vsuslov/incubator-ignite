@@ -148,16 +148,14 @@ public class GridLog4j2SelfTest extends TestCase {
                 assertTrue(consoleOut.contains(testMsg + Level.INFO));
                 assertTrue(consoleOut.contains(testMsg + Level.DEBUG));
                 assertTrue(consoleOut.contains(testMsg + Level.TRACE));
+                assertTrue(consoleOut.contains(testMsg + Level.ERROR));
+                assertTrue(consoleOut.contains(testMsg + Level.WARN));
 
                 assertTrue(consoleErr.contains(testMsg + Level.ERROR));
                 assertTrue(consoleErr.contains(testMsg + Level.WARN));
-
-                assertTrue(!consoleOut.contains(testMsg + Level.ERROR));
-                assertTrue(!consoleOut.contains(testMsg + Level.WARN));
-
                 assertTrue(!consoleErr.contains(testMsg + Level.INFO));
-                assertTrue(!consoleErr.contains(testMsg + Level.DEBUG));
-                assertTrue(!consoleErr.contains(testMsg + Level.TRACE));
+                assertTrue(consoleErr.contains(testMsg + Level.DEBUG));
+                assertTrue(consoleErr.contains(testMsg + Level.TRACE));
             }
         }
         finally {

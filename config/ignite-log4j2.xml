@@ -21,7 +21,7 @@
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{ABSOLUTE}][%-5p][%t][%c{1}] %m%n"/>
-            <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
+            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
 
         <Console name="CONSOLE_ERR" target="SYSTEM_ERR">
@@ -74,7 +74,7 @@
             <AppenderRef ref="CONSOLE" level="DEBUG"/>
             -->
 
-            <AppenderRef ref="CONSOLE_ERR" level="WARN"/>
+            <AppenderRef ref="CONSOLE_ERR" level="ERROR"/>
             <AppenderRef ref="FILE" level="DEBUG"/>
         </Root>
     </Loggers>
