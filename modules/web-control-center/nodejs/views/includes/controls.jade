@@ -267,5 +267,20 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
                     .input-tip
                         +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
-        div(ng-switch-when='groupsMetadata' ng-hide=fieldHide)&attributes(fieldCommon)
-            label.table-header {{field.label}}:
+        div(ng-switch-when='queryGroups' ng-hide=fieldHide)
+            .col-sm-6
+                label.table-header {{field.label}}:
+                +tipLabel('field.tip')
+                button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
+            table.links-edit.col-sm-12(st-table=fieldMdl ng-show='#{fieldMdl}.length > 0')
+                tbody
+                    tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
+                        td.col-sm-6
+                            div
+                                a(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{item.name}}
+                                +btn-remove('tableRemove(backupItem, field, $index)')
+                                table
+                                    tr(ng-repeat='z in item.fields')
+                                        td
+                                            label {{$index + 1}}) {{z.name}} / {{z.className}} / {{z.direction}}
+

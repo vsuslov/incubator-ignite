@@ -121,7 +121,7 @@
     },
     {
       "label": "Groups",
-      "type": "groupsMetadata",
+      "type": "queryGroups",
       "model": "groups",
       "hide": "backupItem.kind != 'query'",
       "tip": ["Collection of group indexes."]

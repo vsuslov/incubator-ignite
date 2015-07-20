@@ -303,6 +303,21 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         // Add new metadata.
         $scope.createItem = function () {
             $scope.backupItem = angular.copy($scope.template);
+
+            $scope.backupItem.groups = [{
+                name: "index1",
+                fields: [
+                    {name: "fld1", className: "Integer", direction: "ASC"},
+                    {name: "fld2", className: "String", direction: "DESC"}]
+            },
+                {
+                    name: "index1",
+                    fields: [
+                        {name: "fld3", className: "Integer", direction: "ASC"},
+                        {name: "fld4", className: "Data", direction: "DESC"}]
+                }
+            ];
+
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
