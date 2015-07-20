@@ -25,28 +25,15 @@ var ignite = require('apache-ignite');
 
 var db = require('../db');
 
-var fs = require('fs');
-
 var AgentServer = require('./agent-server').AgentServer;
 
 /**
  * @constructor
- * @param {Number} port
  */
-function AgentManager(port) {
-    this._port = port;
-
+function AgentManager(srv) {
     this._clients = {};
-}
 
-AgentManager.prototype.startup = function() {
-    this._server = https.createServer({
-        key: fs.readFileSync(config.get('monitor:server:key')),
-        cert: fs.readFileSync(config.get('monitor:server:cert')),
-        passphrase: config.get('monitor:server:keyPassphrase')
-    });
-
-    this._server.listen(this._port);
+    this._server = srv;
 
     this._wss = new WebSocketServer({ server: this._server });
 
@@ -55,7 +42,7 @@ AgentManager.prototype.startup = function() {
     this._wss.on('connection', function(ws) {
         var client = new Client(ws, self);
     });
-};
+}
 
 /**
  * @param userId
@@ -280,17 +267,21 @@ function removeFromArray(arr, val) {
 
 exports.AgentManager = AgentManager;
 
+/**
+ * @type {AgentManager}
+ */
 var manager = null;
+
+exports.createManager = function(srv) {
+    if (manager)
+        throw "Agent manager already cleared!";
+
+    manager = new AgentManager(srv);
+};
 
 /**
  * @return {AgentManager}
  */
-exports.getOrCreate = function() {
-    if (!manager) {
-        manager = new AgentManager(config.get('monitor:server:port'));
-
-        manager.startup();
-    }
-
+exports.getAgentManager = function() {
     return manager;
 };

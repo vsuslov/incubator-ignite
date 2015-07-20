@@ -22,7 +22,7 @@ var agentManager = require('../agents/agent-manager');
 
 /* GET summary page. */
 router.get('/', function(req, res) {
-    var c = agentManager.getOrCreate().getOneClient();
+    var c = agentManager.getAgentManager().getOneClient();
 
     if (!c) {
         return res.send("Client not found");
