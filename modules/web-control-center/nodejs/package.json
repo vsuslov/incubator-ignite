@@ -6,15 +6,19 @@
   "scripts": {
     "start": "node ./bin/www"
   },
-  "author" : "",
-  "contributors": [{
-    "name": "",
-    "email": ""
-  }],
-  "license" : "Apache-2.0",
-  "keywords" : "grid",
-  "homepage" : "https://ignite.incubator.apache.org/",
-  "engines" : { "node" : ">=0.12.4" },
+  "author": "",
+  "contributors": [
+    {
+      "name": "",
+      "email": ""
+    }
+  ],
+  "license": "Apache-2.0",
+  "keywords": "grid",
+  "homepage": "https://ignite.incubator.apache.org/",
+  "engines": {
+    "node": ">=0.12.4"
+  },
   "dependencies": {
     "angular-ui-ace": "^0.2.3",
     "archiver": "^0.14.4",

@@ -19,7 +19,7 @@ var _ = require('lodash');
 
 var generatorUtils = require("./common");
 
-exports.generateClusterConfiguration = function(cluster, javaClass, clientCache) {
+exports.generateClusterConfiguration = function(cluster, javaClass, clientNearConfiguration) {
     var res = generatorUtils.builder();
 
     res.datasourceBeans = [];
@@ -40,7 +40,7 @@ exports.generateClusterConfiguration = function(cluster, javaClass, clientCache)
     res.line('IgniteConfiguration cfg = new IgniteConfiguration();');
     res.line();
 
-    if (clientCache) {
+    if (clientNearConfiguration) {
         res.line('cfg.setClientMode(true);');
 
         res.line();

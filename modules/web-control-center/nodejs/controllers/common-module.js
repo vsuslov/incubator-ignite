@@ -17,8 +17,47 @@
 
 var controlCenterModule = angular.module('ignite-web-control-center', ['smart-table', 'mgcrea.ngStrap', 'ui.ace', 'ngSanitize']);
 
+// Modal popup configuration.
+controlCenterModule.config(function ($modalProvider) {
+    angular.extend($modalProvider.defaults, {
+        html: true
+    });
+});
+
+// Tooltips configuration.
+controlCenterModule.config(function ($tooltipProvider) {
+    angular.extend($tooltipProvider.defaults, {
+        container: 'body',
+        placement: 'right',
+        html: 'true',
+        trigger: 'click hover'
+    });
+});
+
+// Comboboxes configuration.
+controlCenterModule.config(function ($selectProvider) {
+    angular.extend($selectProvider.defaults, {
+        maxLength: '1',
+        allText: 'Select All',
+        noneText: 'Clear All',
+        templateUrl: '/select',
+        iconCheckmark: 'fa fa-check',
+        caretHtml: '<span class="caret"></span>'
+    });
+});
+
+// Alerts configuration.
+controlCenterModule.config(function ($alertProvider) {
+    angular.extend($alertProvider.defaults, {
+        container: 'body',
+        placement: 'top-right',
+        duration: '5',
+        type: 'danger'
+    });
+});
+
 // Common functions to be used in controllers.
-controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
+controlCenterModule.service('$common', ['$alert', function ($alert) {
     var msgModal = undefined;
 
     function errorMessage(errMsg) {
@@ -30,7 +69,9 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
     }
 
     return {
-        getModel: function (obj, path) {
+        getModel: function (obj, field) {
+            var path = field.path;
+
             if (!isDefined(path))
                 return obj;
 
@@ -51,12 +92,6 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
 
             return root;
         },
-        swapSimpleItems: function (a, ix1, ix2) {
-            var tmp = a[ix1];
-
-            a[ix1] = a[ix2];
-            a[ix2] = tmp;
-        },
         joinTip: function (arr) {
             if (!arr) {
                 return arr;
@@ -75,6 +110,9 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
             return lines.join("");
         },
         isDefined: isDefined,
+        isNonEmpty: function (s) {
+            return isDefined(s) && s.trim().length > 0;
+        },
         errorMessage: errorMessage,
         showError: function (msg) {
             if (msgModal)
@@ -95,18 +133,13 @@ controlCenterModule.service('commonFunctions', ['$alert', function ($alert) {
     }
 }]);
 
-controlCenterModule.config(function($modalProvider) {
-    angular.extend($modalProvider.defaults, {
-        html: true
-    });
-});
-
-controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
+// Confirm popup service.
+controlCenterModule.service('$confirm', function ($modal, $rootScope, $q) {
     var scope = $rootScope.$new();
 
     var deferred;
 
-    scope.ok = function() {
+    scope.ok = function () {
         deferred.resolve();
 
         confirmModal.hide();
@@ -116,7 +149,7 @@ controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
 
     var parentShow = confirmModal.show;
 
-    confirmModal.show = function(content) {
+    confirmModal.show = function (content) {
         scope.content = content || 'Confirm deletion?';
 
         deferred = $q.defer();
@@ -129,12 +162,13 @@ controlCenterModule.service('$confirm', function($modal, $rootScope, $q) {
     return confirmModal;
 });
 
-controlCenterModule.service('$saveAs', function($modal, $rootScope, $q) {
+// "Save as" popup service.
+controlCenterModule.service('$saveAs', function ($modal, $rootScope, $q) {
     var scope = $rootScope.$new();
 
     var deferred;
 
-    scope.ok = function(newName) {
+    scope.ok = function (newName) {
         deferred.resolve(newName);
 
         saveAsModal.hide();
@@ -144,7 +178,7 @@ controlCenterModule.service('$saveAs', function($modal, $rootScope, $q) {
 
     var parentShow = saveAsModal.show;
 
-    saveAsModal.show = function(oldName) {
+    saveAsModal.show = function (oldName) {
         scope.newName = oldName + '(1)';
 
         deferred = $q.defer();
@@ -157,37 +191,115 @@ controlCenterModule.service('$saveAs', function($modal, $rootScope, $q) {
     return saveAsModal;
 });
 
-controlCenterModule.config(function ($tooltipProvider) {
-    angular.extend($tooltipProvider.defaults, {
-        container: 'body',
-        placement: 'right',
-        html: 'true',
-        trigger: 'click hover'
-    });
-});
+// Tables support service.
+controlCenterModule.service('$table', ['$common', function ($common) {
+    function _swapSimpleItems(a, ix1, ix2) {
+        var tmp = a[ix1];
 
-controlCenterModule.config(function ($selectProvider) {
-    angular.extend($selectProvider.defaults, {
-        maxLength: '1',
-        allText: 'Select All',
-        noneText: 'Clear All',
-        templateUrl: '/select',
-        iconCheckmark: 'fa fa-check',
-        caretHtml: '<span class="caret"></span>'
-    });
-});
+        a[ix1] = a[ix2];
+        a[ix2] = tmp;
+    }
 
-// Alert settings
-controlCenterModule.config(function ($alertProvider) {
-    angular.extend($alertProvider.defaults, {
-        container: 'body',
-        placement: 'top-right',
-        duration: '5',
-        type: 'danger'
-    });
-});
+    function _model(item, field) {
+        return $common.getModel(item, field);
+    }
 
-// Decode name using map(value, label).
+    var table = {name: 'none', editIndex: -1};
+
+    function _tableReset() {
+        table.name = 'none';
+        table.editIndex = -1;
+    }
+
+    function _tableState(name, editIndex) {
+        table.name = name;
+        table.editIndex = editIndex;
+    }
+
+    return {
+        tableReset: function () {
+            _tableReset();
+        },
+        tableNewItem: function (field) {
+            _tableState(field.model, -1);
+        },
+        tableNewItemActive: function (field) {
+            return table.name == field.model && table.editIndex < 0;
+        },
+        tableEditing: function (field, index) {
+            return table.name == field.model && table.editIndex == index;
+        },
+        tableStartEdit: function (item, field, index) {
+            _tableState(field.model, index);
+
+            return _model(item, field)[field.model][index];
+        },
+        tableRemove: function (item, field, index) {
+            _tableReset();
+
+            _model(item, field)[field.model].splice(index, 1);
+        },
+        tableSimpleSave: function (valueValid, item, field, newValue, index) {
+            if (valueValid(item, field, newValue, index)) {
+                _tableReset();
+
+                if (index < 0) {
+                    if (_model(item, field)[field.model])
+                        _model(item, field)[field.model].push(newValue);
+                    else
+                        _model(item, field)[field.model] = [newValue];
+                }
+                else
+                    _model(item, field)[field.model][index] = newValue;
+            }
+        },
+        tableSimpleSaveVisible: function(newValue) {
+            return $common.isNonEmpty(newValue);
+        },
+        tableSimpleUp: function (item, field, index) {
+            _tableReset();
+
+            _swapSimpleItems(_model(item, field)[field.model], index, index - 1);
+        },
+        tableSimpleDown: function (item, field, index) {
+            _tableReset();
+
+            _swapSimpleItems(_model(item, field)[field.model], index, index + 1);
+        },
+        tableSimpleDownVisible: function (item, field, index) {
+            return index < _model(item, field)[field.model].length - 1;
+        },
+        tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
+            if (pairValid(item, field, newKey, newValue, index)) {
+                _tableReset();
+
+                var pair = {};
+
+                if (index < 0) {
+                    pair[field.keyName] = newKey;
+                    pair[field.valueName] = newValue;
+
+                    if (item[field.model])
+                        item[field.model].push(pair);
+                    else
+                        item[field.model] = [pair];
+                }
+                else {
+                    pair = item[field.model][index];
+
+                    pair[field.keyName] = newKey;
+                    pair[field.valueName] = newValue;
+                }
+            }
+        },
+        tablePairSaveVisible: function(newKey, newValue) {
+            return $common.isNonEmpty(newKey) && $common.isNonEmpty(newValue);
+        }
+    }
+}]);
+
+
+// Filter to decode name using map(value, label).
 controlCenterModule.filter('displayValue', function () {
     return function (v, m, dflt) {
         var i = _.findIndex(m, function (item) {
@@ -207,7 +319,7 @@ controlCenterModule.filter('displayValue', function () {
 });
 
 /**
- * Replaces all occurrences of {@code org.apache.ignite.} with {@code o.a.i.},
+ * Filter for replacing all occurrences of {@code org.apache.ignite.} with {@code o.a.i.},
  * {@code org.apache.ignite.internal.} with {@code o.a.i.i.},
  * {@code org.apache.ignite.internal.visor.} with {@code o.a.i.i.v.} and
  * {@code org.apache.ignite.scalar.} with {@code o.a.i.s.}.
@@ -224,6 +336,7 @@ controlCenterModule.filter('compact', function () {
     }
 });
 
+// Directive to enable validation for IP addresses.
 controlCenterModule.directive('ipaddress', function () {
     const ip = '(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])';
     const port = '([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])';
@@ -243,6 +356,7 @@ controlCenterModule.directive('ipaddress', function () {
     }
 });
 
+// Directive to enable validation to match specified value.
 controlCenterModule.directive('match', function ($parse) {
     return {
         require: 'ngModel',
@@ -256,6 +370,7 @@ controlCenterModule.directive('match', function ($parse) {
     };
 });
 
+// Navigation bar controller.
 controlCenterModule.controller('activeLink', [
     '$scope', function ($scope) {
         $scope.isActive = function (path) {
@@ -263,10 +378,11 @@ controlCenterModule.controller('activeLink', [
         };
     }]);
 
+// Login popup controller.
 controlCenterModule.controller('auth', [
-    '$scope', '$modal', '$alert', '$http', '$window', 'commonFunctions',
-    function ($scope, $modal, $alert, $http, $window, commonFunctions) {
-        $scope.errorMessage = commonFunctions.errorMessage;
+    '$scope', '$modal', '$alert', '$http', '$window', '$common',
+    function ($scope, $modal, $alert, $http, $window, $common) {
+        $scope.errorMessage = $common.errorMessage;
 
         $scope.action = 'login';
 

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-    $scope.joinTip = commonFunctions.joinTip;
-    $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('summaryController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
+    $scope.joinTip = $common.joinTip;
+    $scope.getModel = $common.getModel;
 
     $scope.javaClassItems = [
         { label: 'snippet',value: false},
@@ -32,7 +32,10 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
         {value: undefined, label: 'Not set'}
     ];
 
-    $scope.backupItem = {};
+    $scope.oss = ['debian:8', 'ubuntu:14.10'];
+
+    $scope.configServer = {javaClassServer: false, os: undefined};
+    $scope.backupItem = {javaClassClient: false};
 
     $http.get('/models/summary.json')
         .success(function (data) {
@@ -41,31 +44,23 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
             $scope.screenTip = data.screenTip;
         })
         .error(function (errMsg) {
-            commonFunctions.showError(errMsg);
+            $common.showError(errMsg);
         });
 
-    $scope.oss = ['debian:8', 'ubuntu:14.10'];
-
-    $scope.javaClassServer = false;
-    $scope.javaClassClient = false;
-
-    $scope.os = undefined;
-
-    $scope.configServer = {};
     $scope.clusters = [];
 
     $scope.aceInit = function(editor) {
         editor.setReadOnly(true);
         editor.setOption("highlightActiveLine", false);
 
-        editor.setTheme('chrome');
+        editor.setTheme('ace/theme/chrome');
     };
 
     $scope.reloadServer = function() {
-        $scope.javaServer = $scope.javaClass ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
+        $scope.javaServer = $scope.configServer.javaClassServer ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
 
         if ($scope.configServer.docker) {
-            var os = $scope.os ? $scope.os : $scope.oss[0];
+            var os = $scope.configServer.os ? $scope.configServer.os : $scope.oss[0];
 
             $scope.dockerServer = $scope.configServer.docker.replace(new RegExp('\%OS\%', 'g'), os);
         }
@@ -84,11 +79,13 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
 
         $scope.reloadServer();
 
+        $scope.$watch('configServer', function() {
+            $scope.reloadServer();
+        }, true);
+
         $scope.$watch('backupItem', function() {
             $scope.generateClient();
         }, true);
-
-        $scope.$watch('javaClassClient', $scope.generateClient);
     };
 
     $scope.generateServer = function(cluster) {
@@ -99,20 +96,19 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
                 $scope.configServer.javaClass = data.javaClassServer;
                 $scope.configServer.javaSnippet = data.javaSnippetServer;
                 $scope.configServer.docker = data.docker;
-
-                $scope.reloadServer();
             }).error(function (errMsg) {
-                commonFunctions.showError('Failed to generate config: ' + errMsg);
+                $common.showError('Failed to generate config: ' + errMsg);
             });
     };
 
     $scope.generateClient = function() {
-        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.javaClassClient, clientCache: $scope.backupItem})
+        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient,
+            clientNearConfiguration: $scope.backupItem.nearConfiguration})
             .success(function (data) {
                 $scope.xmlClient = data.xmlClient;
                 $scope.javaClient = data.javaClient;
             }).error(function (errMsg) {
-                commonFunctions.showError('Failed to generate config: ' + errMsg);
+                $common.showError('Failed to generate config: ' + errMsg);
             });
     };
 
@@ -133,7 +129,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', 'commonF
                 document.body.removeChild(file);
             })
             .error(function (errMsg) {
-                commonFunctions.showError('Failed to generate zip: ' + errMsg);
+                $common.showError('Failed to generate zip: ' + errMsg);
             });
     };
 

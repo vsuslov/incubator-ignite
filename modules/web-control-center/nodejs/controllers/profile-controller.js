@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('profileController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
+controlCenterModule.controller('profileController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.profileUser = angular.copy($scope.user);
 
     $scope.saveUser = function() {
@@ -35,7 +35,7 @@ controlCenterModule.controller('profileController', ['$scope', '$http', 'commonF
                     email: changeEmail ? email : undefined,
                     newPassword: profile.changePassword ? profile.newPassword : undefined
                 }).success(function (user) {
-                    commonFunctions.showInfo('Profile saved.');
+                    $common.showInfo('Profile saved.');
 
                     if (changeUsername)
                         $scope.user.username = userName;
@@ -43,7 +43,7 @@ controlCenterModule.controller('profileController', ['$scope', '$http', 'commonF
                     if (changeEmail)
                         $scope.user.email = email;
                 }).error(function (err) {
-                    commonFunctions.showError('Failed to save profile: ' + commonFunctions.errorMessage(err));
+                    $common.showError('Failed to save profile: ' + $common.errorMessage(err));
                 });
             }
         }

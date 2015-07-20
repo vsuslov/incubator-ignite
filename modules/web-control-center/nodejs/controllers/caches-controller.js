@@ -15,10 +15,24 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs', '$confirm', 'commonFunctions', function ($scope, $http, $saveAs, $confirm, commonFunctions) {
-        $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
-        $scope.joinTip = commonFunctions.joinTip;
-        $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$confirm', '$saveAs', '$table', function ($scope, $http, $common, $confirm, $saveAs, $table) {
+        $scope.joinTip = $common.joinTip;
+        $scope.getModel = $common.getModel;
+
+        $scope.tableNewItem = $table.tableNewItem;
+        $scope.tableNewItemActive = $table.tableNewItemActive;
+        $scope.tableEditing = $table.tableEditing;
+        $scope.tableStartEdit = $table.tableStartEdit;
+        $scope.tableRemove = $table.tableRemove;
+
+        $scope.tableSimpleSave = $table.tableSimpleSave;
+        $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
+        $scope.tableSimpleUp = $table.tableSimpleUp;
+        $scope.tableSimpleDown = $table.tableSimpleDown;
+        $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
+
+        $scope.tablePairSave = $table.tablePairSave;
+        $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
         $scope.atomicities = [
             {value: 'ATOMIC', label: 'ATOMIC'},
@@ -82,13 +96,13 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                 $scope.advanced = data.advanced;
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         $scope.caches = [];
 
         $scope.required = function (field) {
-            var model = commonFunctions.isDefined(field.path) ? field.path + '.' + field.model : field.model;
+            var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
 
             var backupItem = $scope.backupItem;
 
@@ -103,9 +117,51 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                 return true;
 
             if (model == 'evictionPolicy.kind' && onHeapTired)
-                return backupItem.swapEnabled || (commonFunctions.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
+                return backupItem.swapEnabled || ($common.isDefined(offHeapMaxMemory) && offHeapMaxMemory >= 0);
 
             return false;
+        };
+
+        $scope.tableSimpleValid = function (item, field, fx, index) {
+            var model = item[field.model];
+
+            if ($common.isDefined(model)) {
+                var idx = _.indexOf(model, fx);
+
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('SQL function such class name already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $scope.tablePairValid = function (item, field, keyCls, valCls, index) {
+            var model = item[field.model];
+
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (pair) {return pair.keyClass == keyCls});
+
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Indexed type with such key class already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
         };
 
         // When landing on the page, get caches and show them.
@@ -141,7 +197,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                 }, true);
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -160,19 +216,19 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
             var cacheStoreFactorySelected = item.cacheStoreFactory && item.cacheStoreFactory.kind;
 
             if (cacheStoreFactorySelected && !(item.readThrough || item.writeThrough)) {
-                commonFunctions.showError('Store is configured but read/write through are not enabled!');
+                $common.showError('Store is configured but read/write through are not enabled!');
 
                 return false;
             }
 
             if ((item.readThrough || item.writeThrough) && !cacheStoreFactorySelected) {
-                commonFunctions.showError('Read / write through are enabled but store is not configured!');
+                $common.showError('Read / write through are enabled but store is not configured!');
 
                 return false;
             }
 
             if (item.writeBehindEnabled && !cacheStoreFactorySelected) {
-                commonFunctions.showError('Write behind enabled but store is not configured!');
+                $common.showError('Write behind enabled but store is not configured!');
 
                 return false;
             }
@@ -198,10 +254,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
 
                     $scope.selectItem(item);
 
-                    commonFunctions.showInfo('Cache "' + item.name + '" saved.');
+                    $common.showInfo('Cache "' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         }
 
@@ -236,7 +292,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
 
                     $http.post('caches/remove', {_id: _id})
                         .success(function () {
-                            commonFunctions.showInfo('Cache has been removed: ' + selectedItem.name);
+                            $common.showInfo('Cache has been removed: ' + selectedItem.name);
 
                             var caches = $scope.caches;
 
@@ -256,52 +312,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$saveAs'
                             }
                         })
                         .error(function (errMsg) {
-                            commonFunctions.showError(errMsg);
+                            $common.showError(errMsg);
                         });
                 }
             );
-        };
-
-        function tablePairValid(keyCls, valCls) {
-            if (!keyCls) {
-                commonFunctions.showError('Key class name should be non empty!');
-
-                return false;
-            }
-
-            if (!valCls) {
-                commonFunctions.showError('Value class name should be non empty!');
-
-                return false;
-            }
-
-            return true;
-        }
-
-        $scope.tablePairAdd = function (fld, keyCls, valCls) {
-            if (!tablePairValid(keyCls, valCls))
-                return;
-
-            var idxTypes = $scope.backupItem.indexedTypes;
-
-            var newItem = {keyClass: keyCls, valueClass: valCls};
-
-            if (idxTypes)
-                idxTypes.push(newItem);
-            else
-                $scope.backupItem.indexedTypes = [newItem];
-        };
-
-        $scope.tablePairSave = function (idx, fld, keyCls, valCls) {
-            if (!tablePairValid(keyCls, valCls))
-                return idx;
-
-            var idxType = $scope.backupItem.indexedTypes[idx];
-
-            idxType.keyClass = keyCls;
-            idxType.valueClass = valCls;
-
-            return -1;
         };
     }]
 );

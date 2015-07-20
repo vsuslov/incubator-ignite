@@ -21,7 +21,6 @@
 @ignite-block-callout-background: #f3f8f3;
 @ignite-block-callout-border: #50af51;
 
-
 .main-header .logo {
   height: auto;
 }
@@ -58,7 +57,7 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  -webkit-transform:translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
 
@@ -192,7 +191,7 @@
   border-bottom: 4px solid #888;
 }
 
-.theme-line .navbar-nav, .theme-line  .sidebar-nav {
+.theme-line .navbar-nav, .theme-line .sidebar-nav {
   ul li > a.active {
     cursor: default;
     pointer-events: none;
@@ -681,10 +680,6 @@ button .caret, .btn .caret {
   }
 }
 
-.table-form-control {
-  width: auto;
-}
-
 .theme-line .panel-heading {
   padding: 10px 10px;
   margin: 0;
@@ -838,7 +833,7 @@ label {
 
 .labelField {
   float: left;
-  margin-right: 4px;
+  margin-right: 5px;
 }
 
 .labelFormField {
@@ -873,6 +868,18 @@ label {
 
 .fa-remove {
   color: @ignite-red;
+  cursor: pointer;
+}
+
+.fa-floppy-o {
+  cursor: pointer;
+}
+
+.fa-arrow-up {
+  cursor: pointer;
+}
+
+.fa-arrow-down {
   cursor: pointer;
 }
 
@@ -1035,11 +1042,11 @@ a {
   cursor: pointer;
 }
 
-.st-sort-ascent:after{
+.st-sort-ascent:after {
   content: '\25B2';
 }
 
-.st-sort-descent:after{
+.st-sort-descent:after {
   content: '\25BC';
 }
 
@@ -1060,3 +1067,29 @@ a {
   width: 100%;
   height: 400px;
 }
+
+.grid {
+  display: flex;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  label {
+    line-height: @input-height;
+  }
+}
+
+.grid-cell {
+  flex-basis: 50%;
+}
+
+.grid-cell-4 {
+  flex-basis: 25%;
+}
+
+.grid-fixed-cell {
+  flex-basis: 10px;
+}
+
+

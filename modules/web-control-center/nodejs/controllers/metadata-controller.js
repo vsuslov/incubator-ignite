@@ -15,10 +15,24 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('metadataController', ['$scope', '$http', 'commonFunctions', function ($scope, $http, commonFunctions) {
-        $scope.swapSimpleItems = commonFunctions.swapSimpleItems;
-        $scope.joinTip = commonFunctions.joinTip;
-        $scope.getModel = commonFunctions.getModel;
+controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$table', function ($scope, $http, $common, $table) {
+        $scope.joinTip = $common.joinTip;
+        $scope.getModel = $common.getModel;
+
+        $scope.tableNewItem = $table.tableNewItem;
+        $scope.tableNewItemActive = $table.tableNewItemActive;
+        $scope.tableEditing = $table.tableEditing;
+        $scope.tableStartEdit = $table.tableStartEdit;
+        $scope.tableRemove = $table.tableRemove;
+
+        $scope.tableSimpleSave = $table.tableSimpleSave;
+        $scope.tableSimpleSaveVisible = $table.tableSimpleSaveVisible;
+        $scope.tableSimpleUp = $table.tableSimpleUp;
+        $scope.tableSimpleDown = $table.tableSimpleDown;
+        $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
+
+        $scope.tablePairSave = $table.tablePairSave;
+        $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
         $scope.templates = [
             {value: {kind: 'query'}, label: 'query'},
@@ -41,6 +55,51 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
             {value: 'postgre', label: 'PostgreSQL'},
             {value: 'mysql', label: 'MySQL'},
             {value: 'h2', label: 'H2 database'}
+        ];
+
+        $scope.jdbcTypes = [
+            {value: 'BIT', label: 'BIT'},
+            {value: 'BOOLEAN', label: 'BOOLEAN'},
+            {value: 'TINYINT', label: 'TINYINT'},
+            {value: 'SMALLINT', label: 'SMALLINT'},
+            {value: 'INTEGER', label: 'INTEGER'},
+            {value: 'BIGINT', label: 'BIGINT'},
+            {value: 'REAL', label: 'REAL'},
+            {value: 'FLOAT', label: 'FLOAT'},
+            {value: 'DOUBLE', label: 'DOUBLE'},
+            {value: 'NUMERIC', label: 'NUMERIC'},
+            {value: 'DECIMAL', label: 'DECIMAL'},
+            {value: 'CHAR', label: 'CHAR'},
+            {value: 'VARCHAR', label: 'VARCHAR'},
+            {value: 'LONGVARCHAR', label: 'LONGVARCHAR'},
+            {value: 'NCHAR', label: 'NCHAR'},
+            {value: 'NVARCHAR', label: 'NVARCHAR'},
+            {value: 'LONGNVARCHAR', label: 'LONGNVARCHAR'},
+            {value: 'DATE', label: 'DATE'},
+            {value: 'TIME', label: 'TIME'},
+            {value: 'TIMESTAMP', label: 'TIMESTAMP'}
+        ];
+
+        $scope.javaTypes = [
+            {value: 'boolean', label: 'boolean'},
+            {value: 'Boolean', label: 'Boolean'},
+            {value: 'byte', label: 'byte'},
+            {value: 'Byte', label: 'Byte'},
+            {value: 'short', label: 'short'},
+            {value: 'Short', label: 'Short'},
+            {value: 'int', label: 'int'},
+            {value: 'Integer', label: 'Integer'},
+            {value: 'long', label: 'long'},
+            {value: 'Long', label: 'Long'},
+            {value: 'float', label: 'float'},
+            {value: 'Float', label: 'Float'},
+            {value: 'double', label: 'double'},
+            {value: 'Double', label: 'Double'},
+            {value: 'BigDecimal', label: 'BigDecimal'},
+            {value: 'String', label: 'String'},
+            {value: 'Date', label: 'Date'},
+            {value: 'Time', label: 'Time'},
+            {value: 'Timestamp', label: 'Timestamp'}
         ];
 
         $scope.data = {
@@ -200,7 +259,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                 $scope.metadataDb = data.metadataDb;
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         // When landing on the page, get metadatas and show them.
@@ -233,7 +292,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                 }, true);
             })
             .error(function (errMsg) {
-                commonFunctions.showError(errMsg);
+                $common.showError(errMsg);
             });
 
         $scope.selectItem = function (item) {
@@ -253,7 +312,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
             $http.post('metadata/save', item)
                 .success(function (_id) {
-                    commonFunctions.showInfo('Metadata "' + item.name + '" saved.');
+                    $common.showInfo('Metadata "' + item.name + '" saved.');
 
                     var idx = _.findIndex($scope.metadatas, function (metadata) {
                         return metadata._id == _id;
@@ -271,7 +330,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
 
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         };
 
@@ -292,50 +351,93 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', 'common
                     }
                 })
                 .error(function (errMsg) {
-                    commonFunctions.showError(errMsg);
+                    $common.showError(errMsg);
                 });
         };
 
-        function fieldValid(fld, cls) {
-            if (!fld) {
-                commonFunctions.showError('Field name should be non empty!');
+        $scope.tableSimpleValid = function (item, field, name, index) {
+            var model = item[field.model];
 
-                return false;
-            }
+            if ($common.isDefined(model)) {
+                var idx = _.indexOf(model, name);
 
-            if (!cls) {
-                commonFunctions.showError('Field class name should be non empty!');
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
 
-                return false;
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Field with such name already exists!');
+
+                    return false;
+                }
             }
 
             return true;
-        }
-
-        $scope.tablePairAdd = function (mdl, fld, cls) {
-            if (!fieldValid(fld, cls))
-                return;
-
-            var fields = $scope.backupItem[mdl.model];
-
-            var newItem = {name: fld, className: cls};
-
-            if (fields)
-                fields.push(newItem);
-            else
-                $scope.backupItem[mdl.model] = [newItem];
         };
 
-        $scope.tablePairSave = function (idx, mdl, fld, cls) {
-            if (!fieldValid(fld, cls))
-                return idx;
+        $scope.tablePairValid = function (item, field, name, clsName, index) {
+            var model = item[field.model];
 
-            var field = $scope.backupItem[mdl.model][idx];
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (pair) {return pair.name == name});
 
-            field.name = fld;
-            field.className = cls;
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
 
-            return -1;
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Field with such name already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $scope.tableDbFieldSaveVisible = function(dbName, dbType, javaName, javaType){
+            return $common.isNonEmpty(dbName) && $common.isDefined(dbType) &&
+                $common.isNonEmpty(javaName) && $common.isDefined(javaType);
+        };
+
+        $scope.tableDbFieldSave = function(field, newDbName, newDbType, newJavaName, newJavaType, index) {
+            var item = $scope.backupItem;
+
+            var model = item[field.model];
+
+            var newItem = {dbName: newDbName, dbType: newDbType, javaName: newJavaName, javaType: newJavaType};
+
+            if ($common.isDefined(model)) {
+                var idx = _.findIndex(model, function (dbMeta) {return dbMeta.dbName == newDbName});
+
+                // Found duplicate.
+                if (idx >= 0 && index != idx) {
+                    $common.showError('DB field with such name already exists!');
+
+                    return;
+                }
+
+                if (index < 0) {
+                    if (model)
+                        model.push(newItem);
+                    else
+                        item[field.model] = [newItem];
+                }
+                else {
+                    var dbField = model[index];
+
+                    dbField.dbName = newDbName;
+                    dbField.dbType = newDbType;
+                    dbField.javaName = newJavaName;
+                    dbField.javaType = newJavaType;
+                }
+            }
+            else
+                item[field.model] = [newItem];
+
+            $table.tableReset();
         };
 
         $scope.selectSchema = function (idx) {
