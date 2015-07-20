@@ -195,7 +195,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
         // Check cluster logical consistency.
         function validate(item) {
-            if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind) {
+            if (!item.swapSpaceSpi || !item.swapSpaceSpi.kind && item.caches) {
                 for (var i = 0; i < item.caches.length; i++) {
                     var idx = $scope.indexOfCache(item.caches[i]);
 
