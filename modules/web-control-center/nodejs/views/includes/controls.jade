@@ -276,8 +276,14 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='group in #{fieldMdl}')
                         td.col-sm-6
                             div
-                                a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
-                                +btn-remove('tableRemove(backupItem, field, $index)')
+                                div(ng-show='!tableEditing(field, $index)')
+                                    a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
+                                    +btn-remove('tableRemove(backupItem, field, $index)')
+                                div(ng-show='tableEditing(field, $index)')
+                                    label.labelField {{$index + 1}})
+                                    +btn-save('tableGroupSaveVisible(curName)', 'tableGroupSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
+                                    .input-tip
+                                        input.form-control(type='text' ng-model='curName' placeholder='Index name')
                                 table.links-edit.col-sm-12(st-table='group.fields' ng-show='group.fields.length > 0')
                                     tr(ng-repeat='groupItem in group.fields')
                                         td

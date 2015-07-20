@@ -455,6 +455,10 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $table.tableReset();
         };
 
+        $scope.tableGroupSaveVisible = function(group) {
+            return $common.isNonEmpty(group);
+        };
+
         $scope.tableRemoveGroupItem = function(group, index) {
             console.log("group: " + group.name);
             console.log("index: " + index);
