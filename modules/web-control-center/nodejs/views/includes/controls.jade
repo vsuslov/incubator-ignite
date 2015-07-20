@@ -39,11 +39,11 @@ mixin btn-down(show, click)
 
 mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder)
     .grid
-        .grid-cell
+        .grid-cell-2
             input.form-control(type='text' ng-model=keyModel placeholder=keyPlaceholder)
         div
             label &nbsp;/&nbsp;
-        .grid-cell
+        .grid-cell-2
             input.form-control(type='text' ng-model=valModel placeholder=valPlaceholder)
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
@@ -56,7 +56,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
             tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                 td.col-sm-6
                     div(ng-show='!tableEditing(field, $index)')
-                        a(ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
+                        a.labelFormField(ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
                         +btn-remove('tableRemove(backupItem, field, $index)')
                     div(ng-show='tableEditing(field, $index)')
                         label.labelField {{$index + 1}})
@@ -120,11 +120,10 @@ mixin details-row
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
                             div(ng-show='!tableEditing(detail, $index)')
+                                a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
                                 +btn-remove('tableRemove(backupItem, detail, $index)')
                                 +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
                                 +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
-                                .input-tip
-                                    a(ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
                             div(ng-show='tableEditing(detail, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
@@ -227,7 +226,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
                         td.col-sm-6
                             div(ng-show='!tableEditing(field, $index)')
-                                a(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
+                                a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
                                 +btn-remove('tableRemove(backupItem, field, $index)')
                                 +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
                                 +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')
@@ -255,7 +254,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
                         td.col-sm-6
                             div(ng-show='!tableEditing(field, $index)')
-                                a(ng-click='curDbFldMeta = tableStartEdit(backupItem, field, $index); curDbName = curDbFldMeta.dbName; curDbType = curDbFldMeta.dbType; curJavaName = curDbFldMeta.javaName; curJavaType = curDbFldMeta.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
+                                a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}(ng-click='curDbFldMeta = tableStartEdit(backupItem, field, $index); curDbName = curDbFldMeta.dbName; curDbType = curDbFldMeta.dbType; curJavaName = curDbFldMeta.javaName; curJavaType = curDbFldMeta.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
                                 +btn-remove('tableRemove(backupItem, field, $index)')
                             div(ng-if='tableEditing(field, $index)')
                                 label.labelField {{$index + 1}})
@@ -274,13 +273,15 @@ mixin form-row-custom(lblClasses, fieldClasses)
                 button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
             table.links-edit.col-sm-12(st-table=fieldMdl ng-show='#{fieldMdl}.length > 0')
                 tbody
-                    tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
+                    tr.col-sm-12(ng-repeat='group in #{fieldMdl}')
                         td.col-sm-6
                             div
-                                a(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{item.name}}
+                                a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
                                 +btn-remove('tableRemove(backupItem, field, $index)')
-                                table
-                                    tr(ng-repeat='z in item.fields')
+                                table.links-edit.col-sm-12(st-table='group.fields' ng-show='group.fields.length > 0')
+                                    tr(ng-repeat='groupItem in group.fields')
                                         td
-                                            label {{$index + 1}}) {{z.name}} / {{z.className}} / {{z.direction}}
+                                            a.labelFormField('') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
+                                            +btn-remove('tableRemoveGroupItem(group, $index)')
+
 

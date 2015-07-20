@@ -311,7 +311,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                     {name: "fld2", className: "String", direction: "DESC"}]
             },
                 {
-                    name: "index1",
+                    name: "index2",
                     fields: [
                         {name: "fld3", className: "Integer", direction: "ASC"},
                         {name: "fld4", className: "Data", direction: "DESC"}]
@@ -453,6 +453,11 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 item[field.model] = [newItem];
 
             $table.tableReset();
+        };
+
+        $scope.tableRemoveGroupItem = function(group, index) {
+            console.log("group: " + group.name);
+            console.log("index: " + index);
         };
 
         $scope.selectSchema = function (idx) {
