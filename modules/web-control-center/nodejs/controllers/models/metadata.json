@@ -54,7 +54,7 @@
     {
       "label": "Value type",
       "type": "text",
-      "model": "value Type",
+      "model": "valueType",
       "required": true,
       "placeholder": "Full class name for Value",
       "tip": ["TODO."]

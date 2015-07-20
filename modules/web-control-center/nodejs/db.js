@@ -70,7 +70,6 @@ var CacheTypeMetadataSchema = new Schema({
     databaseTable: String,
     keyType: String,
     valueType: String,
-    valType: String,
     keyFields: [{dbName: String, dbType: Number, javaName: String, javaType: String}],
     valueFields: [{dbName: String, dbType: Number, javaName: String, javaType: String}],
     queryFields: [{name: String, className: String}],
