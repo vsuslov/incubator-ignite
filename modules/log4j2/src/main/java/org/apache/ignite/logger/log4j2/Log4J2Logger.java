@@ -91,8 +91,10 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
     @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
     private Logger impl;
 
-    /** Auto added at verbose mode console logger (optional). */
-    private volatile Logger consoleLog;
+    /** Auto added at verbose mode console logger (nullable). */
+    @GridToStringExclude
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
+    private Logger consoleLog;
 
     /** Quiet flag. */
     private final boolean quiet;

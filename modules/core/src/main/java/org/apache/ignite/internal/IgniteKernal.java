@@ -1482,6 +1482,8 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
         if (System.getProperty(IGNITE_NO_ASCII) == null) {
             String ver = "ver. " + ACK_VER_STR;
 
+            // Big thanks to: http://patorjk.com/software/taag
+            // Font name "Small Slant"
             if (log.isInfoEnabled()) {
                 log.info(NL + NL +
                         ">>>    __________  ________________  " + NL +
@@ -1496,8 +1498,6 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
                 );
             }
 
-            // Big thanks to: http://patorjk.com/software/taag
-            // Font name "Small Slant"
             if (log.isQuiet()) {
                 U.quiet(false,
                     "   __________  ________________ ",
@@ -1515,7 +1515,7 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
                 String fileName = log.fileName();
 
                 if (fileName != null)
-                    U.quiet(false, "  ^-- Logging to file '" +  fileName + '\'');
+                    U.quiet(false, "  ^-- Logging to file '" + fileName + '\'');
 
                 U.quiet(false,
                     "  ^-- To see **FULL** console log here add -DIGNITE_QUIET=false or \"-v\" to ignite.{sh|bat}",
@@ -2722,8 +2722,7 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
     @Nullable @Override public <T, S> IgniteAtomicStamped<T, S> atomicStamped(String name,
         @Nullable T initVal,
         @Nullable S initStamp,
-        boolean create)
-    {
+        boolean create) {
         guard();
 
         try {
@@ -2741,8 +2740,7 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
     @Nullable @Override public IgniteCountDownLatch countDownLatch(String name,
         int cnt,
         boolean autoDel,
-        boolean create)
-    {
+        boolean create) {
         guard();
 
         try {
