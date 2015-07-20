@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$table', function ($scope, $http, $common, $table) {
+controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$confirm', '$saveAs', '$table', function ($scope, $http, $common, $confirm, $saveAs, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -321,10 +321,13 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
-        // Save metadata in db.
-        $scope.saveItem = function () {
-            var item = $scope.backupItem;
+        // Check cache type metadata logical consistency.
+        function validate(item) {
+            return true;
+        }
 
+        // Save cache type metadata into database.
+        function save(item) {
             $http.post('metadata/save', item)
                 .success(function (_id) {
                     $common.showInfo('Metadata "' + item.name + '" saved.');
@@ -343,30 +346,63 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
                     $scope.selectItem(item);
 
+                    $common.showInfo('Cache type metadata"' + item.name + '" saved.');
                 })
                 .error(function (errMsg) {
                     $common.showError(errMsg);
                 });
+        }
+
+        // Save cache type metadata.
+        $scope.saveItem = function () {
+            var item = $scope.backupItem;
+
+            if (validate(item))
+                save(item);
+        };
+
+        // Save cache type metadata with new name.
+        $scope.saveItemAs = function () {
+            if (validate($scope.backupItem))
+                $saveAs.show($scope.backupItem.name).then(function (newName) {
+                    var item = angular.copy($scope.backupItem);
+
+                    item._id = undefined;
+                    item.name = newName;
+
+                    save(item);
+                });
         };
 
         $scope.removeItem = function () {
-            var _id = $scope.selectedItem._id;
+            var selectedItem = $scope.selectedItem;
 
-            $http.post('metadata/remove', {_id: _id})
-                .success(function () {
-                    var i = _.findIndex($scope.metadatas, function (metadata) {
-                        return metadata._id == _id;
-                    });
+            $confirm.show('Are you sure you want to remove cache type metadata: "' + selectedItem.name + '"?').then(
+                function () {
+                    var _id = selectedItem._id;
 
-                    if (i >= 0) {
-                        $scope.metadatas.splice(i, 1);
+                    $http.post('metadata/remove', {_id: _id})
+                        .success(function () {
+                            $common.showInfo('Cache type metadata has been removed: ' + selectedItem.name);
 
-                        $scope.selectedItem = undefined;
-                        $scope.backupItem = undefined;
-                    }
-                })
-                .error(function (errMsg) {
-                    $common.showError(errMsg);
+                            var metadatas = $scope.metadatas;
+
+                            var idx = _.findIndex(metadatas, function (metadata) { return metadata._id == _id; });
+
+                            if (idx >= 0) {
+                                metadatas.splice(i, idx);
+
+                                if (metadatas.length > 0)
+                                    $scope.selectItem(metadatas[0]);
+                                else {
+                                    $scope.selectedItem = undefined;
+                                    $scope.backupItem = undefined;
+                                }
+                            }
+                        })
+                        .error(function (errMsg) {
+                            $common.showError(errMsg);
+                        });
                 });
         };
 
