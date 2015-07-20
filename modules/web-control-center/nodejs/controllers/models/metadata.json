@@ -25,7 +25,14 @@
       "type": "dropdown",
       "model": "kind",
       "items": "kinds",
-      "tip": ["TODO."]
+      "tip": [
+        "Use following template for metadata:",
+        "<ul>",
+        "  <li>query - Create cache type metadata to use with queries only.</li>",
+        "  <li>store - Create cache type metadata to use with JDBC POJO store only.</li>",
+        "  <li>both - Create cache type metadata to use with query and store.</li>",
+        "</ul>"
+      ]
     },
     {
       "label": "Database schema",
@@ -33,7 +40,7 @@
       "model": "databaseSchema",
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB schema name",
-      "tip": ["TODO."]
+      "tip": ["Schema name in database."]
     },
     {
       "label": "Database table",
@@ -41,7 +48,7 @@
       "model": "databaseTable",
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB table name",
-      "tip": ["TODO."]
+      "tip": ["Table name in database."]
     },
     {
       "label": "Key type",
@@ -49,7 +56,7 @@
       "model": "keyType",
       "required": true,
       "placeholder": "Full class name for Key",
-      "tip": ["TODO."]
+      "tip": ["Key class used to store key in cache."]
     },
     {
       "label": "Value type",
@@ -57,7 +64,7 @@
       "model": "valueType",
       "required": true,
       "placeholder": "Full class name for Value",
-      "tip": ["TODO."]
+      "tip": ["Value class used to store value in cache."]
     },
     {
       "label": "Key fields",
@@ -66,7 +73,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query'",
-      "tip": ["Collection of key fields descriptions."]
+      "tip": ["Collection of key fields descriptions for CacheJdbcPojoStore."]
     },
     {
       "label": "Value fields",
@@ -75,7 +82,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query'",
-      "tip": ["Collection of value fields descriptions."]
+      "tip": ["Collection of value fields descriptions for CacheJdbcPojoStore.."]
     },
     {
       "label": "Query fields",
@@ -84,7 +91,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["TODO."]
+      "tip": ["Collection of name-to-type mappings to be queried, in addition to indexed fields."]
     },
     {
       "label": "Ascending fields",
@@ -93,7 +100,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["TODO."]
+      "tip": ["Collection of name-to-type mappings to index in ascending order."]
     },
     {
       "label": "Descending fields",
@@ -102,7 +109,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["TODO."]
+      "tip": ["Collection of name-to-type mappings to index in descending order."]
     },
     {
       "label": "Text fields",
@@ -110,14 +117,14 @@
       "model": "textFields",
       "hide": "backupItem.kind != 'query'",
       "placeholder": "Field name",
-      "tip": ["TODO."]
+      "tip": ["Fields to index as text."]
     },
     {
       "label": "Groups",
       "type": "groupsMetadata",
       "model": "groups",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["TODO."]
+      "tip": ["Collection of group indexes."]
     }
   ],
   "metadataDb": [
