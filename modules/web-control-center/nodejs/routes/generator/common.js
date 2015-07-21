@@ -272,7 +272,6 @@ exports.generateProperties = function (cluster) {
     var datasources = [];
 
     if (cluster.caches && cluster.caches.length > 0) {
-
         _.forEach(cluster.caches, function (cache) {
             if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
                 var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];

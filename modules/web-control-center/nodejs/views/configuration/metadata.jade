@@ -50,6 +50,7 @@ block content
                             .settings-row(ng-repeat='field in metadataManual')
                                 +form-row
                             button.btn.btn-primary(ng-disabled='manualForm.$invalid' ng-click='saveItem()') Save
+                            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Save As
                             button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
             .panel.panel-default
                 .panel-heading

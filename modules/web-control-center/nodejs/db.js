@@ -76,7 +76,7 @@ var CacheTypeMetadataSchema = new Schema({
     ascendingFields: [{name: String, className: String}],
     descendingFields:  [{name: String, className: String}],
     textFields: [String],
-    groups: [{name: String, fields: [{field: String, className: String, direction: String}]}]
+    groups: [{name: String, fields: [{name: String, className: String, direction: String}]}]
 });
 
 exports.CacheTypeMetadata = mongoose.model('CacheTypeMetadata', CacheTypeMetadataSchema);
