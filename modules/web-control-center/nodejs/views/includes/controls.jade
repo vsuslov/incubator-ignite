@@ -52,7 +52,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
         label.table-header #{header}:
         +tipLabel('field.tip')
         button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
-    table.links-edit.col-sm-12(st-table=tblMdl ng-show='#{tblMdl}.length > 0')
+    table.links-edit.col-sm-12(st-table=tblMdl)
         tbody
             tr.col-sm-12(ng-repeat='item in #{tblMdl}')
                 td.col-sm-6
@@ -63,10 +63,10 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                         label.labelField {{$index + 1}})
                         +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
                         +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder)
-    .settings-row(ng-show='tableNewItemActive(field)')
-        .col-sm-6
-            +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
-            +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
+            tr.col-sm-12(ng-show='tableNewItemActive(field)')
+                td.col-sm-6
+                    +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
+                    +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
 
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
@@ -226,7 +226,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                 label.table-header {{field.label}}:
                 +tipLabel('field.tableTip')
                 button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
-            table.links-edit.col-sm-12(st-table='#{fieldMdl}' ng-show='#{fieldMdl}.length > 0')
+            table.links-edit.col-sm-12(st-table='#{fieldMdl}')
                 tbody
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl} track by $index')
                         td.col-sm-6
@@ -240,11 +240,11 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                 +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
                                 .input-tip
                                     input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
-            .settings-row(ng-show='tableNewItemActive(field)')
-                .col-sm-6
-                    +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
-                    .input-tip
-                        input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
+                    tr.col-sm-12(ng-show='tableNewItemActive(field)')
+                        td.col-sm-6
+                            +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
+                            .input-tip
+                                input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
         div(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name')
         div(ng-switch-when='queryFields' ng-hide=fieldHide)
@@ -265,10 +265,10 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableDbFieldSaveVisible(curDbName, curDbType, curJavaName, curJavaType)', 'tableDbFieldSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
                                 +table-db-field-edit('curDbName', 'curDbType', 'curJavaName', 'curJavaType')
-            .settings-row(ng-show='tableNewItemActive(field)')
-                .col-sm-6
-                    +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
-                    +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
+                    tr(ng-show='tableNewItemActive(field)')
+                        td.col-sm-6
+                            +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
+                            +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
         div(ng-switch-when='queryGroups' ng-hide=fieldHide)
             .col-sm-6
                 label.table-header {{field.label}}:
@@ -299,14 +299,15 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                     label.labelField {{$index + 1}})
                                                     +btn-save('tableGroupItemSaveVisible(curFieldName, curClassName)', 'tableGroupItemSave(curFieldName, curClassName, curDirection, groupIndex, $index)')
                                                     +table-group-item-edit('curFieldName', 'curClassName', 'curDirection')
-                                    .settings-row(style='padding-left: 18px' ng-show='tableGroupNewItemActive(groupIndex)')
-                                        +btn-save('tableGroupItemSaveVisible(newFieldName, newClassName)', 'tableGroupItemSave(newFieldName, newClassName, newDirection, groupIndex, -1)')
-                                        +table-group-item-edit('newFieldName', 'newClassName', 'newDirection')
-            .settings-row(ng-show='tableNewItemActive(field)')
-                .col-sm-6
-                    +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
-                    .input-tip
-                        input.form-control(type='text' ng-model='newGroupName' placeholder='Group name')
+                                        tr.col-sm-12(style='padding-left: 18px' ng-show='tableGroupNewItemActive(groupIndex)')
+                                            td
+                                                +btn-save('tableGroupItemSaveVisible(newFieldName, newClassName)', 'tableGroupItemSave(newFieldName, newClassName, newDirection, groupIndex, -1)')
+                                                +table-group-item-edit('newFieldName', 'newClassName', 'newDirection')
+                    tr.col-sm-12(ng-show='tableNewItemActive(field)')
+                        td.col-sm-6
+                            +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
+                            .input-tip
+                                input.form-control(type='text' ng-model='newGroupName' placeholder='Group name')
 
 
 
