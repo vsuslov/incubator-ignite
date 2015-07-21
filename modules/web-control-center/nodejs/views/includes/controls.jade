@@ -38,13 +38,11 @@ mixin btn-down(show, click)
     i.tipField.fa.fa-arrow-down(ng-show=show ng-click=click)
 
 mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder)
-    .grid
-        .grid-cell-2
-            input.form-control(type='text' ng-model=keyModel placeholder=keyPlaceholder)
-        div
-            label &nbsp;/&nbsp;
-        .grid-cell-2
-            input.form-control(type='text' ng-model=valModel placeholder=valPlaceholder)
+    .col-sm-6(style='float: right')
+        input.form-control(type='text' ng-model=valModel placeholder=valPlaceholder)
+    label.fieldSep /
+    .input-tip
+        input.form-control(type='text' ng-model=keyModel placeholder=keyPlaceholder)
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
     .col-sm-6
@@ -61,13 +59,11 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                     div(ng-show='tableEditing(field, $index)')
                         label.labelField {{$index + 1}})
                         +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
-                        .input-tip
-                            +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder)
+                        +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder)
     .settings-row(ng-show='tableNewItemActive(field)')
         .col-sm-6
             +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
-            .input-tip
-                +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
+            +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
 
 mixin details-row
     - var lblDetailClasses = ['col-sm-4', 'details-label']
@@ -137,21 +133,17 @@ mixin details-row
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin table-db-field-edit(dbName, dbType, javaName, javaType)
-    .grid
-        .grid-cell-4
-            input.form-control(type='text' ng-model=dbName placeholder='DB name')
-        div
-            label &nbsp;/&nbsp;
-        .grid-cell-4
-            button.form-control(ng-model=dbType bs-select data-placeholder='JDBC type' bs-options='item.value as item.label for item in {{jdbcTypes}}')
-        div
-            label &nbsp;/&nbsp;
-        .grid-cell-4
-            input.form-control(type='text' ng-model=javaName placeholder='Java name')
-        div
-            label &nbsp;/&nbsp;
-        .grid-cell-4
-            button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
+    div(style='width: 20%; float: right')
+        button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
+    label.fieldSep /
+    div(style='width: 22%; float: right')
+        input.form-control(type='text' ng-model=javaName placeholder='Java name')
+    label.fieldSep /
+    div(style='width: 20%; float: right')
+        button.form-control(ng-model=dbType bs-select data-placeholder='JDBC type' bs-options='item.value as item.label for item in {{jdbcTypes}}')
+    label.fieldSep /
+    .input-tip
+        input.form-control(type='text' ng-model=dbName placeholder='DB name')
 
 mixin form-row
     +form-row-custom(['col-sm-2'], ['col-sm-4'])
@@ -259,13 +251,11 @@ mixin form-row-custom(lblClasses, fieldClasses)
                             div(ng-if='tableEditing(field, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableDbFieldSaveVisible(curDbName, curDbType, curJavaName, curJavaType)', 'tableDbFieldSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
-                                .input-tip
-                                    +table-db-field-edit('curDbName', 'curDbType', 'curJavaName', 'curJavaType')
+                                +table-db-field-edit('curDbName', 'curDbType', 'curJavaName', 'curJavaType')
             .settings-row(ng-show='tableNewItemActive(field)')
                 .col-sm-6
                     +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
-                    .input-tip
-                        +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
+                    +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
         div(ng-switch-when='queryGroups' ng-hide=fieldHide)
             .col-sm-6
                 label.table-header {{field.label}}:
