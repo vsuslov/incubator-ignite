@@ -114,7 +114,7 @@ mixin details-row
             div(ng-if='detail.label')
                 label.table-header {{detail.label}}:
                 +tipLabel('detail.tableTip')
-            table.col-sm-12.links-edit-details(st-table='#{detailMdl}' ng-show='#{detailMdl}.length > 0')
+            table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
                 tbody
                     tr(ng-repeat='item in #{detailMdl} track by $index')
                         td
@@ -136,13 +136,13 @@ mixin details-row
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin table-db-field-edit(dbName, dbType, javaName, javaType)
-    div(style='width: 20%; float: right')
+    div(style='width: 22%; float: right')
         button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
     label.fieldSep /
-    div(style='width: 22%; float: right')
+    div(style='width: 20%; float: right')
         input.form-control(type='text' ng-model=javaName placeholder='Java name')
     label.fieldSep /
-    div(style='width: 20%; float: right')
+    div(style='width: 22%; float: right')
         button.form-control(ng-model=dbType bs-select data-placeholder='JDBC type' bs-options='item.value as item.label for item in {{jdbcTypes}}')
     label.fieldSep /
     .input-tip
@@ -254,7 +254,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                 label.table-header {{field.label}}:
                 +tipLabel('field.tip')
                 button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
-            table.links-edit.col-sm-12(st-table=fieldMdl ng-show='#{fieldMdl}.length > 0')
+            table.links-edit.col-sm-12(st-table=fieldMdl)
                 tbody
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
                         td.col-sm-6
@@ -274,7 +274,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                 label.table-header {{field.label}}:
                 +tipLabel('field.tip')
                 button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
-            table.links-edit.col-sm-12(st-table=fieldMdl ng-show='#{fieldMdl}.length > 0')
+            table.links-edit.col-sm-12(st-table=fieldMdl)
                 tbody
                     tr.col-sm-12(ng-repeat='group in #{fieldMdl}')
                         td.col-sm-6
@@ -289,7 +289,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                     .input-tip
                                         input.form-control(type='text' ng-model='curGroupName' placeholder='Index name')
                                 div
-                                    table.links-edit.col-sm-12(st-table='group.fields' ng-show='group.fields.length > 0' ng-init='groupIndex = $index')
+                                    table.links-edit.col-sm-12(st-table='group.fields' ng-init='groupIndex = $index')
                                         tr(ng-repeat='groupItem in group.fields')
                                             td
                                                 div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
