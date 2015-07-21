@@ -15,21 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.examples;
+package org.apache.ignite.json;
 
 import org.apache.ignite.*;
+import org.apache.ignite.internal.processors.json.*;
+
+import javax.json.spi.*;
 
 /**
- * Starts up an empty node with example compute configuration.
+ *
  */
-public class ExampleNodeStartup {
+public class IgniteJson {
     /**
-     * Start up an empty node with example compute configuration.
-     *
-     * @param args Command line arguments, none required.
-     * @throws IgniteException If failed.
+     * @param ignite Ignite.
+     * @return Ignite JSON API provider.
      */
-    public static void main(String[] args) throws IgniteException {
-        Ignition.start("examples/config/js/example-query.xml");
+    public static JsonProvider jsonProvider(Ignite ignite) {
+        return new IgniteJsonProvider();
     }
 }

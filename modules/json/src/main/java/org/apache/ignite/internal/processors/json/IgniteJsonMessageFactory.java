@@ -15,21 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.examples;
+package org.apache.ignite.internal.processors.json;
 
-import org.apache.ignite.*;
+import org.apache.ignite.plugin.extensions.communication.*;
+import org.jetbrains.annotations.*;
 
 /**
- * Starts up an empty node with example compute configuration.
+ *
  */
-public class ExampleNodeStartup {
-    /**
-     * Start up an empty node with example compute configuration.
-     *
-     * @param args Command line arguments, none required.
-     * @throws IgniteException If failed.
-     */
-    public static void main(String[] args) throws IgniteException {
-        Ignition.start("examples/config/js/example-query.xml");
+public class IgniteJsonMessageFactory implements MessageFactory {
+    /** {@inheritDoc} */
+    @Nullable @Override public Message create(byte type) {
+        switch (type) {
+            case -23:
+                return new JsonCacheObject();
+        }
+
+        return null;
     }
 }

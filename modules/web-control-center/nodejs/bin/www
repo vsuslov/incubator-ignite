@@ -4,9 +4,12 @@
  * Module dependencies.
  */
 var http = require('http');
+var https = require('https');
 var config = require('../helpers/configuration-loader.js');
 var app = require('../app');
-var agentServer = require('../agents/agent-manager');
+var agentManager = require('../agents/agent-manager');
+
+var fs = require('fs');
 
 var debug = require('debug')('ignite-web-control-center:server');
 
@@ -31,7 +34,15 @@ server.on('listening', onListening);
 /**
  * Start agent server.
  */
-agentServer.getOrCreate();
+var agentServer = https.createServer({
+  key: fs.readFileSync(config.get('monitor:server:key')),
+  cert: fs.readFileSync(config.get('monitor:server:cert')),
+  passphrase: config.get('monitor:server:keyPassphrase')
+});
+
+agentServer.listen(config.get('monitor:server:port'));
+
+agentManager.createManager(agentServer);
 
 /**
  * Normalize a port into a number, string, or false.

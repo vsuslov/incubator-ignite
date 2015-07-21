@@ -15,21 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.examples;
+package org.apache.ignite.internal.processors.closure;
 
-import org.apache.ignite.*;
+import org.jetbrains.annotations.*;
 
 /**
- * Starts up an empty node with example compute configuration.
+ * Affinity mapped task.
  */
-public class ExampleNodeStartup {
+public interface AffinityTask {
     /**
-     * Start up an empty node with example compute configuration.
-     *
-     * @param args Command line arguments, none required.
-     * @throws IgniteException If failed.
+     * @return Affinity key.
      */
-    public static void main(String[] args) throws IgniteException {
-        Ignition.start("examples/config/js/example-query.xml");
-    }
+    public Object affinityKey();
+
+    /**
+     * @return Affinity cache name.
+     */
+    @Nullable public String affinityCacheName();
 }
