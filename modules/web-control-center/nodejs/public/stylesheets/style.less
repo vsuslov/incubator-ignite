@@ -243,7 +243,6 @@
 
   li a:hover {
     color: @ignite-red;
-    //background-color: transparent;
   }
 
   .active {
@@ -791,6 +790,21 @@ button .caret, .btn .caret {
 
     .input-tip {
       padding: 0;
+    }
+  }
+
+  tfoot > tr > td {
+    padding: 0;
+
+    .pagination {
+      margin: 0.65em 0;
+
+      > .active > a {
+        color: @ignite-red;
+        font-weight: bold;
+        border-color: #ddd;
+        background-color: #eee;
+      }
     }
   }
 }
