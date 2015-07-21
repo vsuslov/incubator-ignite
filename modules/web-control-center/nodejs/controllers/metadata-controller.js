@@ -387,7 +387,9 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
                             var metadatas = $scope.metadatas;
 
-                            var idx = _.findIndex(metadatas, function (metadata) { return metadata._id == _id; });
+                            var idx = _.findIndex(metadatas, function (metadata) {
+                                return metadata._id == _id;
+                            });
 
                             if (idx >= 0) {
                                 metadatas.splice(i, idx);
@@ -431,7 +433,9 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (pair) {return pair.name == name});
+                var idx = _.findIndex(model, function (pair) {
+                    return pair.name == name
+                });
 
                 // Found itself.
                 if (index >= 0 && index == idx)
@@ -448,12 +452,12 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return true;
         };
 
-        $scope.tableDbFieldSaveVisible = function(dbName, dbType, javaName, javaType){
+        $scope.tableDbFieldSaveVisible = function (dbName, dbType, javaName, javaType) {
             return $common.isNonEmpty(dbName) && $common.isDefined(dbType) &&
                 $common.isNonEmpty(javaName) && $common.isDefined(javaType);
         };
 
-        $scope.tableDbFieldSave = function(field, newDbName, newDbType, newJavaName, newJavaType, index) {
+        $scope.tableDbFieldSave = function (field, newDbName, newDbType, newJavaName, newJavaType, index) {
             var item = $scope.backupItem;
 
             var model = item[field.model];
@@ -461,7 +465,9 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             var newItem = {dbName: newDbName, dbType: newDbType, javaName: newJavaName, javaType: newJavaType};
 
             if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (dbMeta) {return dbMeta.dbName == newDbName});
+                var idx = _.findIndex(model, function (dbMeta) {
+                    return dbMeta.dbName == newDbName
+                });
 
                 // Found duplicate.
                 if (idx >= 0 && index != idx) {
@@ -491,7 +497,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $table.tableReset();
         };
 
-        $scope.tableGroupSaveVisible = function(group) {
+        $scope.tableGroupSaveVisible = function (group) {
             return $common.isNonEmpty(group);
         };
 
@@ -499,7 +505,9 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             var groups = $scope.backupItem.groups;
 
             if ($common.isDefined(groups)) {
-                var idx = _.findIndex(groups, function (group) {return group.name == groupName});
+                var idx = _.findIndex(groups, function (group) {
+                    return group.name == groupName
+                });
 
                 // Found itself.
                 if (index >= 0 && index == idx)
@@ -516,7 +524,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return true;
         }
 
-        $scope.tableGroupSave = function(groupName, index) {
+        $scope.tableGroupSave = function (groupName, index) {
             if (tableGroupValid(groupName, index)) {
                 $table.tableReset();
 
@@ -535,13 +543,13 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             }
         };
 
-        $scope.tableGroupNewItem = function(groupIndex) {
+        $scope.tableGroupNewItem = function (groupIndex) {
             var groupName = $scope.backupItem.groups[groupIndex].name;
 
             return $table.tableNewItem({model: groupName});
         };
 
-        $scope.tableGroupNewItemActive = function(groupIndex) {
+        $scope.tableGroupNewItemActive = function (groupIndex) {
             var groupName = $scope.backupItem.groups[groupIndex].name;
 
             return $table.tableNewItemActive({model: groupName});
@@ -556,7 +564,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return false;
         };
 
-        $scope.tableGroupItemStartEdit = function(groupIndex, index) {
+        $scope.tableGroupItemStartEdit = function (groupIndex, index) {
             var groups = $scope.backupItem.groups;
 
             $table.tableState(groups[groupIndex].name, index);
@@ -564,11 +572,11 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return groups[groupIndex].fields[index];
         };
 
-        $scope.tableGroupItemSaveVisible = function(fieldName, className) {
+        $scope.tableGroupItemSaveVisible = function (fieldName, className) {
             return $common.isNonEmpty(fieldName) && $common.isNonEmpty(className);
         };
 
-        $scope.tableGroupItemSave = function(fieldName, className, direction, groupIndex, index) {
+        $scope.tableGroupItemSave = function (fieldName, className, direction, groupIndex, index) {
             $table.tableReset();
 
             var group = $scope.backupItem.groups[groupIndex];
@@ -590,7 +598,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             }
         };
 
-        $scope.tableRemoveGroupItem = function(group, index) {
+        $scope.tableRemoveGroupItem = function (group, index) {
             $table.tableReset();
 
             group.fields.splice(index, 1);

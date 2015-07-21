@@ -147,7 +147,9 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (pair) {return pair.keyClass == keyCls});
+                var idx = _.findIndex(model, function (pair) {
+                    return pair.keyClass == keyCls
+                });
 
                 // Found itself.
                 if (index >= 0 && index == idx)

@@ -256,7 +256,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
                     _model(item, field)[field.model][index] = newValue;
             }
         },
-        tableSimpleSaveVisible: function(newValue) {
+        tableSimpleSaveVisible: function (newValue) {
             return $common.isNonEmpty(newValue);
         },
         tableSimpleUp: function (item, field, index) {
@@ -295,7 +295,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
                 }
             }
         },
-        tablePairSaveVisible: function(newKey, newValue) {
+        tablePairSaveVisible: function (newKey, newValue) {
             return $common.isNonEmpty(newKey) && $common.isNonEmpty(newValue);
         }
     }
