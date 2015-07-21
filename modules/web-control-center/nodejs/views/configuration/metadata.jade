@@ -23,29 +23,29 @@ include ../includes/controls
 
 block content
     .docs-header
-        h1 Create and configure cache type metadata
+        h1 Create and Configure Cache Type Metadata
         hr
     .docs-body(ng-controller='metadataController')
-        .block-callout
-            p(ng-bind-html='joinTip(screenTip)')
+        +block-callout('joinTip(screenTip)')
         .links(ng-hide='metadatas.length == 0')
+            lable.labelHeader Types metadata:
             table(st-table='metadatas')
                 tbody
                     tr(ng-repeat='row in metadatas track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-                hr
-        panel-group(bs-collapse data-allow-multiple="false")
+            button.btn.btn-primary(ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
+            label(style='margin-left: 6px; margin-right: 10px') For:
+            button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
+            i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
+            hr
+        .panel-group(bs-collapse ng-model="panels.activePanel" data-allow-multiple="false")
             .panel.panel-default
                 .panel-heading
                     h3
                         a(bs-collapse-toggle) Manual
                 .panel-collapse(role="tabpanel" bs-collapse-target)
                     .panel-body
-                        button.btn.btn-primary(ng-click='createItem()') &nbspAdd metadata
-                        label(style='margin-left: 6px; margin-right: 10px') for:
-                        button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
-                        i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
                         form.form-horizontal(name='manualForm' ng-if='backupItem' novalidate)
                             .settings-row(ng-repeat='field in metadataManual')
                                 +form-row

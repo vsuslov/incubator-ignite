@@ -1,6 +1,9 @@
 {
   "screenTip": [
-    "Configure cluster, link caches to them and go to Summary for configuration generation."
+    "1. Configure cluster.",
+    "2. Configure cache type metadata (optional).",
+    "3. Configure caches and link them to cluster.",
+    "4. Generate XML and java code."
   ],
   "templateTip": [
     "Use following template to add a new cluster:",

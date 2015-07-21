@@ -23,12 +23,12 @@ include ../includes/controls
 
 block content
     .docs-header
-        h1 Create and configure Ignite caches
+        h1 Create and Configure Ignite Caches
         hr
     .docs-body(ng-controller='cachesController')
-        .block-callout
-            p(ng-bind-html='joinTip(screenTip)')
+        +block-callout('joinTip(screenTip)')
         .links(ng-hide='caches.length == 0')
+            lable.labelHeader Clusters:
             table(st-table='caches')
                 tbody
                     tr(ng-repeat='row in caches track by row._id')

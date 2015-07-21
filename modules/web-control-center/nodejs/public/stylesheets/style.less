@@ -19,7 +19,7 @@
 @input-height: 28px;
 @ignite-red: #ec1c24;
 @ignite-block-callout-background: #f3f8f3;
-@ignite-block-callout-border: #50af51;
+@ignite-block-callout: #50af51;
 
 .main-header .logo {
   height: auto;
@@ -719,7 +719,7 @@ button .caret, .btn .caret {
 .theme-line .links table {
   display: table;
   table-layout: fixed;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   td {
     padding-left: 18px;
@@ -1064,12 +1064,27 @@ a {
 .block-callout {
   background-color: @ignite-block-callout-background;
   border-left: 5px solid;
-  border-color: @ignite-block-callout-border;
-  margin-bottom: 20px;
+  border-color: @ignite-block-callout;
+
+  margin-bottom: 10px;
 
   p {
-    padding: 10px 0 10px 10px;
+    padding: 5px 0 10px 15px;
   }
+
+  i {
+    padding: 10px 5px 0 10px;
+    color: @ignite-block-callout;
+  }
+
+  label {
+    font-weight: bold;
+    color: @ignite-block-callout;
+  }
+}
+
+.labelHeader {
+  font-weight: bold;
 }
 
 .ace_editor, #ace_document {
