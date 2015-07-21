@@ -506,7 +506,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
             if ($common.isDefined(groups)) {
                 var idx = _.findIndex(groups, function (group) {
-                    return group.name == groupName
+                    return group.name == groupName;
                 });
 
                 // Found itself.
@@ -576,25 +576,50 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return $common.isNonEmpty(fieldName) && $common.isNonEmpty(className);
         };
 
-        $scope.tableGroupItemSave = function (fieldName, className, direction, groupIndex, index) {
-            $table.tableReset();
+        function tableGroupItemValid(fieldName, groupIndex, index) {
+            var groupItems = $scope.backupItem.groups[groupIndex].fields;
 
-            var group = $scope.backupItem.groups[groupIndex];
+            if ($common.isDefined(groupItems)) {
+                var idx = _.findIndex(groupItems, function (groupItem) {
+                    return groupItem.name == fieldName;
+                });
 
-            if (index < 0) {
-                var newGroupItem = {name: fieldName, className: className, direction: direction};
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
 
-                if (group.fields)
-                    group.fields.push(newGroupItem);
-                else
-                    group.fields = [newGroupItem];
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Field with such name already exists in group!');
+
+                    return false;
+                }
             }
-            else {
-                var groupItem = group.fields[index];
 
-                groupItem.name = fieldName;
-                groupItem.className = className;
-                groupItem.direction = direction;
+            return true;
+        }
+
+        $scope.tableGroupItemSave = function (fieldName, className, direction, groupIndex, index) {
+            if (tableGroupItemValid(fieldName, groupIndex, index)) {
+                $table.tableReset();
+
+                var group = $scope.backupItem.groups[groupIndex];
+
+                if (index < 0) {
+                    var newGroupItem = {name: fieldName, className: className, direction: direction};
+
+                    if (group.fields)
+                        group.fields.push(newGroupItem);
+                    else
+                        group.fields = [newGroupItem];
+                }
+                else {
+                    var groupItem = group.fields[index];
+
+                    groupItem.name = fieldName;
+                    groupItem.className = className;
+                    groupItem.direction = direction;
+                }
             }
         };
 
