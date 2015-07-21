@@ -254,7 +254,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 }]
         };
 
-        $scope.metadata = [];
+        $scope.metadatas = [];
 
         $http.get('/models/metadata.json')
             .success(function (data) {
@@ -392,7 +392,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             });
 
                             if (idx >= 0) {
-                                metadatas.splice(i, idx);
+                                metadatas.splice(idx, 1);
 
                                 if (metadatas.length > 0)
                                     $scope.selectItem(metadatas[0]);
