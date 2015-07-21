@@ -28,6 +28,9 @@ mixin ico-exclamation(mdl, err, msg)
 mixin btn-save(show, click)
     i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click)
 
+mixin btn-add(click)
+    i.tipField.fa.fa-plus(ng-click=click)
+
 mixin btn-remove(click)
     i.tipField.fa.fa-remove(ng-click=click)
 
@@ -145,6 +148,16 @@ mixin table-db-field-edit(dbName, dbType, javaName, javaType)
     .input-tip
         input.form-control(type='text' ng-model=dbName placeholder='DB name')
 
+mixin table-group-item-edit(fieldName, className, direction)
+    div(style='width: 15%; float: right')
+        button.form-control(ng-model=direction bs-select data-placeholder='Sort' bs-options='item.value as item.label for item in {{sortDirections}}')
+    label.fieldSep /
+    div(style='width: 38%; float: right')
+        input.form-control(type='text' ng-model=className placeholder='Class name')
+    label.fieldSep /
+    .input-tip
+        input.form-control(type='text' ng-model=fieldName placeholder='Field name')
+
 mixin form-row
     +form-row-custom(['col-sm-2'], ['col-sm-4'])
 
@@ -246,7 +259,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='item in #{fieldMdl}')
                         td.col-sm-6
                             div(ng-show='!tableEditing(field, $index)')
-                                a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}(ng-click='curDbFldMeta = tableStartEdit(backupItem, field, $index); curDbName = curDbFldMeta.dbName; curDbType = curDbFldMeta.dbType; curJavaName = curDbFldMeta.javaName; curJavaType = curDbFldMeta.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
+                                a.labelFormField(ng-click='curField = tableStartEdit(backupItem, field, $index); curDbName = curField.dbName; curDbType = curField.dbType; curJavaName = curField.javaName; curJavaType = curField.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
                                 +btn-remove('tableRemove(backupItem, field, $index)')
                             div(ng-if='tableEditing(field, $index)')
                                 label.labelField {{$index + 1}})
@@ -266,18 +279,34 @@ mixin form-row-custom(lblClasses, fieldClasses)
                     tr.col-sm-12(ng-repeat='group in #{fieldMdl}')
                         td.col-sm-6
                             div
-                                div(ng-show='!tableEditing(field, $index)')
-                                    a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
+                                .col-sm-12(ng-show='!tableEditing(field, $index)')
+                                    a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
                                     +btn-remove('tableRemove(backupItem, field, $index)')
+                                    +btn-add('tableGroupNewItem($index); newDirection = "ASC"')
                                 div(ng-show='tableEditing(field, $index)')
                                     label.labelField {{$index + 1}})
-                                    +btn-save('tableGroupSaveVisible(curName)', 'tableGroupSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
+                                    +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
                                     .input-tip
-                                        input.form-control(type='text' ng-model='curName' placeholder='Index name')
-                                table.links-edit.col-sm-12(st-table='group.fields' ng-show='group.fields.length > 0')
-                                    tr(ng-repeat='groupItem in group.fields')
-                                        td
-                                            a.labelFormField('') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
-                                            +btn-remove('tableRemoveGroupItem(group, $index)')
+                                        input.form-control(type='text' ng-model='curGroupName' placeholder='Index name')
+                                div
+                                    table.links-edit.col-sm-12(st-table='group.fields' ng-show='group.fields.length > 0' ng-init='groupIndex = $index')
+                                        tr(ng-repeat='groupItem in group.fields')
+                                            td
+                                                div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
+                                                    a.labelFormField(ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
+                                                    +btn-remove('tableRemoveGroupItem(group, $index)')
+                                                div(ng-show='tableGroupItemEditing(groupIndex, $index)')
+                                                    label.labelField {{$index + 1}})
+                                                    +btn-save('tableGroupItemSaveVisible(curFieldName, curClassName)', 'tableGroupItemSave(curFieldName, curClassName, curDirection, groupIndex, $index)')
+                                                    +table-group-item-edit('curFieldName', 'curClassName', 'curDirection')
+                                    .settings-row(style='padding-left: 18px' ng-show='tableGroupNewItemActive(groupIndex)')
+                                        +btn-save('tableGroupItemSaveVisible(newFieldName, newClassName)', 'tableGroupItemSave(newFieldName, newClassName, newDirection, groupIndex, -1)')
+                                        +table-group-item-edit('newFieldName', 'newClassName', 'newDirection')
+            .settings-row(ng-show='tableNewItemActive(field)')
+                .col-sm-6
+                    +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
+                    .input-tip
+                        input.form-control(type='text' ng-model='newGroupName' placeholder='Group name')
+
 
 

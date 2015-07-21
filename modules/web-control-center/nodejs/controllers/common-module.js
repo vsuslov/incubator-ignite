@@ -217,6 +217,9 @@ controlCenterModule.service('$table', ['$common', function ($common) {
     }
 
     return {
+        tableState: function (name, editIndex) {
+            _tableState(name, editIndex);
+        },
         tableReset: function () {
             _tableReset();
         },

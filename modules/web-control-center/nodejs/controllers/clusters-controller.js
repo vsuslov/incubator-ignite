@@ -177,12 +177,16 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             });
 
         $scope.selectItem = function (item) {
+            $table.tableReset();
+
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new cluster.
         $scope.createItem = function () {
+            $table.tableReset();
+
             $scope.backupItem = angular.copy($scope.create.template);
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
@@ -241,6 +245,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
         // Save cluster.
         $scope.saveItem = function () {
+            $table.tableReset();
+
             var item = $scope.backupItem;
 
             if (validate(item))
@@ -249,6 +255,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
         // Save cluster with new name.
         $scope.saveItemAs = function () {
+            $table.tableReset();
+
             if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
                     var item = angular.copy($scope.backupItem);
@@ -262,6 +270,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
         // Remove cluster from db.
         $scope.removeItem = function () {
+            $table.tableReset();
+
             var selectedItem = $scope.selectedItem;
 
             $confirm.show('Are you sure you want to remove cluster: "' + selectedItem.name + '"?').then(

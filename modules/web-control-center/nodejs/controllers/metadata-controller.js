@@ -102,6 +102,11 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             {value: 'Timestamp', label: 'Timestamp'}
         ];
 
+        $scope.sortDirections = [
+            {value: 'ASC', label: 'ASC'},
+            {value: 'DESC', label: 'DESC'}
+        ];
+
         $scope.data = {
             curTableIdx: 0,
             curFieldIdx: 0,
@@ -296,28 +301,17 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             });
 
         $scope.selectItem = function (item) {
+            $table.tableReset();
+
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new metadata.
         $scope.createItem = function () {
+            $table.tableReset();
+
             $scope.backupItem = angular.copy($scope.template);
-
-            $scope.backupItem.groups = [{
-                name: "index1",
-                fields: [
-                    {name: "fld1", className: "Integer", direction: "ASC"},
-                    {name: "fld2", className: "String", direction: "DESC"}]
-            },
-                {
-                    name: "index2",
-                    fields: [
-                        {name: "fld3", className: "Integer", direction: "ASC"},
-                        {name: "fld4", className: "Data", direction: "DESC"}]
-                }
-            ];
-
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
@@ -355,6 +349,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         // Save cache type metadata.
         $scope.saveItem = function () {
+            $table.tableReset();
+
             var item = $scope.backupItem;
 
             if (validate(item))
@@ -363,6 +359,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         // Save cache type metadata with new name.
         $scope.saveItemAs = function () {
+            $table.tableReset();
+
             if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
                     var item = angular.copy($scope.backupItem);
@@ -375,6 +373,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         $scope.removeItem = function () {
+            $table.tableReset();
+
             var selectedItem = $scope.selectedItem;
 
             $confirm.show('Are you sure you want to remove cache type metadata: "' + selectedItem.name + '"?').then(
@@ -495,9 +495,105 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return $common.isNonEmpty(group);
         };
 
+        function tableGroupValid(groupName, index) {
+            var groups = $scope.backupItem.groups;
+
+            if ($common.isDefined(groups)) {
+                var idx = _.findIndex(groups, function (group) {return group.name == groupName});
+
+                // Found itself.
+                if (index >= 0 && index == idx)
+                    return true;
+
+                // Found duplicate.
+                if (idx >= 0) {
+                    $common.showError('Group with such name already exists!');
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        $scope.tableGroupSave = function(groupName, index) {
+            if (tableGroupValid(groupName, index)) {
+                $table.tableReset();
+
+                var item = $scope.backupItem;
+
+                if (index < 0) {
+                    var newGroup = {name: groupName};
+
+                    if (item.groups)
+                        item.groups.push(newGroup);
+                    else
+                        item.groups = [newGroup];
+                }
+                else
+                    item.groups[index].name = groupName;
+            }
+        };
+
+        $scope.tableGroupNewItem = function(groupIndex) {
+            var groupName = $scope.backupItem.groups[groupIndex].name;
+
+            return $table.tableNewItem({model: groupName});
+        };
+
+        $scope.tableGroupNewItemActive = function(groupIndex) {
+            var groupName = $scope.backupItem.groups[groupIndex].name;
+
+            return $table.tableNewItemActive({model: groupName});
+        };
+
+        $scope.tableGroupItemEditing = function (groupIndex, index) {
+            var groups = $scope.backupItem.groups;
+
+            if (groups)
+                return $table.tableEditing({model: groups[groupIndex].name}, index);
+
+            return false;
+        };
+
+        $scope.tableGroupItemStartEdit = function(groupIndex, index) {
+            var groups = $scope.backupItem.groups;
+
+            $table.tableState(groups[groupIndex].name, index);
+
+            return groups[groupIndex].fields[index];
+        };
+
+        $scope.tableGroupItemSaveVisible = function(fieldName, className) {
+            return $common.isNonEmpty(fieldName) && $common.isNonEmpty(className);
+        };
+
+        $scope.tableGroupItemSave = function(fieldName, className, direction, groupIndex, index) {
+            $table.tableReset();
+
+            var group = $scope.backupItem.groups[groupIndex];
+
+            if (index < 0) {
+                var newGroupItem = {name: fieldName, className: className, direction: direction};
+
+                if (group.fields)
+                    group.fields.push(newGroupItem);
+                else
+                    group.fields = [newGroupItem];
+            }
+            else {
+                var groupItem = group.fields[index];
+
+                groupItem.name = fieldName;
+                groupItem.className = className;
+                groupItem.direction = direction;
+            }
+        };
+
         $scope.tableRemoveGroupItem = function(group, index) {
-            console.log("group: " + group.name);
-            console.log("index: " + index);
+            $table.tableReset();
+
+            group.fields.splice(index, 1);
         };
 
         $scope.selectSchema = function (idx) {
