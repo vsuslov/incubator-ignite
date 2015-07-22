@@ -69,7 +69,7 @@ public class AgentSocket {
 
         try {
             ses.getRemote().sendString(MessageFactory.toString(authMsg));
-        } catch (Throwable t) {
+        } catch (IOException t) {
             t.printStackTrace();
         }
     }
@@ -112,7 +112,7 @@ public class AgentSocket {
             try {
                 restRes = agent.executeRest(restReq);
             }
-            catch (Throwable e) {
+            catch (Exception e) {
                 restRes = new RestResult();
 
                 restRes.setCode(500);
