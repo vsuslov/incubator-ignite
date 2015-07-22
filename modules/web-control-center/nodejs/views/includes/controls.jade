@@ -14,12 +14,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-mixin block-callout(tip)
-    .padding-dflt
+mixin block-callout(titleWorkflow, contentWorkflow, whatsNextWorkflow, whatsNextContent)
+    .block-callout-parent.block-callout-border.margin-bottom-dflt
         .block-callout
             i.fa.fa-check-square
-            label Workflow
-            p(ng-bind-html=tip)
+            label #{titleWorkflow}
+            p(ng-bind-html=contentWorkflow)
+        .block-callout
+            i.fa.fa-check-square
+            label #{whatsNextWorkflow}
+            p(ng-bind-html=whatsNextContent)
+
 
 mixin tipField(lines)
     i.tipField.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')

@@ -39,9 +39,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
     $http.get('/models/summary.json')
         .success(function (data) {
-            $scope.clientFields = data.clientFields;
-
             $scope.screenTip = data.screenTip;
+            $scope.clientFields = data.clientFields;
         })
         .error(function (errMsg) {
             $common.showError(errMsg);

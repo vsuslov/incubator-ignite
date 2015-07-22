@@ -1,8 +1,21 @@
 {
-  "screenTip": [
-    "Optional cache configuration.",
-    "Configure caches, link them to clusters and go to Summary page for configuration generation."
-  ],
+  "screenTip": {
+    "workflowTitle": "Use Caches view to:",
+    "workflowContent": [
+      "<ul>",
+      "  <li>Configure caches.</li>",
+      "  <li>Associate metadata with cache queries and/or cache store.</li>",
+      "</ul>"
+    ],
+    "whatsNextTitle": "What's next:",
+    "whatsNextContent": [
+      "<ul>",
+      "  <li>Configure clusters.</li>",
+      "  <li>Configure cache type metadata.</li>",
+      "  <li>Generate XML and java code on Summary view.</li>",
+      "</ul>"
+    ]
+  },
   "general": [
     {
       "label": "Name",

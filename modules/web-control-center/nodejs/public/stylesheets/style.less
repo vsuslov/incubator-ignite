@@ -22,8 +22,8 @@
 @ignite-block-callout: #50af51;
 
 hr {
-  margin-top: 0.65em;
-  margin-bottom: 0.65em;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .main-header .logo {
@@ -481,7 +481,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   font-family: Roboto Slab, serif;
-  margin-bottom: 0.65em;
+  margin-bottom: 10px;
 }
 
 .submit-vote.submit-vote-parent.voted a.submit-vote-button, .submit-vote.submit-vote-parent a.submit-vote-button:hover {
@@ -525,8 +525,8 @@ a:hover, .link:hover .title {
 
 .modal .close {
   position: absolute;
-  top: 0.65em;
-  right: 0.65em;
+  top: 10px;
+  right: 10px;
   float: none;
 }
 
@@ -606,12 +606,12 @@ h1.ignite-logo {
 }
 
 .details-row {
-  padding: 0 0.65em;
+  padding: 0 10px;
 }
 
 .details-row, .settings-row {
   display: block;
-  margin: 0.65em 0;
+  margin: 10px 0;
 
   label.table-header {
     line-height: @input-height;
@@ -704,12 +704,12 @@ button .caret, .btn .caret {
   }
 
   h3 {
-    margin-bottom: 1.3em;
+    margin-bottom: 20px;
   }
 }
 
 .theme-line .panel-body {
-  padding: 0.65em 1.3em;
+  padding: 10px 20px;
 }
 
 .theme-line .main-content a.customize {
@@ -776,7 +776,7 @@ button .caret, .btn .caret {
   }
 
   thead > tr th.header {
-    padding: 0 0 0.65em;
+    padding: 0 0 10px;
 
     div {
       padding: 0
@@ -791,7 +791,7 @@ button .caret, .btn .caret {
   }
 
   thead > tr th, td {
-    padding: 0.65em 0.65em;
+    padding: 10px 10px;
 
     .input-tip {
       padding: 0;
@@ -802,7 +802,7 @@ button .caret, .btn .caret {
     padding: 0;
 
     .pagination {
-      margin: 0.65em 0;
+      margin: 10px 0;
 
       > .active > a {
         color: @ignite-red;
@@ -819,7 +819,7 @@ button .caret, .btn .caret {
 }
 
 .panel-details {
-  margin-top: 0.65em;
+  margin-top: 10px;
 
   padding: 0;
 
@@ -1081,37 +1081,83 @@ a {
 }
 
 .panel {
-  margin-bottom: 0.65em;
+  margin-bottom: 0;
+}
+
+.panel-group {
+  margin-bottom: 0;
 }
 
 .panel-group .panel + .panel {
-  margin-top: 1.3em;
+  margin-top: 20px;
+}
+
+.margin-top-dflt {
+  margin-top: 10px;
+}
+
+.margin-bottom-dflt {
+  margin-bottom: 10px;
+}
+
+.margin-dflt {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.padding-top-dflt {
+  padding-top: 10px;
+}
+
+.padding-bottom-dflt {
+  padding-bottom: 10px;
 }
 
 .padding-dflt {
-  padding-top: 0.65em;
-  padding-bottom: 0.65em;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.theme-line .panel-title h3 {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.block-callout-parent {
+  background-color: @ignite-block-callout-background;
+  overflow: hidden;
 }
 
 .block-callout {
   background-color: @ignite-block-callout-background;
-  border-left: 5px solid;
-  border-color: @ignite-block-callout;
-
-  p {
-    padding: 5px 0 10px 15px;
-    margin: 0;
-  }
+  display: inline-block;
+  vertical-align: top;
+  width: 50%;
 
   i {
     padding: 10px 5px 0 10px;
     color: @ignite-block-callout;
   }
 
+  ul {
+    padding-left: 20px;
+    margin-bottom: 0;
+  }
+
+  p {
+    padding: 5px 0 10px 20px;
+    margin: 0;
+  }
+
   label {
     font-weight: bold;
     color: @ignite-block-callout;
   }
+}
+
+.block-callout-border {
+  border-left: 5px solid;
+  border-color: @ignite-block-callout;
 }
 
 .labelHeader {

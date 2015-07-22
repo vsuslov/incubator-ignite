@@ -1,7 +1,20 @@
 {
-  "screenTip": [
-    "Overview and download XML and java code for cluster configurations."
-  ],
+  "screenTip": {
+    "workflowTitle": "Use Summary view to:",
+    "workflowContent": [
+      "<ul>",
+      "  <li>See XML and java code for server nodes configurations.</li>",
+      "  <li>See XML and java code for client nodes configurations.</li>",
+      "</ul>"
+    ],
+    "whatsNextTitle": "What's next:",
+    "whatsNextContent": [
+      "<ul>",
+      "  <li>Download XML or java code configuration.</li>",
+      "  <li>Start Ignite cluster with downloaded configuration.</li>",
+      "</ul>"
+    ]
+  },
   "clientFields": [
     {
       "label": "Near cache start size",

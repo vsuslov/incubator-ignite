@@ -1,9 +1,21 @@
 {
-  "screenTip": [
-    "Optional cache type metadata configuration.",
-    "Enter metadata manually or load from database.",
-    "Generate cache for metadata if needed."
-  ],
+  "screenTip": {
+    "workflowTitle": "Use Cache Type Metadata view to:",
+    "workflowContent": [
+      "<ul>",
+      "  <li>Manually configure metadata for queries and/or store.</li>",
+      "  <li>Configure metadata from database tables metadata.</li>",
+      "</ul>"
+    ],
+    "whatsNextTitle": "What's next:",
+    "whatsNextContent": [
+      "<ul>",
+      "  <li>Configure clusters.</li>",
+      "  <li>Associate caches with metadata.</li>",
+      "  <li>Generate XML and java code on Summary view.</li>",
+      "</ul>"
+    ]
+  },
   "templateTip": [
     "Use following template for metadata:",
     "<ul>",
