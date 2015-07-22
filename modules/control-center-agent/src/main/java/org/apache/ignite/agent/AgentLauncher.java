@@ -23,11 +23,25 @@ import org.eclipse.jetty.websocket.client.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.logging.*;
 
 /**
  *
  */
 public class AgentLauncher {
+    /** Static initializer. */
+    static {
+        try {
+            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/logging.properties"));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** */
+    private static final Logger log = Logger.getLogger(AgentLauncher.class.getName());
+
     /** */
     private static final int RECONNECT_INTERVAL = 3000;
 
@@ -91,7 +105,7 @@ public class AgentLauncher {
                 while (true) {
                     AgentSocket agentSock = new AgentSocket(cfg, agent);
 
-                    System.out.printf("Connecting to : %s%n", cfg.getServerUri());
+                    log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
 
                     client.connect(agentSock, cfg.getServerUri());
 

@@ -25,12 +25,16 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 
 /**
  *
  */
 @WebSocket
 public class AgentSocket {
+    /** */
+    private static final Logger log = Logger.getLogger(AgentSocket.class.getName());
+
     /** */
     private final CountDownLatch closeLatch = new CountDownLatch(1);
 
@@ -54,7 +58,7 @@ public class AgentSocket {
      */
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        System.out.printf("Connection closed: %d - %s%n", statusCode, reason);
+        log.log(Level.INFO, String.format("Connection closed: %d - %s", statusCode, reason));
 
         closeLatch.countDown();
     }
@@ -64,7 +68,7 @@ public class AgentSocket {
      */
     @OnWebSocketConnect
     public void onConnect(Session ses) {
-        System.out.println("Authentication...");
+        log.log(Level.INFO, "Authentication...");
 
         AuthMessage authMsg = new AuthMessage(cfg.getLogin(), cfg.getPassword());
 
@@ -82,9 +86,9 @@ public class AgentSocket {
     @OnWebSocketError
     public void onError(Session ses, Throwable error) {
         if (error instanceof ConnectException)
-            System.out.println(error.getMessage());
+            log.log(Level.INFO, error.getMessage());
         else
-            error.printStackTrace();
+            log.log(Level.SEVERE, "Connection error", error);
 
         closeLatch.countDown();
     }
@@ -98,9 +102,9 @@ public class AgentSocket {
 
         if (m instanceof AuthResult) {
             if (((AuthResult)m).isSuccess())
-                System.out.println("Authentication success");
+                log.info("Authentication success");
             else {
-                System.out.println("Authentication failed: " + ((AuthResult)m).getMessage());
+                log.info("Authentication failed: " + ((AuthResult)m).getMessage());
 
                 ses.close();
             }
@@ -130,7 +134,7 @@ public class AgentSocket {
             }
         }
         else
-            System.err.printf("Unknown message: %s%n", msg);
+            log.log(Level.SEVERE, "Unknown message: " + msg);
     }
 
     /**
