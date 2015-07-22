@@ -28,7 +28,12 @@ import java.net.*;
  *
  */
 public class AgentLauncher {
+    /** */
+    private static final int RECONNECT_INTERVAL = 3000;
 
+    /**
+     * @param args Args.
+     */
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
@@ -92,7 +97,7 @@ public class AgentLauncher {
 
                     agentSock.waitForClose();
 
-                    Thread.sleep(3000);
+                    Thread.sleep(RECONNECT_INTERVAL);
                 }
             }
             finally {

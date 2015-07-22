@@ -17,6 +17,7 @@
 
 package org.apache.ignite.agent;
 
+import org.apache.http.*;
 import org.apache.ignite.agent.messages.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -115,7 +116,7 @@ public class AgentSocket {
             catch (Exception e) {
                 restRes = new RestResult();
 
-                restRes.setCode(500);
+                restRes.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 restRes.setMessage(e.getMessage());
             }
 
