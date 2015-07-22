@@ -278,8 +278,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
             clientId2Session.put(ses.clientId, ses);
             sesTokId2Session.put(ses.sesTokId, ses);
 
-            // TODO add checks.
-
             return ses;
         }
 
@@ -291,12 +289,12 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 ses.clientId = clientId;
                 ses.sesTokId = UUID.randomUUID();
 
-                clientId2Session.put(ses.clientId, ses);
-                sesTokId2Session.put(ses.sesTokId, ses);
+                Session oldSes = clientId2Session.putIfAbsent(ses.clientId, ses);
 
-                // TODO add checks.
+                if (oldSes == null)
+                    sesTokId2Session.put(ses.sesTokId, ses);
 
-                return ses;
+                return oldSes == null ? ses : oldSes;
             }
 
             return ses;
@@ -308,14 +306,22 @@ public class GridRestProcessor extends GridProcessorAdapter {
             Session ses = sesTokId2Session.get(sesTokId);
 
             if (ses == null)
-                throw new IgniteCheckedException("Failed to handle request. Unknown session token " +
+                throw new IgniteCheckedException("Faile to handle request. Unknown session token " +
                     "(maybe expired session). [sessionToken=" + U.byteArray2HexString(sesTok) + "]");
 
             return ses;
         }
 
-        if (!F.isEmpty(sesTok) && clientId != null)
-            throw new IgniteCheckedException("Failed to handle request. Unsupported case.");
+        if (!F.isEmpty(sesTok) && clientId != null) {
+            Session ses1 = sesTokId2Session.get(U.bytesToUuid(sesTok, 0));
+            Session ses2 = clientId2Session.get(clientId);
+
+            if (ses1 == null || ses2 == null || !ses1.equals(ses2))
+                throw new IgniteCheckedException("Failed to handle request. " +
+                    "Unsupported case (use one: clientId or session token)");
+
+            return ses1;
+        }
 
         throw new IgniteCheckedException("Failed to handle request (Unreachable state).");
     }
