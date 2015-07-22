@@ -89,6 +89,12 @@ public class GridRestProcessor extends GridProcessorAdapter {
         }
     };
 
+    /** Session token to client ID map. */
+    private final ConcurrentMap<UUID, UUID> sesToken2ClientId = new ConcurrentHashMap<>();
+
+    /** Client ID to session token map */
+    private final ConcurrentMap<UUID, UUID> clientId2SesToken = new ConcurrentHashMap<>();
+
     /**
      * @param req Request.
      * @return Future.
@@ -175,6 +181,24 @@ public class GridRestProcessor extends GridProcessorAdapter {
         SecurityContext subjCtx = null;
 
         if (ctx.security().enabled()) {
+            IgniteBiTuple<UUID, byte[]> clientIdAndSesTok;
+
+            try {
+                clientIdAndSesTok = clientIdAndSessionToken(req);
+            }
+            catch (IgniteCheckedException e) {
+                GridRestResponse res = new GridRestResponse(STATUS_FAILED, e.getMessage());
+
+                return new GridFinishedFuture<>(res);
+            }
+
+            req.clientId(clientIdAndSesTok.get1());
+            req.sessionToken(clientIdAndSesTok.get2());
+
+            if (log.isDebugEnabled())
+                log.debug("Next clientId and sessionToken were extracted from request: " +
+                    "[clientId="+req.clientId()+", sessionToken="+Arrays.toString(req.sessionToken())+"]");
+
             try {
                 subjCtx = authenticate(req);
 
@@ -228,7 +252,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
                 if (ctx.security().enabled()) {
                     updateSession(req, subjCtx0);
-                    res.sessionTokenBytes(ZERO_BYTES);
+                    res.sessionTokenBytes(req.sessionToken());
                 }
 
                 interceptResponse(res, req);
@@ -236,6 +260,65 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 return res;
             }
         });
+    }
+
+    // TODO add experation
+    private IgniteBiTuple<UUID, byte[]> clientIdAndSessionToken(GridRestRequest req) throws IgniteCheckedException {
+        UUID clientId = req.clientId();
+        byte[] sesTok = req.sessionToken();
+
+        if (F.isEmpty(sesTok) && clientId == null) {
+            clientId = UUID.randomUUID();
+
+            UUID sesTokUuid = UUID.randomUUID();
+
+            UUID oldSesTokUuid = clientId2SesToken.putIfAbsent(clientId, sesTokUuid);
+
+            assert oldSesTokUuid == null : "Error [oldSesTokUuid=" + oldSesTokUuid + "]";
+
+            sesToken2ClientId.put(sesTokUuid, clientId);
+
+            return new IgniteBiTuple<>(clientId, U.uuidToBytes(sesTokUuid));
+        }
+
+        if (F.isEmpty(sesTok) && clientId != null) {
+            UUID sesTokUuid = clientId2SesToken.get(clientId);
+
+            if (sesTokUuid == null) { /** First request with this clientId */
+                UUID newSesTokUuid = UUID.randomUUID();
+
+                UUID oldSesTokUuid = clientId2SesToken.putIfAbsent(clientId, newSesTokUuid);
+
+                sesTokUuid = oldSesTokUuid != null ? oldSesTokUuid : newSesTokUuid;
+
+                if (oldSesTokUuid == null)
+                    sesToken2ClientId.put(sesTokUuid, clientId);
+            }
+
+            return new IgniteBiTuple<>(clientId, U.uuidToBytes(sesTokUuid));
+        }
+
+        if (!F.isEmpty(sesTok) && clientId == null) {
+            UUID sesTokId = U.bytesToUuid(sesTok, 0);
+
+            clientId = sesToken2ClientId.get(sesTokId);
+
+            if (clientId == null)
+                throw new IgniteCheckedException("Failed to handle request. Unknown session token " +
+                    "(maybe expired session). [sessionToken=" + Arrays.toString(sesTok) + "]");
+
+            return new IgniteBiTuple<>(clientId, sesTok);
+        }
+
+        if (!F.isEmpty(sesTok) && clientId != null) {
+            UUID sesTokUuid = U.bytesToUuid(sesTok, 0);
+
+            if (sesToken2ClientId.get(sesTokUuid).equals(clientId) &&
+                clientId2SesToken.get(clientId).equals(sesTokUuid))
+                throw new IgniteCheckedException("Failed to handle request ");// TODO msg.
+        }
+
+        return new IgniteBiTuple<>(clientId, sesTok);
     }
 
     /**
@@ -458,7 +541,10 @@ public class GridRestProcessor extends GridProcessorAdapter {
      */
     private SecurityContext authenticate(GridRestRequest req) throws IgniteCheckedException {
         UUID clientId = req.clientId();
-        SecurityContext secCtx = clientId == null ? null : sesMap.get(clientId);
+
+        assert clientId != null;
+
+        SecurityContext secCtx = sesMap.get(clientId);
 
         if (secCtx != null)
             return secCtx;
@@ -467,7 +553,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
         AuthenticationContext authCtx = new AuthenticationContext();
 
         authCtx.subjectType(REMOTE_CLIENT);
-        authCtx.subjectId(req.clientId());
+        authCtx.subjectId(clientId);
 
         SecurityCredentials cred;
 
@@ -494,6 +580,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
         SecurityContext subjCtx = ctx.security().authenticate(authCtx);
 
+        // TODO review
         if (subjCtx == null) {
             if (req.credentials() == null)
                 throw new IgniteCheckedException("Failed to authenticate remote client (secure session SPI not set?): " + req);
@@ -510,10 +597,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
      * @param sCtx Security context.
      */
     private void updateSession(GridRestRequest req, SecurityContext sCtx) {
-        if (sCtx != null) {
-            UUID id = req.clientId();
-            sesMap.put(id, sCtx);
-        }
+        if (sCtx != null)
+            sesMap.put(req.clientId(), sCtx);
     }
 
     /**
@@ -664,5 +749,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
         X.println(">>> REST processor memory stats [grid=" + ctx.gridName() + ']');
         X.println(">>>   protosSize: " + protos.size());
         X.println(">>>   handlersSize: " + handlers.size());
+    }
+
+    private static class Session {
+        UUID clientId;
+        UUID sesTokId;
+        SecurityContext secCtx;
     }
 }
