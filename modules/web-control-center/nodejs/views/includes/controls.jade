@@ -54,14 +54,14 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder)
         input.form-control(type='text' ng-model=keyModel placeholder=keyPlaceholder)
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
-    .col-sm-12
+    .col-sm-6
         label.table-header #{header}:
         +tipLabel('field.tip')
         button.btn.btn-primary.fieldButton(ng-click='tableNewItem(field)') Add
-    table.panel-details.links-edit.col-sm-12(st-table=tblMdl)
+    table.links-edit.col-sm-12(st-table=tblMdl)
         tbody
             tr.col-sm-12(ng-repeat='item in #{tblMdl}')
-                td.col-sm-12
+                td.col-sm-6
                     div(ng-show='!tableEditing(field, $index)')
                         a.labelFormField(ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
                         +btn-remove('tableRemove(backupItem, field, $index)')
@@ -70,7 +70,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                         +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
                         +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder)
             tr.col-sm-12(ng-show='tableNewItemActive(field)')
-                td.col-sm-12
+                td.col-sm-6
                     +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
                     +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
 
@@ -251,9 +251,9 @@ mixin form-row-custom(lblClasses, fieldClasses)
                             +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                             .input-tip
                                 input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
-        .col-sm-6(ng-switch-when='indexedTypes')
+        div(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name')
-        .col-sm-6(ng-switch-when='queryFields' ng-hide=fieldHide)
+        div(ng-switch-when='queryFields' ng-hide=fieldHide)
             +table-pair('{{field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name')
         div(ng-switch-when='dbFields' ng-hide=fieldHide)
             .col-sm-6
@@ -314,6 +314,3 @@ mixin form-row-custom(lblClasses, fieldClasses)
                             +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
                             .input-tip
                                 input.form-control(type='text' ng-model='newGroupName' placeholder='Group name')
-
-
-
