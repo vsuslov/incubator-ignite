@@ -40,7 +40,9 @@
       "model": "databaseSchema",
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB schema name",
-      "tip": ["Schema name in database."]
+      "tip": [
+        "Schema name in database."
+      ]
     },
     {
       "label": "Database table",
@@ -48,7 +50,9 @@
       "model": "databaseTable",
       "hide": "backupItem.kind == 'query'",
       "placeholder": "Input DB table name",
-      "tip": ["Table name in database."]
+      "tip": [
+        "Table name in database."
+      ]
     },
     {
       "label": "Key type",
@@ -56,7 +60,9 @@
       "model": "keyType",
       "required": true,
       "placeholder": "Full class name for Key",
-      "tip": ["Key class used to store key in cache."]
+      "tip": [
+        "Key class used to store key in cache."
+      ]
     },
     {
       "label": "Value type",
@@ -64,7 +70,9 @@
       "model": "valueType",
       "required": true,
       "placeholder": "Full class name for Value",
-      "tip": ["Value class used to store value in cache."]
+      "tip": [
+        "Value class used to store value in cache."
+      ]
     },
     {
       "label": "Key fields",
@@ -73,7 +81,9 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query'",
-      "tip": ["Collection of key fields descriptions for CacheJdbcPojoStore."]
+      "tip": [
+        "Collection of key fields descriptions for CacheJdbcPojoStore."
+      ]
     },
     {
       "label": "Value fields",
@@ -82,7 +92,9 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query'",
-      "tip": ["Collection of value fields descriptions for CacheJdbcPojoStore.."]
+      "tip": [
+        "Collection of value fields descriptions for CacheJdbcPojoStore.."
+      ]
     },
     {
       "label": "Query fields",
@@ -91,7 +103,9 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["Collection of name-to-type mappings to be queried, in addition to indexed fields."]
+      "tip": [
+        "Collection of name-to-type mappings to be queried, in addition to indexed fields."
+      ]
     },
     {
       "label": "Ascending fields",
@@ -100,7 +114,9 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["Collection of name-to-type mappings to index in ascending order."]
+      "tip": [
+        "Collection of name-to-type mappings to index in ascending order."
+      ]
     },
     {
       "label": "Descending fields",
@@ -109,7 +125,9 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["Collection of name-to-type mappings to index in descending order."]
+      "tip": [
+        "Collection of name-to-type mappings to index in descending order."
+      ]
     },
     {
       "label": "Text fields",
@@ -117,14 +135,21 @@
       "model": "textFields",
       "hide": "backupItem.kind != 'query'",
       "placeholder": "Field name",
-      "tip": ["Fields to index as text."]
+      "tableTip": [
+        "Fields to index as text."
+      ],
+      "tip": [
+        "Field to index as text."
+      ]
     },
     {
       "label": "Groups",
       "type": "queryGroups",
       "model": "groups",
       "hide": "backupItem.kind != 'query'",
-      "tip": ["Collection of group indexes."]
+      "tip": [
+        "Collection of group indexes."
+      ]
     }
   ],
   "metadataDb": [

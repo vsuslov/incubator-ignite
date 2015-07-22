@@ -18,7 +18,7 @@
 controlCenterModule.controller('profileController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.profileUser = angular.copy($scope.user);
 
-    $scope.saveUser = function() {
+    $scope.saveUser = function () {
         var profile = $scope.profileUser;
 
         if (profile) {

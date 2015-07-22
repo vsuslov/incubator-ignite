@@ -19,7 +19,7 @@
 @input-height: 28px;
 @ignite-red: #ec1c24;
 @ignite-block-callout-background: #f3f8f3;
-@ignite-block-callout-border: #50af51;
+@ignite-block-callout: #50af51;
 
 .main-header .logo {
   height: auto;
@@ -243,7 +243,6 @@
 
   li a:hover {
     color: @ignite-red;
-    background-color: transparent;
   }
 
   .active {
@@ -719,7 +718,7 @@ button .caret, .btn .caret {
 .theme-line .links table {
   display: table;
   table-layout: fixed;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   td {
     padding-left: 18px;
@@ -740,7 +739,8 @@ button .caret, .btn .caret {
 }
 
 .theme-line table.links-edit:extend(.theme-line .links table all) {
-  margin-bottom: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 
   label {
     line-height: @input-height;
@@ -790,6 +790,21 @@ button .caret, .btn .caret {
 
     .input-tip {
       padding: 0;
+    }
+  }
+
+  tfoot > tr > td {
+    padding: 0;
+
+    .pagination {
+      margin: 0.65em 0;
+
+      > .active > a {
+        color: @ignite-red;
+        font-weight: bold;
+        border-color: #ddd;
+        background-color: #eee;
+      }
     }
   }
 }
@@ -870,6 +885,10 @@ label {
   float: right;
   margin-left: 5px;
   margin-right: 0;
+}
+
+.fa-plus {
+  cursor: pointer;
 }
 
 .fa-remove {
@@ -1058,15 +1077,28 @@ a {
 
 .block-callout {
   background-color: @ignite-block-callout-background;
-  border-left-width: 5px;
-  border-left-style: solid;
-  border-color: @ignite-block-callout-border;
+  border-left: 5px solid;
+  border-color: @ignite-block-callout;
 
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   p {
-    padding: 10px 0 10px 10px;
+    padding: 5px 0 10px 15px;
   }
+
+  i {
+    padding: 10px 5px 0 10px;
+    color: @ignite-block-callout;
+  }
+
+  label {
+    font-weight: bold;
+    color: @ignite-block-callout;
+  }
+}
+
+.labelHeader {
+  font-weight: bold;
 }
 
 .ace_editor, #ace_document {

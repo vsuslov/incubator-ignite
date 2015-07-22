@@ -1,6 +1,9 @@
 {
   "screenTip": [
-    "Configure cluster, link caches to them and go to Summary for configuration generation."
+    "1. Configure cluster.",
+    "2. Configure cache type metadata (optional).",
+    "3. Configure caches and link them to cluster.",
+    "4. Generate XML and java code."
   ],
   "templateTip": [
     "Use following template to add a new cluster:",
@@ -546,7 +549,9 @@
     },
     {
       "label": "Metrics",
-      "tip": ["Cluster runtime metrics settings."],
+      "tip": [
+        "Cluster runtime metrics settings."
+      ],
       "fields": [
         {
           "label": "Elapsed time",
@@ -595,7 +600,9 @@
     },
     {
       "label": "Peer Class Loading",
-      "tip": ["Cluster peer class loading settings."],
+      "tip": [
+        "Cluster peer class loading settings."
+      ],
       "fields": [
         {
           "label": "Enable peer class loading",
@@ -638,7 +645,9 @@
     },
     {
       "label": "Swap",
-      "tip": ["Settings for overflow data to disk if it cannot fit in memory."],
+      "tip": [
+        "Settings for overflow data to disk if it cannot fit in memory."
+      ],
       "fields": [
         {
           "label": "Swap space SPI",
@@ -715,7 +724,9 @@
     },
     {
       "label": "Time configuration",
-      "tip": ["Time settings for CLOCK write ordering mode."],
+      "tip": [
+        "Time settings for CLOCK write ordering mode."
+      ],
       "fields": [
         {
           "label": "Samples size",
@@ -761,7 +772,9 @@
     },
     {
       "label": "Thread pools size",
-      "tip": ["Settings for node thread pools."],
+      "tip": [
+        "Settings for node thread pools."
+      ],
       "fields": [
         {
           "label": "Public",
@@ -803,7 +816,9 @@
     },
     {
       "label": "Transactions",
-      "tip": ["Settings for transactions."],
+      "tip": [
+        "Settings for transactions."
+      ],
       "fields": [
         {
           "label": "Concurrency",

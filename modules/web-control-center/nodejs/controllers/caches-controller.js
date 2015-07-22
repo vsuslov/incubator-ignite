@@ -147,7 +147,9 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (pair) {return pair.keyClass == keyCls});
+                var idx = _.findIndex(model, function (pair) {
+                    return pair.keyClass == keyCls
+                });
 
                 // Found itself.
                 if (index >= 0 && index == idx)
@@ -201,12 +203,16 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             });
 
         $scope.selectItem = function (item) {
+            $table.tableReset();
+
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
         };
 
         // Add new cache.
         $scope.createItem = function () {
+            $table.tableReset();
+
             $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true, copyOnRead: true};
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
@@ -263,6 +269,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         // Save cache.
         $scope.saveItem = function () {
+            $table.tableReset();
+
             var item = $scope.backupItem;
 
             if (validate(item))
@@ -271,6 +279,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         // Save cache with new name.
         $scope.saveItemAs = function () {
+            $table.tableReset();
+
             if (validate($scope.backupItem))
                 $saveAs.show($scope.backupItem.name).then(function (newName) {
                     var item = angular.copy($scope.backupItem);
@@ -284,6 +294,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         // Remove cache from db.
         $scope.removeItem = function () {
+            $table.tableReset();
+
             var selectedItem = $scope.selectedItem;
 
             $confirm.show('Are you sure you want to remove cache: "' + selectedItem.name + '"?').then(

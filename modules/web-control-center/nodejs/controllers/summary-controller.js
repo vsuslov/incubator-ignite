@@ -20,8 +20,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     $scope.getModel = $common.getModel;
 
     $scope.javaClassItems = [
-        { label: 'snippet',value: false},
-        { label: 'factory class',value: true}
+        {label: 'snippet', value: false},
+        {label: 'factory class', value: true}
     ];
 
     $scope.evictionPolicies = [
@@ -49,14 +49,14 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
     $scope.clusters = [];
 
-    $scope.aceInit = function(editor) {
+    $scope.aceInit = function (editor) {
         editor.setReadOnly(true);
         editor.setOption("highlightActiveLine", false);
 
         editor.setTheme('ace/theme/chrome');
     };
 
-    $scope.reloadServer = function() {
+    $scope.reloadServer = function () {
         $scope.javaServer = $scope.configServer.javaClassServer ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
 
         if ($scope.configServer.docker) {
@@ -66,7 +66,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
         }
     };
 
-    $scope.selectItem = function(cluster) {
+    $scope.selectItem = function (cluster) {
         if (!cluster)
             return;
 
@@ -79,16 +79,16 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
         $scope.reloadServer();
 
-        $scope.$watch('configServer', function() {
+        $scope.$watch('configServer', function () {
             $scope.reloadServer();
         }, true);
 
-        $scope.$watch('backupItem', function() {
+        $scope.$watch('backupItem', function () {
             $scope.generateClient();
         }, true);
     };
 
-    $scope.generateServer = function(cluster) {
+    $scope.generateServer = function (cluster) {
         $http.post('summary/generator', {_id: cluster._id})
             .success(function (data) {
                 $scope.xmlServer = data.xmlServer;
@@ -101,9 +101,11 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
             });
     };
 
-    $scope.generateClient = function() {
-        $http.post('summary/generator', {_id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient,
-            clientNearConfiguration: $scope.backupItem.nearConfiguration})
+    $scope.generateClient = function () {
+        $http.post('summary/generator', {
+            _id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient,
+            clientNearConfiguration: $scope.backupItem.nearConfiguration
+        })
             .success(function (data) {
                 $scope.xmlClient = data.xmlClient;
                 $scope.javaClient = data.javaClient;
@@ -112,7 +114,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
             });
     };
 
-    $scope.download = function() {
+    $scope.download = function () {
         $http.post('summary/download', {_id: $scope.selectedItem._id, javaClass: $scope.javaClass, os: $scope.os})
             .success(function (data) {
                 var file = document.createElement('a');
