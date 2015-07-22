@@ -18,32 +18,19 @@
 var router = require('express').Router();
 var agentManager = require('../agents/agent-manager');
 
-
-
 /* GET summary page. */
-router.get('/', function(req, res) {
+router.post('/topology', function(req, res) {
     var c = agentManager.getAgentManager().getOneClient();
 
-    if (!c) {
-        return res.send("Client not found");
-    }
-
-    var html = "";
+    if (!c)
+        return res.status(500).send("Client not found");
 
     var ignite = c.ignite();
 
-    ignite.version().then(function (ver) {
-        html += "version: " + ver + "<br>";
-
-        return ignite.cluster()
-    }).then(function (cluster) {
-        html += "cluster size: " + cluster.length + "<br>";
-
-        for (var i = 0; i < cluster.length; i++) {
-            html += "#" + cluster[i].nodeId();
-        }
-
-        res.send(html);
+    ignite.cluster().then(function (cluster) {
+        res.json(cluster);
+    }, function (err) {
+        res.send(err);
     });
 });
 

@@ -1,4 +1,3 @@
-
 //-
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -15,43 +14,57 @@
 extends ../templates/layout
 
 append scripts
-    script(src='/cache-viewer-controller.js')
-    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js')
+    script(src='/sql-controller.js')
 
-append css
-    link(rel='stylesheet', href='/stylesheets/sql-console.css')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-chrome.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-sql.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js')
 
 block container
-    .docs-header
-        h1 Connect to Ignite and execute SQL queries
-        hr
-    div(ng-controller='cacheViewerController')
-        h4 Sql console
+    .row
+        .col-sm-12
+            .docs-content
+                .docs-header
+                    h1 Connect to Ignite and execute SQL queries
+                    hr
+                .docs-body(ng-controller='sqlController')
+                    .block-callout
+                        p(ng-bind-html='joinTip(screenTip)')
+                    .tabs-below(bs-tabs bs-active-pane='tabs.activeTab')
+                        div(title='Query #1' bs-pane)
+                            .row
+                                .col-sm-9
+                                    div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                                        'require: ["ace/ext/language_tools"],' +
+                                        'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                                        'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}'  ng-model='query')
+                                .col-sm-3
+                                    .links(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                                        lable.labelHeader Caches:
+                                        table(st-table='caches')
+                                            tbody
+                                                tr(ng-repeat='row in caches track by row._id')
+                                                    td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                                                        a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}
+                        div(title='Query #2' bs-pane)
+                            .row
+                    .settings-row
+                        button.btn.btn-primary(ng-click='') Explain
+                        button.btn.btn-primary(ng-click='') Execute
+                        button.btn.btn-primary(ng-click='' disabled) Scan
+                    //#resultPanel
+                    //    strong Results
+                    //
+                    //    #queryResult
+                    //        div(ng-repeat='r in results')
+                    //            .resultRow
+                    //                | {{r.id}} -> {{r.s}}
+                    //                span.props  {{r.fields}}
 
-        table#queryTable(cellpadding=0, cellspacing=0, ng-init='queryType = "sql"')
-            tr
-                td
-                    label(for='queryTypeSelect') Query&nbsp;type:
-                    select#queryTypeSelect(ng-model='queryType')
-                        option(value='sql') Sql query
-                        option(value='id') Get by ID
-                        option(value='scane') Scan cache
-
-                td.queryTd
-                    div(ng-show='queryType == "sql"')
-                        #querySql
-
-                td
-                    | Default&nbsp;cache:
-                    div#defCacheSelect
-                        div(ng-repeat='c in caches', ng-class='{def: defCache == c}', ng-click='defCache = c') {{c}}
-
-        #resultPanel
-            strong Results
-
-            #queryResult
-                div(ng-repeat='r in results')
-                    .resultRow
-                        | {{r.id}} -> {{r.s}}
-                        span.props  {{r.fields}}
-
+                    div(ng-hide='results.length == 0' style='margin-top: 0.65em')
+                        lable.labelHeader Results:
+                        table.table-bordered(st-table='results')
+                            tbody
+                                tr(ng-repeat='row in results')
+                                    td
+                                        a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}

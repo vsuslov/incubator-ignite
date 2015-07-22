@@ -17,10 +17,6 @@
 
 var WebSocketServer = require('ws').Server;
 
-var config = require('../helpers/configuration-loader.js');
-
-var https = require('https');
-
 var ignite = require('apache-ignite');
 
 var db = require('../db');

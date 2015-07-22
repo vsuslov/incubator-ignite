@@ -29,7 +29,7 @@ header.header(id='header')
             ul.nav.navbar-nav(ng-controller='activeLink' ng-show='user')
                 +header-item('/configuration', '/configuration/clusters', 'Configuration')
                 //+header-item('/monitoring', '/monitoring', 'Monitoring')
-                //+header-item('/sql', '/sql', 'SQL')
+                +header-item('/sql', '/sql', 'SQL')
                 //+header-item('/deploy', '/deploy', 'Deploy')
             ul.nav.navbar-nav.pull-right
                 li(ng-if='user')
