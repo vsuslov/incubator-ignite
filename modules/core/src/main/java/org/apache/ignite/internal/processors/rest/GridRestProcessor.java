@@ -76,7 +76,10 @@ public class GridRestProcessor extends GridProcessorAdapter {
     private final LongAdder8 workersCnt = new LongAdder8();
 
     /** SecurityContext map. */
-    private ConcurrentMap<UUID, SecurityContext> sesMap = new ConcurrentHashMap<>();
+    private ConcurrentMap<UUID, Session> clientId2Session = new ConcurrentHashMap<>();
+
+    /** SecurityContext map. */
+    private ConcurrentMap<UUID, Session> sesTokId2Session = new ConcurrentHashMap<>();
 
     /** Protocol handler. */
     private final GridRestProtocolHandler protoHnd = new GridRestProtocolHandler() {
@@ -88,12 +91,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
             return handleAsync0(req);
         }
     };
-
-    /** Session token to client ID map. */
-    private final ConcurrentMap<UUID, UUID> sesToken2ClientId = new ConcurrentHashMap<>();
-
-    /** Client ID to session token map */
-    private final ConcurrentMap<UUID, UUID> clientId2SesToken = new ConcurrentHashMap<>();
 
     /**
      * @param req Request.
@@ -178,13 +175,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
         if (log.isDebugEnabled())
             log.debug("Received request from client: " + req);
 
-        SecurityContext subjCtx = null;
+        Session ses = null;
 
         if (ctx.security().enabled()) {
-            IgniteBiTuple<UUID, byte[]> clientIdAndSesTok;
-
             try {
-                clientIdAndSesTok = clientIdAndSessionToken(req);
+                ses = session(req);
             }
             catch (IgniteCheckedException e) {
                 GridRestResponse res = new GridRestResponse(STATUS_FAILED, e.getMessage());
@@ -192,24 +187,26 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 return new GridFinishedFuture<>(res);
             }
 
-            req.clientId(clientIdAndSesTok.get1());
-            req.sessionToken(clientIdAndSesTok.get2());
+            assert ses != null;
+
+            req.clientId(ses.clientId);
+            req.sessionToken(ses.sesTok());
 
             if (log.isDebugEnabled())
                 log.debug("Next clientId and sessionToken were extracted from request: " +
                     "[clientId="+req.clientId()+", sessionToken="+Arrays.toString(req.sessionToken())+"]");
 
             try {
-                subjCtx = authenticate(req);
+                if (ses.secCtx == null)
+                    ses.secCtx = authenticate(req);
 
-                authorize(req, subjCtx);
+                authorize(req, ses.secCtx);
             }
             catch (SecurityException e) {
-                assert subjCtx != null;
+                assert ses.secCtx != null;
 
                 GridRestResponse res = new GridRestResponse(STATUS_SECURITY_CHECK_FAILED, e.getMessage());
 
-                updateSession(req, subjCtx);
                 res.sessionTokenBytes(ZERO_BYTES);
 
                 return new GridFinishedFuture<>(res);
@@ -229,7 +226,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
             return new GridFinishedFuture<>(
                 new IgniteCheckedException("Failed to find registered handler for command: " + req.command()));
 
-        final SecurityContext subjCtx0 = subjCtx;
+        final SecurityContext subjCtx0 = ses == null ? null : ses.secCtx;
 
         return res.chain(new C1<IgniteInternalFuture<GridRestResponse>, GridRestResponse>() {
             @Override public GridRestResponse apply(IgniteInternalFuture<GridRestResponse> f) {
@@ -251,7 +248,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 assert res != null;
 
                 if (ctx.security().enabled()) {
-                    updateSession(req, subjCtx0);
+                    // TODO review. Why we update it here, not earlier?
+//                    updateSession(req, subjCtx0);
                     res.sessionTokenBytes(req.sessionToken());
                 }
 
@@ -262,63 +260,64 @@ public class GridRestProcessor extends GridProcessorAdapter {
         });
     }
 
-    // TODO add experation
-    private IgniteBiTuple<UUID, byte[]> clientIdAndSessionToken(GridRestRequest req) throws IgniteCheckedException {
-        UUID clientId = req.clientId();
-        byte[] sesTok = req.sessionToken();
+    /**
+     * // TODO expiration
+     * @param req Request.
+     * @return Not null session.
+     * @throws IgniteCheckedException If failed.
+     */
+    private Session session(GridRestRequest req) throws IgniteCheckedException {
+        final UUID clientId = req.clientId();
+        final byte[] sesTok = req.sessionToken();
 
         if (F.isEmpty(sesTok) && clientId == null) {
-            clientId = UUID.randomUUID();
+            Session ses = new Session();
+            ses.clientId = UUID.randomUUID();
+            ses.sesTokId = UUID.randomUUID();
 
-            UUID sesTokUuid = UUID.randomUUID();
+            clientId2Session.put(ses.clientId, ses);
+            sesTokId2Session.put(ses.sesTokId, ses);
 
-            UUID oldSesTokUuid = clientId2SesToken.putIfAbsent(clientId, sesTokUuid);
+            // TODO add checks.
 
-            assert oldSesTokUuid == null : "Error [oldSesTokUuid=" + oldSesTokUuid + "]";
-
-            sesToken2ClientId.put(sesTokUuid, clientId);
-
-            return new IgniteBiTuple<>(clientId, U.uuidToBytes(sesTokUuid));
+            return ses;
         }
 
         if (F.isEmpty(sesTok) && clientId != null) {
-            UUID sesTokUuid = clientId2SesToken.get(clientId);
+            Session ses = clientId2Session.get(clientId);
 
-            if (sesTokUuid == null) { /** First request with this clientId */
-                UUID newSesTokUuid = UUID.randomUUID();
+            if (ses == null) { /** First request with this clientId */
+                ses = new Session();
+                ses.clientId = clientId;
+                ses.sesTokId = UUID.randomUUID();
 
-                UUID oldSesTokUuid = clientId2SesToken.putIfAbsent(clientId, newSesTokUuid);
+                clientId2Session.put(ses.clientId, ses);
+                sesTokId2Session.put(ses.sesTokId, ses);
 
-                sesTokUuid = oldSesTokUuid != null ? oldSesTokUuid : newSesTokUuid;
+                // TODO add checks.
 
-                if (oldSesTokUuid == null)
-                    sesToken2ClientId.put(sesTokUuid, clientId);
+                return ses;
             }
 
-            return new IgniteBiTuple<>(clientId, U.uuidToBytes(sesTokUuid));
+            return ses;
         }
 
         if (!F.isEmpty(sesTok) && clientId == null) {
             UUID sesTokId = U.bytesToUuid(sesTok, 0);
 
-            clientId = sesToken2ClientId.get(sesTokId);
+            Session ses = sesTokId2Session.get(sesTokId);
 
-            if (clientId == null)
+            if (ses == null)
                 throw new IgniteCheckedException("Failed to handle request. Unknown session token " +
-                    "(maybe expired session). [sessionToken=" + Arrays.toString(sesTok) + "]");
+                    "(maybe expired session). [sessionToken=" + U.byteArray2HexString(sesTok) + "]");
 
-            return new IgniteBiTuple<>(clientId, sesTok);
+            return ses;
         }
 
-        if (!F.isEmpty(sesTok) && clientId != null) {
-            UUID sesTokUuid = U.bytesToUuid(sesTok, 0);
+        if (!F.isEmpty(sesTok) && clientId != null)
+            throw new IgniteCheckedException("Failed to handle request. Unsupported case.");
 
-            if (sesToken2ClientId.get(sesTokUuid).equals(clientId) &&
-                clientId2SesToken.get(clientId).equals(sesTokUuid))
-                throw new IgniteCheckedException("Failed to handle request ");// TODO msg.
-        }
-
-        return new IgniteBiTuple<>(clientId, sesTok);
+        throw new IgniteCheckedException("Failed to handle request (Unreachable state).");
     }
 
     /**
@@ -540,20 +539,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
      * @throws IgniteCheckedException If authentication failed.
      */
     private SecurityContext authenticate(GridRestRequest req) throws IgniteCheckedException {
-        UUID clientId = req.clientId();
-
-        assert clientId != null;
-
-        SecurityContext secCtx = sesMap.get(clientId);
-
-        if (secCtx != null)
-            return secCtx;
-
         // Authenticate client if invalid session.
         AuthenticationContext authCtx = new AuthenticationContext();
 
         authCtx.subjectType(REMOTE_CLIENT);
-        authCtx.subjectId(clientId);
+        authCtx.subjectId(req.clientId());
 
         SecurityCredentials cred;
 
@@ -597,8 +587,10 @@ public class GridRestProcessor extends GridProcessorAdapter {
      * @param sCtx Security context.
      */
     private void updateSession(GridRestRequest req, SecurityContext sCtx) {
-        if (sCtx != null)
-            sesMap.put(req.clientId(), sCtx);
+//        if (sCtx != null) {
+//            sesMap.put(req.clientId(), sCtx);
+//
+//        }
     }
 
     /**
@@ -755,5 +747,33 @@ public class GridRestProcessor extends GridProcessorAdapter {
         UUID clientId;
         UUID sesTokId;
         SecurityContext secCtx;
+
+        byte[] sesTok(){
+            return U.uuidToBytes(sesTokId);
+        }
+
+        /** {@inheritDoc} */
+        @Override public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (!(o instanceof Session))
+                return false;
+
+            Session ses = (Session)o;
+
+            if (clientId != null ? !clientId.equals(ses.clientId) : ses.clientId != null)
+                return false;
+            if (sesTokId != null ? !sesTokId.equals(ses.sesTokId) : ses.sesTokId != null)
+                return false;
+
+            return true;
+        }
+
+        /** {@inheritDoc} */
+        @Override public int hashCode() {
+            int res = clientId != null ? clientId.hashCode() : 0;
+            res = 31 * res + (sesTokId != null ? sesTokId.hashCode() : 0);
+            return res;
+        }
     }
 }
