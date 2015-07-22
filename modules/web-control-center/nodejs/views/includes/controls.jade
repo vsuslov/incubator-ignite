@@ -15,10 +15,11 @@
     limitations under the License.
 
 mixin block-callout(tip)
-    .block-callout
-        i.fa.fa-check-square
-        label Workflow
-        p(ng-bind-html=tip)
+    .padding-dflt
+        .block-callout
+            i.fa.fa-check-square
+            label Workflow
+            p(ng-bind-html=tip)
 
 mixin tipField(lines)
     i.tipField.fa.fa-question-circle(ng-if=lines bs-tooltip='joinTip(#{lines})' type='button')

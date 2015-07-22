@@ -28,19 +28,20 @@ block content
     .docs-body(ng-controller='metadataController')
         +block-callout('joinTip(screenTip)')
         .links(ng-hide='metadatas.length == 0')
-            lable.labelHeader Types metadata:
-            table(st-table='metadatas')
-                tbody
-                    tr(ng-repeat='row in metadatas track by row._id')
-                        td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                            a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-        div
+            .padding-dflt
+                lable.labelHeader Types metadata:
+                table(st-table='metadatas')
+                    tbody
+                        tr(ng-repeat='row in metadatas track by row._id')
+                            td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                                a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+        .padding-dflt
             button.btn.btn-primary(ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
             label(style='margin-left: 6px; margin-right: 10px') For:
             button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
             i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
-            hr
-        .panel-group(bs-collapse ng-model='panels.activePanel' data-allow-multiple="false")
+        hr
+        .panel-group.padding-dflt(bs-collapse ng-model='panels.activePanel' data-allow-multiple="false")
             .panel.panel-default
                 .panel-heading
                     h3
@@ -51,7 +52,7 @@ block content
                             .settings-row(ng-repeat='field in metadataManual')
                                 +form-row
                             button.btn.btn-primary(ng-disabled='manualForm.$invalid' ng-click='saveItem()') Save
-                            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Save As
+                            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
                             button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
             .panel.panel-default
                 .panel-heading
