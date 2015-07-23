@@ -68,6 +68,8 @@
               "reordering": true,
               "ipaddress": true,
               "placeholder": "IP address:port",
+              "addTip": "Add new address.",
+              "removeTip": "Remove address.",
               "tip": [
                 "Addresses may be represented as follows:",
                 "<ul>",
@@ -221,6 +223,8 @@
               "model": "regions",
               "editIdx": -1,
               "placeholder": "",
+              "addTip": "Add new region.",
+              "removeTip": "Remove region.",
               "tableTip": [
                 "List of regions where VMs are located.",
                 "If the regions are not set then every region, that a cloud provider has, will be investigated. This could lead to significant performance degradation.",
@@ -237,6 +241,8 @@
               "model": "zones",
               "editIdx": -1,
               "placeholder": "",
+              "addTip": "Add new zone.",
+              "removeTip": "Remove zone.",
               "tableTip": [
                 "List of zones where VMs are located.",
                 "If the zones are not set then every zone from regions, set by {@link #setRegions(Collection)}}, will be taken into account.",
