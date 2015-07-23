@@ -35,8 +35,36 @@ var demoResults = [
 
 var demoCaches = [{_id: '1', name: 'Users', mode: 'LOCAL'}, {_id: '2', name: 'Organizations', mode: 'REPLICATED'}, {_id: '3', name: 'Cities', mode: 'PARTITIONED'}];
 
+
+
 controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.joinTip = $common.joinTip;
+
+    $scope.pageSizes = [50, 100, 200, 400, 800, 1000];
+
+    $scope.tabs = [
+        {
+            query: "SELECT u.id, u.firstName, u.lastName FROM User u WHERE u.name LIKE 'aaaa'",
+            cols: Object.keys(demoResults[0]),
+            page: 1,
+            hasMore: true,
+            total: 0,
+            rows: demoResults
+        },
+        {query: "SELECT * FROM Organization"}
+    ];
+
+    $scope.addTab = function() {
+        console.log('addTab');
+
+        $scope.tabs.push({query: "SELECT "});
+    };
+
+    $scope.removeTab = function(idx) {
+        console.log('removeTab');
+
+        $scope.tabs.splice(idx, 1);
+    };
 
     $scope.modes = [
         {value: 'PARTITIONED', label: 'PARTITIONED'},
@@ -51,10 +79,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', f
         .error(function (errMsg) {
             $common.showError(errMsg);
         });
-
-    $scope.query = "select u.id, u.firstName, u.lastName from User u where u.name like 'aaaa';";
-
-    $scope.results = demoResults;
 
     $scope.caches = demoCaches;
 }]);

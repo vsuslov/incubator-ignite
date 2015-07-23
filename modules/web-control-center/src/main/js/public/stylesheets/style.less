@@ -814,6 +814,27 @@ button .caret, .btn .caret {
   }
 }
 
+.theme-line table.sql-results {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  td {
+    padding: 3px 6px;
+  }
+
+  > thead > tr > td {
+    padding: 3px 0;
+  }
+
+  thead > tr > th {
+    padding: 3px 6px;
+
+    line-height: @input-height;
+  }
+}
+
 .panel-title a {
   font-size: 14px;
 }
