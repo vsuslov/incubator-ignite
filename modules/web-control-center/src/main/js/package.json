@@ -37,9 +37,7 @@
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "pg": "^4.4.0",
-    "serve-favicon": "~2.2.0",
-    "util": "^0.10.3"
+    "serve-favicon": "~2.2.0"
   },
   "devDependencies": {
     "morgan": "~1.5.1",
