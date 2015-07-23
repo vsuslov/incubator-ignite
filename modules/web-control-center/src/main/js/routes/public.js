@@ -24,7 +24,7 @@ router.get('/select', function (req, res) {
     res.render('templates/select', {});
 });
 
-// GET tabs template.
+// GET dynamic tabs template.
 router.get('/tab', function (req, res) {
     res.render('templates/tab', {});
 });
@@ -34,7 +34,7 @@ router.get('/confirm', function (req, res) {
     res.render('templates/confirm', {});
 });
 
-// GET save as dialog.
+// GET copy dialog.
 router.get('/copy', function (req, res) {
     res.render('templates/copy', {});
 });

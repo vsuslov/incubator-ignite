@@ -63,33 +63,32 @@ block content
                             a(bs-collapse-toggle) Server
                             button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
                     .panel-collapse(role="tabpanel" bs-collapse-target)
-                        .panel-body
-                            .configBox(ng-show='selectedItem' bs-tabs)
-                                div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
-                                    .configBox(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlServer' style='margin: 0.65em 0;')
-                                div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
-                                    .settings-row
-                                        .col-sm-1
-                                            label Generate:
-                                        .col-sm-3
-                                            button.form-control(type='button' ng-model='configServer.javaClassServer'  bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
-                                    .configBox(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaServer')
-                                div(title='<img src="/images/docker.png" width="16px" height="16px"/> Dockerfile' bs-pane)
-                                    .settings-row
-                                        p
-                                            +hard-link('https://docs.docker.com/reference/builder', 'Docker')
-                                            | &nbsp;file is a text file with instructions to create Docker image.<br/>
-                                            | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
-                                            | Also you could use predefined&nbsp;
-                                            +hard-link('https://ignite.incubator.apache.org/download.html#docker', 'Apache Ignite docker image')
-                                            | . For more information about using Ignite with Docker please read&nbsp;
-                                            +hard-link('http://apacheignite.readme.io/docs/docker-deployment', 'documentation')
-                                            |.
-                                        .col-sm-2
-                                            label(for='os') Operation System:
-                                        .col-sm-4
-                                            input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
-                                    div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
+                        div(ng-show='selectedItem' bs-tabs style='margin-top: 0.65em')
+                            div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
+                                div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlServer')
+                            div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
+                                .details-row
+                                    .col-sm-1
+                                        label Generate:
+                                    .col-sm-3
+                                        button.form-control(type='button' ng-model='configServer.javaClassServer'  bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaServer')
+                            div(title='<img src="/images/docker.png" width="16px" height="16px"/> Dockerfile' bs-pane)
+                                .details-row
+                                    p
+                                        +hard-link('https://docs.docker.com/reference/builder', 'Docker')
+                                        | &nbsp;file is a text file with instructions to create Docker image.<br/>
+                                        | To build image you have to store following Docker file with your Ignite XML configuration to the same directory.<br>
+                                        | Also you could use predefined&nbsp;
+                                        +hard-link('https://ignite.incubator.apache.org/download.html#docker', 'Apache Ignite docker image')
+                                        | . For more information about using Ignite with Docker please read&nbsp;
+                                        +hard-link('http://apacheignite.readme.io/docs/docker-deployment', 'documentation')
+                                        |.
+                                    .col-sm-2
+                                        label(for='os') Operation System:
+                                    .col-sm-4
+                                        input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
+                                div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     form.panel-heading(role='tab' method='post' action='summary/download')
@@ -101,17 +100,16 @@ block content
                             a(bs-collapse-toggle) Client
                             button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
                     .panel-collapse(role="tabpanel" bs-collapse-target)
-                        .panel-body
-                            div(ng-show='selectedItem')
-                                .settings-row(ng-repeat='field in clientFields')
-                                    +form-row-custom(['col-sm-3'], ['col-sm-3'])
-                                .configBox(bs-tabs)
-                                    div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
-                                        .configBox(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient' style='margin: 0.65em 0;')
-                                    div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
-                                        .settings-row
-                                            .col-sm-1
-                                                label Generate:
-                                            .col-sm-4
-                                                button.form-control(type='button' ng-model='backupItem.javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
-                                        div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaClient')
+                        div(ng-show='selectedItem')
+                            .details-row(ng-repeat='field in clientFields')
+                                +form-row-custom(['col-sm-3'], ['col-sm-3'])
+                            div(bs-tabs style='margin-top: 0.65em')
+                                div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
+                                    div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient')
+                                div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
+                                    .details-row
+                                        .col-sm-1
+                                            label Generate:
+                                        .col-sm-4
+                                            button.form-control(type='button' ng-model='backupItem.javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
+                                    div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaClient')

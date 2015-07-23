@@ -594,7 +594,7 @@ h1.ignite-logo {
 }
 
 .greedy {
-  min-height: 200px;
+  min-height: 100%;
   height: ~"calc(100vh - 290px)";
 }
 
@@ -811,6 +811,27 @@ button .caret, .btn .caret {
         background-color: #eee;
       }
     }
+  }
+}
+
+.theme-line table.sql-results {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  td {
+    padding: 3px 6px;
+  }
+
+  > thead > tr > td {
+    padding: 3px 0;
+  }
+
+  thead > tr > th {
+    padding: 3px 6px;
+
+    line-height: @input-height;
   }
 }
 
@@ -1062,7 +1083,7 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
   margin-top: 10px;
 }
 
-.configBox .nav > li > a {
+.nav-tabs > li > a {
   padding: 5px 5px;
 }
 
@@ -1175,7 +1196,19 @@ a {
 }
 
 .ace_editor, #ace_document {
+  margin:  0.65em 0 0 0;
+
   width: 100%;
   height: 400px;
-}
 
+  .ace_gutter {
+    background: transparent !important;
+    border: 1px #ddd;
+    border-right-style: solid;
+  }
+
+  .ace_gutter-cell, .ace_folding-enabled > .ace_gutter-cell {
+    padding-left: 0.65em;
+    padding-right: 0.9em;
+  }
+}
