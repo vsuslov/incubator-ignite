@@ -64,7 +64,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
     /** Delay between sessions expire checks*/
     private static final int SES_EXPIRE_CHECK_DELAY = 1_000;
 
-    /** TODO */
+    /** */
     private static final int SES_EXPERATION_TIME = 30_000;
 
     /** Protocols. */
@@ -840,7 +840,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
             if (U.currentTimeMillis() - time0 > SES_EXPERATION_TIME)
                 lastTouchTime.compareAndSet(time0, EXPIRED_FLAG);
 
-            return lastTouchTime.get() == EXPIRED_FLAG;
+            return isExpired();
         }
 
         /**
@@ -848,17 +848,14 @@ public class GridRestProcessor extends GridProcessorAdapter {
          * @return <code>True</code> if expired.
          */
         boolean checkExpirationAndTryUpdateLastTouchTime() {
-            while(true) {
-                long time0 = lastTouchTime.get();
+            long time0 = lastTouchTime.get();
 
-                if (time0 == EXPIRED_FLAG)
-                    return true;
+            if (time0 == EXPIRED_FLAG)
+                return true;
 
-                boolean success = lastTouchTime.compareAndSet(time0, U.currentTimeMillis());
+            lastTouchTime.compareAndSet(time0, U.currentTimeMillis());
 
-                if (success)
-                    return false;
-            }
+            return isExpired();
         }
 
         /**
