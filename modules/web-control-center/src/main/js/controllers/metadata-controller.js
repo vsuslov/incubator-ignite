@@ -267,6 +267,20 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 $common.showError(errMsg);
             });
 
+        function selectFirstItem() {
+            if ($scope.metadatas.length > 0)
+                $scope.selectItem($scope.metadatas[0]);
+        }
+
+        function setSelectedAndBackupItem(sel, bak) {
+            $table.tableReset();
+
+            $scope.selectedItem = sel;
+            $scope.backupItem = bak;
+
+            $scope.panels.activePanel = [0];
+        }
+
         // When landing on the page, get metadatas and show them.
         $http.post('metadata/list')
             .success(function (data) {
@@ -275,21 +289,25 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
                 var restoredItem = angular.fromJson(sessionStorage.metadataBackupItem);
 
-                if (restoredItem && restoredItem._id) {
-                    var idx = _.findIndex($scope.metadatas, function (metadata) {
-                        return metadata._id == restoredItem._id;
-                    });
+                if (restoredItem) {
+                    if (restoredItem._id) {
+                        var idx = _.findIndex($scope.metadatas, function (metadata) {
+                            return metadata._id == restoredItem._id;
+                        });
 
-                    if (idx >= 0) {
-                        $scope.selectedItem = $scope.metadatas[idx];
+                        if (idx >= 0)
+                            setSelectedAndBackupItem($scope.metadatas[idx], restoredItem);
+                        else {
+                            sessionStorage.removeItem('metadataBackupItem');
 
-                        $scope.backupItem = restoredItem;
+                            selectFirstItem();
+                        }
                     }
                     else
-                        sessionStorage.removeItem('metadataBackupItem');
+                        setSelectedAndBackupItem(undefined, restoredItem);
                 }
                 else
-                    $scope.backupItem = restoredItem;
+                    selectFirstItem();
 
                 $scope.$watch('backupItem', function (val) {
                     if (val)
@@ -301,12 +319,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             });
 
         $scope.selectItem = function (item) {
-            $table.tableReset();
-
-            $scope.selectedItem = item;
-            $scope.backupItem = angular.copy(item);
-
-            $scope.panels.activePanel = [0];
+            setSelectedAndBackupItem(item, angular.copy(item));
         };
 
         // Add new metadata.
@@ -317,7 +330,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
-        // Check cache type metadata logical consistency.
+        // Check metadata logical consistency.
         function validate(item) {
             return true;
         }
