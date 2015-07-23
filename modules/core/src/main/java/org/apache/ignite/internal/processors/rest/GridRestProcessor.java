@@ -61,11 +61,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
     /** */
     public static final byte[] ZERO_BYTES = new byte[0];
 
-    /** Delay between sessions expire checks*/
-    private static final int SES_EXPIRE_CHECK_DELAY = 1_000;
+    /** Delay between sessions timeout checks*/
+    private static final int SES_TIMEOUT_CHECK_DELAY = 1_000;
 
     /** */
-    private static final int SES_EXPERATION_TIME = 30_000;
+    private static final int DEFAULT_SES_TIMEOUT = 30_000;
 
     /** Protocols. */
     private final Collection<GridRestProtocol> protos = new ArrayList<>();
@@ -98,6 +98,9 @@ public class GridRestProcessor extends GridProcessorAdapter {
             return handleAsync0(req);
         }
     };
+
+    /** Sesion timeout size */
+    private final long sesTimeout;
 
     /**
      * @param req Request.
@@ -268,7 +271,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
     }
 
     /**
-     * // TODO expiration
      * @param req Request.
      * @return Not null session.
      * @throws IgniteCheckedException If failed.
@@ -301,7 +303,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 if (curSes == null)
                     sesTokId2Ses.put(ses.sesTokId, ses);
                 else {
-                    boolean expired = curSes.checkExpirationAndTryUpdateLastTouchTime();
+                    boolean expired = curSes.checkTimeoutAndTryUpdateLastTouchTime();
 
                     // curSes != null means that there was at least 2 parallel request
                     // by the same clientId (and we was not first).
@@ -312,7 +314,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 return curSes == null ? ses : curSes;
             }
             else {
-                if (ses.checkExpirationAndTryUpdateLastTouchTime())
+                if (ses.checkTimeoutAndTryUpdateLastTouchTime())
                     return session(req);
 
                 return ses;
@@ -328,7 +330,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 throw new IgniteCheckedException("Failed to handle request. Unknown session token " +
                     "(maybe expired session). [sessionToken=" + U.byteArray2HexString(sesTok) + "]");
 
-            if (ses.checkExpirationAndTryUpdateLastTouchTime())
+            if (ses.checkTimeoutAndTryUpdateLastTouchTime())
                 return session(req);
 
             return ses;
@@ -342,7 +344,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                 throw new IgniteCheckedException("Failed to handle request. " +
                     "Unsupported case (use one: clientId or session token)");
 
-            if (ses1.checkExpirationAndTryUpdateLastTouchTime())
+            if (ses1.checkTimeoutAndTryUpdateLastTouchTime())
                 return session(req);
 
             return ses1;
@@ -356,6 +358,22 @@ public class GridRestProcessor extends GridProcessorAdapter {
      */
     public GridRestProcessor(GridKernalContext ctx) {
         super(ctx);
+
+        long sesExpTime0;
+
+        try {
+            String sesExpTime = System.getProperty(IgniteSystemProperties.IGNITE_REST_SESSION_EXPIRE_TIME);
+
+            if (sesExpTime != null)
+                sesExpTime0 = Long.valueOf(sesExpTime) * 1000;
+            else
+                sesExpTime0 = DEFAULT_SES_TIMEOUT;
+        }
+        catch (NumberFormatException ignore) {
+            sesExpTime0 = DEFAULT_SES_TIMEOUT;
+        }
+
+        sesTimeout = sesExpTime0;
     }
 
     /** {@inheritDoc} */
@@ -395,17 +413,17 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
     /** {@inheritDoc} */
     @Override public void onKernalStart() throws IgniteCheckedException {
-        Thread sesExpirationThread = new Thread(new Runnable() {
+        Thread sesTimeoutCheckerThread = new Thread(new Runnable() {
             @Override public void run() {
                 try {
                     while(!Thread.currentThread().isInterrupted()) {
-                        Thread.sleep(SES_EXPIRE_CHECK_DELAY);
+                        Thread.sleep(SES_TIMEOUT_CHECK_DELAY);
 
                         for (Iterator<Map.Entry<UUID, Session>> iter = clientId2Ses.entrySet().iterator();
                             iter.hasNext();) {
                             Map.Entry<UUID, Session> e = iter.next();
 
-                            if (e.getValue().checkExpiration())
+                            if (e.getValue().checkTimeout(sesTimeout))
                                 iter.remove();
                         }
 
@@ -413,7 +431,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
                             iter.hasNext();) {
                             Map.Entry<UUID, Session> e = iter.next();
 
-                            if (e.getValue().isExpired())
+                            if (e.getValue().isTimedOut())
                                 iter.remove();
                         }
                     }
@@ -422,11 +440,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
                     Thread.currentThread().interrupt();
                 }
             }
-        }, "check-session-expired");
+        }, "session-timeout-checker");
 
-        sesExpirationThread.setDaemon(true);
+        sesTimeoutCheckerThread.setDaemon(true);
 
-        sesExpirationThread.start();
+        sesTimeoutCheckerThread.start();
 
         if (isRestEnabled()) {
             for (GridRestProtocol proto : protos)
@@ -812,7 +830,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
      */
     private static class Session {
         /** Expiration flag. It's a final state of lastToucnTime. */
-        private static final Long EXPIRED_FLAG = 0L;
+        private static final Long TIMEDOUT_FLAG = 0L;
 
         /** Client id. */
         private volatile UUID clientId;
@@ -825,7 +843,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
         /**
          * Time when session is used last time.
-         * If this time was set at EXPIRED_FLAG, then it should never be changed.
+         * If this time was set at TIMEDOUT_FLAG, then it should never be changed.
          */
         private final AtomicLong lastTouchTime = new AtomicLong(U.currentTimeMillis());
 
@@ -837,17 +855,18 @@ public class GridRestProcessor extends GridProcessorAdapter {
         }
 
         /**
-         * Checks expiration of session and if expired then sets EXPIRED_FLAG.
+         * Checks expiration of session and if expired then sets TIMEDOUT_FLAG.
          *
+         * @param sesTimeout Session timeout.
          * @return <code>True</code> if expired.
          */
-        boolean checkExpiration() {
+        boolean checkTimeout(long sesTimeout) {
             long time0 = lastTouchTime.get();
 
-            if (U.currentTimeMillis() - time0 > SES_EXPERATION_TIME)
-                lastTouchTime.compareAndSet(time0, EXPIRED_FLAG);
+            if (U.currentTimeMillis() - time0 > sesTimeout)
+                lastTouchTime.compareAndSet(time0, TIMEDOUT_FLAG);
 
-            return isExpired();
+            return isTimedOut();
         }
 
         /**
@@ -855,11 +874,11 @@ public class GridRestProcessor extends GridProcessorAdapter {
          *
          * @return <code>True</code> if expired.
          */
-        boolean checkExpirationAndTryUpdateLastTouchTime() {
+        boolean checkTimeoutAndTryUpdateLastTouchTime() {
             while (true) {
                 long time0 = lastTouchTime.get();
 
-                if (time0 == EXPIRED_FLAG)
+                if (time0 == TIMEDOUT_FLAG)
                     return true;
 
                 boolean success = lastTouchTime.compareAndSet(time0, U.currentTimeMillis());
@@ -872,8 +891,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
         /**
          * @return <code>True</code> if session in expired state.
          */
-        boolean isExpired() {
-            return lastTouchTime.get() == EXPIRED_FLAG;
+        boolean isTimedOut() {
+            return lastTouchTime.get() == TIMEDOUT_FLAG;
         }
 
         /** {@inheritDoc} */
