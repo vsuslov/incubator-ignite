@@ -1173,6 +1173,9 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
 
         add(ATTR_CONSISTENCY_CHECK_SKIPPED, getBoolean(IGNITE_SKIP_CONFIGURATION_CONSISTENCY_CHECK));
 
+        if (cfg.getConsistentId() != null)
+            add(ATTR_NODE_CONSISTENT_ID, cfg.getConsistentId());
+
         // Build a string from JVM arguments, because parameters with spaces are split.
         SB jvmArgs = new SB(512);
 
@@ -3007,6 +3010,18 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
      */
     private boolean skipDaemon(GridComponent comp) {
         return ctx.isDaemon() && U.hasAnnotation(comp.getClass(), SkipDaemon.class);
+    }
+
+    /**
+     *
+     */
+    public void dumpDebugInfo() {
+        U.warn(log, "Dumping debug info for node [id=" + ctx.localNodeId() +
+            ", name=" + ctx.gridName() +
+            ", order=" + ctx.discovery().localNode().order() +
+            ", client=" + ctx.clientNode() + ']');
+
+        ctx.cache().context().exchange().dumpDebugInfo();
     }
 
     /** {@inheritDoc} */

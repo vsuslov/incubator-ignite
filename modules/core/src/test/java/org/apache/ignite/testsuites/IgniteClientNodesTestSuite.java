@@ -15,42 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.processors.query.h2.sql;
+package org.apache.ignite.testsuites;
 
-import java.util.*;
+import junit.framework.*;
+import org.apache.ignite.internal.processors.cache.distributed.*;
 
 /**
- * Subquery.
+ *
  */
-public class GridSqlSubquery extends GridSqlElement {
-    /** */
-    private GridSqlQuery select;
-
+public class IgniteClientNodesTestSuite extends TestSuite {
     /**
-     * @param select Select.
+     * @return Test suite.
+     * @throws Exception In case of error.
      */
-    public GridSqlSubquery(GridSqlQuery select) {
-        super(Collections.<GridSqlElement>emptyList());
+    public static TestSuite suite() throws Exception {
+        TestSuite suite = new TestSuite("Ignite Client Nodes Reconnect Test Suite");
 
-        this.select = select;
-    }
+        suite.addTest(IgniteClientReconnectTestSuite.suite());
 
-    /** {@inheritDoc} */
-    @Override public String getSQL() {
-        return "(" + select.getSQL() + ")";
-    }
+        suite.addTestSuite(IgniteCacheManyClientsTest.class);
+        suite.addTestSuite(IgniteCacheClientNodeConcurrentStart.class);
+        suite.addTestSuite(IgniteCacheClientReconnectTest.class);
 
-    /**
-     * @return Select.
-     */
-    public GridSqlQuery select() {
-        return select;
-    }
-
-    /**
-     * @param select New select.
-     */
-    public void select(GridSqlQuery select) {
-        this.select = select;
+        return suite;
     }
 }

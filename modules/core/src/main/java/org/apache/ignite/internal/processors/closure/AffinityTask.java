@@ -15,42 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.processors.query.h2.sql;
+package org.apache.ignite.internal.processors.closure;
 
-import java.util.*;
+import org.jetbrains.annotations.*;
 
 /**
- * Subquery.
+ * Affinity mapped task.
  */
-public class GridSqlSubquery extends GridSqlElement {
-    /** */
-    private GridSqlQuery select;
+public interface AffinityTask {
+    /**
+     * @return Affinity key.
+     */
+    public Object affinityKey();
 
     /**
-     * @param select Select.
+     * @return Affinity cache name.
      */
-    public GridSqlSubquery(GridSqlQuery select) {
-        super(Collections.<GridSqlElement>emptyList());
-
-        this.select = select;
-    }
-
-    /** {@inheritDoc} */
-    @Override public String getSQL() {
-        return "(" + select.getSQL() + ")";
-    }
-
-    /**
-     * @return Select.
-     */
-    public GridSqlQuery select() {
-        return select;
-    }
-
-    /**
-     * @param select New select.
-     */
-    public void select(GridSqlQuery select) {
-        this.select = select;
-    }
+    @Nullable public String affinityCacheName();
 }

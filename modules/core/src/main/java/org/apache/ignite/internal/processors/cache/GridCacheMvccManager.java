@@ -208,8 +208,12 @@ public class GridCacheMvccManager extends GridCacheSharedManagerAdapter {
         exchLog = cctx.logger(getClass().getName() + ".exchange");
 
         pendingExplicit = GridConcurrentFactory.newMap();
+    }
 
-        cctx.gridEvents().addLocalEventListener(discoLsnr, EVT_NODE_FAILED, EVT_NODE_LEFT);
+    /** {@inheritDoc} */
+    @Override protected void onKernalStart0(boolean reconnect) throws IgniteCheckedException {
+        if (!reconnect)
+            cctx.gridEvents().addLocalEventListener(discoLsnr, EVT_NODE_FAILED, EVT_NODE_LEFT);
     }
 
     /** {@inheritDoc} */
@@ -596,6 +600,20 @@ public class GridCacheMvccManager extends GridCacheSharedManagerAdapter {
      */
     private Collection<GridDistributedCacheEntry> locked() {
         return F.concat(false, locked.values(), nearLocked.values());
+    }
+
+    /**
+     * @return Locked keys.
+     */
+    public Collection<IgniteTxKey> lockedKeys() {
+        return locked.keySet();
+    }
+
+    /**
+     * @return Locked near keys.
+     */
+    public Collection<IgniteTxKey> nearLockedKeys() {
+        return nearLocked.keySet();
     }
 
     /**
