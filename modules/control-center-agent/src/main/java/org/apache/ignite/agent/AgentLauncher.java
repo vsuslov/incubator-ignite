@@ -17,74 +17,73 @@
 
 package org.apache.ignite.agent;
 
-import org.apache.commons.cli.*;
+import com.beust.jcommander.*;
 import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
+import java.io.*;
 import java.net.*;
+import java.util.logging.*;
 
 /**
  *
  */
 public class AgentLauncher {
+    /** Static initializer. */
+    static {
+        try {
+            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/logging.properties"));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /** */
-    private static final Options options = new Options()
-        .addOption("l", "login", true, "User's login (email) on web-control-center")
-        .addOption("p", "password", true, "User's password")
-        .addOption("s", "serverUrl", true, "web-control-center URL")
-        .addOption("n", "nodeUrl", true, "ignite REST server");
+    private static final Logger log = Logger.getLogger(AgentLauncher.class.getName());
+
+    /** */
+    private static final int RECONNECT_INTERVAL = 3000;
 
     /**
-     *
+     * @param args Args.
      */
-    private static void printHelp() {
-        HelpFormatter helpFormatter = new HelpFormatter();
+    protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
+        AgentConfiguration cfg = new AgentConfiguration();
 
-        helpFormatter.printHelp("\njava -jar control-center-agent.jar -l myemail@gmail.com -p qwerty", options);
+        URL dftlCfgUrl = AgentLauncher.class.getResource("/config.properties");
+
+        cfg.load(dftlCfgUrl);
+
+        AgentCommandLine cmdCfg = new AgentCommandLine();
+
+        JCommander cmd = new JCommander(cmdCfg, args);
+
+        if (cmdCfg.getConfigFile() != null)
+            cfg.load(new File(cmdCfg.getConfigFile()).toURI().toURL());
+
+        cfg.assign(cmdCfg);
+
+        if (cfg.getLogin() == null) {
+            System.out.print("Login: ");
+
+            cfg.setLogin(System.console().readLine().trim());
+        }
+
+        if (cfg.getPassword() == null) {
+            System.out.print("Password: ");
+
+            cfg.setPassword(new String(System.console().readPassword()));
+        }
+
+        return cfg;
     }
 
     /**
      * @param args Args.
      */
     public static void main(String[] args) throws Exception {
-        CommandLineParser parser = new BasicParser();
-
-        CommandLine cmd = parser.parse(options, args);
-
-        String login = cmd.getOptionValue('l');
-
-        if (login == null) {
-            System.out.println("Login is not specified.");
-
-            printHelp();
-
-            System.exit(1);
-        }
-
-        String pwd = cmd.getOptionValue('p');
-
-        if (pwd == null) {
-            System.out.println("Password is not specified.");
-
-            printHelp();
-
-            System.exit(1);
-        }
-
-        AgentConfiguration cfg = new AgentConfiguration();
-
-        cfg.setLogin(login);
-        cfg.setPassword(pwd);
-
-        String srvUri = cmd.getOptionValue('s');
-
-        if (srvUri != null)
-            cfg.setServerUri(URI.create(srvUri));
-
-        String nodeUri = cmd.getOptionValue('n');
-
-        if (nodeUri != null)
-            cfg.setNodeUri(URI.create(nodeUri));
+        AgentConfiguration cfg = getConfiguration(args);
 
         Agent agent = new Agent(cfg);
 
@@ -106,13 +105,13 @@ public class AgentLauncher {
                 while (true) {
                     AgentSocket agentSock = new AgentSocket(cfg, agent);
 
-                    System.out.printf("Connecting to : %s%n", cfg.getServerUri());
+                    log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
 
                     client.connect(agentSock, cfg.getServerUri());
 
                     agentSock.waitForClose();
 
-                    Thread.sleep(3000);
+                    Thread.sleep(RECONNECT_INTERVAL);
                 }
             }
             finally {

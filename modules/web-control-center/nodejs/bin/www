@@ -34,11 +34,18 @@ server.on('listening', onListening);
 /**
  * Start agent server.
  */
-var agentServer = https.createServer({
-  key: fs.readFileSync(config.get('monitor:server:key')),
-  cert: fs.readFileSync(config.get('monitor:server:cert')),
-  passphrase: config.get('monitor:server:keyPassphrase')
-});
+var agentServer;
+
+if (config.get('monitor:server:ssl')) {
+    agentServer = https.createServer({
+    key: fs.readFileSync(config.get('monitor:server:key')),
+    cert: fs.readFileSync(config.get('monitor:server:cert')),
+    passphrase: config.get('monitor:server:keyPassphrase')
+  });
+}
+else {
+  agentServer = http.createServer();
+}
 
 agentServer.listen(config.get('monitor:server:port'));
 

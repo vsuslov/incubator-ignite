@@ -1,4 +1,4 @@
-/*
+package org.apache.ignite.agent;/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,27 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import com.beust.jcommander.*;
 
 /**
  *
  */
-public class AgentConfiguration {
+public class AgentCommandLine {
     /** */
+    @Parameter(names = {"-l", "--login"}, description = "User's login (email) on web-control-center")
     private String login;
 
     /** */
+    @Parameter(names = {"-p", "--password"}, description = "User's password")
     private String pwd;
 
     /** */
-    private URI serverUri;
+    @Parameter(names = {"-s", "--serverUri"}, description = "Link to web-control-center web-socket server, for example: wss://control-center.gridgain.com")
+    private String serverUri;
 
     /** */
-    private URI nodeUri;
+    @Parameter(names = {"-n", "--nodeUri"}, description = "ignite REST server, for example: http://localhost:8080")
+    private String nodeUri;
+
+    /** */
+    @Parameter(names = {"-c", "--config"}, description = "Path to configuration file")
+    private String cfgPath;
 
     /**
      *
@@ -68,76 +72,42 @@ public class AgentConfiguration {
     /**
      *
      */
-    public URI getServerUri() {
+    public String getServerUri() {
         return serverUri;
     }
 
     /**
-     * @param srvUri Uri.
+     * @param srvUri Server uri.
      */
-    public void setServerUri(URI srvUri) {
+    public void setServerUri(String srvUri) {
         this.serverUri = srvUri;
     }
 
     /**
      *
      */
-    public URI getNodeUri() {
+    public String getNodeUri() {
         return nodeUri;
     }
 
     /**
      * @param nodeUri Node uri.
      */
-    public void setNodeUri(URI nodeUri) {
+    public void setNodeUri(String nodeUri) {
         this.nodeUri = nodeUri;
     }
 
     /**
-     * @param cfgUrl Url.
+     *
      */
-    public void load(URL cfgUrl) throws IOException {
-        Properties props = new Properties();
-
-        try (Reader reader = new InputStreamReader(cfgUrl.openStream())) {
-            props.load(reader);
-        }
-
-        String val = (String)props.remove("login");
-
-        if (val != null)
-            setLogin(val);
-
-        val = (String)props.remove("password");
-
-        if (val != null)
-            setPassword(val);
-
-        val = (String)props.remove("serverURI");
-
-        if (val != null)
-            setServerUri(URI.create(val));
-
-        val = (String)props.remove("nodeURI");
-
-        if (val != null)
-            setNodeUri(URI.create(val));
+    public String getConfigFile() {
+        return cfgPath;
     }
 
     /**
-     * @param cmd Command.
+     * @param cfgPath Config path.
      */
-    public void assign(AgentCommandLine cmd) {
-        if (cmd.getLogin() != null)
-            setLogin(cmd.getLogin());
-
-        if (cmd.getPassword() != null)
-            setPassword(cmd.getPassword());
-
-        if (cmd.getServerUri() != null)
-            setServerUri(URI.create(cmd.getServerUri()));
-
-        if (cmd.getNodeUri() != null)
-            setNodeUri(URI.create(cmd.getNodeUri()));
+    public void setConfigPath(String cfgPath) {
+        this.cfgPath = cfgPath;
     }
 }
