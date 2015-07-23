@@ -35,8 +35,8 @@ router.get('/confirm', function (req, res) {
 });
 
 // GET save as dialog.
-router.get('/saveAs', function (req, res) {
-    res.render('templates/saveAs', {});
+router.get('/copy', function (req, res) {
+    res.render('templates/copy', {});
 });
 
 /* GET login page. */

@@ -163,7 +163,7 @@ controlCenterModule.service('$confirm', function ($modal, $rootScope, $q) {
 });
 
 // "Save as" popup service.
-controlCenterModule.service('$saveAs', function ($modal, $rootScope, $q) {
+controlCenterModule.service('$copy', function ($modal, $rootScope, $q) {
     var scope = $rootScope.$new();
 
     var deferred;
@@ -171,14 +171,14 @@ controlCenterModule.service('$saveAs', function ($modal, $rootScope, $q) {
     scope.ok = function (newName) {
         deferred.resolve(newName);
 
-        saveAsModal.hide();
+        copyModal.hide();
     };
 
-    var saveAsModal = $modal({templateUrl: '/saveAs', scope: scope, placement: 'center', show: false});
+    var copyModal = $modal({templateUrl: '/copy', scope: scope, placement: 'center', show: false});
 
-    var parentShow = saveAsModal.show;
+    var parentShow = copyModal.show;
 
-    saveAsModal.show = function (oldName) {
+    copyModal.show = function (oldName) {
         scope.newName = oldName + '(1)';
 
         deferred = $q.defer();
@@ -188,7 +188,7 @@ controlCenterModule.service('$saveAs', function ($modal, $rootScope, $q) {
         return deferred.promise;
     };
 
-    return saveAsModal;
+    return copyModal;
 });
 
 // Tables support service.

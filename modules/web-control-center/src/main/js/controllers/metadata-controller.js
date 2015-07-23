@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$confirm', '$saveAs', '$table', function ($scope, $http, $common, $confirm, $saveAs, $table) {
+controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -305,6 +305,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
+
+            $scope.panels.activePanel = [0];
         };
 
         // Add new metadata.
@@ -362,7 +364,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $table.tableReset();
 
             if (validate($scope.backupItem))
-                $saveAs.show($scope.backupItem.name).then(function (newName) {
+                $copy.show($scope.backupItem.name).then(function (newName) {
                     var item = angular.copy($scope.backupItem);
 
                     item._id = undefined;

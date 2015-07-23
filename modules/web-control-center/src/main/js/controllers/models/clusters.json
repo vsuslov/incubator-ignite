@@ -1,10 +1,21 @@
 {
-  "screenTip": [
-    "1. Configure cluster.",
-    "2. Configure cache type metadata (optional).",
-    "3. Configure caches and link them to cluster.",
-    "4. Generate XML and java code."
-  ],
+  "screenTip": {
+    "workflowTitle": "Use Clusters view to:",
+    "workflowContent": [
+      "<ul>",
+      "  <li>Configure clusters.</li>",
+      "  <li>Associate clusters with caches.</li>",
+      "</ul>"
+    ],
+    "whatsNextTitle": "What's next:",
+    "whatsNextContent": [
+      "<ul>",
+      "  <li>Configure cache type metadata.</li>",
+      "  <li>Configure caches.</li>",
+      "  <li>Generate XML and java code on Summary view.</li>",
+      "</ul>"
+    ]
+  },
   "templateTip": [
     "Use following template to add a new cluster:",
     "<ul>",
