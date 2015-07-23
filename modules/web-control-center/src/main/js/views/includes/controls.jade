@@ -76,7 +76,8 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                                 label.labelField {{$index + 1}})
                                 +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
                                 +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder)
-                    tr(ng-show='tableNewItemActive(field)')
+                tfoot(ng-show='tableNewItemActive(field)')
+                    tr
                         td.col-sm-12
                             +btn-save('tablePairSaveVisible(newKey, newValue)', 'tablePairSave(tablePairValid, backupItem, field, newKey, newValue, -1)')
                             +table-pair-edit('newKey', 'newValue', keyPlaceholder, valPlaceholder)
@@ -256,7 +257,8 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                             +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
                                             .input-tip
                                                 input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
-                                tr(ng-show='tableNewItemActive(field)')
+                            tfoot(ng-show='tableNewItemActive(field)')
+                                tr
                                     td.col-sm-12
                                         +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                                         .input-tip
@@ -284,7 +286,8 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                             label.labelField {{$index + 1}})
                                             +btn-save('tableDbFieldSaveVisible(curDbName, curDbType, curJavaName, curJavaType)', 'tableDbFieldSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
                                             +table-db-field-edit('curDbName', 'curDbType', 'curJavaName', 'curJavaType')
-                                tr(ng-show='tableNewItemActive(field)')
+                            tfoot(ng-show='tableNewItemActive(field)')
+                                tr
                                     td.col-sm-12
                                         +btn-save('tableDbFieldSaveVisible(newDbName, newDbType, newJavaName, newJavaType)', 'tableDbFieldSave(field, newDbName, newDbType, newJavaName, newJavaType, -1)')
                                         +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
@@ -296,7 +299,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-6
                     .table-details
-                        table.links-edit(st-table=fieldMdl)
+                        table.links-edit.col-sm-12(st-table=fieldMdl)
                             tbody
                                 tr(ng-repeat='group in #{fieldMdl}')
                                     td.col-sm-12
@@ -325,7 +328,8 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                         td
                                                             +btn-save('tableGroupItemSaveVisible(newFieldName, newClassName)', 'tableGroupItemSave(newFieldName, newClassName, newDirection, groupIndex, -1)')
                                                             +table-group-item-edit('newFieldName', 'newClassName', 'newDirection')
-                                tr(ng-show='tableNewItemActive(field)')
+                            tfoot(ng-show='tableNewItemActive(field)')
+                                tr
                                     td.col-sm-12
                                         +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
                                         .input-tip
