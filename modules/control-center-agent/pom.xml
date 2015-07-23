@@ -64,6 +64,8 @@
     </dependencies>
 
     <build>
+        <finalName>agent-${version}</finalName>
+
         <plugins>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
