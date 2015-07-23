@@ -305,6 +305,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
             $scope.selectedItem = item;
             $scope.backupItem = angular.copy(item);
+
+            $scope.panels.activePanel = [0];
         };
 
         // Add new metadata.
