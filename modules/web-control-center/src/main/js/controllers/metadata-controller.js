@@ -552,16 +552,30 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         $scope.tableGroupNewItemActive = function (groupIndex) {
-            var groupName = $scope.backupItem.groups[groupIndex].name;
+            var groups = $scope.backupItem.groups;
 
-            return $table.tableNewItemActive({model: groupName});
+            if (groups) {
+                var group = groups[groupIndex];
+
+                if (group) {
+                    var groupName = group.name;
+
+                    return $table.tableNewItemActive({model: groupName});
+                }
+            }
+
+            return false;
         };
 
         $scope.tableGroupItemEditing = function (groupIndex, index) {
             var groups = $scope.backupItem.groups;
 
-            if (groups)
-                return $table.tableEditing({model: groups[groupIndex].name}, index);
+            if (groups) {
+                var group = groups[groupIndex];
+
+                if (group)
+                    return $table.tableEditing({model: group.name}, index);
+            }
 
             return false;
         };
