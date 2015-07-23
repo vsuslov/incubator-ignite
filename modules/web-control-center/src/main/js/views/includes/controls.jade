@@ -44,7 +44,7 @@ mixin btn-add(click)
     i.tipField.fa.fa-plus(ng-click=click bs-tooltip data-title='Add new item')
 
 mixin btn-remove(click)
-    i.tipField.fa.fa-remove(ng-click=click bs-tooltip data-title='Remove item')
+    i.tipField.fa.fa-remove(ng-click=click bs-tooltip data-title='Remove item' data-trigger='hover')
 
 mixin btn-up(show, click)
     i.tipField.fa.fa-arrow-up(ng-show=show ng-click=click bs-tooltip data-title='Move item up')
