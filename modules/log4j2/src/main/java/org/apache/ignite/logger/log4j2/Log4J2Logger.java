@@ -302,7 +302,8 @@ public class Log4J2Logger implements IgniteLogger, LoggerNodeIdAware {
                 // User configured console appender, but log is quiet.
                 quiet = false;
 
-            if (!consoleAppenderFound && !quiet && Boolean.valueOf(System.getProperty(IGNITE_CONSOLE_APPENDER, "true"))) {
+            if (!consoleAppenderFound && !quiet &&
+                Boolean.valueOf(System.getProperty(IGNITE_CONSOLE_APPENDER, "true"))) {
                 // Console appender not found => we've looked through all categories up to root.
                 assert rootLogger != null;
 
