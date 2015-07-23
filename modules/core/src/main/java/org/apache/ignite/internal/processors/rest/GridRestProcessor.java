@@ -64,7 +64,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
     /** Delay between sessions timeout checks*/
     private static final int SES_TIMEOUT_CHECK_DELAY = 1_000;
 
-    /** */
+    /** Default session timout */
     private static final int DEFAULT_SES_TIMEOUT = 30_000;
 
     /** Protocols. */
@@ -185,9 +185,9 @@ public class GridRestProcessor extends GridProcessorAdapter {
         if (log.isDebugEnabled())
             log.debug("Received request from client: " + req);
 
-        Session ses = null;
-
         if (ctx.security().enabled()) {
+            Session ses;
+
             try {
                 ses = session(req);
             }
@@ -203,7 +203,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
             req.sessionToken(ses.sesTok());
 
             if (log.isDebugEnabled())
-                log.debug("Next clientId and sessionToken were extracted from request: " +
+                log.debug("Next clientId and sessionToken were extracted according to request: " +
                     "[clientId="+req.clientId()+", sessionToken="+Arrays.toString(req.sessionToken())+"]");
 
             try {
@@ -236,8 +236,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
             return new GridFinishedFuture<>(
                 new IgniteCheckedException("Failed to find registered handler for command: " + req.command()));
 
-        final SecurityContext subjCtx0 = ses == null ? null : ses.secCtx;
-
         return res.chain(new C1<IgniteInternalFuture<GridRestResponse>, GridRestResponse>() {
             @Override public GridRestResponse apply(IgniteInternalFuture<GridRestResponse> f) {
                 GridRestResponse res;
@@ -257,11 +255,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
                 assert res != null;
 
-                if (ctx.security().enabled()) {
-                    // TODO review. Why we update it here, not earlier?
-//                    updateSession(req, subjCtx0);
+                if (ctx.security().enabled())
                     res.sessionTokenBytes(req.sessionToken());
-                }
 
                 interceptResponse(res, req);
 
@@ -621,7 +616,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
      * @throws IgniteCheckedException If authentication failed.
      */
     private SecurityContext authenticate(GridRestRequest req) throws IgniteCheckedException {
-        // Authenticate client if invalid session.
+        assert req.clientId() != null;
+
         AuthenticationContext authCtx = new AuthenticationContext();
 
         authCtx.subjectType(REMOTE_CLIENT);
@@ -652,7 +648,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
         SecurityContext subjCtx = ctx.security().authenticate(authCtx);
 
-        // TODO review
         if (subjCtx == null) {
             if (req.credentials() == null)
                 throw new IgniteCheckedException("Failed to authenticate remote client (secure session SPI not set?): " + req);
@@ -661,18 +656,6 @@ public class GridRestProcessor extends GridProcessorAdapter {
         }
 
         return subjCtx;
-    }
-
-    /**
-     * Update session.
-     * @param req REST request.
-     * @param sCtx Security context.
-     */
-    private void updateSession(GridRestRequest req, SecurityContext sCtx) {
-//        if (sCtx != null) {
-//            sesMap.put(req.clientId(), sCtx);
-//
-//        }
     }
 
     /**

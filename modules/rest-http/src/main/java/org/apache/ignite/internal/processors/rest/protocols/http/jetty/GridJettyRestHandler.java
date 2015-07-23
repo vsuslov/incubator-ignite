@@ -249,24 +249,17 @@ public class GridJettyRestHandler extends AbstractHandler {
         Map<String, Object> params = parameters(req);
 
         try {
-            U.dumpStack("JettyHandler#processRequest cmd=" + cmd + ", params=" + params + " req=" + req);
-
             GridRestRequest cmdReq = createRequest(cmd, params, req);
 
             if (log.isDebugEnabled())
                 log.debug("Initialized command request: " + cmdReq);
-
-            U.dumpStack(">>>>> Before handle");
 
             cmdRes = hnd.handle(cmdReq);
 
             if (cmdRes == null)
                 throw new IllegalStateException("Received null result from handler: " + hnd);
 
-            // TODO review.
             byte[] sesTok = cmdRes.sessionTokenBytes();
-
-            U.dumpStack(">>>>> TODO review. sesTok=" + Arrays.toString(sesTok));
 
             if (sesTok != null)
                 cmdRes.setSessionToken(U.byteArray2HexString(sesTok));
@@ -474,8 +467,6 @@ public class GridJettyRestHandler extends AbstractHandler {
         try {
             if (clientId != null)
                 restReq.clientId(UUID.fromString(clientId));
-//            else
-//                restReq.clientId(UUID.randomUUID());
         }
         catch (Exception ignored) {
             // Ignore invalid client id. Rest handler will process this logic.
