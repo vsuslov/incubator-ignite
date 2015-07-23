@@ -811,18 +811,23 @@ public class GridRestProcessor extends GridProcessorAdapter {
      * Session.
      */
     private static class Session {
-        private static final Long EXPIRED_FLAG = -0l;
+        /** Expiration flag. It's a final state of lastToucnTime. */
+        private static final Long EXPIRED_FLAG = 0L;
 
         /** Client id. */
-        volatile UUID clientId;
+        private volatile UUID clientId;
 
         /** Session token id. */
-        volatile UUID sesTokId;
+        private volatile UUID sesTokId;
 
         /** Security context. */
-        volatile SecurityContext secCtx;
+        private volatile SecurityContext secCtx;
 
-        final AtomicLong lastTouchTime = new AtomicLong(U.currentTimeMillis());
+        /**
+         * Time when session is used last time.
+         * If this time was set at EXPIRED_FLAG, then it should never be changed.
+         */
+        private final AtomicLong lastTouchTime = new AtomicLong(U.currentTimeMillis());
 
         /**
          * @return Session token as bytes.
@@ -832,7 +837,9 @@ public class GridRestProcessor extends GridProcessorAdapter {
         }
 
         /**
-         * // TODO javadoc
+         * Checks expiration of session and if expired then sets EXPIRED_FLAG.
+         *
+         * @return <code>True</code> if expired.
          */
         boolean checkExpiration() {
             long time0 = lastTouchTime.get();
@@ -844,18 +851,22 @@ public class GridRestProcessor extends GridProcessorAdapter {
         }
 
         /**
-         * // TODO javadoc
+         * Checks whether session at expired state (EPIRATION_FLAG) or not, if not then tries to update last touch time.
+         *
          * @return <code>True</code> if expired.
          */
         boolean checkExpirationAndTryUpdateLastTouchTime() {
-            long time0 = lastTouchTime.get();
+            while (true) {
+                long time0 = lastTouchTime.get();
 
-            if (time0 == EXPIRED_FLAG)
-                return true;
+                if (time0 == EXPIRED_FLAG)
+                    return true;
 
-            lastTouchTime.compareAndSet(time0, U.currentTimeMillis());
+                boolean success = lastTouchTime.compareAndSet(time0, U.currentTimeMillis());
 
-            return isExpired();
+                if (success)
+                    return false;
+            }
         }
 
         /**
