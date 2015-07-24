@@ -124,6 +124,7 @@ var CacheSchema = new Schema({
     rebalanceTimeout: Number,
     rebalanceThrottle: Number,
 
+    storeMetadatas: [{type: ObjectId, ref: 'CacheTypeMetadata'}],
     cacheStoreFactory: {
         kind: {
             type: String,
@@ -167,6 +168,7 @@ var CacheSchema = new Schema({
     sqlEscapeAll: Boolean,
     sqlOnheapRowCacheSize: Number,
     longQueryWarningTimeout: Number,
+    queryMetadatas: [{type: ObjectId, ref: 'CacheTypeMetadata'}],
     indexedTypes: [{keyClass: String, valueClass: String}],
     sqlFunctionClasses: [String],
     statisticsEnabled: Boolean,

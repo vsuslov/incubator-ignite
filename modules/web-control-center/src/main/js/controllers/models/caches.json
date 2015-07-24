@@ -368,6 +368,20 @@
           ]
         },
         {
+          "label": "Metadata",
+          "type": "dropdown-multiple",
+          "model": "queryMetadata",
+          "placeholder": "Choose metadata",
+          "items": "queryMetadata",
+          "tip": [
+            "Select cache type metadata to describe types in cache."
+          ],
+          "addLink": {
+            "label": "Add metadata(s)",
+            "ref": "/configuration/metadata"
+          }
+        } ,
+        {
           "type": "indexedTypes",
           "model": "indexedTypes",
           "keyName": "keyClass",
