@@ -26,7 +26,6 @@ import org.apache.ignite.logger.*;
 import org.apache.ignite.spi.discovery.tcp.*;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
 import org.apache.ignite.testframework.*;
-import org.apache.ignite.testframework.junits.common.*;
 
 import java.io.*;
 import java.util.*;
@@ -34,7 +33,6 @@ import java.util.*;
 /**
  * Grid Log4j2 SPI test.
  */
-@GridCommonTest(group = "Logger")
 public class Log4j2LoggerSelfTest extends TestCase {
     /** */
     private static final String LOG_PATH_TEST = "modules/core/src/test/config/log4j2-test.xml";
@@ -53,7 +51,7 @@ public class Log4j2LoggerSelfTest extends TestCase {
 
         IgniteLogger log = new Log4J2Logger(xml).getLogger(getClass());
 
-        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+        ((LoggerNodeIdAware)log).setNodeId(UUID.randomUUID());
 
         checkLog(log);
     }
@@ -69,7 +67,7 @@ public class Log4j2LoggerSelfTest extends TestCase {
 
         IgniteLogger log = new Log4J2Logger(xml.toURI().toURL()).getLogger(getClass());
 
-        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+        ((LoggerNodeIdAware)log).setNodeId(UUID.randomUUID());
 
         checkLog(log);
     }
@@ -80,7 +78,7 @@ public class Log4j2LoggerSelfTest extends TestCase {
     public void testPathConstructor() throws Exception {
         IgniteLogger log = new Log4J2Logger(LOG_PATH_TEST).getLogger(getClass());
 
-        ((LoggerNodeIdAware) log).setNodeId(UUID.randomUUID());
+        ((LoggerNodeIdAware)log).setNodeId(UUID.randomUUID());
 
         checkLog(log);
     }
@@ -143,6 +141,7 @@ public class Log4j2LoggerSelfTest extends TestCase {
 
             assertEquals(logFile.getAbsolutePath(), ignite.log().fileName());
         }
+
         String logContent = U.readFileToString(logFile.getAbsolutePath(), "UTF-8");
 
         assertTrue("Log file does not contain it's node ID: " + logFile,
@@ -166,12 +165,10 @@ public class Log4j2LoggerSelfTest extends TestCase {
             setAddresses(Collections.singleton("127.0.0.1:47500..47509"));
         }});
 
-        IgniteConfiguration cfg = new IgniteConfiguration()
+        return new IgniteConfiguration()
             .setGridName(gridName)
             .setGridLogger(new Log4J2Logger(logPath))
             .setConnectorConfiguration(null)
             .setDiscoverySpi(disco);
-
-        return cfg;
     }
 }

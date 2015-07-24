@@ -23,7 +23,6 @@ import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.spi.discovery.tcp.*;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
-import org.apache.ignite.testframework.junits.common.*;
 import org.apache.logging.log4j.*;
 
 import java.io.*;
@@ -32,7 +31,6 @@ import java.util.*;
 /**
  * Grid Log4j2 SPI test.
  */
-@GridCommonTest(group = "Logger")
 public class Log4j2LoggerVerboseModeSelfTest extends TestCase {
     /** */
     public static final String LOG_PATH_VERBOSE_TEST = "modules/core/src/test/config/log4j2-verbose-test.xml";
@@ -110,12 +108,10 @@ public class Log4j2LoggerVerboseModeSelfTest extends TestCase {
             setAddresses(Collections.singleton("127.0.0.1:47500..47509"));
         }});
 
-        IgniteConfiguration cfg = new IgniteConfiguration()
+        return new IgniteConfiguration()
             .setGridName(gridName)
             .setGridLogger(new Log4J2Logger(logPath))
             .setConnectorConfiguration(null)
             .setDiscoverySpi(disco);
-
-        return cfg;
     }
 }
