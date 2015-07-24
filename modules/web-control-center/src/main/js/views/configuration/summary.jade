@@ -46,8 +46,7 @@ block content
             | &nbsp;it.
         .padding-dflt(ng-if='clusters.length > 0')
             lable.labelHeader Clusters:
-            .links
-                table(st-table='clusters')
+                table.links(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')

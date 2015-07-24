@@ -27,10 +27,10 @@ block content
         hr
     .docs-body(ng-controller='metadataController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        .links(ng-hide='metadatas.length == 0')
+        div(ng-hide='metadatas.length == 0')
             .padding-dflt
                 lable.labelHeader Types metadata:
-                table(st-table='metadatas')
+                table.links(st-table='metadatas')
                     tbody
                         tr(ng-repeat='row in metadatas track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
