@@ -24,7 +24,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
-import org.apache.http.message.*;
 import org.apache.ignite.agent.messages.*;
 
 import java.io.*;
@@ -68,8 +67,6 @@ public class Agent {
      * @param restReq Request.
      */
     public RestResult executeRest(RestRequest restReq) throws IOException, URISyntaxException {
-        HttpRequestBase httpReq;
-
         URIBuilder builder = new URIBuilder(cfg.getNodeUri());
 
         String path = restReq.getPath();
@@ -88,6 +85,8 @@ public class Agent {
 
         if (restReq.getHeaders() != null)
             restReq.setHeaders(restReq.getHeaders());
+
+        HttpRequestBase httpReq;
 
         if ("GET".equalsIgnoreCase(restReq.getMethod()))
             httpReq = new HttpGet(builder.build());

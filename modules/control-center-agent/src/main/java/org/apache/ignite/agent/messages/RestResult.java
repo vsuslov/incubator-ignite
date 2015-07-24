@@ -44,7 +44,7 @@ public class RestResult extends AbstractMessage {
      * @param reqId Request id.
      */
     public void setRequestId(int reqId) {
-        this.requestId = reqId;
+        requestId = reqId;
     }
 
     /**
@@ -72,7 +72,7 @@ public class RestResult extends AbstractMessage {
      * @param msg Message.
      */
     public void setMessage(String msg) {
-        this.message = msg;
+        message = msg;
     }
 
     /**

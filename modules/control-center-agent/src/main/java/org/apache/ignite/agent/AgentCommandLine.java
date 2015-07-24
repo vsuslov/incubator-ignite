@@ -80,7 +80,7 @@ public class AgentCommandLine {
      * @param srvUri Server uri.
      */
     public void setServerUri(String srvUri) {
-        this.serverUri = srvUri;
+        serverUri = srvUri;
     }
 
     /**
