@@ -1,16 +1,16 @@
 {
   "screenTip": {
-    "workflowTitle": "Use Cache Type Metadata view to:",
+    "workflowTitle": "Use metadata view to:",
     "workflowContent": [
       "<ul>",
-      "  <li>Manually configure metadata for queries and/or store.</li>",
-      "  <li>Configure metadata from database tables metadata.</li>",
+      "  <li>Manually configure metadata for queries and persistence.</li>",
+      "Or",
+      "  <li>Automatically configure metadata from database schema.</li>",
       "</ul>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
       "<ul>",
-      "  <li>Configure clusters.</li>",
       "  <li>Associate caches with metadata.</li>",
       "  <li>Generate XML and java code on Summary view.</li>",
       "</ul>"
@@ -50,7 +50,7 @@
       "label": "Database schema",
       "type": "text",
       "model": "databaseSchema",
-      "hide": "backupItem.kind == 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
       "placeholder": "Input DB schema name",
       "tip": [
         "Schema name in database."
@@ -60,7 +60,7 @@
       "label": "Database table",
       "type": "text",
       "model": "databaseTable",
-      "hide": "backupItem.kind == 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
       "placeholder": "Input DB table name",
       "tip": [
         "Table name in database."
@@ -92,7 +92,7 @@
       "model": "keyFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind == 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
       "tip": [
         "Collection of key fields descriptions for CacheJdbcPojoStore."
       ]
@@ -103,7 +103,7 @@
       "model": "valueFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind == 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
       "tip": [
         "Collection of value fields descriptions for CacheJdbcPojoStore.."
       ]
@@ -114,7 +114,9 @@
       "model": "queryFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind != 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "addTip": "Add field to query.",
+      "removeTip": "Remove field.",
       "tip": [
         "Collection of name-to-type mappings to be queried, in addition to indexed fields."
       ]
@@ -125,7 +127,9 @@
       "model": "ascendingFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind != 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "addTip": "Add field to index in ascending order.",
+      "removeTip": "Remove field.",
       "tip": [
         "Collection of name-to-type mappings to index in ascending order."
       ]
@@ -136,7 +140,9 @@
       "model": "descendingFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind != 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "addTip": "Add field to index in descending order.",
+      "removeTip": "Remove field.",
       "tip": [
         "Collection of name-to-type mappings to index in descending order."
       ]
@@ -145,8 +151,10 @@
       "label": "Text fields",
       "type": "table-simple",
       "model": "textFields",
-      "hide": "backupItem.kind != 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
       "placeholder": "Field name",
+      "addTip": "Add field to index as text.",
+      "removeTip": "Remove field.",
       "tableTip": [
         "Fields to index as text."
       ],
@@ -158,7 +166,9 @@
       "label": "Groups",
       "type": "queryGroups",
       "model": "groups",
-      "hide": "backupItem.kind != 'query'",
+      "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "addTip": "Add new group index.",
+      "removeTip": "Remove group.",
       "tip": [
         "Collection of group indexes."
       ]

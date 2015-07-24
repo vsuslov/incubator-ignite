@@ -66,11 +66,9 @@ block container
                                     tr(style='border-size: 0')
                                         td(colspan='{{#{tab}.cols.length}}')
                                             .col-sm-8
-                                                lable Page results:&nbsp;
-                                                b {{#{tab}.rows.length}}&nbsp;&nbsp;&nbsp;
-                                                | Page #:&nbsp;
+                                                lable Page #:&nbsp;
                                                 b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
-                                                | Total results:&nbsp;
+                                                | Results:&nbsp;
                                                 b {{#{tab}.rows.length + #{tab}.total}}
                                             .col-sm-4
                                                 button.btn.btn-primary.fieldButton(ng-click='') Next page
