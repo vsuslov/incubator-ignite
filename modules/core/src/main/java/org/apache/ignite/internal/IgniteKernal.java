@@ -1176,6 +1176,9 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
 
         add(ATTR_CONSISTENCY_CHECK_SKIPPED, getBoolean(IGNITE_SKIP_CONFIGURATION_CONSISTENCY_CHECK));
 
+        if (cfg.getConsistentId() != null)
+            add(ATTR_NODE_CONSISTENT_ID, cfg.getConsistentId());
+
         // Build a string from JVM arguments, because parameters with spaces are split.
         SB jvmArgs = new SB(512);
 
@@ -2443,22 +2446,28 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
 
     /** {@inheritDoc} */
     @Override public void destroyCache(String cacheName) {
-        guard();
-
-        IgniteInternalFuture<?> stopFut;
-
-        try {
-            stopFut = ctx.cache().dynamicDestroyCache(cacheName);
-        }
-        finally {
-            unguard();
-        }
+        IgniteInternalFuture stopFut = destroyCacheAsync(cacheName);
 
         try {
             stopFut.get();
         }
         catch (IgniteCheckedException e) {
             throw CU.convertToCacheException(e);
+        }
+    }
+
+    /**
+     * @param cacheName Cache name.
+     * @return Ignite future.
+     */
+    public IgniteInternalFuture<?> destroyCacheAsync(String cacheName) {
+        guard();
+
+        try {
+            return ctx.cache().dynamicDestroyCache(cacheName);
+        }
+        finally {
+            unguard();
         }
     }
 
@@ -2474,6 +2483,24 @@ public class IgniteKernal implements IgniteEx, IgniteMXBean, Externalizable {
         }
         catch (IgniteCheckedException e) {
             throw CU.convertToCacheException(e);
+        }
+        finally {
+            unguard();
+        }
+    }
+
+    /**
+     * @param cacheName Cache name.
+     * @return Future that will be completed when cache is deployed.
+     */
+    public IgniteInternalFuture<?> getOrCreateCacheAsync(String cacheName) {
+        guard();
+
+        try {
+            if (ctx.cache().cache(cacheName) == null)
+                return ctx.cache().getOrCreateFromTemplate(cacheName);
+
+            return new GridFinishedFuture<>();
         }
         finally {
             unguard();

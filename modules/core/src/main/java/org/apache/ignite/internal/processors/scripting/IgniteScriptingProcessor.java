@@ -20,7 +20,6 @@ package org.apache.ignite.internal.processors.scripting;
 import org.apache.ignite.*;
 import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.processors.*;
-import org.apache.ignite.json.*;
 
 import javax.script.*;
 
@@ -166,6 +165,14 @@ public class IgniteScriptingProcessor extends GridProcessorAdapter {
     }
 
     /**
+     * @param o Object.
+     * @return Script object.
+     */
+    public Object toScriptObject(Object o) {
+        return converter.toScriptObject(o);
+    }
+
+    /**
      * @param o Object from script.
      * @return Object to store in cache.
      */
@@ -191,9 +198,9 @@ public class IgniteScriptingProcessor extends GridProcessorAdapter {
         try {
             Class<?> cls = Class.forName(REST_CONV_CLS);
 
-            Constructor<?> ctor = cls.getConstructor();
+            Constructor<?> ctor = cls.getConstructor(GridKernalContext.class);
 
-            converter = (IgniteScriptingConverter)ctor.newInstance();
+            converter = (IgniteScriptingConverter)ctor.newInstance(ctx);
         }
         catch (ClassNotFoundException ignored) {
             if (log.isDebugEnabled())
