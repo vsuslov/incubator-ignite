@@ -248,8 +248,18 @@ class VisorOpenCommand extends VisorConsoleCommand {
         if ("true".equalsIgnoreCase(sys.props.getOrElse(IGNITE_QUIET, "true")))
             cfg.setGridLogger(new NullLogger)
 
-        val startedGridName = try {
-            Ignition.start(cfg).name
+        ignite = try {
+            // We need to stop previous daemon node before to start new one.
+            prevIgnite.foreach(g => Ignition.stop(g.name(), true))
+
+            Ignition.start(cfg).asInstanceOf[IgniteEx]
+        }
+        catch {
+            case e: Throwable =>
+                if (X.hasCause(e, classOf[IgniteSpiException]) && joinTimedOut(X.cause(e, classOf[IgniteSpiException]).getMessage))
+                    throw new IgniteException("Visor console failed to connect to any of server nodes", e)
+                else
+                    throw e                
         }
         finally {
             Ignition.setDaemon(daemon)
@@ -257,20 +267,9 @@ class VisorOpenCommand extends VisorConsoleCommand {
             System.setProperty(IGNITE_NO_SHUTDOWN_HOOK, shutdownHook)
         }
 
-        ignite =
-            try
-                Ignition.ignite(startedGridName).asInstanceOf[IgniteEx]
-            catch {
-                case _: IllegalStateException =>
-                    throw new IgniteException("Named grid unavailable: " + startedGridName)
-                case e: Throwable =>
-                    if (X.hasCause(e, classOf[IgniteSpiException]) && joinTimedOut(X.cause(e, classOf[IgniteSpiException]).getMessage))
-                        throw new IgniteException("Visor console failed to connect to any of server nodes", e)
-                    else
-                        throw e
-            }
+        prevIgnite = Some(ignite)
 
-        visor.open(startedGridName, cfgPath)
+        visor.open(ignite.name(), cfgPath)
     }
 }
 
