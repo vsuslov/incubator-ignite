@@ -42,9 +42,9 @@ block container
                                 'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
                                 'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
                         .col-sm-3
-                            .links(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
                                 lable.labelHeader Caches:
-                                table(st-table='caches')
+                                table.links(st-table='caches')
                                     tbody
                                         tr(ng-repeat='row in caches track by row._id')
                                             td.col-sm-6(ng-class='{active: row._id == #{tab}.selectedItem._id}')
@@ -66,11 +66,9 @@ block container
                                     tr(style='border-size: 0')
                                         td(colspan='{{#{tab}.cols.length}}')
                                             .col-sm-8
-                                                lable Page results:&nbsp;
-                                                b {{#{tab}.rows.length}}&nbsp;&nbsp;&nbsp;
-                                                | Page #:&nbsp;
+                                                lable Page #:&nbsp;
                                                 b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
-                                                | Total results:&nbsp;
+                                                | Results:&nbsp;
                                                 b {{#{tab}.rows.length + #{tab}.total}}
                                             .col-sm-4
                                                 button.btn.btn-primary.fieldButton(ng-click='') Next page
@@ -80,5 +78,8 @@ block container
                                     tr
                                         th(ng-repeat='column in #{tab}.cols' st-sort='{{column}}') {{column}}
                                 tbody
+                                    //tr
+                                    //    td(colspan='{{#{tab}.cols.length}}')
+                                    //        .loading-indicator
                                     tr(ng-repeat='row in rows')
                                         td(ng-repeat="column in #{tab}.cols") {{row[column]}}

@@ -1,6 +1,6 @@
 {
   "screenTip": {
-    "workflowTitle": "Use Summary view to:",
+    "workflowTitle": "Use summary view to:",
     "workflowContent": [
       "<ul>",
       "  <li>See XML and java code for server nodes configurations.</li>",

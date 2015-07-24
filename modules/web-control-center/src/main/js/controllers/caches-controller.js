@@ -100,6 +100,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             });
 
         $scope.caches = [];
+        $scope.queryMetadata = [];
+        $scope.storeMetadata = [];
 
         $scope.required = function (field) {
             var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
@@ -172,6 +174,16 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                 $scope.spaces = data.spaces;
                 $scope.caches = data.caches;
 
+                _.forEach(data.metadatas, function (meta) {
+                    var kind = meta.kind;
+
+                    if (kind == 'query' || kind == 'both')
+                        $scope.queryMetadata.push(meta);
+
+                    if (kind == 'store' || kind == 'both')
+                        $scope.storeMetadata.push(meta);
+                });
+
                 var restoredItem = angular.fromJson(sessionStorage.cacheBackupItem);
 
                 if (restoredItem) {
@@ -214,6 +226,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             $table.tableReset();
 
             $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true, copyOnRead: true};
+            $scope.backupItem.queryMetadata = [];
+            $scope.backupItem.spaceMetadata = [];
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 

@@ -32,10 +32,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.tableSimpleDownVisible = $table.tableSimpleDownVisible;
 
         $scope.templates = [
-            {
-                value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}},
-                label: 'multicast'
-            },
+            {value: {discovery: {kind: 'Multicast', Vm: {addresses: ['127.0.0.1:47500..47510']}, Multicast: {}}},label: 'multicast'},
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
@@ -188,6 +185,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             $table.tableReset();
 
             $scope.backupItem = angular.copy($scope.create.template);
+            $scope.backupItem.caches = [];
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 

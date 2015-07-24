@@ -40,11 +40,11 @@ mixin ico-exclamation(mdl, err, msg)
 mixin btn-save(show, click)
     i.tipField.fa.fa-floppy-o(ng-show=show ng-click=click bs-tooltip data-title='Save item')
 
-mixin btn-add(click)
-    i.tipField.fa.fa-plus(ng-click=click bs-tooltip data-title='Add new item')
+mixin btn-add(click, tip)
+    i.tipField.fa.fa-plus(ng-click=click bs-tooltip=tip)
 
-mixin btn-remove(click)
-    i.tipField.fa.fa-remove(ng-click=click bs-tooltip data-title='Remove item')
+mixin btn-remove(click, tip)
+    i.tipField.fa.fa-remove(ng-click=click bs-tooltip=tip data-trigger='hover')
 
 mixin btn-up(show, click)
     i.tipField.fa.fa-arrow-up(ng-show=show ng-click=click bs-tooltip data-title='Move item up')
@@ -63,7 +63,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
     .col-sm-6
         label.table-header #{header}:
         +tipLabel('field.tip')
-        +btn-add('tableNewItem(field)')
+        +btn-add('tableNewItem(field)', 'field.addTip')
         .table-details(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
             table.links-edit.col-sm-12(st-table=tblMdl)
                 tbody
@@ -71,7 +71,7 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder)
                         td.col-sm-12
                             div(ng-show='!tableEditing(field, $index)')
                                 a.labelFormField(ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
-                                +btn-remove('tableRemove(backupItem, field, $index)')
+                                +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                             div(ng-show='tableEditing(field, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tablePairSaveVisible(curKey, curValue)', 'tablePairSave(tablePairValid, backupItem, field, curKey, curValue, $index)')
@@ -92,41 +92,41 @@ mixin details-row
 
     div(ng-switch='detail.type')
         div(ng-switch-when='label')
-            label {{detail.label}}
+            label {{::detail.label}}
         div.checkbox(ng-switch-when='check')
             label
                 input(type='checkbox')&attributes(detailCommon)
-                |{{detail.label}}
+                |{{::detail.label}}
                 +tipLabel('detail.tip')
         div(ng-switch-when='text')
-            label(class=lblDetailClasses ng-class='{required: detail.required}') {{detail.label}}:
+            label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(type='text' placeholder='{{detail.placeholder}}')&attributes(detailCommon)
+                    input.form-control(type='text' placeholder='{{::detail.placeholder}}')&attributes(detailCommon)
         div(ng-switch-when='number' )
-            label(class=lblDetailClasses ng-class='{required: detail.required}') {{detail.label}}:
+            label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
+                    input.form-control(name='{{detail.model}}' type='number' placeholder='{{::detail.placeholder}}' min='{{detail.min ? detail.min : 0}}' max='{{detail.max ? detail.max : Number.MAX_VALUE}}')&attributes(detailCommon)
                     +ico-exclamation('{{detail.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{detail.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{detail.model}}', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown')
-            label(class=lblDetailClasses ng-class='{required: detail.required}') {{detail.label}}:
+            label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
                 +tipField('detail.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
+                    button.form-control(bs-select data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
         div(ng-switch-when='dropdown-multiple')
-            label(class=lblDetailClasses ng-class='{required: detail.required}') {{detail.label}}:
+            label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
-                button.form-control(bs-select data-multiple='1' data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
+                button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
             +tipField('detail.tip')
         div(ng-switch-when='table-simple')&attributes(detailCommon)
             div(ng-if='detail.label')
-                label.table-header {{detail.label}}:
+                label.table-header {{::detail.label}}:
                 +tipLabel('detail.tableTip')
             table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
                 tbody
@@ -134,19 +134,19 @@ mixin details-row
                         td
                             div(ng-show='!tableEditing(detail, $index)')
                                 a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
-                                +btn-remove('tableRemove(backupItem, detail, $index)')
+                                +btn-remove('tableRemove(backupItem, detail, $index)', 'detail.removeTip')
                                 +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
                                 +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
                             div(ng-show='tableEditing(detail, $index)')
                                 label.labelField {{$index + 1}})
                                 +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
                                 .input-tip.form-group.has-feedback
-                                    input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{detail.placeholder}}')&attributes(customValidators)
+                                    input.form-control(name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{::detail.placeholder}}')&attributes(customValidators)
                                     +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
             button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
             +tipField('detail.tip')
             .input-tip.form-group.has-feedback
-                input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{detail.placeholder}}')&attributes(customValidators)
+                input.form-control(name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin table-db-field-edit(dbName, dbType, javaName, javaType)
@@ -183,63 +183,63 @@ mixin form-row-custom(lblClasses, fieldClasses)
 
     div(ng-switch='field.type')
         div.col-sm-6(ng-switch-when='label')
-            label {{field.label}}
+            label {{::field.label}}
         div.checkbox.col-sm-6(ng-switch-when='check' ng-hide=fieldHide)
             label
                 input(type='checkbox')&attributes(fieldCommon)
-                | {{field.label}}
+                | {{::field.label}}
                 +tipLabel('field.tip')
         div(ng-switch-when='text' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='text' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
+                    input.form-control(type='text' placeholder='{{::field.placeholder}}')&attributes(fieldCommon)
         div(ng-switch-when='password' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='password' placeholder='{{field.placeholder}}')&attributes(fieldCommon)
+                    input.form-control(type='password' placeholder='{{::field.placeholder}}')&attributes(fieldCommon)
         div(ng-switch-when='number' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' placeholder='{{field.placeholder}}' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
+                    input.form-control(name='{{field.model}}' type='number' placeholder='{{::field.placeholder}}' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
                     +ico-exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
         div(ng-switch-when='dropdown' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
         div(ng-switch-when='dropdown-multiple' ng-hide=fieldHide)
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select ng-disabled='{{field.items}}.length == 0' data-multiple='1' data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
             a.customize(ng-show='field.addLink' ng-href='{{field.addLink.ref}}') {{field.addLink.label}}
         div(ng-switch-when='dropdown-details' ng-hide=fieldHide)
             - var expanded = 'field.details[' + fieldMdl + '].expanded'
 
-            label(class=lblClasses ng-class=fieldRequiredClass) {{field.label}}:
+            label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    button.form-control(bs-select data-placeholder='{{field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
+                    button.form-control(bs-select data-placeholder='{{::field.placeholder}}' bs-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
             a.customize(ng-show='#{fieldMdl} && field.details[#{fieldMdl}].fields' ng-click='#{expanded} = !#{expanded}') {{#{expanded} ? "Hide settings" : "Show settings"}}
             .col-sm-6.panel-details(ng-show='#{expanded} && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
         div(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             .col-sm-6
-                label.table-header {{field.label}}:
+                label.table-header {{::field.label}}:
                 +tipLabel('field.tableTip')
-                +btn-add('tableNewItem(field)')
+                +btn-add('tableNewItem(field)', 'field.addTip')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-6
                     .table-details
@@ -249,29 +249,29 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                     td.col-sm-12
                                         div(ng-show='!tableEditing(field, $index)')
                                             a.labelFormField(ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
-                                            +btn-remove('tableRemove(backupItem, field, $index)')
+                                            +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                             +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
                                             +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')
                                         div(ng-show='tableEditing(field, $index)')
                                             label.labelField {{$index + 1}})
                                             +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, curValue, $index)')
                                             .input-tip
-                                                input.form-control(type='text' ng-model='curValue' placeholder='{{field.placeholder}}')
+                                                input.form-control(type='text' ng-model='curValue' placeholder='{{::field.placeholder}}')
                             tfoot(ng-show='tableNewItemActive(field)')
                                 tr
                                     td.col-sm-12
                                         +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                                         .input-tip
-                                            input.form-control(type='text' ng-model='newValue' placeholder='{{field.placeholder}}')
+                                            input.form-control(type='text' ng-model='newValue' placeholder='{{::field.placeholder}}')
         div(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name')
         div(ng-switch-when='queryFields' ng-hide=fieldHide)
-            +table-pair('{{field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name')
+            +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name')
         div(ng-switch-when='dbFields' ng-hide=fieldHide)
             .col-sm-6
-                label.table-header {{field.label}}:
+                label.table-header {{::field.label}}:
                 +tipLabel('field.tip')
-                +btn-add('tableNewItem(field)')
+                +btn-add('tableNewItem(field)', 'field.addTip')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-6
                     .table-details
@@ -281,7 +281,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                     td.col-sm-12
                                         div(ng-show='!tableEditing(field, $index)')
                                             a.labelFormField(ng-click='curField = tableStartEdit(backupItem, field, $index); curDbName = curField.dbName; curDbType = curField.dbType; curJavaName = curField.javaName; curJavaType = curField.javaType') {{$index + 1}}) {{item.dbName}} / {{item.dbType}} / {{item.javaName}} / {{item.javaType}}
-                                            +btn-remove('tableRemove(backupItem, field, $index)')
+                                            +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                         div(ng-if='tableEditing(field, $index)')
                                             label.labelField {{$index + 1}})
                                             +btn-save('tableDbFieldSaveVisible(curDbName, curDbType, curJavaName, curJavaType)', 'tableDbFieldSave(field, curDbName, curDbType, curJavaName, curJavaType, $index)')
@@ -293,21 +293,21 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                         +table-db-field-edit('newDbName', 'newDbType', 'newJavaName', 'newJavaType')
         div(ng-switch-when='queryGroups' ng-hide=fieldHide)
             .col-sm-6
-                label.table-header {{field.label}}:
+                label.table-header {{::field.label}}:
                 +tipLabel('field.tip')
-                +btn-add('tableNewItem(field)')
+                +btn-add('tableNewItem(field)', 'field.addTip')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-6
                     .table-details
-                        table.links-edit.col-sm-12(st-table=fieldMdl)
+                        table.links-edit.col-sm-12(st-table=fieldMdl ng-init='newDirection = "ASC"')
                             tbody
                                 tr(ng-repeat='group in #{fieldMdl}')
                                     td.col-sm-12
                                         div
                                             .col-sm-12(ng-show='!tableEditing(field, $index)')
                                                 a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
-                                                +btn-remove('tableRemove(backupItem, field, $index)')
-                                                +btn-add('tableGroupNewItem($index); newDirection = "ASC"')
+                                                +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
+                                                +btn-add('tableGroupNewItem($index)', 'field.addItemTip')
                                             div(ng-show='tableEditing(field, $index)')
                                                 label.labelField {{$index + 1}})
                                                 +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
@@ -319,7 +319,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                         td
                                                             div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
                                                                 a.labelFormField(ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
-                                                                +btn-remove('tableRemoveGroupItem(group, $index)')
+                                                                +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
                                                             div(ng-show='tableGroupItemEditing(groupIndex, $index)')
                                                                 label.labelField {{$index + 1}})
                                                                 +btn-save('tableGroupItemSaveVisible(curFieldName, curClassName)', 'tableGroupItemSave(curFieldName, curClassName, curDirection, groupIndex, $index)')

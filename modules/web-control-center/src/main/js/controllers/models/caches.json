@@ -1,6 +1,6 @@
 {
   "screenTip": {
-    "workflowTitle": "Use Caches view to:",
+    "workflowTitle": "Use caches view to:",
     "workflowContent": [
       "<ul>",
       "  <li>Configure caches.</li>",
@@ -368,10 +368,26 @@
           ]
         },
         {
+          "label": "Metadata",
+          "type": "dropdown-multiple",
+          "model": "queryMetadata",
+          "placeholder": "Choose metadata",
+          "items": "queryMetadata",
+          "tip": [
+            "Select cache type metadata to describe types in cache."
+          ],
+          "addLink": {
+            "label": "Add metadata(s)",
+            "ref": "/configuration/metadata"
+          }
+        } ,
+        {
           "type": "indexedTypes",
           "model": "indexedTypes",
           "keyName": "keyClass",
           "valueName": "valueClass",
+          "addTip": "Add new key and value classes to indexed types.",
+          "removeTip": "Remove item from indexed types.",
           "tip": [
             "Collection of types to index."
           ]
@@ -382,6 +398,8 @@
           "model": "sqlFunctionClasses",
           "editIdx": -1,
           "placeholder": "SQL function full class name",
+          "addTip": "Add new user-defined functions for SQL queries.",
+          "removeTip": "Remove user-defined function.",
           "tableTip": [
             "Collections of classes with user-defined functions for SQL queries."
           ],
@@ -810,6 +828,8 @@
                   "model": "hibernateProperties",
                   "editIdx": -1,
                   "placeholder": "key=value",
+                  "addTip": "Add new Hibernate property.",
+                  "removeTip": "Remove Hibernate property.",
                   "tip": [
                     "List of Hibernate properties.",
                     "For example: connection.url=jdbc:h2:mem:"

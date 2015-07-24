@@ -27,10 +27,10 @@ block content
         hr
     .docs-body(ng-controller='cachesController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        .links(ng-hide='caches.length == 0')
+        div(ng-hide='caches.length == 0')
             .padding-dflt
                 lable.labelHeader Caches:
-                table(st-table='caches')
+                table.links(st-table='caches')
                     tbody
                         tr(ng-repeat='row in caches track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
