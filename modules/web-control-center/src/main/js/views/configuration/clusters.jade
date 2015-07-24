@@ -27,10 +27,10 @@ block content
         hr
     .docs-body(ng-controller='clustersController')
         +block-callout('{{screenTip.workflowTitle}}', 'joinTip(screenTip.workflowContent)', '{{screenTip.whatsNextTitle}}', 'joinTip(screenTip.whatsNextContent)')
-        .links(ng-hide='clusters.length == 0')
+        div(ng-hide='clusters.length == 0')
             .padding-dflt
                 lable.labelHeader Clusters:
-                table(st-table='clusters')
+                table.links(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
