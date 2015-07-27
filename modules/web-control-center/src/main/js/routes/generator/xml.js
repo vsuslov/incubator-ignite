@@ -337,6 +337,19 @@ function createEvictionPolicy(res, evictionPolicy, propertyName) {
     }
 }
 
+function generateCacheTypeMetadataConfiguration(metaCfg, res) {
+    if (!res)
+        res = generatorUtils.builder();
+
+    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
+
+
+
+    res.endBlock('</bean>');
+
+    return res;
+}
+
 function generateCacheConfiguration(cacheCfg, res) {
     if (!res)
         res = generatorUtils.builder();
@@ -464,7 +477,21 @@ function generateCacheConfiguration(cacheCfg, res) {
     res.needEmptyLine = true;
 
     addProperty(res, cacheCfg, 'maxConcurrentAsyncOperations');
-    
+
+    // Generate cache type metadata configs.
+    if ((cacheCfg.queryMetadata && cacheCfg.queryMetadata.length > 0) ||
+        (cacheCfg.storeMetadata && cacheCfg.storeMetadata.length > 0)) {
+        res.emptyLineIfNeeded();
+
+        res.startBlock('<property name="typeMetadata">');
+        res.startBlock('<list>');
+
+        // TODO
+
+        res.endBlock('</list>');
+        res.endBlock('</property');
+    }
+
     res.endBlock('</bean>');
 
     return res;
