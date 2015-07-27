@@ -49,7 +49,7 @@ mixin lbl(txt)
 
             .modal-footer
                 a.show-signup.ng-hide(ng-show='action != "login"', ng-click='action = "login";') log in
-                a.show-signup(ng-show="action != 'register'", ng-click='action = "register";') sign up
+                a.show-signup(ng-show='action != "register"', ng-click='action = "register"') sign up
                 | &nbsp;or&nbsp;
                 button.btn.btn-primary(ng-show='action == "login"' ng-click='auth(action, user_info)') Log In
                 button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid || user_info.password != user_info.confirm' ng-click='auth(action, user_info)') Sign Up

@@ -23,6 +23,8 @@ var mongoose = require('mongoose'),
     ObjectId = mongoose.Schema.Types.ObjectId,
     passportLocalMongoose = require('passport-local-mongoose');
 
+var deepPopulate = require('mongoose-deep-populate');
+
 // Connect to mongoDB database.
 mongoose.connect(config.get('mongoDB:url'), {server: {poolSize: 4}});
 
@@ -70,8 +72,8 @@ var CacheTypeMetadataSchema = new Schema({
     databaseTable: String,
     keyType: String,
     valueType: String,
-    keyFields: [{dbName: String, dbType: String, javaName: String, javaType: String}],
-    valueFields: [{dbName: String, dbType: String, javaName: String, javaType: String}],
+    keyFields: [{databaseName: String, databaseType: String, javaName: String, javaType: String}],
+    valueFields: [{databaseName: String, databaseType: String, javaName: String, javaType: String}],
     queryFields: [{name: String, className: String}],
     ascendingFields: [{name: String, className: String}],
     descendingFields:  [{name: String, className: String}],
@@ -312,6 +314,14 @@ var ClusterSchema = new Schema({
     waitForSegmentOnStart: Boolean
 });
 
+ClusterSchema.plugin(deepPopulate, {
+    whitelist: [
+        'caches',
+        'caches.queryMetadata',
+        'caches.storeMetadata'
+    ]
+});
+
 // Define cluster model.
 exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 
@@ -319,7 +329,7 @@ exports.Cluster = mongoose.model('Cluster', ClusterSchema);
 var PersistenceSchema = new Schema({
     space: {type: ObjectId, ref: 'Space'},
     name: String,
-    dbType: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
+    rdbms: {type: String, enum: ['oracle', 'db2', 'mssql', 'postgre', 'mysql', 'h2']},
     dbName: String,
     host: String,
     user: String,
@@ -334,8 +344,8 @@ var PersistenceSchema = new Schema({
             pk: Boolean,
             ak: Boolean,
             notNull: Boolean,
-            dbName: String,
-            dbType: Number,
+            databaseName: String,
+            databaseType: Number,
             javaName: String,
             javaType: String
         }]

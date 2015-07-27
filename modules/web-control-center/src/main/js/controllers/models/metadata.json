@@ -68,7 +68,7 @@
     },
     {
       "label": "Key type",
-      "type": "text",
+      "type": "withJavaBuildInTypes",
       "model": "keyType",
       "required": true,
       "placeholder": "Full class name for Key",
@@ -189,7 +189,7 @@
     {
       "label": "Database type",
       "type": "dropdown",
-      "model": "dbType",
+      "model": "rdbms",
       "placeholder": "Choose database",
       "items": "databases",
       "tip": [

@@ -18,6 +18,7 @@
 controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
+        $scope.javaBuildInTypes = $common.javaBuildInTypes;
 
         $scope.tableNewItem = $table.tableNewItem;
         $scope.tableNewItemActive = $table.tableNewItemActive;
@@ -127,8 +128,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: true,
                             ak: true,
-                            dbName: 'name1',
-                            dbType: 'dbType1',
+                            databaseName: 'name1',
+                            databaseType: 'dbType1',
                             javaName: 'javaName1',
                             javaType: 'javaType1'
                         },
@@ -136,8 +137,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: false,
                             ak: false,
-                            dbName: 'name2',
-                            dbType: 'dbType2',
+                            databaseName: 'name2',
+                            databaseType: 'dbType2',
                             javaName: 'javaName2',
                             javaType: 'javaType2'
                         },
@@ -145,8 +146,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name3',
-                            dbType: 'dbType3',
+                            databaseName: 'name3',
+                            databaseType: 'dbType3',
                             javaName: 'javaName3',
                             javaType: 'javaType3'
                         }
@@ -164,8 +165,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: true,
                             ak: true,
-                            dbName: 'name4',
-                            dbType: 'dbType4',
+                            databaseName: 'name4',
+                            databaseType: 'dbType4',
                             javaName: 'javaName4',
                             javaType: 'javaType4'
                         },
@@ -173,8 +174,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: false,
                             ak: false,
-                            dbName: 'name5',
-                            dbType: 'dbType5',
+                            databaseName: 'name5',
+                            databaseType: 'dbType5',
                             javaName: 'javaName5',
                             javaType: 'javaType5'
                         },
@@ -182,8 +183,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name6',
-                            dbType: 'dbType6',
+                            databaseName: 'name6',
+                            databaseType: 'dbType6',
                             javaName: 'javaName6',
                             javaType: 'javaType6'
                         }
@@ -200,8 +201,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: true,
                             ak: true,
-                            dbName: 'name7',
-                            dbType: 'dbType7',
+                            databaseName: 'name7',
+                            databaseType: 'dbType7',
                             javaName: 'javaName7',
                             javaType: 'javaType7'
                         },
@@ -209,8 +210,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: true,
                             key: false,
                             ak: false,
-                            dbName: 'name8',
-                            dbType: 'dbType8',
+                            databaseName: 'name8',
+                            databaseType: 'dbType8',
                             javaName: 'javaName8',
                             javaType: 'javaType8'
                         },
@@ -218,8 +219,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name9',
-                            dbType: 'dbType9',
+                            databaseName: 'name9',
+                            databaseType: 'dbType9',
                             javaName: 'javaName9',
                             javaType: 'javaType9'
                         },
@@ -227,8 +228,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name10',
-                            dbType: 'dbType10',
+                            databaseName: 'name10',
+                            databaseType: 'dbType10',
                             javaName: 'javaName10',
                             javaType: 'javaType10'
                         },
@@ -236,8 +237,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name11',
-                            dbType: 'dbType11',
+                            databaseName: 'name11',
+                            databaseType: 'dbType11',
                             javaName: 'javaName11',
                             javaType: 'javaType11'
                         },
@@ -245,8 +246,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                             use: false,
                             key: false,
                             ak: false,
-                            dbName: 'name12',
-                            dbType: 'dbType12',
+                            databaseName: 'name12',
+                            databaseType: 'dbType12',
                             javaName: 'javaName12',
                             javaType: 'javaType12'
                         }
@@ -467,21 +468,21 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             return true;
         };
 
-        $scope.tableDbFieldSaveVisible = function (dbName, dbType, javaName, javaType) {
-            return $common.isNonEmpty(dbName) && $common.isDefined(dbType) &&
+        $scope.tableDbFieldSaveVisible = function (databaseName, databaseType, javaName, javaType) {
+            return $common.isNonEmpty(databaseName) && $common.isDefined(databaseType) &&
                 $common.isNonEmpty(javaName) && $common.isDefined(javaType);
         };
 
-        $scope.tableDbFieldSave = function (field, newDbName, newDbType, newJavaName, newJavaType, index) {
+        $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType, index) {
             var item = $scope.backupItem;
 
             var model = item[field.model];
 
-            var newItem = {dbName: newDbName, dbType: newDbType, javaName: newJavaName, javaType: newJavaType};
+            var newItem = {databaseName: newDatabaseName, databaseType: newDatabaseType, javaName: newJavaName, javaType: newJavaType};
 
             if ($common.isDefined(model)) {
                 var idx = _.findIndex(model, function (dbMeta) {
-                    return dbMeta.dbName == newDbName
+                    return dbMeta.databaseName == newDatabaseName
                 });
 
                 // Found duplicate.
@@ -500,8 +501,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 else {
                     var dbField = model[index];
 
-                    dbField.dbName = newDbName;
-                    dbField.dbType = newDbType;
+                    dbField.databaseName = newDatabaseName;
+                    dbField.databaseType = newDatabaseType;
                     dbField.javaName = newJavaName;
                     dbField.javaType = newJavaType;
                 }

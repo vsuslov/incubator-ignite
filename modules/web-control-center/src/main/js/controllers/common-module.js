@@ -129,7 +129,10 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
                 title: msg,
                 duration: 2
             });
-        }
+        },
+        javaBuildInTypes: [
+            'Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
+        ]
     }
 }]);
 

@@ -174,6 +174,22 @@ exports.marshallers = {
     JdkMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.jdk.JdkMarshaller', {})
 };
 
+exports.knownBuildInClasses = {
+    BigDecimal: {className: 'java.math.Boolean'},
+    Boolean: {className: 'java.lang.Boolean'},
+    Byte: {className: 'java.lang.Byte'},
+    Date: {className: 'java.sql.Date'},
+    Double: {className: 'java.lang.Double'},
+    Float: {className: 'java.lang.Float'},
+    Integer: {className: 'java.lang.Integer'},
+    Long: {className: 'java.lang.Long'},
+    Short: {className: 'java.lang.Short'},
+    String: {className: 'java.lang.String'},
+    Time: {className: 'java.sql.Time'},
+    Timestamp: {className: 'java.sql.Timestamp'},
+    UUID: {className: 'java.util.UUID'}
+};
+
 exports.knownClasses = {
     Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
     DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),
