@@ -93,6 +93,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+      "addTip": "Add key field.",
+      "removeTip": "Remove key field.",
       "tip": [
         "Collection of key fields descriptions for CacheJdbcPojoStore."
       ]
@@ -104,6 +106,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+      "addTip": "Add value field.",
+      "removeTip": "Remove value field.",
       "tip": [
         "Collection of value fields descriptions for CacheJdbcPojoStore.."
       ]
@@ -167,8 +171,10 @@
       "type": "queryGroups",
       "model": "groups",
       "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
-      "addTip": "Add new group index.",
+      "addTip": "Add new group.",
       "removeTip": "Remove group.",
+      "addItemTip": "Add new field to group.",
+      "removeItemTip": "Remove field from group.",
       "tip": [
         "Collection of group indexes."
       ]

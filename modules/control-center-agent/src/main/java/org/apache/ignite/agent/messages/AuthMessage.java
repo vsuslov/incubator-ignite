@@ -36,11 +36,11 @@ public class AuthMessage extends AbstractMessage {
 
     /**
      * @param login Login.
-     * @param password Password.
+     * @param pwd Password.
      */
-    public AuthMessage(String login, String password) {
+    public AuthMessage(String login, String pwd) {
         this.login = login;
-        this.password = password;
+        password = pwd;
     }
 
     /**
@@ -68,6 +68,6 @@ public class AuthMessage extends AbstractMessage {
      * @param pwd Password.
      */
     public void setPassword(String pwd) {
-        this.password = pwd;
+        password = pwd;
     }
 }

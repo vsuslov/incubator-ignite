@@ -307,7 +307,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                             .col-sm-12(ng-show='!tableEditing(field, $index)')
                                                 a.labelFormField(ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
                                                 +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
-                                                +btn-add('tableGroupNewItem($index)', 'field.addTip')
+                                                +btn-add('tableGroupNewItem($index)', 'field.addItemTip')
                                             div(ng-show='tableEditing(field, $index)')
                                                 label.labelField {{$index + 1}})
                                                 +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
@@ -319,7 +319,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                         td
                                                             div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
                                                                 a.labelFormField(ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
-                                                                +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeTip')
+                                                                +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
                                                             div(ng-show='tableGroupItemEditing(groupIndex, $index)')
                                                                 label.labelField {{$index + 1}})
                                                                 +btn-save('tableGroupItemSaveVisible(curFieldName, curClassName)', 'tableGroupItemSave(curFieldName, curClassName, curDirection, groupIndex, $index)')

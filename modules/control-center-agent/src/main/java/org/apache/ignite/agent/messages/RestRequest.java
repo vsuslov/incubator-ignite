@@ -94,7 +94,7 @@ public class RestRequest extends AbstractMessage {
      * @param mtd Method.
      */
     public void setMethod(String mtd) {
-        this.method = mtd;
+        method = mtd;
     }
 
     /**

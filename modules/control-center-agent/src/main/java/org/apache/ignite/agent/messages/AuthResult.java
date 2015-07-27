@@ -49,9 +49,9 @@ public class AuthResult extends AbstractMessage {
     }
 
     /**
-     * @param message Message.
+     * @param msg Message.
      */
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessage(String msg) {
+        message = msg;
     }
 }

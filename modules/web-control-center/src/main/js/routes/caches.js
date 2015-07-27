@@ -41,12 +41,22 @@ router.post('/list', function (req, res) {
             return value._id;
         });
 
-        // Get all caches for spaces.
-        db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
+        // Get all caches type metadata for spaces.
+        db.CacheTypeMetadata.find({space: {$in: space_ids}}, '_id name kind', function (err, metadatas) {
             if (err)
-                return res.status(500).send(err.message);
+                return res.status(500).send(err);
 
-            res.json({spaces: spaces, caches: caches});
+            // Get all caches for spaces.
+            db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                var metadatasJson = metadatas.map(function (meta) {
+                    return {value: meta._id, label: meta.name, kind: meta.kind};
+                });
+
+                res.json({spaces: spaces, metadatas: metadatasJson, caches: caches});
+            });
         });
     });
 });
