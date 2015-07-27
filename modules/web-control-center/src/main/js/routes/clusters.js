@@ -72,7 +72,7 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        db.Cluster.findOne({name: req.body.name}, function (err, cluster) {
+        db.Cluster.findOne({space: req.body.space, name: req.body.name}, function (err, cluster) {
             if (err)
                 return res.status(500).send(err.message);
 
