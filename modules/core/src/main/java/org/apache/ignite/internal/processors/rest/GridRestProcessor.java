@@ -538,6 +538,15 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
                 break;
 
+            case EXECUTE_SQL_QUERY:
+            case EXECUTE_SQL_FIELDS_QUERY:
+            case CLOSE_SQL_QUERY:
+            case FETCH_SQL_QUERY:
+                perm = SecurityPermission.CACHE_READ;
+                name = ((RestSqlQueryRequest)req).cacheName();
+
+                break;
+
             case CACHE_PUT:
             case CACHE_ADD:
             case CACHE_PUT_ALL:
@@ -571,6 +580,21 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
                 break;
 
+            case RUN_SCRIPT:
+            case AFFINITY_RUN_SCRIPT:
+            case EXECUTE_MAP_REDUCE_SCRIPT:
+                perm = SecurityPermission.TASK_EXECUTE;
+                name = "";
+
+                break;
+
+            case GET_OR_CREATE_CACHE:
+            case DESTROY_CACHE:
+                perm = SecurityPermission.ADMIN_CACHE;
+                name = ((GridRestCacheRequest)req).cacheName();
+
+                break;
+
             case CACHE_METRICS:
             case CACHE_SIZE:
             case TOPOLOGY:
@@ -580,6 +604,8 @@ public class GridRestProcessor extends GridProcessorAdapter {
             case QUIT:
             case ATOMIC_INCREMENT:
             case ATOMIC_DECREMENT:
+            case NAME:
+            case LOG:
                 break;
 
             default:

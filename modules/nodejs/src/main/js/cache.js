@@ -75,7 +75,7 @@ Cache.prototype.put = function(key, value) {
  * @param {string} value Value
  */
 Cache.prototype.putIfAbsent = function(key, value) {
-    return this.__createPromise(this._createCommand("putifabsent").
+    return this.__createPromise(this._createCommand("putifabs").
         setPostData(JSON.stringify({"key": key, "val" : value})));
 }
 
@@ -98,7 +98,7 @@ Cache.prototype.remove = function(key, callback) {
  * @param value Value
  */
 Cache.prototype.removeValue = function(key, value, callback) {
-    return this.__createPromise(this._createCommand("rmvvalue").
+    return this.__createPromise(this._createCommand("rmvval").
         setPostData(JSON.stringify({"key": key, "val" : value})));
 }
 
@@ -109,7 +109,7 @@ Cache.prototype.removeValue = function(key, value, callback) {
  * @param {string} key Key
  */
 Cache.prototype.getAndRemove = function(key, callback) {
-    return this.__createPromise(this._createCommand("getandrmv").
+    return this.__createPromise(this._createCommand("getrmv").
         setPostData(JSON.stringify({"key": key})));
 }
 
@@ -179,7 +179,7 @@ Cache.prototype.getAll = function(keys, callback) {
  * @param {Object} key Key
  */
 Cache.prototype.containsKey = function(key) {
-    return this.__createPromise(this._createCommand("containskey").
+    return this.__createPromise(this._createCommand("conkey").
         setPostData(JSON.stringify({"key" : key})));
 }
 
@@ -190,7 +190,7 @@ Cache.prototype.containsKey = function(key) {
  * @param {Object[]} keys Keys
  */
 Cache.prototype.containsKeys = function(keys, callback) {
-    return this.__createPromise(this._createCommand("containskeys").
+    return this.__createPromise(this._createCommand("conkeys").
         setPostData(JSON.stringify({"keys" : keys})));
 }
 
@@ -202,7 +202,7 @@ Cache.prototype.containsKeys = function(keys, callback) {
  * @param {string} value Value
  */
 Cache.prototype.getAndPut = function(key, val) {
-    return this.__createPromise(this._createCommand("getandput").
+    return this.__createPromise(this._createCommand("getput").
         setPostData(JSON.stringify({"key" : key, "val" : val})));
 }
 
@@ -227,7 +227,7 @@ Cache.prototype.replace = function(key, val, callback) {
  * @param oldVal Old value
  */
 Cache.prototype.replaceValue = function(key, val, oldVal) {
-    return this.__createPromise(this._createCommand("repVal").
+    return this.__createPromise(this._createCommand("repval").
         setPostData(JSON.stringify({"key" : key, "val" : val, "oldVal" : oldVal})));
 }
 
@@ -239,7 +239,7 @@ Cache.prototype.replaceValue = function(key, val, oldVal) {
  * @param {string} value Value
  */
 Cache.prototype.getAndReplace = function(key, val) {
-    return this.__createPromise(this._createCommand("getandreplace").
+    return this.__createPromise(this._createCommand("getrep").
         setPostData(JSON.stringify({"key" : key, "val" : val})));
 }
 
@@ -251,7 +251,7 @@ Cache.prototype.getAndReplace = function(key, val) {
  * @param {string} value Value
  */
 Cache.prototype.getAndPutIfAbsent = function(key, val) {
-    return this.__createPromise(this._createCommand("getandputifabsent").
+    return this.__createPromise(this._createCommand("getputifabs").
         setPostData(JSON.stringify({"key" : key, "val" : val})));
 }
 
@@ -259,7 +259,7 @@ Cache.prototype.getAndPutIfAbsent = function(key, val) {
  * @this {Cache}
  */
 Cache.prototype.size = function(callback) {
-    return this.__createPromise(this._createCommand("cachesize"));
+    return this.__createPromise(this._createCommand("size"));
 }
 
 /**
@@ -269,7 +269,7 @@ Cache.prototype.size = function(callback) {
  * @returns {QueryCursor} Cursor for current query.
  */
 Cache.prototype.query = function(qry) {
-    return new QueryCursor(this, qry, true, null);
+    return new QueryCursor(this, qry, true, null, null);
 }
 
 Cache.prototype.__createPromise = function(cmd) {
@@ -302,12 +302,14 @@ Cache.prototype._createCommand = function(name) {
  * @param {SqlQuery|SqlFieldsQuery} qry Sql query
  * @param {boolean} init True if query is not started
  * @param {Object[]} res Current page result
+ * @param fieldsMeta Fields metadata.
  */
-QueryCursor = function(cache, qry, init, res) {
+QueryCursor = function(cache, qry, init, res, fieldsMeta) {
     this._qry = qry;
     this._cache = cache;
     this._init = init;
     this._res = res;
+    this._fieldsMeta = fieldsMeta;
 }
 
 /**
@@ -342,6 +344,10 @@ QueryCursor.prototype.getAll = function() {
             else {
                 cursor._res = res;
 
+                if (cursor._fieldsMeta === null) {
+                    cursor._fieldsMeta = res["fieldsMetadata"];
+                }
+
                 fullRes = fullRes.concat(res["items"]);
 
                 if (res["last"]) {
@@ -372,17 +378,33 @@ QueryCursor.prototype.nextPage = function() {
     var server = this._cache._server;
     var qry = this._qry;
     var cache = this._cache;
+    var fieldsMeta = this._fieldsMeta;
 
     return new Promise(function(resolve, reject) {
        server.runCommand(cmd, function(err, res) {
            if(err !== null) {
-               reject(err);
+                reject(err);
            }
            else {
-               resolve(new QueryCursor(cache, qry, false, res));
+                if (fieldsMeta !== null) {
+                    resolve(new QueryCursor(cache, qry, false, res, fieldsMeta));
+                }
+                else {
+                    resolve(new QueryCursor(cache, qry, false, res, res["fieldsMetadata"]))
+                }
            }
        });
     });
+}
+
+/**
+ * Gets query fields metadata
+ *
+ * @this{QueryCursor}
+ * @returns {Object[]} Query fields metadata.
+ */
+QueryCursor.prototype.fieldsMetadata = function() {
+    return this._fieldsMeta;
 }
 
 /**
@@ -412,7 +434,7 @@ QueryCursor.prototype.close = function() {
     }
 
     var server = this._cache._server;
-    var cmd = this._createQueryCommand("qryclose", this._qry).addParam("qryId", this._res.queryId);
+    var cmd = this._createQueryCommand("qrycls", this._qry).addParam("qryId", this._res.queryId);
 
     return new Promise(function(resolve, reject) {
        server.runCommand(cmd, function(err, res) {
@@ -455,12 +477,12 @@ QueryCursor.prototype._getQueryCommand = function() {
 }
 
 QueryCursor.prototype._sqlFieldsQuery = function(qry) {
-    return this._createQueryCommand("qryfieldsexecute", qry).
+    return this._createQueryCommand("qryfldexe", qry).
         setPostData(JSON.stringify({"arg" : qry.arguments()}));
 }
 
 QueryCursor.prototype._sqlQuery = function(qry) {
-    return this._createQueryCommand("qryexecute", qry).addParam("type", qry.returnType()).
+    return this._createQueryCommand("qryexe", qry).addParam("type", qry.returnType()).
         setPostData(JSON.stringify({"arg" : qry.arguments()}));
 }
 

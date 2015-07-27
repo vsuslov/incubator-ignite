@@ -340,7 +340,8 @@ public class GridJettyRestHandler extends AbstractHandler {
             List<Object> res = new ArrayList<>();
 
             for (Object k : o.keySet())
-                res.add(ctx.scripting().createScriptingEntry(k, o.get(k)));
+                res.add(ctx.scripting().createScriptingEntry(ctx.scripting().toScriptObject(k),
+                    ctx.scripting().toScriptObject(o.get(k))));
 
             cmdRes.setResponse(res);
 
@@ -348,7 +349,7 @@ public class GridJettyRestHandler extends AbstractHandler {
         else {
             Object o = cmdRes.getResponse();
 
-            cmdRes.setResponse(o);
+            cmdRes.setResponse(ctx.scripting().toScriptObject(o));
         }
     }
 
@@ -583,7 +584,7 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
                     Map o = parseRequest(req);
-                    restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
                 }
                 else
                     restReq0.argument(params.get("arg"));
@@ -601,7 +602,7 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
                     Map o = parseRequest(req);
-                    restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
 
                     Object cacheObj = ctx.scripting().toJavaObject(o.get("key"));
                     restReq0.affinityKey(cacheObj);
@@ -624,7 +625,7 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
                     Map o = parseRequest(req);
-                    restReq0.argument(ctx.scripting().toJavaObject(o.get("arg")));
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
                 }
                 else
                     restReq0.argument(params.get("arg"));
@@ -644,14 +645,19 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
                     Map o = parseRequest(req);
-                    List args = (List) ctx.scripting().toJavaObject(o.get("arg"));
+                    List args = (List) ctx.scripting().toScriptObject(o.get("arg"));
                     restReq0.arguments(args.toArray());
                 }
                 else
                     restReq0.arguments(values("arg", params).toArray());
 
-                restReq0.typeName((String)params.get("type"));
-                restReq0.pageSize(Integer.parseInt((String) params.get("psz")));
+                restReq0.typeName((String) params.get("type"));
+
+                String psz = (String) params.get("psz");
+
+                if (psz != null)
+                    restReq0.pageSize(Integer.parseInt(psz));
+
                 restReq0.cacheName((String)params.get("cacheName"));
 
                 restReq = restReq0;
@@ -662,8 +668,16 @@ public class GridJettyRestHandler extends AbstractHandler {
             case FETCH_SQL_QUERY: {
                 RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
 
-                restReq0.queryId(Long.parseLong((String)params.get("qryId")));
-                restReq0.pageSize(Integer.parseInt((String)params.get("psz")));
+                String qryId = (String) params.get("qryId");
+
+                if (qryId != null)
+                    restReq0.queryId(Long.parseLong(qryId));
+
+                String psz = (String) params.get("psz");
+
+                if (psz != null)
+                    restReq0.pageSize(Integer.parseInt(psz));
+
                 restReq0.cacheName((String)params.get("cacheName"));
 
                 restReq = restReq0;
@@ -674,7 +688,11 @@ public class GridJettyRestHandler extends AbstractHandler {
             case CLOSE_SQL_QUERY: {
                 RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
 
-                restReq0.queryId(Long.parseLong((String)params.get("qryId")));
+                String qryId = (String) params.get("qryId");
+
+                if (qryId != null)
+                    restReq0.queryId(Long.parseLong(qryId));
+
                 restReq0.cacheName((String)params.get("cacheName"));
 
                 restReq = restReq0;
