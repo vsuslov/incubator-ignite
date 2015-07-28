@@ -45,7 +45,7 @@ mixin lbl(txt)
                         .details-row(ng-show='action == "register"')
                             +lbl('Confirm:')
                             .col-sm-9.input-tip.has-feedback
-                                input.form-control(type='password', ng-model='user_info.confirm', match="user_info.password" placeholder='Confirm password', required, ng-keyup='$event.keyCode == 13 ? auth(action, user_info) : null')
+                                input.form-control(type='password', ng-model='user_info.confirm', match='user_info.password' placeholder='Confirm password', required, ng-keyup='$event.keyCode == 13 ? auth(action, user_info) : null')
 
             .modal-footer
                 a.show-signup.ng-hide(ng-show='action != "login"', ng-click='action = "login";') log in
