@@ -376,6 +376,36 @@ controlCenterModule.directive('match', function ($parse) {
     };
 });
 
+// Directive to bind ENTER key press with some user action.
+controlCenterModule.directive('ngEnter', function() {
+    return function(scope, element, attrs) {
+        element.bind('keydown keypress', function(event) {
+            if (event.which === 13) {
+                scope.$apply(function() {
+                    scope.$eval(attrs.ngEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+// Directive to bind ESC key press with some user action.
+controlCenterModule.directive('ngEscape', function() {
+    return function(scope, element, attrs) {
+        element.bind('keydown keyup', function(event) {
+            if (event.which === 27) {
+                scope.$apply(function() {
+                    scope.$eval(attrs.ngEscape);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
 // Navigation bar controller.
 controlCenterModule.controller('activeLink', [
     '$scope', function ($scope) {

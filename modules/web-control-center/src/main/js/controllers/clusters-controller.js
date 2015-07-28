@@ -19,6 +19,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
+        $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
         $scope.tableNewItemActive = $table.tableNewItemActive;
         $scope.tableEditing = $table.tableEditing;
