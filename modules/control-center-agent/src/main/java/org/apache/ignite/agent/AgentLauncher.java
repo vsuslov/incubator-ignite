@@ -57,7 +57,7 @@ public class AgentLauncher {
 
         AgentCommandLine cmdCfg = new AgentCommandLine();
 
-        JCommander cmd = new JCommander(cmdCfg, args);
+        new JCommander(cmdCfg, args);
 
         if (cmdCfg.getConfigFile() != null)
             cfg.load(new File(cmdCfg.getConfigFile()).toURI().toURL());

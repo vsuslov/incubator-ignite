@@ -39,7 +39,7 @@ public class Agent {
     private final AgentConfiguration cfg;
 
     /** */
-    private CloseableHttpClient httpclient;
+    private CloseableHttpClient httpClient;
 
     /**
      * @param cfg Config.
@@ -52,15 +52,15 @@ public class Agent {
      *
      */
     public void start() {
-        httpclient = HttpClientBuilder.create().build();
+        httpClient = HttpClientBuilder.create().build();
     }
 
     /**
      *
      */
     public void stop() throws IOException {
-        if (httpclient != null)
-            httpclient.close();
+        if (httpClient != null)
+            httpClient.close();
     }
 
     /**
@@ -100,7 +100,7 @@ public class Agent {
 
                 post = new HttpPost(builder.build());
 
-                if (nvps.size() > 0)
+                if (!nvps.isEmpty())
                     post.setEntity(new UrlEncodedFormEntity(nvps));
             }
             else {
@@ -114,7 +114,7 @@ public class Agent {
         else
             throw new IOException("Unknown HTTP-method: " + restReq.getMethod());
 
-        try (CloseableHttpResponse resp = httpclient.execute(httpReq)) {
+        try (CloseableHttpResponse resp = httpClient.execute(httpReq)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             resp.getEntity().writeTo(out);
