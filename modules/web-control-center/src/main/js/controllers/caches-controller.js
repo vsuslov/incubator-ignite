@@ -18,6 +18,7 @@
 controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
+        $scope.javaBuildInTypes = $common.javaBuildInTypes;
 
         $scope.tableNewItem = $table.tableNewItem;
         $scope.tableNewItemActive = $table.tableNewItemActive;

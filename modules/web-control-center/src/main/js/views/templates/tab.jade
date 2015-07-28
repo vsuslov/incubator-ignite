@@ -15,7 +15,7 @@
     limitations under the License.
 
 ul.nav(ng-class='$navClass', role='tablist')
-    li(role='presentation', ng-repeat='$pane in $panes track by $index', ng-class="[ $isActive($pane, $index) ? $activeClass : '', $pane.disabled ? 'disabled' : '' ]")
+    li(role='presentation', ng-repeat='$pane in $panes track by $index', ng-class='[ $isActive($pane, $index) ? $activeClass : "", $pane.disabled ? "disabled" : "" ]')
         a(ng-if='$index == 0' role='tab', data-toggle='tab', ng-click='!$pane.disabled && $setActive($pane.name || $index)', data-index='{{ $index }}', aria-controls='$pane.title') {{$pane.title}}
             i.fa.fa-remove(ng-click='removeTab($index)' ng-if='$index > 0' style='margin-left: 5px')
         a(ng-if='$index > 0' role='tab', data-toggle='tab', ng-click='!$pane.disabled && $setActive($pane.name || $index)', data-index='{{ $index }}', aria-controls='$pane.title') {{$pane.title}}: {{$index}}

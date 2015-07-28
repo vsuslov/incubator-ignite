@@ -19,8 +19,8 @@ extends sidebar
 append scripts
     script(src='/summary-controller.js')
 
-    script(src="//cdn.jsdelivr.net/angularjs/1.3.15/angular-animate.min.js")
-    script(src="//cdn.jsdelivr.net/angularjs/1.3.15/angular-sanitize.min.js")
+    script(src='//cdn.jsdelivr.net/angularjs/1.3.15/angular-animate.min.js')
+    script(src='//cdn.jsdelivr.net/angularjs/1.3.15/angular-sanitize.min.js')
 
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-chrome.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-xml.js')
@@ -32,7 +32,7 @@ append css
 include ../includes/controls
 
 mixin hard-link(ref, txt)
-    a(style='color:#ec1c24' href=ref target="_blank") #{txt}
+    a(style='color:#ec1c24' href=ref target='_blank') #{txt}
 
 block content
     .docs-header
@@ -51,17 +51,17 @@ block content
                     tr(ng-repeat='row in clusters track by row._id')
                         td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
-        div(ng-show='selectedItem' role="tab" method='post' action='summary/download')
+        div(ng-show='selectedItem' role='tab' method='post' action='summary/download')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     form.panel-heading(role='tab' method='post' action='summary/download')
-                        input(type="hidden" name="_id" value="{{selectedItem._id}}")
-                        input(type="hidden" name="os" value="{{os}}")
-                        input(type="hidden" name="javaClass" value="{{javaClassServer}}")
+                        input(type='hidden' name='_id' value='{{selectedItem._id}}')
+                        input(type='hidden' name='os' value='{{os}}')
+                        input(type='hidden' name='javaClass' value='{{javaClassServer}}')
                         h3
                             a(bs-collapse-toggle) Server
                             button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
-                    .panel-collapse(role="tabpanel" bs-collapse-target)
+                    .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem' bs-tabs style='margin-top: 0.65em')
                             div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
                                 div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlServer')
@@ -86,19 +86,18 @@ block content
                                     .col-sm-2
                                         label(for='os') Operation System:
                                     .col-sm-4
-                                        input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length="0" data-html="1" data-auto-select="true" data-animation="am-flip-x" bs-typeahead bs-options='os for os in oss')
+                                        input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' data-animation='am-flip-x' bs-typeahead bs-options='os for os in oss')
                                 div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default
                     form.panel-heading(role='tab' method='post' action='summary/download')
-                        input(type="hidden" name="_id" value="{{selectedItem._id}}")
-                        input(type="hidden" name="javaClass" value="{{javaClassClient}}")
-                        input(type="hidden" name="clientNearConfiguration" value="{{backupItem}}")
-
+                        input(type='hidden' name='_id' value='{{selectedItem._id}}')
+                        input(type='hidden' name='javaClass' value='{{javaClassClient}}')
+                        input(type='hidden' name='clientNearConfiguration' value='{{backupItem}}')
                         h3
                             a(bs-collapse-toggle) Client
                             button.btn.btn-primary.pull-right(type='submit' style='margin-top: -5px') Download
-                    .panel-collapse(role="tabpanel" bs-collapse-target)
+                    .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
                                 +form-row-custom(['col-sm-3'], ['col-sm-3'])

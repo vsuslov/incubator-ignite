@@ -337,13 +337,79 @@ function createEvictionPolicy(res, evictionPolicy, propertyName) {
     }
 }
 
+function addFields(res, meta, fieldsProperty) {
+    var fields = meta[fieldsProperty];
+
+    if (fields && fields.length > 0) {
+        res.startBlock('<property name="' + fieldsProperty + '">');
+
+        res.startBlock('<list>');
+
+        _.forEach(fields, function (field) {
+            res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeFieldMetadata">');
+
+            addProperty(res, field, 'databaseName');
+
+            addProperty(res, field, 'databaseType');
+            //addPropertyAsConst(res, field, databaseType, toJdbcTypeConst);
+
+            addProperty(res, field, 'javaName');
+            addElement(res, 'property', 'name', 'javaType', 'value', knownBuildInClasses(field.javaType));
+
+            res.endBlock('</bean>');
+        });
+
+        res.endBlock('</list>');
+    }
+}
+
+function knownBuildInClasses(className) {
+    var fullClassName = generatorUtils.knownBuildInClasses[className];
+
+    if (fullClassName)
+        return fullClassName.className;
+
+    return className;
+}
+
+function addQueryFields(res, meta, fieldsProperty) {
+    var fields = meta[fieldsProperty];
+
+    if (fields && fields.length > 0) {
+        res.startBlock('<property name="' + fieldsProperty + '">');
+
+        res.startBlock('<map>');
+
+        _.forEach(fields, function (field) {
+            addElement(res, 'entry', 'key', field.name, 'value', knownBuildInClasses(field.className));
+        });
+
+        res.endBlock('</map>');
+
+        res.endBlock('</property>');
+    }
+}
+
 function generateCacheTypeMetadataConfiguration(metaCfg, res) {
     if (!res)
         res = generatorUtils.builder();
 
     res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
 
+    addProperty(res, metaCfg, 'databaseSchema');
+    addProperty(res, metaCfg, 'databaseTable');
 
+    addProperty(res, metaCfg, 'keyType');
+    addProperty(res, metaCfg, 'valueType');
+
+    addFields(res, metaCfg, 'keyFields');
+    addFields(res, metaCfg, 'valueFields');
+
+    addQueryFields(res, metaCfg, 'queryFields');
+    addQueryFields(res, metaCfg, 'ascendingFields');
+    addQueryFields(res, metaCfg, 'descendingFields');
+
+    addListProperty(res, metaCfg, 'textFields');
 
     res.endBlock('</bean>');
 
@@ -409,8 +475,8 @@ function generateCacheConfiguration(cacheCfg, res) {
         for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
             var pair = cacheCfg.indexedTypes[i];
 
-            res.line('<value>' + escape(pair.keyClass) + '</value>');
-            res.line('<value>' + escape(pair.valueClass) + '</value>');
+            res.line('<value>' + knownBuildInClasses(pair.keyClass) + '</value>');
+            res.line('<value>' + knownBuildInClasses(pair.valueClass) + '</value>');
         }
 
         res.endBlock('</list>');
@@ -486,10 +552,26 @@ function generateCacheConfiguration(cacheCfg, res) {
         res.startBlock('<property name="typeMetadata">');
         res.startBlock('<list>');
 
-        // TODO
+        var metas = [];
+
+        if (cacheCfg.queryMetadata && cacheCfg.queryMetadata.length > 0) {
+            _.forEach(cacheCfg.queryMetadata, function (meta) {
+                metas.push(meta);
+            });
+        }
+
+        if (cacheCfg.storeMetadata && cacheCfg.storeMetadata.length > 0) {
+            _.forEach(cacheCfg.storeMetadata, function (meta) {
+                metas.push(meta);
+            });
+        }
+
+        _.forEach(metas, function (meta) {
+            generateCacheTypeMetadataConfiguration(meta, res);
+        });
 
         res.endBlock('</list>');
-        res.endBlock('</property');
+        res.endBlock('</property>');
     }
 
     res.endBlock('</bean>');
@@ -499,14 +581,28 @@ function generateCacheConfiguration(cacheCfg, res) {
 
 exports.generateCacheConfiguration = generateCacheConfiguration;
 
+function addElement(res, tag, attr1, val1, attr2, val2) {
+    var elem = '<' + tag;
+
+    if (attr1) {
+        elem += ' ' + attr1 + '="' + val1 + '"'
+    }
+
+    if (attr2) {
+        elem += ' ' + attr2 + '="' + val2 + '"'
+    }
+
+    elem += '/>';
+
+    res.emptyLineIfNeeded();
+    res.line(elem);
+}
+
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val)) {
-        res.emptyLineIfNeeded();
-
-        res.line('<property name="' + (setterName ? setterName : propName) + '" value="' + escapeAttr(val) + '"/>');
-    }
+    if (generatorUtils.isDefined(val))
+        addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
