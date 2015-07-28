@@ -44,6 +44,9 @@ public class AgentSocket {
     /** */
     private final Agent agent;
 
+    /** */
+    private Session ses;
+
     /**
      * @param cfg Config.
      */
@@ -70,12 +73,37 @@ public class AgentSocket {
     public void onConnect(Session ses) {
         log.log(Level.INFO, "Authentication...");
 
+        this.ses = ses;
+
         AuthMessage authMsg = new AuthMessage(cfg.getLogin(), cfg.getPassword());
 
         try {
             ses.getRemote().sendString(MessageFactory.toString(authMsg));
         } catch (IOException t) {
             t.printStackTrace();
+        }
+    }
+
+    /**
+     * @param msg Message.
+     */
+    public boolean send(AbstractMessage msg) {
+        return send(MessageFactory.toString(msg));
+    }
+
+    /**
+     * @param msg Message.
+     */
+    public boolean send(String msg) {
+        try {
+            ses.getRemote().sendString(msg);
+
+            return true;
+        }
+        catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to send message to Control Center");
+
+            return false;
         }
     }
 
@@ -126,12 +154,12 @@ public class AgentSocket {
 
             restRes.setRequestId(((RestRequest)m).getId());
 
-            try {
-                ses.getRemote().sendString(MessageFactory.toString(restRes));
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            send(MessageFactory.toString(restRes));
+        }
+        else if (m instanceof DbMetadataRequest) {
+            DbMetadataResponse resp = agent.dbMetadataRequest((DbMetadataRequest)m);
+
+            send(resp);
         }
         else
             log.log(Level.SEVERE, "Unknown message: " + msg);

@@ -76,6 +76,7 @@
         <module>modules/kafka</module>
         <module>modules/yarn</module>
         <module>modules/json</module>
+        <module>modules/schema-import-db</module>
     </modules>
 
     <profiles>

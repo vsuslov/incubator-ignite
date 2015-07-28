@@ -23,7 +23,6 @@ import javafx.collections.*;
 import javafx.concurrent.*;
 import javafx.event.*;
 import javafx.geometry.*;
-import javafx.geometry.Insets;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -35,10 +34,8 @@ import org.apache.ignite.schema.model.*;
 import org.apache.ignite.schema.parser.*;
 
 import java.io.*;
-import java.net.*;
 import java.sql.*;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
@@ -251,9 +248,6 @@ public class SchemaImportApp extends Application {
     /** Currently selected POJO. */
     private PojoDescriptor curPojo;
 
-    /** */
-    private final Map<String, Driver> drivers = new HashMap<>();
-
     /** Application preferences. */
     private final Properties prefs = new Properties();
 
@@ -348,7 +342,7 @@ public class SchemaImportApp extends Application {
             @Override protected Void call() throws Exception {
                 long started = System.currentTimeMillis();
 
-                try (Connection conn = connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo)) {
+                try (Connection conn = DBReader.getInstance().connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo)) {
                     pojos = DatabaseMetadataParser.parse(conn, tblsOnly);
                 }
 
@@ -650,51 +644,6 @@ public class SchemaImportApp extends Application {
         }
         else
             generate();
-    }
-
-    /**
-     * Connect to database.
-     *
-     * @param jdbcDrvJarPath Path to JDBC driver.
-     * @param jdbcDrvCls JDBC class name.
-     * @param jdbcUrl JDBC connection URL.
-     * @param jdbcInfo Connection properties.
-     * @return Connection to database.
-     * @throws SQLException if connection failed.
-     */
-    private Connection connect(String jdbcDrvJarPath, String jdbcDrvCls, String jdbcUrl, Properties jdbcInfo)
-        throws SQLException {
-        Driver drv = drivers.get(jdbcDrvCls);
-
-        if (drv == null) {
-            if (jdbcDrvJarPath.isEmpty())
-                throw new IllegalStateException("Driver jar file name is not specified.");
-
-            File drvJar = new File(jdbcDrvJarPath);
-
-            if (!drvJar.exists())
-                throw new IllegalStateException("Driver jar file is not found.");
-
-            try {
-                URL u = new URL("jar:" + drvJar.toURI() + "!/");
-
-                URLClassLoader ucl = URLClassLoader.newInstance(new URL[] {u});
-
-                drv = (Driver)Class.forName(jdbcDrvCls, true, ucl).newInstance();
-
-                drivers.put(jdbcDrvCls, drv);
-            }
-            catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        Connection conn = drv.connect(jdbcUrl, jdbcInfo);
-
-        if (conn == null)
-            throw new IllegalStateException("Connection was not established (JDBC driver returned null value).");
-
-        return conn;
     }
 
     /**

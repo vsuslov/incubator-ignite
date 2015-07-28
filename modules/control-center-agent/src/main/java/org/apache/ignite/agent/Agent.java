@@ -25,10 +25,12 @@ import org.apache.http.client.utils.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
 import org.apache.ignite.agent.messages.*;
+import org.apache.ignite.schema.parser.*;
 
 import java.io.*;
 import java.net.*;
 import java.nio.charset.*;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -137,5 +139,26 @@ public class Agent {
 
             return res;
         }
+    }
+
+    /**
+     * @param req Request.
+     */
+    public DbMetadataResponse dbMetadataRequest(DbMetadataRequest req) {
+        DbMetadataResponse res = new DbMetadataResponse();
+
+        try {
+            Connection conn = DBReader.getInstance().connect(req.getJdbcDriverJarPath(), req.getJdbcDriverClass(),
+                req.getJdbcUrl(), req.getJdbcInfo());
+
+            Collection<DbTable> tbls = DBReader.getInstance().extractMetadata(conn, req.isTablesOnly());
+
+            res.setTables(tbls);
+        }
+        catch (SQLException e) {
+            res.setError(e.getMessage());
+        }
+
+        return res;
     }
 }

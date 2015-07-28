@@ -19,6 +19,8 @@ package org.apache.ignite.schema.parser;
 
 import org.apache.ignite.schema.parser.dialect.*;
 
+import java.io.*;
+import java.net.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
@@ -29,6 +31,12 @@ import java.util.logging.*;
 public class DBReader {
     /** Logger. */
     private static final Logger log = Logger.getLogger(DBReader.class.getName());
+
+    /** */
+    private static final DBReader INSTANCE = new DBReader();
+
+    /** */
+    private final Map<String, Driver> drivers = new HashMap<>();
 
     /**
      * Default constructor.
@@ -43,7 +51,7 @@ public class DBReader {
      * @param conn Connection.
      * @param tblsOnly Tables only flag.
      */
-    public static Collection<DbTable> extractMetadata(Connection conn, boolean tblsOnly) throws SQLException {
+    public Collection<DbTable> extractMetadata(Connection conn, boolean tblsOnly) throws SQLException {
         DatabaseMetadataDialect dialect;
 
         try {
@@ -65,4 +73,55 @@ public class DBReader {
         return dialect.tables(conn, tblsOnly);
     }
 
+    /**
+     * Connect to database.
+     *
+     * @param jdbcDrvJarPath Path to JDBC driver.
+     * @param jdbcDrvCls JDBC class name.
+     * @param jdbcUrl JDBC connection URL.
+     * @param jdbcInfo Connection properties.
+     * @return Connection to database.
+     * @throws SQLException if connection failed.
+     */
+    public Connection connect(String jdbcDrvJarPath, String jdbcDrvCls, String jdbcUrl, Properties jdbcInfo)
+        throws SQLException {
+        Driver drv = drivers.get(jdbcDrvCls);
+
+        if (drv == null) {
+            if (jdbcDrvJarPath.isEmpty())
+                throw new IllegalStateException("Driver jar file name is not specified.");
+
+            File drvJar = new File(jdbcDrvJarPath);
+
+            if (!drvJar.exists())
+                throw new IllegalStateException("Driver jar file is not found.");
+
+            try {
+                URL u = new URL("jar:" + drvJar.toURI() + "!/");
+
+                URLClassLoader ucl = URLClassLoader.newInstance(new URL[] {u});
+
+                drv = (Driver)Class.forName(jdbcDrvCls, true, ucl).newInstance();
+
+                drivers.put(jdbcDrvCls, drv);
+            }
+            catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        Connection conn = drv.connect(jdbcUrl, jdbcInfo);
+
+        if (conn == null)
+            throw new IllegalStateException("Connection was not established (JDBC driver returned null value).");
+
+        return conn;
+    }
+
+    /**
+     * @return Instance.
+     */
+    public static DBReader getInstance() {
+        return INSTANCE;
+    }
 }
