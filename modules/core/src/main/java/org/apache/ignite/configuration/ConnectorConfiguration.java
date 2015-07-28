@@ -61,6 +61,9 @@ public class ConnectorConfiguration {
     /** Default socket send and receive buffer size. */
     public static final int DFLT_SOCK_BUF_SIZE = 32 * 1024;
 
+    /** Default delay for storing query cursor (10 minutes). */
+    private static final int DFLT_QRY_RMV_DELAY = 10 * 60;
+
     /** Jetty XML configuration path. */
     private String jettyPath;
 
@@ -84,6 +87,9 @@ public class ConnectorConfiguration {
 
     /** REST TCP receive buffer size. */
     private int rcvBufSize = DFLT_SOCK_BUF_SIZE;
+
+    /** REST delay for storing query cursor. */
+    private int qryRmvDelay = DFLT_QRY_RMV_DELAY;
 
     /** REST TCP send queue limit. */
     private int sndQueueLimit;
@@ -148,6 +154,7 @@ public class ConnectorConfiguration {
         sslClientAuth = cfg.isSslClientAuth();
         sslCtxFactory = cfg.getSslContextFactory();
         sslEnabled = cfg.isSslEnabled();
+        qryRmvDelay = cfg.getQueryRemoveDelay();
     }
 
     /**
@@ -546,5 +553,21 @@ public class ConnectorConfiguration {
      */
     public void setMessageInterceptor(ConnectorMessageInterceptor interceptor) {
         msgInterceptor = interceptor;
+    }
+
+    /**
+     * Sets delay for removing query cursors that are not used.
+     *
+     * @param qryRmvDelay Query remove delay in seconds.
+     */
+    public void setQueryRemoveDelay(int qryRmvDelay) {
+        this.qryRmvDelay = qryRmvDelay;
+    }
+
+    /**
+     * Gets delay for removing query cursors that are not used.
+     */
+    public int getQueryRemoveDelay() {
+        return qryRmvDelay;
     }
 }
