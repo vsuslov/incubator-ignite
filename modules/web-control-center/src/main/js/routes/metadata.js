@@ -63,7 +63,7 @@ router.post('/save', function (req, res) {
             res.send(req.body._id);
         });
     else {
-        db.CacheTypeMetadata.findOne({name: req.body.name}, function (err, metadata) {
+        db.CacheTypeMetadata.findOne({space: req.body.space, name: req.body.name}, function (err, metadata) {
             if (err)
                 return res.status(500).send(err.message);
 
