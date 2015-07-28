@@ -104,8 +104,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         ];
 
         $scope.sortDirections = [
-            {value: 'ASC', label: 'ASC'},
-            {value: 'DESC', label: 'DESC'}
+            {value: false, label: 'ASC'},
+            {value: true, label: 'DESC'}
         ];
 
         $scope.data = {

@@ -337,7 +337,7 @@ function createEvictionPolicy(res, evictionPolicy, propertyName) {
     }
 }
 
-function addFields(res, meta, fieldsProperty) {
+function addCacheTypeMetadataDatabaseFields(res, meta, fieldsProperty) {
     var fields = meta[fieldsProperty];
 
     if (fields && fields.length > 0) {
@@ -350,11 +350,13 @@ function addFields(res, meta, fieldsProperty) {
 
             addProperty(res, field, 'databaseName');
 
-            addProperty(res, field, 'databaseType');
-            //addPropertyAsConst(res, field, databaseType, toJdbcTypeConst);
+            res.startBlock('<property name="databaseType">');
+            res.line('<util:constant static-field="java.sql.Types.' + field.databaseType + '"/>');
+            res.endBlock('</property>');
 
             addProperty(res, field, 'javaName');
-            addElement(res, 'property', 'name', 'javaType', 'value', knownBuildInClasses(field.javaType));
+
+            addElement(res, 'property', 'name', 'javaType', 'value', generatorUtils.javaBuildInClass(field.javaType));
 
             res.endBlock('</bean>');
         });
@@ -364,16 +366,7 @@ function addFields(res, meta, fieldsProperty) {
     }
 }
 
-function knownBuildInClasses(className) {
-    var fullClassName = generatorUtils.knownBuildInClasses[className];
-
-    if (fullClassName)
-        return fullClassName.className;
-
-    return className;
-}
-
-function addQueryFields(res, meta, fieldsProperty) {
+function addCacheTypeMetadataQueryFields(res, meta, fieldsProperty) {
     var fields = meta[fieldsProperty];
 
     if (fields && fields.length > 0) {
@@ -382,7 +375,7 @@ function addQueryFields(res, meta, fieldsProperty) {
         res.startBlock('<map>');
 
         _.forEach(fields, function (field) {
-            addElement(res, 'entry', 'key', field.name, 'value', knownBuildInClasses(field.className));
+            addElement(res, 'entry', 'key', field.name, 'value', generatorUtils.javaBuildInClass(field.className));
         });
 
         res.endBlock('</map>');
@@ -407,10 +400,12 @@ function addCacheTypeMetadataGroups(res, meta) {
 
                 _.forEach(fields, function (field) {
                     res.startBlock('<entry key="' + field.name + '">');
+
                     res.startBlock('<bean class="org.apache.ignite.lang.IgniteBiTuple">');
-                    res.line('<constructor-arg value="java.lang.String"/>');
-                    res.line('<constructor-arg value="false"/>');
+                    res.line('<constructor-arg value="' + generatorUtils.javaBuildInClass(field.className) + '"/>');
+                    res.line('<constructor-arg value="' + field.direction + '"/>');
                     res.endBlock('</bean>');
+
                     res.endBlock('</entry>');
                 });
 
@@ -436,12 +431,12 @@ function generateCacheTypeMetadataConfiguration(metaCfg, res) {
     addProperty(res, metaCfg, 'keyType');
     addProperty(res, metaCfg, 'valueType');
 
-    addFields(res, metaCfg, 'keyFields');
-    addFields(res, metaCfg, 'valueFields');
+    addCacheTypeMetadataDatabaseFields(res, metaCfg, 'keyFields');
+    addCacheTypeMetadataDatabaseFields(res, metaCfg, 'valueFields');
 
-    addQueryFields(res, metaCfg, 'queryFields');
-    addQueryFields(res, metaCfg, 'ascendingFields');
-    addQueryFields(res, metaCfg, 'descendingFields');
+    addCacheTypeMetadataQueryFields(res, metaCfg, 'queryFields');
+    addCacheTypeMetadataQueryFields(res, metaCfg, 'ascendingFields');
+    addCacheTypeMetadataQueryFields(res, metaCfg, 'descendingFields');
 
     addListProperty(res, metaCfg, 'textFields');
 
@@ -511,8 +506,8 @@ function generateCacheConfiguration(cacheCfg, res) {
         for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
             var pair = cacheCfg.indexedTypes[i];
 
-            res.line('<value>' + knownBuildInClasses(pair.keyClass) + '</value>');
-            res.line('<value>' + knownBuildInClasses(pair.valueClass) + '</value>');
+            res.line('<value>' + generatorUtils.javaBuildInClass(pair.keyClass) + '</value>');
+            res.line('<value>' + generatorUtils.javaBuildInClass(pair.valueClass) + '</value>');
         }
 
         res.endBlock('</list>');

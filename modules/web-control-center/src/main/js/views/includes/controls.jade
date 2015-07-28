@@ -173,7 +173,7 @@ mixin table-group-item-edit(fieldName, className, direction)
         button.form-control(ng-model=direction bs-select data-placeholder='Sort' bs-options='item.value as item.label for item in {{sortDirections}}')
     label.fieldSep /
     div(style='width: 38%; float: right')
-        input.form-control(type='text' ng-model=className placeholder='Class name')
+        input.form-control(type='text' ng-model=className placeholder='Class name' bs-typeahead data-min-length='1' bs-options='javaType for javaType in javaBuildInTypes')
     label.fieldSep /
     .input-tip
         input.form-control(type='text' ng-model=fieldName placeholder='Field name')
@@ -330,7 +330,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                     tr(ng-repeat='groupItem in group.fields')
                                                         td
                                                             div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
-                                                                a.labelFormField(ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction}}
+                                                                a.labelFormField(ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
                                                                 +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
                                                             div(ng-show='tableGroupItemEditing(groupIndex, $index)')
                                                                 label.labelField {{$index + 1}})
