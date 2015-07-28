@@ -1210,7 +1210,10 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         params.put("arg1", "1000");
         params.put("arg2", "2000");
 
-        String ret = content(params);
+        String ret = null;
+
+        for (int i = 0; i < 10; ++i)
+            ret = content(params);
 
         assertNotNull(ret);
         assertTrue(!ret.isEmpty());
@@ -1223,7 +1226,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         assertTrue(queryCursorFound());
 
-        U.sleep(12000);
+        U.sleep(10000);
 
         assertFalse(queryCursorFound());
     }

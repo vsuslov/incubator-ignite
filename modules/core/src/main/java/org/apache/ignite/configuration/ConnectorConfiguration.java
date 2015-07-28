@@ -61,8 +61,11 @@ public class ConnectorConfiguration {
     /** Default socket send and receive buffer size. */
     public static final int DFLT_SOCK_BUF_SIZE = 32 * 1024;
 
-    /** Default delay for storing query cursor (10 minutes). */
-    private static final int DFLT_QRY_RMV_DELAY = 10 * 60;
+    /** Default REST idle timeout for query cursor. */
+    private static final long DFLT_IDLE_QRY_CUR_TIMEOUT = 10 * 60 * 1000;
+
+    /** Default REST check frequency for query cursor. */
+    private static final long DFLT_QRY_CHECK_FRQ_TIMEOUT = 60 * 1000;
 
     /** Jetty XML configuration path. */
     private String jettyPath;
@@ -88,8 +91,11 @@ public class ConnectorConfiguration {
     /** REST TCP receive buffer size. */
     private int rcvBufSize = DFLT_SOCK_BUF_SIZE;
 
-    /** REST delay for storing query cursor. */
-    private int qryRmvDelay = DFLT_QRY_RMV_DELAY;
+    /** REST idle timeout for query cursor. */
+    private long idleQryCurTimeout = DFLT_IDLE_QRY_CUR_TIMEOUT;
+
+    /** REST idle timeout for query cursor. */
+    private long qryCheckFrq = DFLT_QRY_CHECK_FRQ_TIMEOUT;
 
     /** REST TCP send queue limit. */
     private int sndQueueLimit;
@@ -154,7 +160,8 @@ public class ConnectorConfiguration {
         sslClientAuth = cfg.isSslClientAuth();
         sslCtxFactory = cfg.getSslContextFactory();
         sslEnabled = cfg.isSslEnabled();
-        qryRmvDelay = cfg.getQueryRemoveDelay();
+        idleQryCurTimeout = cfg.getIdleQueryCursorTimeout();
+        qryCheckFrq = cfg.getQueryCheckFrequency();
     }
 
     /**
@@ -556,18 +563,47 @@ public class ConnectorConfiguration {
     }
 
     /**
-     * Sets delay for removing query cursors that are not used.
+     * Sets idle query cursors timeout.
      *
-     * @param qryRmvDelay Query remove delay in seconds.
+     * @param idleQryCurTimeout Idle query cursors timeout in milliseconds.
+     * @see #getIdleQueryCursorTimeout()
      */
-    public void setQueryRemoveDelay(int qryRmvDelay) {
-        this.qryRmvDelay = qryRmvDelay;
+    public void setIdleQueryCursorTimeout(long idleQryCurTimeout) {
+        this.idleQryCurTimeout = idleQryCurTimeout;
     }
 
     /**
-     * Gets delay for removing query cursors that are not used.
+     * Gets idle query cursors timeout in milliseconds.
+     * <p>
+     * This setting is used to reject open query cursors that is not used. If no fetch query request
+     * come within idle timeout, it will be removed on next check for old query cursors
+     * (see {@link #getQueryCheckFrequency()}).
+     *
+     * @return Idle query cursors timeout in milliseconds
      */
-    public int getQueryRemoveDelay() {
-        return qryRmvDelay;
+    public long getIdleQueryCursorTimeout() {
+        return idleQryCurTimeout;
+    }
+
+    /**
+     * Sets query check frequency.
+     *
+     * @param qryCheckFrq Idle query check frequency in milliseconds.
+     * @see #getQueryCheckFrequency()
+     */
+    public void setQueryCheckFrequency(long qryCheckFrq) {
+        this.qryCheckFrq = qryCheckFrq;
+    }
+
+    /**
+     * Gets query cursors check frequency.
+     * This setting is used to reject open query cursors that is not used.
+     * <p>
+     * Scheduler tries with specified period to close queries' cursors that are overtime.
+     *
+     * @return Query check frequency in milliseconds.
+     */
+    public long getQueryCheckFrequency() {
+        return qryCheckFrq;
     }
 }

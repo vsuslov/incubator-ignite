@@ -27,7 +27,6 @@ import org.apache.ignite.internal.processors.rest.handlers.*;
 import org.apache.ignite.internal.processors.rest.request.*;
 import org.apache.ignite.internal.util.future.*;
 import org.apache.ignite.internal.util.lang.*;
-import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 
 import java.util.*;
@@ -50,14 +49,8 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
     private static final AtomicLong qryIdGen = new AtomicLong();
 
     /** Current queries cursors. */
-    private final static ConcurrentHashMap<Long, GridTuple3<QueryCursor, Iterator, Boolean>> qryCurs =
+    private final static ConcurrentHashMap<Long, GridTuple3<QueryCursor, Iterator, Long>> qryCurs =
         new ConcurrentHashMap<>();
-
-    /** Remove delay. */
-    private static int rmvDelay = 0;
-
-    /** Scheduler. */
-    private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
     /**
      * @param ctx Context.
@@ -65,7 +58,27 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
     public QueryCommandHandler(GridKernalContext ctx) {
         super(ctx);
 
-        rmvDelay = ctx.config().getConnectorConfiguration().getQueryRemoveDelay();
+        final long idleQryCurTimeout = ctx.config().getConnectorConfiguration().getIdleQueryCursorTimeout();
+
+        long qryCheckFrq = ctx.config().getConnectorConfiguration().getQueryCheckFrequency();
+
+        ctx.timeout().schedule(new Runnable() {
+            @Override public void run() {
+                long time = System.currentTimeMillis();
+
+                for (Map.Entry<Long, GridTuple3<QueryCursor, Iterator, Long>> e : qryCurs.entrySet()) {
+                    synchronized (e.getValue()) {
+                        long createTime = e.getValue().get3();
+
+                        if (createTime + idleQryCurTimeout > time) {
+                            e.getValue().get1().close();
+
+                            qryCurs.remove(e.getKey());
+                        }
+                    }
+                }
+            }
+        }, qryCheckFrq, qryCheckFrq);
     }
 
     /** {@inheritDoc} */
@@ -148,17 +161,20 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
 
                 Iterator cur = qryCur.iterator();
 
-                qryCurs.put(qryId, new GridTuple3<>(qryCur, cur, true));
+                GridTuple3<QueryCursor, Iterator, Long> val =
+                    new GridTuple3<>(qryCur, cur, System.currentTimeMillis());
 
-                scheduleRemove(qryId);
+                synchronized (val) {
+                    qryCurs.put(qryId, val);
 
-                CacheQueryResult res = createQueryResult(cur, req, qryId);
+                    CacheQueryResult res = createQueryResult(cur, req, qryId);
 
-                List<GridQueryFieldMetadata> fieldsMeta = ((QueryCursorImpl<?>) qryCur).fieldsMeta();
+                    List<GridQueryFieldMetadata> fieldsMeta = ((QueryCursorImpl<?>) qryCur).fieldsMeta();
 
-                res.setFieldsMetadata(convertMetadata(fieldsMeta));
+                    res.setFieldsMetadata(convertMetadata(fieldsMeta));
 
-                return new GridRestResponse(res);
+                    return new GridRestResponse(res);
+                }
             }
             catch (Exception e) {
                 qryCurs.remove(qryId);
@@ -200,15 +216,19 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         /** {@inheritDoc} */
         @Override public GridRestResponse call() throws Exception {
             try {
-                QueryCursor cur = qryCurs.get(req.queryId()).get1();
+                GridTuple3<QueryCursor, Iterator, Long> val = qryCurs.get(req.queryId());
 
-                if (cur == null)
+                if (val == null)
                     return new GridRestResponse(GridRestResponse.STATUS_FAILED,
                         "Cannot find query [qryId=" + req.queryId() + "]");
 
-                cur.close();
+                synchronized (val) {
+                    QueryCursor cur = val.get1();
 
-                qryCurs.remove(req.queryId());
+                    cur.close();
+
+                    qryCurs.remove(req.queryId());
+                }
 
                 return new GridRestResponse(true);
             }
@@ -237,19 +257,21 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         /** {@inheritDoc} */
         @Override public GridRestResponse call() throws Exception {
             try {
-                GridTuple3<QueryCursor, Iterator, Boolean> t = qryCurs.get(req.queryId());
+                GridTuple3<QueryCursor, Iterator, Long> t = qryCurs.get(req.queryId());
 
-                t.set3(true);
-
-                Iterator cur = t.get2();
-
-                if (cur == null)
+                if (t == null)
                     return new GridRestResponse(GridRestResponse.STATUS_FAILED,
                         "Cannot find query [qryId=" + req.queryId() + "]");
 
-                CacheQueryResult res = createQueryResult(cur, req, req.queryId());
+                synchronized (t) {
+                    t.set3(System.currentTimeMillis());
 
-                return new GridRestResponse(res);
+                    Iterator cur = t.get2();
+
+                    CacheQueryResult res = createQueryResult(cur, req, req.queryId());
+
+                    return new GridRestResponse(res);
+                }
             }
             catch (Exception e) {
                 qryCurs.remove(req.queryId());
@@ -283,28 +305,5 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
             qryCurs.remove(qryId);
 
         return res;
-    }
-
-    /**
-     * Schedule remove for query cursor.
-     *
-     * @param id Query id.
-     */
-    private static void scheduleRemove(final long id) {
-        SCHEDULER.schedule(new CAX() {
-            @Override public void applyx() throws IgniteCheckedException {
-                GridTuple3<QueryCursor, Iterator, Boolean> t = qryCurs.get(id);
-
-                if (t != null) {
-                    if (t.get3()) {
-                        t.set3(false);
-
-                        scheduleRemove(id);
-                    }
-                    else
-                        qryCurs.remove(id);
-                }
-            }
-        }, rmvDelay, TimeUnit.SECONDS);
     }
 }
