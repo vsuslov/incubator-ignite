@@ -406,6 +406,35 @@ controlCenterModule.directive('ngEscape', function() {
     };
 });
 
+// Factory function to focus element.
+controlCenterModule.factory('focus', function ($timeout, $window) {
+    return function (id) {
+        // Timeout makes sure that is invoked after any other event has been triggered.
+        // E.g. click events that need to run before the focus or inputs elements that are
+        // in a disabled state but are enabled when those events are triggered.
+        $timeout(function () {
+            var element = $window.document.getElementById(id);
+
+            if (element)
+                element.focus();
+        });
+    };
+});
+
+// Directive to mark elements to focus.
+controlCenterModule.directive('eventFocus', function (focus) {
+    return function (scope, elem, attr) {
+        elem.on(attr.eventFocus, function () {
+            focus(attr.eventFocusId);
+        });
+
+        // Removes bound events in the element itself when the scope is destroyed
+        scope.$on('$destroy', function () {
+            element.off(attr.eventFocus);
+        });
+    };
+});
+
 // Navigation bar controller.
 controlCenterModule.controller('activeLink', [
     '$scope', function ($scope) {

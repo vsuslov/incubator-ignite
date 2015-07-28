@@ -34,9 +34,9 @@ block content
                     tbody
                         tr(ng-repeat='row in metadatas track by row._id')
                             td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
-                                a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
+                                a(event-focus='click' event-focus-id='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         .padding-top-dflt
-            button.btn.btn-primary(ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
+            button.btn.btn-primary(event-focus='click' event-focus-id='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
             label(style='margin-left: 6px; margin-right: 10px') For:
             button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
             i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')

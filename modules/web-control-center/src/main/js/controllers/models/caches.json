@@ -22,7 +22,8 @@
       "type": "text",
       "model": "name",
       "required": true,
-      "placeholder": "Input name"
+      "placeholder": "Input name",
+      "id": "defaultFocusId"
     },
     {
       "label": "Mode",
@@ -386,6 +387,8 @@
           "model": "indexedTypes",
           "keyName": "keyClass",
           "valueName": "valueClass",
+          "focusNewItemId": "newIndexedType",
+          "focusCurItemId": "curIndexedType",
           "addTip": "Add new key and value classes to indexed types.",
           "removeTip": "Remove item from indexed types.",
           "tip": [
@@ -398,6 +401,8 @@
           "model": "sqlFunctionClasses",
           "editIdx": -1,
           "placeholder": "SQL function full class name",
+          "focusNewItemId": "newSqlFxField",
+          "focusCurItemId": "curSqlFxField",
           "addTip": "Add new user-defined functions for SQL queries.",
           "removeTip": "Remove user-defined function.",
           "tableTip": [
