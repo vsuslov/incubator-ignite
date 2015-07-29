@@ -26,7 +26,7 @@ import java.net.*;
 import java.util.logging.*;
 
 /**
- *
+ * Main class.
  */
 public class AgentLauncher {
     /** Static initializer. */
@@ -47,6 +47,7 @@ public class AgentLauncher {
 
     /**
      * @param args Args.
+     * @return Agent configuration.
      */
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();

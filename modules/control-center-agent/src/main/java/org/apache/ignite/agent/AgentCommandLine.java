@@ -18,7 +18,7 @@ package org.apache.ignite.agent;/*
 import com.beust.jcommander.*;
 
 /**
- *
+ * Command line bean.
  */
 public class AgentCommandLine {
     /** */
@@ -42,7 +42,7 @@ public class AgentCommandLine {
     private String cfgPath;
 
     /**
-     *
+     * @return Login.
      */
     public String getLogin() {
         return login;
@@ -56,7 +56,7 @@ public class AgentCommandLine {
     }
 
     /**
-     *
+     * @return Password.
      */
     public String getPassword() {
         return pwd;
@@ -70,7 +70,7 @@ public class AgentCommandLine {
     }
 
     /**
-     *
+     * @return Server URI.
      */
     public String getServerUri() {
         return serverUri;
@@ -84,7 +84,7 @@ public class AgentCommandLine {
     }
 
     /**
-     *
+     * @return Node URI.
      */
     public String getNodeUri() {
         return nodeUri;
@@ -98,7 +98,7 @@ public class AgentCommandLine {
     }
 
     /**
-     *
+     * @return Config file URL.
      */
     public String getConfigFile() {
         return cfgPath;

@@ -97,6 +97,7 @@ public class AgentSocket implements WebSocketSender {
 
     /**
      * @param msg Message.
+     * @return Whether or not message was sent.
      */
     public boolean send(JsonObject msg) {
         return send(Utils.GSON.toJson(msg));
@@ -104,6 +105,7 @@ public class AgentSocket implements WebSocketSender {
 
     /**
      * @param msg Message.
+     * @return Whether or not message was sent.
      */
     public boolean send(String msg) {
         try {
@@ -139,7 +141,7 @@ public class AgentSocket implements WebSocketSender {
      * @param msg Message.
      */
     @OnWebSocketMessage
-    public void onMessage(Session ses, String msg) {
+    public void onMessage(String msg) {
         JsonElement jsonElement = Utils.PARSER.parse(msg);
 
         remote.onMessage((JsonObject)jsonElement);

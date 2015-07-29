@@ -22,7 +22,7 @@ import java.net.*;
 import java.util.*;
 
 /**
- *
+ * Agent configuration.
  */
 public class AgentConfiguration {
     /** */
@@ -38,7 +38,7 @@ public class AgentConfiguration {
     private URI nodeUri;
 
     /**
-     *
+     * @return Login.
      */
     public String getLogin() {
         return login;
@@ -52,7 +52,7 @@ public class AgentConfiguration {
     }
 
     /**
-     *
+     * @return Password.
      */
     public String getPassword() {
         return pwd;
@@ -66,7 +66,7 @@ public class AgentConfiguration {
     }
 
     /**
-     *
+     * @return Server URI.
      */
     public URI getServerUri() {
         return serverUri;
@@ -80,7 +80,7 @@ public class AgentConfiguration {
     }
 
     /**
-     *
+     * @return Node URI.
      */
     public URI getNodeUri() {
         return nodeUri;
