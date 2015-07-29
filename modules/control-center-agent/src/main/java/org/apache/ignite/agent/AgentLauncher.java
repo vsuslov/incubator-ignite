@@ -51,13 +51,13 @@ public class AgentLauncher {
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
-        URL dftlCfgUrl = AgentLauncher.class.getResource("/config.properties");
+        URL dftlCfgUrl = AgentLauncher.class.getResource("/default.config.properties");
 
         cfg.load(dftlCfgUrl);
 
         AgentCommandLine cmdCfg = new AgentCommandLine();
 
-        JCommander cmd = new JCommander(cmdCfg, args);
+        new JCommander(cmdCfg, args);
 
         if (cmdCfg.getConfigFile() != null)
             cfg.load(new File(cmdCfg.getConfigFile()).toURI().toURL());
