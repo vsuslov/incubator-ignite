@@ -20,6 +20,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
         $scope.getModel = $common.getModel;
         $scope.javaBuildInTypes = $common.javaBuildInTypes;
 
+        $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
         $scope.tableNewItemActive = $table.tableNewItemActive;
         $scope.tableEditing = $table.tableEditing;

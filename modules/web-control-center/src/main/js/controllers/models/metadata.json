@@ -30,7 +30,8 @@
       "type": "text",
       "model": "name",
       "required": true,
-      "placeholder": "Input name"
+      "placeholder": "Input name",
+      "id": "defaultFocusId"
     },
     {
       "label": "Metadata for",
@@ -119,6 +120,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "focusNewItemId": "newQryField",
+      "focusCurItemId": "curQryField",
       "addTip": "Add field to query.",
       "removeTip": "Remove field.",
       "tip": [
@@ -132,6 +135,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "focusNewItemId": "newAscField",
+      "focusCurItemId": "curAscField",
       "addTip": "Add field to index in ascending order.",
       "removeTip": "Remove field.",
       "tip": [
@@ -145,6 +150,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
+      "focusNewItemId": "newDescField",
+      "focusCurItemId": "curDescField",
       "addTip": "Add field to index in descending order.",
       "removeTip": "Remove field.",
       "tip": [
@@ -157,6 +164,8 @@
       "model": "textFields",
       "hide": "backupItem.kind != 'both' && backupItem.kind != 'query'",
       "placeholder": "Field name",
+      "focusNewItemId": "newTextField",
+      "focusCurItemId": "curTextField",
       "addTip": "Add field to index as text.",
       "removeTip": "Remove field.",
       "tableTip": [
@@ -218,7 +227,6 @@
       "type": "number",
       "model": "port",
       "max": 65535,
-      "placeholder": "",
       "tip": [
         "Port number for connecting to database."
       ]
@@ -227,7 +235,6 @@
       "label": "User",
       "type": "text",
       "model": "user",
-      "placeholder": "",
       "tip": [
         "User name for connecting to database."
       ]
@@ -236,7 +243,6 @@
       "label": "Password",
       "type": "password",
       "model": "password",
-      "placeholder": "",
       "tip": [
         "Password for connecting to database.",
         "Note, password would not be saved."

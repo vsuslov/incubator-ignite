@@ -86,7 +86,7 @@ block content
                                     .col-sm-2
                                         label(for='os') Operation System:
                                     .col-sm-4
-                                        input#os.form-control(type='text', ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' data-animation='am-flip-x' bs-typeahead bs-options='os for os in oss')
+                                        input#os.form-control(type='text' ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' data-animation='am-flip-x' bs-typeahead bs-options='os for os in oss')
                                 div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default

@@ -174,7 +174,7 @@ exports.marshallers = {
     JdkMarshaller: new ClassDescriptor('org.apache.ignite.marshaller.jdk.JdkMarshaller', {})
 };
 
-exports.knownBuildInClasses = {
+var javaBuildInClasses = {
     BigDecimal: {className: 'java.math.Boolean'},
     Boolean: {className: 'java.lang.Boolean'},
     Byte: {className: 'java.lang.Byte'},
@@ -188,6 +188,15 @@ exports.knownBuildInClasses = {
     Time: {className: 'java.sql.Time'},
     Timestamp: {className: 'java.sql.Timestamp'},
     UUID: {className: 'java.util.UUID'}
+};
+
+exports.javaBuildInClass = function (className) {
+    var fullClassName = javaBuildInClasses[className];
+
+    if (fullClassName)
+        return fullClassName.className;
+
+    return className;
 };
 
 exports.knownClasses = {

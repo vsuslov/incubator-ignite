@@ -29,7 +29,8 @@
       "type": "text",
       "model": "name",
       "required": true,
-      "placeholder": "Input name"
+      "placeholder": "Input name",
+      "id": "defaultFocusId"
     },
     {
       "label": "Caches",
@@ -68,6 +69,8 @@
               "reordering": true,
               "ipaddress": true,
               "placeholder": "IP address:port",
+              "focusNewItemId": "newIpAddress",
+              "focusCurItemId": "curIpAddress",
               "addTip": "Add new address.",
               "removeTip": "Remove address.",
               "tip": [
@@ -157,7 +160,6 @@
               "required": true,
               "path": "discovery.S3",
               "model": "bucketName",
-              "placeholder": "",
               "tip": [
                 "Bucket name for IP finder."
               ]
@@ -176,7 +178,6 @@
               "type": "text",
               "path": "discovery.Cloud",
               "model": "credential",
-              "placeholder": "",
               "tip": [
                 "Credential that is used during authentication on the cloud.",
                 "Depending on a cloud platform it can be a password or access key."
@@ -187,7 +188,6 @@
               "type": "text",
               "path": "discovery.Cloud",
               "model": "credentialPath",
-              "placeholder": "",
               "tip": [
                 "Path to a credential that is used during authentication on the cloud.",
                 "Access key or private key should be stored in a plain or PEM file without a passphrase."
@@ -199,7 +199,6 @@
               "required": true,
               "path": "discovery.Cloud",
               "model": "identity",
-              "placeholder": "",
               "tip": [
                 "Identity that is used as a user name during a connection to the cloud.",
                 "Depending on a cloud platform it can be an email address, user name, etc."
@@ -211,7 +210,6 @@
               "required": true,
               "path": "discovery.Cloud",
               "model": "provider",
-              "placeholder": "",
               "tip": [
                 "Cloud provider to use."
               ]
@@ -222,7 +220,8 @@
               "path": "discovery.Cloud",
               "model": "regions",
               "editIdx": -1,
-              "placeholder": "",
+              "focusNewItemId": "newRegion",
+              "focusCurItemId": "curRegion",
               "addTip": "Add new region.",
               "removeTip": "Remove region.",
               "tableTip": [
@@ -240,7 +239,8 @@
               "path": "discovery.Cloud",
               "model": "zones",
               "editIdx": -1,
-              "placeholder": "",
+              "focusNewItemId": "newZone",
+              "focusCurItemId": "curZone",
               "addTip": "Add new zone.",
               "removeTip": "Remove zone.",
               "tableTip": [
@@ -263,7 +263,6 @@
               "required": true,
               "path": "discovery.GoogleStorage",
               "model": "projectName",
-              "placeholder": "",
               "tip": [
                 "Google Cloud Platforms project name.",
                 "Usually this is an auto generated project number (ex. 208709979073) that can be found in 'Overview' section of Google Developer Console."
@@ -275,7 +274,6 @@
               "required": true,
               "path": "discovery.GoogleStorage",
               "model": "bucketName",
-              "placeholder": "",
               "tip": [
                 "Google Cloud Storage bucket name.",
                 "If the bucket doesn't exist Ignite will automatically create it.",
@@ -288,7 +286,6 @@
               "required": true,
               "path": "discovery.GoogleStorage",
               "model": "serviceAccountP12FilePath",
-              "placeholder": "",
               "tip": [
                 "Full path to the private key in PKCS12 format of the Service Account."
               ]
@@ -299,7 +296,6 @@
               "required": true,
               "path": "discovery.GoogleStorage",
               "model": "accountId",
-              "placeholder": "",
               "tip": [
                 "Service account ID (typically an e-mail address)."
               ]

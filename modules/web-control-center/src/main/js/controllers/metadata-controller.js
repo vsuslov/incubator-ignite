@@ -20,6 +20,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         $scope.getModel = $common.getModel;
         $scope.javaBuildInTypes = $common.javaBuildInTypes;
 
+        $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
         $scope.tableNewItemActive = $table.tableNewItemActive;
         $scope.tableEditing = $table.tableEditing;
@@ -104,8 +105,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         ];
 
         $scope.sortDirections = [
-            {value: 'ASC', label: 'ASC'},
-            {value: 'DESC', label: 'DESC'}
+            {value: false, label: 'ASC'},
+            {value: true, label: 'DESC'}
         ];
 
         $scope.data = {

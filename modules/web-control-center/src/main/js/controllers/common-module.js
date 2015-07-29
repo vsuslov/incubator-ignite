@@ -376,6 +376,65 @@ controlCenterModule.directive('match', function ($parse) {
     };
 });
 
+// Directive to bind ENTER key press with some user action.
+controlCenterModule.directive('ngEnter', function() {
+    return function(scope, element, attrs) {
+        element.bind('keydown keypress', function(event) {
+            if (event.which === 13) {
+                scope.$apply(function() {
+                    scope.$eval(attrs.ngEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+// Directive to bind ESC key press with some user action.
+controlCenterModule.directive('ngEscape', function() {
+    return function(scope, element, attrs) {
+        element.bind('keydown keyup', function(event) {
+            if (event.which === 27) {
+                scope.$apply(function() {
+                    scope.$eval(attrs.ngEscape);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+// Factory function to focus element.
+controlCenterModule.factory('focus', function ($timeout, $window) {
+    return function (id) {
+        // Timeout makes sure that is invoked after any other event has been triggered.
+        // E.g. click events that need to run before the focus or inputs elements that are
+        // in a disabled state but are enabled when those events are triggered.
+        $timeout(function () {
+            var element = $window.document.getElementById(id);
+
+            if (element)
+                element.focus();
+        });
+    };
+});
+
+// Directive to mark elements to focus.
+controlCenterModule.directive('eventFocus', function (focus) {
+    return function (scope, elem, attr) {
+        elem.on(attr.eventFocus, function () {
+            focus(attr.eventFocusId);
+        });
+
+        // Removes bound events in the element itself when the scope is destroyed
+        scope.$on('$destroy', function () {
+            element.off(attr.eventFocus);
+        });
+    };
+});
+
 // Navigation bar controller.
 controlCenterModule.controller('activeLink', [
     '$scope', function ($scope) {
