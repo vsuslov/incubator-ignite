@@ -19,6 +19,18 @@ var _ = require('lodash');
 
 var generatorUtils = require("./common");
 
+/**
+ * Convert some name to valid java name.
+ *
+ * @param name to convert.
+ * @returns {string} Valid java name.
+ */
+function toJavaName(name) {
+    var javaName = name.replace(/[^A-Za-z_0-9]+/, '_');
+
+    return javaName.charAt(0).toLocaleUpperCase() + javaName.slice(1);
+}
+
 exports.generateClusterConfiguration = function(cluster, javaClass, clientNearConfiguration) {
     var res = generatorUtils.builder();
 
@@ -156,11 +168,11 @@ exports.generateClusterConfiguration = function(cluster, javaClass, clientNearCo
 
             var cache = cluster.caches[i];
 
-            var cacheName = 'cache' + generatorUtils.toJavaName(cache.name);
+            var cacheName = 'cache' + toJavaName(cache.name);
 
             names.push(cacheName);
 
-            generateCacheConfiguration(cache, cacheName, res);
+            generateCacheConfiguration(res, cache, cacheName);
 
             res.needEmptyLine = true;
         }
@@ -320,17 +332,130 @@ function createEvictionPolicy(res, evictionPolicy, varName, propertyName) {
     }
 }
 
-exports.generateCacheConfiguration = generateCacheConfiguration;
+function addCacheTypeMetadataDatabaseFields(res, meta, varName, fieldsProperty) {
+    var fields = meta[fieldsProperty];
+
+    if (fields && fields.length > 0) {
+        res.line('addCacheTypeMetadataDatabaseFields for ' + varName);
+        //res.startBlock('<property name="' + fieldsProperty + '">');
+        //
+        //res.startBlock('<list>');
+        //
+        //_.forEach(fields, function (field) {
+        //    res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeFieldMetadata">');
+        //
+        //    addProperty(res, field, 'databaseName');
+        //
+        //    res.startBlock('<property name="databaseType">');
+        //    res.line('<util:constant static-field="java.sql.Types.' + field.databaseType + '"/>');
+        //    res.endBlock('</property>');
+        //
+        //    addProperty(res, field, 'javaName');
+        //
+        //    addElement(res, 'property', 'name', 'javaType', 'value', generatorUtils.javaBuildInClass(field.javaType));
+        //
+        //    res.endBlock('</bean>');
+        //});
+        //
+        //res.endBlock('</list>');
+        //res.endBlock('</property>');
+    }
+}
+
+function addCacheTypeMetadataQueryFields(res, meta, varName, fieldsProperty) {
+    var fields = meta[fieldsProperty];
+
+    if (fields && fields.length > 0) {
+        res.line('addCacheTypeMetadataQueryFields for ' + varName);
+        //res.startBlock('<property name="' + fieldsProperty + '">');
+        //
+        //res.startBlock('<map>');
+        //
+        //_.forEach(fields, function (field) {
+        //    addElement(res, 'entry', 'key', field.name, 'value', generatorUtils.javaBuildInClass(field.className));
+        //});
+        //
+        //res.endBlock('</map>');
+        //
+        //res.endBlock('</property>');
+    }
+}
+
+function addCacheTypeMetadataGroups(res, meta, varName) {
+    var groups = meta.groups;
+
+    if (groups && groups.length > 0) {
+        res.line('addCacheTypeMetadataGroups for ' + varName);
+        //res.startBlock('<property name="groups">');
+        //res.startBlock('<map>');
+        //
+        //_.forEach(groups, function (group) {
+        //    var fields = group.fields;
+        //
+        //    if (fields && fields.length > 0) {
+        //        res.startBlock('<entry key="' + group.name + '">');
+        //        res.startBlock('<map>');
+        //
+        //        _.forEach(fields, function (field) {
+        //            res.startBlock('<entry key="' + field.name + '">');
+        //
+        //            res.startBlock('<bean class="org.apache.ignite.lang.IgniteBiTuple">');
+        //            res.line('<constructor-arg value="' + generatorUtils.javaBuildInClass(field.className) + '"/>');
+        //            res.line('<constructor-arg value="' + field.direction + '"/>');
+        //            res.endBlock('</bean>');
+        //
+        //            res.endBlock('</entry>');
+        //        });
+        //
+        //        res.endBlock('</map>');
+        //        res.endBlock('</entry>');
+        //    }
+        //});
+        //
+        //res.endBlock('</map>');
+        //res.endBlock('</property>');
+    }
+}
+
+function generateCacheTypeMetadataConfiguration(res, meta, varCacheTypeMetadata) {
+    if (!res)
+        res = generatorUtils.builder();
+
+    res.importClass('org.apache.ignite.cache.CacheTypeMetadata');
+
+    var varType = varCacheTypeMetadata + 'Item';
+
+    addProperty(res, meta, varType, 'databaseSchema');
+    addProperty(res, meta, varType, 'databaseTable');
+
+    addProperty(res, meta, varType, 'keyType');
+    addProperty(res, meta, varType, 'valueType');
+
+    addCacheTypeMetadataDatabaseFields(res, meta, varType, 'keyFields');
+    addCacheTypeMetadataDatabaseFields(res, meta, varType, 'valueFields');
+
+    addCacheTypeMetadataQueryFields(res, meta, varType, 'queryFields');
+    addCacheTypeMetadataQueryFields(res, meta, varType, 'ascendingFields');
+    addCacheTypeMetadataQueryFields(res, meta, varType, 'descendingFields');
+
+    addListProperty(res, meta, varType, 'textFields');
+
+    addCacheTypeMetadataGroups(res, varType, meta);
+
+    res.line(varCacheTypeMetadata + '.add(' + varType + ')');
+
+    return res;
+}
 
 /**
  * Generate java code for cache configuration.
  *
- * @param cacheCfg Cache config.
+ * @param cache Cache config.
  * @param varName Variable name.
  * @param res Result builder.
  * @returns {*} Append generated java code to builder and return it.
  */
-function generateCacheConfiguration(cacheCfg, varName, res) {
+function generateCacheConfiguration(res, cache, varName) {
     if (!res)
         res = generatorUtils.builder();
 
@@ -344,55 +469,55 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'name');
+    addProperty(res, cache, varName, 'name');
     
-    addProperty(res, cacheCfg, varName, 'mode', 'CacheMode', 'cacheMode');
+    addProperty(res, cache, varName, 'mode', 'CacheMode', 'cacheMode');
 
-    addProperty(res, cacheCfg, varName, 'atomicityMode', 'CacheAtomicityMode');
-    addProperty(res, cacheCfg, varName, 'backups');
-    addProperty(res, cacheCfg, varName, 'startSize');
-    addProperty(res, cacheCfg, varName, 'readFromBackup');
+    addProperty(res, cache, varName, 'atomicityMode', 'CacheAtomicityMode');
+    addProperty(res, cache, varName, 'backups');
+    addProperty(res, cache, varName, 'startSize');
+    addProperty(res, cache, varName, 'readFromBackup');
 
     res.needEmptyLine = true;
     
-    addProperty(res, cacheCfg, varName, 'memoryMode', 'CacheMemoryMode');
-    addProperty(res, cacheCfg, varName, 'offHeapMaxMemory');
-    addProperty(res, cacheCfg, varName, 'swapEnabled');
-    addProperty(res, cacheCfg, varName, 'copyOnRead');
+    addProperty(res, cache, varName, 'memoryMode', 'CacheMemoryMode');
+    addProperty(res, cache, varName, 'offHeapMaxMemory');
+    addProperty(res, cache, varName, 'swapEnabled');
+    addProperty(res, cache, varName, 'copyOnRead');
 
     res.needEmptyLine = true;
 
-    createEvictionPolicy(res, cacheCfg.evictionPolicy, varName, 'evictionPolicy');
+    createEvictionPolicy(res, cache.evictionPolicy, varName, 'evictionPolicy');
 
-    if (cacheCfg.nearCacheEnabled) {
+    if (cache.nearCacheEnabled) {
         res.needEmptyLine = true;
 
         res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
 
-        addBeanWithProperties(res, cacheCfg.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
+        addBeanWithProperties(res, cache.nearConfiguration, varName, 'nearConfiguration', 'nearConfiguration',
             'NearCacheConfiguration', {nearStartSize: null}, true);
 
-        if (cacheCfg.nearConfiguration && cacheCfg.nearConfiguration.nearEvictionPolicy && cacheCfg.nearConfiguration.nearEvictionPolicy.kind) {
-            createEvictionPolicy(res, cacheCfg.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
+        if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy && cache.nearConfiguration.nearEvictionPolicy.kind) {
+            createEvictionPolicy(res, cache.nearConfiguration.nearEvictionPolicy, 'nearConfiguration', 'nearEvictionPolicy');
         }
     }
 
     res.needEmptyLine = true;
     
-    addProperty(res, cacheCfg, varName, 'sqlEscapeAll');
-    addProperty(res, cacheCfg, varName, 'sqlOnheapRowCacheSize');
-    addProperty(res, cacheCfg, varName, 'longQueryWarningTimeout');
+    addProperty(res, cache, varName, 'sqlEscapeAll');
+    addProperty(res, cache, varName, 'sqlOnheapRowCacheSize');
+    addProperty(res, cache, varName, 'longQueryWarningTimeout');
     
-    if (cacheCfg.indexedTypes && cacheCfg.indexedTypes.length > 0) {
+    if (cache.indexedTypes && cache.indexedTypes.length > 0) {
         res.emptyLineIfNeeded();
         
         res.append(varName + '.setIndexedTypes(');
         
-        for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
+        for (var i = 0; i < cache.indexedTypes.length; i++) {
             if (i > 0)
                 res.append(', ');
 
-            var pair = cacheCfg.indexedTypes[i];
+            var pair = cache.indexedTypes[i];
             
             res.append(toJavaCode(pair.keyClass, 'class')).append(', ').append(toJavaCode(pair.valueClass, 'class'))
         }
@@ -400,25 +525,25 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
         res.line(');');
     }
 
-    addMultiparamProperty(res, cacheCfg, varName, 'sqlFunctionClasses', 'class');
+    addMultiparamProperty(res, cache, varName, 'sqlFunctionClasses', 'class');
     
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'rebalanceMode', 'CacheRebalanceMode');
-    addProperty(res, cacheCfg, varName, 'rebalanceThreadPoolSize');
-    addProperty(res, cacheCfg, varName, 'rebalanceBatchSize');
-    addProperty(res, cacheCfg, varName, 'rebalanceOrder');
-    addProperty(res, cacheCfg, varName, 'rebalanceDelay');
-    addProperty(res, cacheCfg, varName, 'rebalanceTimeout');
-    addProperty(res, cacheCfg, varName, 'rebalanceThrottle');
+    addProperty(res, cache, varName, 'rebalanceMode', 'CacheRebalanceMode');
+    addProperty(res, cache, varName, 'rebalanceThreadPoolSize');
+    addProperty(res, cache, varName, 'rebalanceBatchSize');
+    addProperty(res, cache, varName, 'rebalanceOrder');
+    addProperty(res, cache, varName, 'rebalanceDelay');
+    addProperty(res, cache, varName, 'rebalanceTimeout');
+    addProperty(res, cache, varName, 'rebalanceThrottle');
 
     res.needEmptyLine = true;
     
-    if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
-        var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
-        var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
+    if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
+        var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
+        var data = generatorUtils.storeFactories[cache.cacheStoreFactory.kind];
 
-        var sfVarName = 'storeFactory' + generatorUtils.toJavaName(cacheCfg.name);
+        var sfVarName = 'storeFactory' + toJavaName(cache.name);
         var dsVarName = 'none';
 
         if (storeFactory.dialect) {
@@ -448,32 +573,69 @@ function generateCacheConfiguration(cacheCfg, varName, res) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'loadPreviousValue');
-    addProperty(res, cacheCfg, varName, 'readThrough');
-    addProperty(res, cacheCfg, varName, 'writeThrough');
+    addProperty(res, cache, varName, 'loadPreviousValue');
+    addProperty(res, cache, varName, 'readThrough');
+    addProperty(res, cache, varName, 'writeThrough');
 
     res.needEmptyLine = true;
     
-    addProperty(res, cacheCfg, varName, 'invalidate');
-    addProperty(res, cacheCfg, varName, 'defaultLockTimeout');
-    addProperty(res, cacheCfg, varName, 'transactionManagerLookupClassName');
+    addProperty(res, cache, varName, 'invalidate');
+    addProperty(res, cache, varName, 'defaultLockTimeout');
+    addProperty(res, cache, varName, 'transactionManagerLookupClassName');
     
     res.needEmptyLine = true;
     
-    addProperty(res, cacheCfg, varName, 'writeBehindEnabled');
-    addProperty(res, cacheCfg, varName, 'writeBehindBatchSize');
-    addProperty(res, cacheCfg, varName, 'writeBehindFlushSize');
-    addProperty(res, cacheCfg, varName, 'writeBehindFlushFrequency');
-    addProperty(res, cacheCfg, varName, 'writeBehindFlushThreadCount');
+    addProperty(res, cache, varName, 'writeBehindEnabled');
+    addProperty(res, cache, varName, 'writeBehindBatchSize');
+    addProperty(res, cache, varName, 'writeBehindFlushSize');
+    addProperty(res, cache, varName, 'writeBehindFlushFrequency');
+    addProperty(res, cache, varName, 'writeBehindFlushThreadCount');
     
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'statisticsEnabled');
-    addProperty(res, cacheCfg, varName, 'managementEnabled');
+    addProperty(res, cache, varName, 'statisticsEnabled');
+    addProperty(res, cache, varName, 'managementEnabled');
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, varName, 'maxConcurrentAsyncOperations');
+    addProperty(res, cache, varName, 'maxConcurrentAsyncOperations');
+
+    res.needEmptyLine = true;
+
+    // Generate cache type metadata configs.
+    if ((cache.queryMetadata && cache.queryMetadata.length > 0) ||
+        (cache.storeMetadata && cache.storeMetadata.length > 0)) {
+        res.emptyLineIfNeeded();
+
+        var varCacheTypeMetadata = varName + 'TypeMetadata';
+
+        res.line('Collection ' + varCacheTypeMetadata + ' = new ArrayList();');
+        res.line();
+
+        var metaNames = [];
+
+        if (cache.queryMetadata && cache.queryMetadata.length > 0) {
+            _.forEach(cache.queryMetadata, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    generateCacheTypeMetadataConfiguration(res, meta, varCacheTypeMetadata);
+                }
+            });
+        }
+
+        if (cache.storeMetadata && cache.storeMetadata.length > 0) {
+            _.forEach(cache.storeMetadata, function (meta) {
+                if (!_.contains(metaNames, meta.name)) {
+                    metaNames.push(meta.name);
+
+                    generateCacheTypeMetadataConfiguration(meta, res);
+                }
+            });
+        }
+
+        res.line(varName + '.setCacheTypeMetadata(' + varCacheTypeMetadata + ');');
+    }
     
     return res;
 }
