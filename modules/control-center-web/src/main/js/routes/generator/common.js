@@ -137,13 +137,18 @@ exports.builder = function () {
         return shortName;
     };
 
+    /**
+     * @returns String with "java imports" section.
+     */
     res.generateImports = function () {
         var res = [];
 
         for (var clsName in this.imports) {
-            if (this.imports.hasOwnProperty(clsName))
+            if (this.imports.hasOwnProperty(clsName) && this.imports[clsName].lastIndexOf('java.lang.', 0) != 0)
                 res.push('import ' + this.imports[clsName] + ';');
         }
+
+        res.sort();
 
         return res.join('\n')
     };

@@ -337,11 +337,11 @@ function createEvictionPolicy(res, evictionPolicy, propertyName) {
     }
 }
 
-function addCacheTypeMetadataDatabaseFields(res, meta, fieldsProperty) {
-    var fields = meta[fieldsProperty];
+function addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
+    var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.startBlock('<property name="' + fieldsProperty + '">');
+        res.startBlock('<property name="' + fieldProperty + '">');
 
         res.startBlock('<list>');
 
@@ -366,11 +366,11 @@ function addCacheTypeMetadataDatabaseFields(res, meta, fieldsProperty) {
     }
 }
 
-function addCacheTypeMetadataQueryFields(res, meta, fieldsProperty) {
-    var fields = meta[fieldsProperty];
+function addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
+    var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.startBlock('<property name="' + fieldsProperty + '">');
+        res.startBlock('<property name="' + fieldProperty + '">');
 
         res.startBlock('<map>');
 
