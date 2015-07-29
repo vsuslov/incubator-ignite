@@ -65,7 +65,7 @@ public class ConnectorConfiguration {
     private static final long DFLT_IDLE_QRY_CUR_TIMEOUT = 10 * 60 * 1000;
 
     /** Default REST check frequency for query cursor. */
-    private static final long DFLT_QRY_CHECK_FRQ_TIMEOUT = 60 * 1000;
+    private static final long DFLT_QRY_CHECK_FRQ = 60 * 1000;
 
     /** Jetty XML configuration path. */
     private String jettyPath;
@@ -95,7 +95,7 @@ public class ConnectorConfiguration {
     private long idleQryCurTimeout = DFLT_IDLE_QRY_CUR_TIMEOUT;
 
     /** REST idle timeout for query cursor. */
-    private long qryCheckFrq = DFLT_QRY_CHECK_FRQ_TIMEOUT;
+    private long qryCheckFrq = DFLT_QRY_CHECK_FRQ;
 
     /** REST TCP send queue limit. */
     private int sndQueueLimit;
