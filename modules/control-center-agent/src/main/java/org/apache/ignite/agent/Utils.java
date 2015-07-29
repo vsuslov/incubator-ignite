@@ -15,59 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent;
+
+import com.google.gson.*;
 
 /**
  *
  */
-public class AuthMessage extends AbstractMessage {
+public class Utils {
     /** */
-    private String login;
+    public static final Gson GSON = new Gson();
 
     /** */
-    private String password;
+    public static final JsonParser PARSER = new JsonParser();
+
+    /** */
+    public static final Object[] EMPTY_OBJECTS = new Object[0];
 
     /**
      * Default constructor.
      */
-    public AuthMessage() {
+    private Utils() {
         // No-op.
-    }
-
-    /**
-     * @param login Login.
-     * @param pwd Password.
-     */
-    public AuthMessage(String login, String pwd) {
-        this.login = login;
-        password = pwd;
-    }
-
-    /**
-     *
-     */
-    public String getLogin() {
-        return login;
-    }
-
-    /**
-     * @param login Login.
-     */
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    /**
-     *
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * @param pwd Password.
-     */
-    public void setPassword(String pwd) {
-        password = pwd;
     }
 }

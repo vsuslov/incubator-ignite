@@ -15,47 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent.remote;
 
-import org.apache.ignite.schema.parser.*;
-
-import java.util.*;
+import java.lang.annotation.*;
 
 /**
- *
+ * Method annotated by this annotation can be executed remotely from NodeJS server by web-socket command.
  */
-public class DbMetadataResponse extends AbstractMessage {
-    /** */
-    private String error;
-
-    /** */
-    private Collection<DbTable> tables;
-
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Remote {
     /**
-     *
+     * Whether or not method should be executed synchronously.
+     * @return {@code true} if method will be executed in separated thread,
+     * {@code false} if method executed in web-socket thread.
      */
-    public String getError() {
-        return error;
-    }
-
-    /**
-     * @param error Error.
-     */
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    /**
-     *
-     */
-    public Collection<DbTable> getTables() {
-        return tables;
-    }
-
-    /**
-     * @param tbls Tables.
-     */
-    public void setTables(Collection<DbTable> tbls) {
-        this.tables = tbls;
-    }
+    boolean async() default true;
 }

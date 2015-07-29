@@ -85,9 +85,9 @@ public class AgentLauncher {
     public static void main(String[] args) throws Exception {
         AgentConfiguration cfg = getConfiguration(args);
 
-        Agent agent = new Agent(cfg);
+        RestExecutor restExecutor = new RestExecutor(cfg);
 
-        agent.start();
+        restExecutor.start();
 
         try {
             SslContextFactory sslCtxFactory = new SslContextFactory();
@@ -103,7 +103,7 @@ public class AgentLauncher {
 
             try {
                 while (true) {
-                    AgentSocket agentSock = new AgentSocket(cfg, agent);
+                    AgentSocket agentSock = new AgentSocket(cfg, restExecutor);
 
                     log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
 
@@ -119,7 +119,7 @@ public class AgentLauncher {
             }
         }
         finally {
-            agent.stop();
+            restExecutor.stop();
         }
     }
 }

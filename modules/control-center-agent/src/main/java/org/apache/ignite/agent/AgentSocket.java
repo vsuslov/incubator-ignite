@@ -17,13 +17,16 @@
 
 package org.apache.ignite.agent;
 
-import org.apache.http.*;
-import org.apache.ignite.agent.messages.*;
+import com.google.gson.*;
+import org.apache.ignite.agent.remote.*;
+import org.apache.ignite.schema.parser.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
 import java.io.*;
 import java.net.*;
+import java.sql.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
@@ -31,7 +34,7 @@ import java.util.logging.*;
  *
  */
 @WebSocket
-public class AgentSocket {
+public class AgentSocket implements WebSocketSender {
     /** */
     private static final Logger log = Logger.getLogger(AgentSocket.class.getName());
 
@@ -42,7 +45,10 @@ public class AgentSocket {
     private final AgentConfiguration cfg;
 
     /** */
-    private final Agent agent;
+    private final RestExecutor restExecutor;
+
+    /** */
+    private RemoteCallable remote;
 
     /** */
     private Session ses;
@@ -50,9 +56,9 @@ public class AgentSocket {
     /**
      * @param cfg Config.
      */
-    public AgentSocket(AgentConfiguration cfg, Agent agent) {
+    public AgentSocket(AgentConfiguration cfg, RestExecutor restExecutor) {
         this.cfg = cfg;
-        this.agent = agent;
+        this.restExecutor = restExecutor;
     }
 
     /**
@@ -62,6 +68,9 @@ public class AgentSocket {
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
         log.log(Level.INFO, String.format("Connection closed: %d - %s", statusCode, reason));
+
+        if (remote != null)
+            remote.close();
 
         closeLatch.countDown();
     }
@@ -75,20 +84,22 @@ public class AgentSocket {
 
         this.ses = ses;
 
-        AuthMessage authMsg = new AuthMessage(cfg.getLogin(), cfg.getPassword());
+        remote = RemoteCallable.wrap(this, this, restExecutor);
 
-        try {
-            ses.getRemote().sendString(MessageFactory.toString(authMsg));
-        } catch (IOException t) {
-            t.printStackTrace();
-        }
+        JsonObject authMsg = new JsonObject();
+
+        authMsg.addProperty("type", "AuthMessage");
+        authMsg.addProperty("login", cfg.getLogin());
+        authMsg.addProperty("password", cfg.getPassword());
+
+        send(authMsg);
     }
 
     /**
      * @param msg Message.
      */
-    public boolean send(AbstractMessage msg) {
-        return send(MessageFactory.toString(msg));
+    public boolean send(JsonObject msg) {
+        return send(Utils.GSON.toJson(msg));
     }
 
     /**
@@ -118,6 +129,9 @@ public class AgentSocket {
         else
             log.log(Level.SEVERE, "Connection error", error);
 
+        if (remote != null)
+            remote.close();
+
         closeLatch.countDown();
     }
 
@@ -126,43 +140,40 @@ public class AgentSocket {
      */
     @OnWebSocketMessage
     public void onMessage(Session ses, String msg) {
-        AbstractMessage m = MessageFactory.fromString(msg);
+        JsonElement jsonElement = Utils.PARSER.parse(msg);
 
-        if (m instanceof AuthResult) {
-            if (((AuthResult)m).isSuccess())
-                log.info("Authentication success");
-            else {
-                log.info("Authentication failed: " + ((AuthResult)m).getMessage());
+        remote.onMessage((JsonObject)jsonElement);
+    }
 
-                ses.close();
-            }
+    /**
+     * @param errorMsg Authentication failed message or {@code null} if authentication succes.
+     */
+    @Remote
+    public void authResult(String errorMsg) {
+        if (errorMsg == null)
+            log.info("Authentication success");
+        else {
+            log.info("Authentication failed: " + errorMsg);
+
+            ses.close();
         }
-        else if (m instanceof RestRequest) {
-            RestRequest restReq = (RestRequest)m;
+    }
 
-            RestResult restRes;
+    /**
+     *
+     * @param jdbcDriverJarPath JDBC driver JAR path.
+     * @param jdbcDriverClass JDBC driver class.
+     * @param jdbcUrl JDBC URL.
+     * @param jdbcInfo Properties to connect to database.
+     *
+     * @return Collection of tables.
+     */
+    @Remote
+    public Collection<DbTable> extractMetadata(String jdbcDriverJarPath, String jdbcDriverClass, String jdbcUrl,
+        Properties jdbcInfo, boolean tablesOnly) throws SQLException {
+        Connection conn = DBReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo);
 
-            try {
-                restRes = agent.executeRest(restReq);
-            }
-            catch (Exception e) {
-                restRes = new RestResult();
-
-                restRes.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                restRes.setMessage(e.getMessage());
-            }
-
-            restRes.setRequestId(((RestRequest)m).getId());
-
-            send(MessageFactory.toString(restRes));
-        }
-        else if (m instanceof DbMetadataRequest) {
-            DbMetadataResponse resp = agent.dbMetadataRequest((DbMetadataRequest)m);
-
-            send(resp);
-        }
-        else
-            log.log(Level.SEVERE, "Unknown message: " + msg);
+        return DBReader.getInstance().extractMetadata(conn, tablesOnly);
     }
 
     /**

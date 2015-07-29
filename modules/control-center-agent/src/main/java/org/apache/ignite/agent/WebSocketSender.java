@@ -15,43 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent;
+
+import com.google.gson.*;
 
 /**
  *
  */
-public class AuthResult extends AbstractMessage {
-    /** */
-    private boolean success;
-
-    /** */
-    private String message;
-
+public interface WebSocketSender {
     /**
-     *
-     */
-    public boolean isSuccess() {
-        return success;
-    }
-
-    /**
-     * @param success Success.
-     */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    /**
-     *
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
+     * Send message.
      * @param msg Message.
+     * @return {@code true} if message sent successfully.
      */
-    public void setMessage(String msg) {
-        message = msg;
-    }
+    public boolean send(String msg);
+
+    /**
+     * Send message.
+     * @param msg Message.
+     * @return {@code true} if message sent successfully.
+     */
+    public boolean send(JsonObject msg);
 }
