@@ -17,7 +17,7 @@
 
 var WebSocketServer = require('ws').Server;
 
-var ignite = require('apache-ignite');
+var apacheIgnite = require('apache-ignite');
 
 var db = require('../db');
 
@@ -216,7 +216,7 @@ Client.prototype._handleMessage = function(msg) {
 
                             self._manager._addClient(account._id, self);
 
-                            self._ignite = new ignite.Ignite(new AgentServer(self));
+                            self._ignite = new apacheIgnite.Ignite(new AgentServer(self));
                         }
                     });
                 }

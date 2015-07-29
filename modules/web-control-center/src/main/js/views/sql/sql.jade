@@ -46,40 +46,39 @@ block container
                                 lable.labelHeader Caches:
                                 table.links(st-table='caches')
                                     tbody
-                                        tr(ng-repeat='row in caches track by row._id')
-                                            td.col-sm-6(ng-class='{active: row._id == #{tab}.selectedItem._id}')
-                                                a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}
+                                        tr(ng-repeat='row in caches track by row.name')
+                                            td.col-sm-6(ng-class='{active: row.name == #{tab}.selectedItem.name}')
+                                                a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{::row.name}}, {{::row.mode}}
                     hr(style='margin: 0')
                     .settings-row
                         label Page Size:&nbsp;
-                        button.btn.btn-default.base-control(ng-init='pageSize = pageSizes[0]' ng-model='pageSize' bs-options='item for item in pageSizes' bs-select)
+                        button.btn.btn-default.base-control(ng-model='#{tab}.pageSize' bs-options='item for item in pageSizes' bs-select)
                     .settings-row
-                        button.btn.btn-primary(ng-click='') Explain
-                        button.btn.btn-primary(ng-click='') Execute
-                        button.btn.btn-primary(ng-click='' disabled) Scan
+                        button.btn.btn-primary(ng-click='explain(#{tab})') Explain
+                        button.btn.btn-primary(ng-click='execute(#{tab})') Execute
+                        button.btn.btn-primary(ng-click='scan(#{tab})' disabled) Scan
 
                     div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
                         hr
                         div
-                            table.table.table-striped.col-sm-12.sql-results(st-table='rows' st-safe-src='#{tab}.rows')
+                            table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
                                 thead
                                     tr(style='border-size: 0')
-                                        td(colspan='{{#{tab}.cols.length}}')
+                                        td(colspan='{{#{tab}.meta.length}}')
                                             .col-sm-8
                                                 lable Page #:&nbsp;
                                                 b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
                                                 | Results:&nbsp;
                                                 b {{#{tab}.rows.length + #{tab}.total}}
                                             .col-sm-4
-                                                button.btn.btn-primary.fieldButton(ng-click='') Next page
-                                                .input-tip
-                                                    input.form-control(type='text' st-search='' placeholder='Filter...')
-
+                                                button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
+                                                //.input-tip
+                                                //    input.form-control(st-search placeholder='Filter...' type='search')
                                     tr
-                                        th(ng-repeat='column in #{tab}.cols' st-sort='{{column}}') {{column}}
+                                        th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
                                 tbody
                                     //tr
                                     //    td(colspan='{{#{tab}.cols.length}}')
                                     //        .loading-indicator
-                                    tr(ng-repeat='row in rows')
-                                        td(ng-repeat='column in #{tab}.cols') {{row[column]}}
+                                    tr(ng-repeat='row in displayedCollection track by $index')
+                                        td(ng-repeat='val in row track by $index') {{ val }}

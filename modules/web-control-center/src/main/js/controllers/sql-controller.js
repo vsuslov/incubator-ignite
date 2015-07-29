@@ -15,62 +15,31 @@
  * limitations under the License.
  */
 
-var demoResults = [
-    {
-        id: 256,
-        firstName: 'Ivan',
-        lastName: 'Ivanov'
-    },
-    {
-        id: 384,
-        firstName: 'Sergey',
-        lastName: 'Petrov'
-    },
-    {
-        id: 923,
-        firstName: 'Andrey',
-        lastName: 'Sidorov'
-    }
-];
-
-var demoCaches = [{_id: '1', name: 'Users', mode: 'LOCAL'}, {_id: '2', name: 'Organizations', mode: 'REPLICATED'}, {_id: '3', name: 'Cities', mode: 'PARTITIONED'}];
-
-
-
 controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.joinTip = $common.joinTip;
 
     $scope.pageSizes = [50, 100, 200, 400, 800, 1000];
-
-    $scope.tabs = [
-        {
-            query: "SELECT u.id, u.firstName, u.lastName FROM User u WHERE u.name LIKE 'aaaa'",
-            cols: Object.keys(demoResults[0]),
-            page: 1,
-            hasMore: true,
-            total: 0,
-            rows: demoResults
-        },
-        {query: "SELECT * FROM Organization"}
-    ];
-
-    $scope.addTab = function() {
-        console.log('addTab');
-
-        $scope.tabs.push({query: "SELECT "});
-    };
-
-    $scope.removeTab = function(idx) {
-        console.log('removeTab');
-
-        $scope.tabs.splice(idx, 1);
-    };
 
     $scope.modes = [
         {value: 'PARTITIONED', label: 'PARTITIONED'},
         {value: 'REPLICATED', label: 'REPLICATED'},
         {value: 'LOCAL', label: 'LOCAL'}
     ];
+
+    $scope.tabs = [];
+
+    $scope.addTab = function() {
+        var tab = {query: "", pageSize: $scope.pageSizes[0]};
+
+        if ($scope.caches.length > 0)
+            tab.selectedItem = $scope.caches[0];
+
+        $scope.tabs.push(tab);
+    };
+
+    $scope.removeTab = function(idx) {
+        $scope.tabs.splice(idx, 1);
+    };
 
     $http.get('/models/sql.json')
         .success(function (data) {
@@ -80,5 +49,81 @@ controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', f
             $common.showError(errMsg);
         });
 
-    $scope.caches = demoCaches;
+    $scope.caches = [];
+
+    $http.post('/agent/topology')
+        .success(function (clusters) {
+            var node = clusters[0];
+
+            $scope.caches = node.caches;
+
+            if ($scope.tabs.length == 0)
+                $scope.addTab();
+        })
+        .error(function (errMsg) {
+            $common.showError(errMsg);
+        });
+
+    $scope.execute = function(tab) {
+        $http.post('/agent/query', {query: tab.query, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+            .success(function (res) {
+                tab.meta = [];
+
+                if (res.meta)
+                    tab.meta = res.meta;
+
+                tab.page = 1;
+
+                tab.total = 0;
+
+                tab.queryId = res.queryId;
+
+                tab.rows = res.rows;
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    $scope.explain = function(tab) {
+        $http.post('/agent/query', {query: 'EXPLAIN ' + tab.query, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+            .success(function (res) {
+                tab.meta = [];
+
+                if (res.meta)
+                    tab.meta = res.meta;
+
+                tab.page = 1;
+
+                tab.total = 0;
+
+                tab.queryId = res.queryId;
+
+                tab.rows = res.rows;
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    $scope.nextPage = function(tab) {
+        $http.post('/agent/next_page', {queryId: tab.queryId, pageSize: tab.pageSize, cacheName: tab.selectedItem.name})
+            .success(function (res) {
+                tab.page++;
+
+                tab.total += tab.rows.length;
+
+                tab.rows = res.rows;
+
+                if (res.last)
+                    delete tab.queryId;
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    $scope.getter = function (value) {
+        return value;
+    }
 }]);

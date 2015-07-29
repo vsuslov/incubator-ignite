@@ -18,19 +18,66 @@
 var router = require('express').Router();
 var agentManager = require('../agents/agent-manager');
 
+var apacheIgnite = require('apache-ignite');
+var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
+
 /* GET summary page. */
 router.post('/topology', function(req, res) {
-    var c = agentManager.getAgentManager().getOneClient();
+    var client = agentManager.getAgentManager().getOneClient();
 
-    if (!c)
+    if (!client)
         return res.status(500).send("Client not found");
 
-    var ignite = c.ignite();
+    client.ignite().cluster().then(function (clusters) {
+        res.json(clusters.map(function (cluster) {
+            var caches = Object.keys(cluster._caches).map(function(key) {
+                return {"name" : key, "mode" : cluster._caches[key] }
+            });
 
-    ignite.cluster().then(function (cluster) {
-        res.json(cluster);
+            return { nodeId: cluster._nodeId, caches: caches };
+        }));
     }, function (err) {
         res.send(err);
+    });
+});
+
+/* GET summary page. */
+router.post('/query', function(req, res) {
+    var client = agentManager.getAgentManager().getOneClient();
+
+    if (!client)
+        return res.status(500).send("Client not found");
+
+    // Create sql query.
+    var qry = new SqlFieldsQuery(req.body.query);
+
+    // Set page size for query.
+    qry.setPageSize(req.body.pageSize);
+
+    // Get query cursor.
+    client.ignite().cache(req.body.cacheName).query(qry).nextPage().then(function (cursor) {
+        res.json({meta: cursor.fieldsMetadata(), rows: cursor.page(), queryId: cursor.queryId()});
+    }, function (err) {
+        res.status(500).send(err);
+    });
+});
+
+/* GET summary page. */
+router.post('/next_page', function(req, res) {
+    var client = agentManager.getAgentManager().getOneClient();
+
+    if (!client)
+        return res.status(500).send("Client not found");
+
+    var cache = client.ignite().cache(req.body.cacheName);
+
+    var cmd = cache._createCommand("qryfetch").addParam("qryId", req.body.queryId).
+        addParam("psz", req.body.pageSize);
+
+    cache.__createPromise(cmd).then(function (page) {
+        res.json({rows: page["items"], last: page === null || page["last"]});
+    }, function (err) {
+        res.status(500).send(err);
     });
 });
 
