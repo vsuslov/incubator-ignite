@@ -274,7 +274,7 @@ exports.generateClusterConfiguration = function(cluster, clientNearConfiguration
 
             var cache = cluster.caches[i];
 
-            generateCacheConfiguration(cache, res);
+            generateCacheConfiguration(res, cache);
         }
 
         res.endBlock('</list>');
@@ -419,35 +419,35 @@ function addCacheTypeMetadataGroups(res, meta) {
     }
 }
 
-function generateCacheTypeMetadataConfiguration(metaCfg, res) {
+function generateCacheTypeMetadataConfiguration(res, meta) {
     if (!res)
         res = generatorUtils.builder();
 
     res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
 
-    addProperty(res, metaCfg, 'databaseSchema');
-    addProperty(res, metaCfg, 'databaseTable');
+    addProperty(res, meta, 'databaseSchema');
+    addProperty(res, meta, 'databaseTable');
 
-    addProperty(res, metaCfg, 'keyType');
-    addProperty(res, metaCfg, 'valueType');
+    addProperty(res, meta, 'keyType');
+    addProperty(res, meta, 'valueType');
 
-    addCacheTypeMetadataDatabaseFields(res, metaCfg, 'keyFields');
-    addCacheTypeMetadataDatabaseFields(res, metaCfg, 'valueFields');
+    addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+    addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
 
-    addCacheTypeMetadataQueryFields(res, metaCfg, 'queryFields');
-    addCacheTypeMetadataQueryFields(res, metaCfg, 'ascendingFields');
-    addCacheTypeMetadataQueryFields(res, metaCfg, 'descendingFields');
+    addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+    addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+    addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
-    addListProperty(res, metaCfg, 'textFields');
+    addListProperty(res, meta, 'textFields');
 
-    addCacheTypeMetadataGroups(res, metaCfg);
+    addCacheTypeMetadataGroups(res, meta);
 
     res.endBlock('</bean>');
 
     return res;
 }
 
-function generateCacheConfiguration(cacheCfg, res) {
+function generateCacheConfiguration(res, cacheCfg) {
     if (!res)
         res = generatorUtils.builder();
 
@@ -590,7 +590,7 @@ function generateCacheConfiguration(cacheCfg, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    generateCacheTypeMetadataConfiguration(meta, res);
+                    generateCacheTypeMetadataConfiguration(res, meta);
                 }
             });
         }
@@ -600,7 +600,7 @@ function generateCacheConfiguration(cacheCfg, res) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    generateCacheTypeMetadataConfiguration(meta, res);
+                    generateCacheTypeMetadataConfiguration(res, meta);
                 }
             });
         }
@@ -613,8 +613,6 @@ function generateCacheConfiguration(cacheCfg, res) {
 
     return res;
 }
-
-exports.generateCacheConfiguration = generateCacheConfiguration;
 
 function addElement(res, tag, attr1, val1, attr2, val2) {
     var elem = '<' + tag;

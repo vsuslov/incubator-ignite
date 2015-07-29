@@ -274,18 +274,6 @@ exports.hasProperty = function (obj, props) {
 };
 
 /**
- * Convert some name to valid java name.
- *
- * @param name to convert.
- * @returns {string} Valid java name.
- */
-exports.toJavaName = function (name) {
-    var javaName = name.replace(/[^A-Za-z_0-9]+/, '_');
-
-    return javaName.charAt(0).toLocaleUpperCase() + javaName.slice(1);
-};
-
-/**
  * Generate properties file with properties stubs for stores data sources.
  *
  * @param cluster Configuration to process.
