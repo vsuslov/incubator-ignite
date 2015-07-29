@@ -20,7 +20,7 @@ var _ = require('lodash');
 var generatorUtils = require("./common");
 var dataStructures = require("../../helpers/data-structures.js");
 
-exports.generateClusterConfiguration = function(cluster, clientNearConfiguration) {
+exports.generateClusterConfiguration = function (cluster, clientNearConfiguration) {
     var res = generatorUtils.builder();
 
     res.datasources = [];
@@ -174,9 +174,9 @@ exports.generateClusterConfiguration = function(cluster, clientNearConfiguration
     // Generate events group.
     if (cluster.includeEventTypes && cluster.includeEventTypes.length > 0) {
         res.emptyLineIfNeeded();
-        
+
         res.startBlock('<property name="includeEventTypes">');
-        
+
         if (cluster.includeEventTypes.length == 1)
             res.line('<util:constant static-field="org.apache.ignite.events.EventType.' + cluster.includeEventTypes[0] + '"/>');
         else {
@@ -199,7 +199,7 @@ exports.generateClusterConfiguration = function(cluster, clientNearConfiguration
 
             res.endBlock('</array>');
         }
-        
+
         res.endBlock('</property>');
 
         res.needEmptyLine = true;
@@ -307,7 +307,7 @@ exports.generateClusterConfiguration = function(cluster, clientNearConfiguration
 
         xml += '    <!-- Data source beans will be initialized from external properties file. -->\n';
 
-        _.forEach(res.datasources, function(item) {
+        _.forEach(res.datasources, function (item) {
             var beanId = item.dataSourceBean;
 
             xml += '    <bean id= "' + beanId + '" class="' + item.className + '">\n';
@@ -672,7 +672,7 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                                 var eqIndex = nameAndValue.indexOf('=');
                                 if (eqIndex >= 0) {
                                     res.line('<prop key="' + escapeAttr(nameAndValue.substring(0, eqIndex)) + '">' +
-                                            + escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
+                                        escape(nameAndValue.substr(eqIndex + 1)) + '</prop>');
                                 }
                             }
 
@@ -708,7 +708,9 @@ function addListProperty(res, obj, propName, listType, rowFactory) {
             listType = 'list';
 
         if (!rowFactory)
-            rowFactory = function(val) { return '<value>' + escape(val) + '</value>' };
+            rowFactory = function (val) {
+                return '<value>' + escape(val) + '</value>'
+            };
 
         res.startBlock('<property name="' + propName + '">');
         res.startBlock('<' + listType + '>');

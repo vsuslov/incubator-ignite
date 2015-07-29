@@ -55,7 +55,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
         res.startBlock('public IgniteConfiguration createConfiguration() {');
     }
 
-    declareVariable(res, true, 'org.apache.ignite.configuration.IgniteConfiguration', 'cfg');
+    declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
     res.line();
 
     if (clientMode) {
@@ -66,7 +66,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     if (cluster.discovery) {
         var d = cluster.discovery;
 
-        declareVariable(res, true, 'org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi', 'discovery');
+        declareVariable(res, true, 'discovery', 'org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi');
 
         switch (d.kind) {
             case 'Multicast':
@@ -135,7 +135,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
             case 'Jdbc':
                 res.line();
 
-                declareVariable(res, true, 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder', 'ipFinder');
+                declareVariable(res, true, 'ipFinder', 'org.apache.ignite.spi.discovery.tcp.ipfinder.jdbc.TcpDiscoveryJdbcIpFinder');
 
                 res.line('ipFinder.setInitSchema(' + (d.Jdbc.initSchema != null || d.Jdbc.initSchema) + ');');
                 res.line('discovery.setIpFinder(ipFinder);');
@@ -162,30 +162,30 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
         res.needEmptyLine = true;
     }
 
-    if (cluster.caches && cluster.caches.length > 0) {
+    var caches = cluster.caches;
+
+    if (caches && caches.length > 0) {
         res.emptyLineIfNeeded();
 
         var names = [];
 
-        for (var i = 0; i < cluster.caches.length; i++) {
+        _.forEach(caches, function (cache) {
             res.emptyLineIfNeeded();
-
-            var cache = cluster.caches[i];
 
             var cacheName = toJavaName('cache', cache.name);
 
             names.push(cacheName);
 
-            generateCacheConfiguration(res, cache, cacheName);
+            addCacheConfiguration(res, cache, cacheName);
 
             res.needEmptyLine = true;
-        }
+        });
 
         res.emptyLineIfNeeded();
 
         res.append('cfg.setCacheConfiguration(');
 
-        for (i = 0; i < names.length; i++) {
+        for (var i = 0; i < names.length; i++) {
             if (i > 0)
                 res.append(', ');
 
@@ -326,7 +326,15 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     return res.join('');
 };
 
-function createEvictionPolicy(res, varName, evictionPolicy, propertyName) {
+/**
+ * Add eviction policy.
+ *
+ * @param res Resulting output with generated code.
+ * @param varName Current using variable name.
+ * @param evictionPolicy Data to add.
+ * @param propertyName Name in source data.
+ */
+function addEvictionPolicy(res, varName, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
         var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
 
@@ -336,25 +344,16 @@ function createEvictionPolicy(res, varName, evictionPolicy, propertyName) {
     }
 }
 
-function addCacheTypeMetadataDatabaseFields(res, varName, meta, fieldProperty) {
-    var fields = meta[fieldProperty];
+function addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
+    var dbFields = meta[fieldProperty];
 
-    if (fields && fields.length > 0) {
-        res.emptyLineIfNeeded();
+    if (dbFields && dbFields.length > 0) {
+        res.line();
 
-        var varDbFields = fieldProperty;
+        declareVariable(res, needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeFieldMetadata');
 
-        var varNew = !res[fieldProperty];
-
-        if (varNew)
-            res[fieldProperty] = true;
-
-        declareVariable(res, varNew, 'java.util.Collection', varDbFields, 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeFieldMetadata');
-
-        res.importClass('org.apache.ignite.cache.CacheTypeFieldMetadata');
-
-        _.forEach(fields, function (field) {
-            res.line(varDbFields + '.add(new CacheTypeFieldMetadata(' +
+        _.forEach(dbFields, function (field) {
+            res.line(fieldProperty + '.add(new CacheTypeFieldMetadata(' +
                 '"' + field.databaseName + '", ' +
                 'java.sql.Types.' + field.databaseType + ', ' +
                 '"' + field.javaName + '", ' +
@@ -362,110 +361,95 @@ function addCacheTypeMetadataDatabaseFields(res, varName, meta, fieldProperty) {
                 + '));');
         });
 
-        res.line(varName + '.' + toJavaName('set', fieldProperty) + '(' + varDbFields + ');');
+        res.line('typeMeta.' + toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
     }
 }
 
-function addCacheTypeMetadataQueryFields(res, varType, meta, fieldProperty) {
+function addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
     var fields = meta[fieldProperty];
 
     if (fields && fields.length > 0) {
-        res.emptyLineIfNeeded();
+        res.line();
 
-        var varQryFields = fieldProperty;
-
-        var varNew = !res[fieldProperty];
-
-        if (varNew)
-            res[fieldProperty] = true;
-
-        declareVariable(res, varNew, 'java.util.Map', varQryFields, 'java.util.LinkedHashMap', 'java.lang.String', 'java.lang.Class<?>');
+        declareVariable(res, needNewVariable(res, fieldProperty), fieldProperty, 'java.util.Map', 'java.util.LinkedHashMap', 'java.lang.String', 'java.lang.Class<?>');
 
         _.forEach(fields, function (field) {
-            var cls = res.importClass(generatorUtils.javaBuildInClass(field.className));
-
-            res.line(varQryFields + '.put("' + field.name + '", ' + cls + '.class);');
+            res.line(fieldProperty + '.put("' + field.name + '", ' + res.importClass(field.className) + '.class);');
         });
 
-        res.line(varType + '.' + toJavaName('set', fieldProperty) + '(' + varQryFields + ');');
+        res.line('typeMeta.' + toJavaName('set', fieldProperty) + '(' + fieldProperty + ');');
     }
 }
 
-function addCacheTypeMetadataGroups(res, meta, varName) {
+function addCacheTypeMetadataGroups(res, meta) {
     var groups = meta.groups;
 
     if (groups && groups.length > 0) {
-        res.line('addCacheTypeMetadataGroups for ' + varName);
-        //res.startBlock('<property name="groups">');
-        //res.startBlock('<map>');
-        //
-        //_.forEach(groups, function (group) {
-        //    var fields = group.fields;
-        //
-        //    if (fields && fields.length > 0) {
-        //        res.startBlock('<entry key="' + group.name + '">');
-        //        res.startBlock('<map>');
-        //
-        //        _.forEach(fields, function (field) {
-        //            res.startBlock('<entry key="' + field.name + '">');
-        //
-        //            res.startBlock('<bean class="org.apache.ignite.lang.IgniteBiTuple">');
-        //            res.line('<constructor-arg value="' + generatorUtils.javaBuildInClass(field.className) + '"/>');
-        //            res.line('<constructor-arg value="' + field.direction + '"/>');
-        //            res.endBlock('</bean>');
-        //
-        //            res.endBlock('</entry>');
-        //        });
-        //
-        //        res.endBlock('</map>');
-        //        res.endBlock('</entry>');
-        //    }
-        //});
-        //
-        //res.endBlock('</map>');
-        //res.endBlock('</property>');
+        _.forEach(groups, function (group) {
+            var fields = group.fields;
+
+            if (fields && fields.length > 0) {
+                res.importClass('java.util.Map');
+                res.importClass('java.util.LinkedHashMap');
+                res.importClass('org.apache.ignite.lang.IgniteBiTuple');
+
+                var varNew = !res.groups;
+
+                res.line();
+                res.line((varNew ? 'Map<String, LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>>> ' : '') +
+                    "groups = new LinkedHashMap<>();");
+
+                if (varNew)
+                    res.groups = true;
+
+                varNew = !res.groupItems;
+
+                res.line((varNew ? 'LinkedHashMap<String, IgniteBiTuple<Class<?>, Boolean>> ' : '') +
+                    'groupItems = new LinkedHashMap<>();');
+
+                if (varNew)
+                    res.groupItems = true;
+
+                _.forEach(fields, function (field) {
+                    res.line('groupItems.put("' + field.name + '", ' +
+                        'new IgniteBiTuple<Class<?>, Boolean>(' + res.importClass(field.className) + '.class, ' + field.direction + '));');
+                });
+
+                res.line('groups.put("' + group.name + '", groupItems);');
+            }
+        });
+
+        res.line('typeMeta.setGroups(groups);');
     }
 }
 
-function generateCacheTypeMetadataConfiguration(res, cache, meta) {
-    var varType = 'meta';
+function addCacheTypeMetadataConfiguration(res, meta) {
+    declareVariable(res, needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
 
-    var varNew = !res[varType];
+    addProperty(res, 'typeMeta', meta, 'databaseSchema');
+    addProperty(res, 'typeMeta', meta, 'databaseTable');
 
-    if (varNew)
-        res[varType] = true;
+    addClassProperty(res, 'typeMeta', meta, 'keyType');
+    addClassProperty(res, 'typeMeta', meta, 'valueType');
 
-    declareVariable(res, varNew, 'org.apache.ignite.cache.CacheTypeMetadata', varType);
+    addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
 
-    addProperty(res, varType, meta, 'databaseSchema');
-    addProperty(res, varType, meta, 'databaseTable');
+    addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
 
-    addProperty(res, varType, meta, 'keyType');
-    addProperty(res, varType, meta, 'valueType');
+    addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
 
-    addCacheTypeMetadataDatabaseFields(res, varType, meta, 'keyFields');
+    addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+
+    addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+
     res.needEmptyLine = true;
+    addListProperty(res, 'typeMeta', meta, 'textFields');
 
-    addCacheTypeMetadataDatabaseFields(res, varType, meta, 'valueFields');
-    res.needEmptyLine = true;
-
-    addCacheTypeMetadataQueryFields(res, varType, meta, 'queryFields');
-    res.needEmptyLine = true;
-
-    addCacheTypeMetadataQueryFields(res, varType, meta, 'ascendingFields');
-    res.needEmptyLine = true;
-
-    addCacheTypeMetadataQueryFields(res, varType, meta, 'descendingFields');
-    res.needEmptyLine = true;
-
-    addListProperty(res, varType, meta, 'textFields');
-    res.needEmptyLine = true;
-
-    addCacheTypeMetadataGroups(res, varType, meta);
+    addCacheTypeMetadataGroups(res, meta);
 
     res.line();
-
-    return varType;
+    res.line('types.add(typeMeta);');
+    res.line();
 }
 
 /**
@@ -476,13 +460,13 @@ function generateCacheTypeMetadataConfiguration(res, cache, meta) {
  * @param res Result builder.
  * @returns {*} Append generated java code to builder and return it.
  */
-function generateCacheConfiguration(res, cache, varName) {
+function addCacheConfiguration(res, cache, varName) {
     res.emptyLineIfNeeded();
 
     res.importClass('org.apache.ignite.cache.CacheAtomicityMode');
     res.importClass('org.apache.ignite.cache.CacheMode');
 
-    declareVariable(res, true, 'org.apache.ignite.configuration.CacheConfiguration', varName);
+    declareVariable(res, true, varName, 'org.apache.ignite.configuration.CacheConfiguration');
 
     res.needEmptyLine = true;
 
@@ -504,7 +488,7 @@ function generateCacheConfiguration(res, cache, varName) {
 
     res.needEmptyLine = true;
 
-    createEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
+    addEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
 
     if (cache.nearCacheEnabled) {
         res.needEmptyLine = true;
@@ -515,7 +499,7 @@ function generateCacheConfiguration(res, cache, varName) {
             'NearCacheConfiguration', {nearStartSize: null}, true);
 
         if (cache.nearConfiguration && cache.nearConfiguration.nearEvictionPolicy && cache.nearConfiguration.nearEvictionPolicy.kind) {
-            createEvictionPolicy(res, 'nearConfiguration', cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
+            addEvictionPolicy(res, 'nearConfiguration', cache.nearConfiguration.nearEvictionPolicy, 'nearEvictionPolicy');
         }
     }
 
@@ -575,7 +559,7 @@ function generateCacheConfiguration(res, cache, varName) {
 
                 res.line();
 
-                declareVariable(res, true, dataSource.className, dsVarName);
+                declareVariable(res, true, dsVarName, dataSource.className);
 
                 res.line(dsVarName + '.setURL(_URL_);');
                 res.line(dsVarName + '.setUsername(_User_Name_);');
@@ -626,14 +610,7 @@ function generateCacheConfiguration(res, cache, varName) {
         (cache.storeMetadata && cache.storeMetadata.length > 0)) {
         res.emptyLineIfNeeded();
 
-        var varTypes = 'types';
-
-        var varNew = !res[varTypes];
-
-        if (varNew)
-            res[varTypes] = true;
-
-        declareVariable(res, varNew, 'java.util.Collection', varTypes, 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
+        declareVariable(res, needNewVariable(res, 'types'), 'types', 'java.util.Collection', 'java.util.ArrayList', 'org.apache.ignite.cache.CacheTypeMetadata');
         res.line();
 
         var metaNames = [];
@@ -643,8 +620,7 @@ function generateCacheConfiguration(res, cache, varName) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    res.line(varTypes + '.add(' + generateCacheTypeMetadataConfiguration(res, cache, meta) + ');');
-                    res.line();
+                    addCacheTypeMetadataConfiguration(res, meta);
                 }
             });
         }
@@ -654,13 +630,12 @@ function generateCacheConfiguration(res, cache, varName) {
                 if (!_.contains(metaNames, meta.name)) {
                     metaNames.push(meta.name);
 
-                    res.line(varTypes + '.add(' + generateCacheTypeMetadataConfiguration(res, cache, meta) + ');');
-                    res.line();
+                    addCacheTypeMetadataConfiguration(res, meta);
                 }
             });
         }
 
-        res.line(varName + '.setCacheTypeMetadata(' + varTypes + ');');
+        res.line(varName + '.setTypeMetadata(types);');
     }
 }
 
@@ -686,18 +661,27 @@ function toJavaCode(val, type) {
     throw "Unknown type: " + typeof(val) + ' (' + val + ')';
 }
 
+function needNewVariable(res, varName) {
+    var needNew = !res[varName];
+
+    if (needNew)
+        res[varName] = true;
+
+    return needNew;
+}
+
 /**
  * Add variable declaration.
  *
  * @param res Resulting output with generated code.
  * @param varNew If 'true' then declare new variable otherwise reuse previously declared variable.
- * @param varFullType Variable full class name to be added to imports.
  * @param varName Variable name.
+ * @param varFullType Variable full class name to be added to imports.
  * @param varFullActualType Variable actual full class name to be added to imports.
  * @param varFullGenericType1 Optional full class name of first generic.
  * @param varFullGenericType2 Optional full class name of second generic.
  */
-function declareVariable(res, varNew, varFullType, varName, varFullActualType, varFullGenericType1, varFullGenericType2) {
+function declareVariable(res, varNew, varName, varFullType, varFullActualType, varFullGenericType1, varFullGenericType2) {
     var varType = res.importClass(varFullType);
 
     if (varFullActualType && varFullGenericType1) {
@@ -735,6 +719,24 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
 }
 
 /**
+ * Add property via setter assuming that it is a 'Class'.
+ *
+ * @param res Resulting output with generated code.
+ * @param varName Variable name.
+ * @param obj Source object with data.
+ * @param propName Property name to take from source object.
+ */
+function addClassProperty(res, varName, obj, propName) {
+    var val = obj[propName];
+
+    if (generatorUtils.isDefined(val)) {
+        res.emptyLineIfNeeded();
+
+        res.line(varName + '.' + getSetterName(propName) + '(' + res.importClass(val) + '.class);');
+    }
+}
+
+/**
  * @param propName Property name
  * @returns Property setter with name by java conventions.
  */
@@ -747,6 +749,8 @@ function addListProperty(res, varName, obj, propName, enumType, setterName) {
 
     if (val && val.length > 0) {
         res.emptyLineIfNeeded();
+
+        res.importClass('java.util.Arrays');
 
         res.append(varName + '.' + getSetterName(setterName ? setterName : propName) + '(Arrays.asList(');
 

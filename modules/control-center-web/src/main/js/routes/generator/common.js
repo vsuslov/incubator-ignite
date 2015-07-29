@@ -116,23 +116,19 @@ exports.builder = function () {
 
     res.imports = {};
 
-    res.importClass = function (fullClassName) {
+    res.importClass = function (className) {
+        var fullClassName = javaBuildInClass(className);
+
         var dotIdx = fullClassName.lastIndexOf('.');
 
-        var shortName;
-
-        if (dotIdx > 0)
-            shortName = fullClassName.substr(dotIdx + 1);
-        else
-            shortName = fullClassName;
+        var shortName = dotIdx > 0 ? fullClassName.substr(dotIdx + 1) : fullClassName;
 
         if (this.imports[shortName]) {
             if (this.imports[shortName] != fullClassName)
                 throw "Class name conflict: " + this.imports[shortName] + ' and ' + fullClassName;
         }
-        else {
+        else
             this.imports[shortName] = fullClassName;
-        }
 
         return shortName;
     };
@@ -195,14 +191,16 @@ var javaBuildInClasses = {
     UUID: {className: 'java.util.UUID'}
 };
 
-exports.javaBuildInClass = function (className) {
+function javaBuildInClass(className) {
     var fullClassName = javaBuildInClasses[className];
 
     if (fullClassName)
         return fullClassName.className;
 
     return className;
-};
+}
+
+exports.javaBuildInClass = javaBuildInClass;
 
 exports.knownClasses = {
     Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
