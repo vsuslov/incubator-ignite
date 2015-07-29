@@ -652,6 +652,7 @@ public class GridServiceProcessor extends GridProcessorAdapter {
         ServiceConfiguration cfg = dep.configuration();
 
         Object nodeFilter = cfg.getNodeFilter();
+
         if (nodeFilter != null)
             ctx.resource().injectGeneric(nodeFilter);
 
