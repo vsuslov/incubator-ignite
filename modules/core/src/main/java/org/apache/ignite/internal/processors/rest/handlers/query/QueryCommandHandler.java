@@ -177,7 +177,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 }
             }
             catch (Exception e) {
-                qryCurs.remove(qryId);
+                removeQueryCursor(qryId);
 
                 return new GridRestResponse(GridRestResponse.STATUS_FAILED, e.getMessage());
             }
@@ -233,7 +233,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 return new GridRestResponse(true);
             }
             catch (Exception e) {
-                qryCurs.remove(req.queryId());
+                removeQueryCursor(req.queryId());
 
                 return new GridRestResponse(GridRestResponse.STATUS_FAILED, e.getMessage());
             }
@@ -274,7 +274,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 }
             }
             catch (Exception e) {
-                qryCurs.remove(req.queryId());
+                removeQueryCursor(req.queryId());
 
                 return new GridRestResponse(GridRestResponse.STATUS_FAILED, e.getMessage());
             }
@@ -302,8 +302,25 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         res.setQueryId(qryId);
 
         if (!cur.hasNext())
-            qryCurs.remove(qryId);
+            removeQueryCursor(qryId);
 
         return res;
+    }
+
+    /**
+     * Removes query cursor.
+     *
+     * @param qryId Query id.
+     */
+    private static void removeQueryCursor(Long qryId) {
+        GridTuple3<QueryCursor, Iterator, Long> t = qryCurs.get(qryId);
+
+        if (t != null) {
+            synchronized (t) {
+                t.get1().close();
+
+                qryCurs.remove(qryId);
+            }
+        }
     }
 }
