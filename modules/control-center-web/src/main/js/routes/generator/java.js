@@ -523,7 +523,7 @@ function addCacheConfiguration(res, cache, varName) {
 
             var pair = cache.indexedTypes[i];
 
-            res.append(toJavaCode(pair.keyClass, 'class')).append(', ').append(toJavaCode(pair.valueClass, 'class'))
+            res.append(toJavaCode(res.importClass(pair.keyClass), 'class')).append(', ').append(toJavaCode(res.importClass(pair.valueClass), 'class'))
         }
 
         res.line(');');

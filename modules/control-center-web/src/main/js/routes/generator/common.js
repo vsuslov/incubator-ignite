@@ -176,7 +176,7 @@ exports.marshallers = {
 };
 
 var javaBuildInClasses = {
-    BigDecimal: {className: 'java.math.Boolean'},
+    BigDecimal: {className: 'java.math.BigDecimal'},
     Boolean: {className: 'java.lang.Boolean'},
     Byte: {className: 'java.lang.Byte'},
     Date: {className: 'java.sql.Date'},
