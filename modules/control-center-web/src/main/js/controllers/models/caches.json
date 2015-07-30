@@ -416,6 +416,7 @@
     },
     {
       "label": "Rebalance",
+      "hide": "backupItem.mode == 'LOCAL'",
       "tip": [
         "Cache rebalance settings."
       ],
@@ -495,6 +496,7 @@
     },
     {
       "label": "Server near cache",
+      "hide": "backupItem.mode != 'PARTITIONED'",
       "tip": [
         "Near cache settings.",
         "Near cache is a small local cache that stores most recently or most frequently accessed data.",

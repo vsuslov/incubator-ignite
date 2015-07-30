@@ -457,10 +457,13 @@ function generateCacheConfiguration(res, cacheCfg) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, 'mode', 'cacheMode');
+    var cacheMode = addProperty(res, cacheCfg, 'mode', 'cacheMode');
 
     addProperty(res, cacheCfg, 'atomicityMode');
-    addProperty(res, cacheCfg, 'backups');
+
+    if (cacheMode == 'PARTITIONED')
+        addProperty(res, cacheCfg, 'backups');
+
     addProperty(res, cacheCfg, 'startSize');
     addProperty(res, cacheCfg, 'readFromBackup');
 
@@ -518,15 +521,17 @@ function generateCacheConfiguration(res, cacheCfg) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, cacheCfg, 'rebalanceMode');
-    addProperty(res, cacheCfg, 'rebalanceThreadPoolSize');
-    addProperty(res, cacheCfg, 'rebalanceBatchSize');
-    addProperty(res, cacheCfg, 'rebalanceOrder');
-    addProperty(res, cacheCfg, 'rebalanceDelay');
-    addProperty(res, cacheCfg, 'rebalanceTimeout');
-    addProperty(res, cacheCfg, 'rebalanceThrottle');
+    if (cacheMode != 'LOCAL') {
+        addProperty(res, cacheCfg, 'rebalanceMode');
+        addProperty(res, cacheCfg, 'rebalanceThreadPoolSize');
+        addProperty(res, cacheCfg, 'rebalanceBatchSize');
+        addProperty(res, cacheCfg, 'rebalanceOrder');
+        addProperty(res, cacheCfg, 'rebalanceDelay');
+        addProperty(res, cacheCfg, 'rebalanceTimeout');
+        addProperty(res, cacheCfg, 'rebalanceThrottle');
 
-    res.needEmptyLine = true;
+        res.needEmptyLine = true;
+    }
 
     if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
         var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
@@ -636,6 +641,8 @@ function addProperty(res, obj, propName, setterName) {
 
     if (generatorUtils.isDefined(val))
         addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
+
+    return val;
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {

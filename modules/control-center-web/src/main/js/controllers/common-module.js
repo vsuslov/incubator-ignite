@@ -377,11 +377,11 @@ controlCenterModule.directive('match', function ($parse) {
 });
 
 // Directive to bind ENTER key press with some user action.
-controlCenterModule.directive('ngEnter', function() {
-    return function(scope, element, attrs) {
-        element.bind('keydown keypress', function(event) {
+controlCenterModule.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind('keydown keypress', function (event) {
             if (event.which === 13) {
-                scope.$apply(function() {
+                scope.$apply(function () {
                     scope.$eval(attrs.ngEnter);
                 });
 
@@ -392,11 +392,11 @@ controlCenterModule.directive('ngEnter', function() {
 });
 
 // Directive to bind ESC key press with some user action.
-controlCenterModule.directive('ngEscape', function() {
-    return function(scope, element, attrs) {
-        element.bind('keydown keyup', function(event) {
+controlCenterModule.directive('ngEscape', function () {
+    return function (scope, element, attrs) {
+        element.bind('keydown keyup', function (event) {
             if (event.which === 27) {
-                scope.$apply(function() {
+                scope.$apply(function () {
                     scope.$eval(attrs.ngEscape);
                 });
 
@@ -430,7 +430,7 @@ controlCenterModule.directive('eventFocus', function (focus) {
 
         // Removes bound events in the element itself when the scope is destroyed
         scope.$on('$destroy', function () {
-            element.off(attr.eventFocus);
+            elem.off(attr.eventFocus);
         });
     };
 });

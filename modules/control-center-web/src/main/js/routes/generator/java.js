@@ -472,10 +472,13 @@ function addCacheConfiguration(res, cache, varName) {
 
     addProperty(res, varName, cache, 'name');
 
-    addProperty(res, varName, cache, 'mode', 'CacheMode', 'cacheMode');
+    var cacheMode = addProperty(res, varName, cache, 'mode', 'CacheMode', 'cacheMode');
 
     addProperty(res, varName, cache, 'atomicityMode', 'CacheAtomicityMode');
-    addProperty(res, varName, cache, 'backups');
+
+    if (cacheMode == 'PARTITIONED')
+        addProperty(res, varName, cache, 'backups');
+
     addProperty(res, varName, cache, 'startSize');
     addProperty(res, varName, cache, 'readFromBackup');
 
@@ -490,7 +493,7 @@ function addCacheConfiguration(res, cache, varName) {
 
     addEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
 
-    if (cache.nearCacheEnabled) {
+    if (cacheMode == 'PARTITIONED' && cache.nearCacheEnabled) {
         res.needEmptyLine = true;
 
         res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
@@ -530,15 +533,17 @@ function addCacheConfiguration(res, cache, varName) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
-    addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
-    addProperty(res, varName, cache, 'rebalanceBatchSize');
-    addProperty(res, varName, cache, 'rebalanceOrder');
-    addProperty(res, varName, cache, 'rebalanceDelay');
-    addProperty(res, varName, cache, 'rebalanceTimeout');
-    addProperty(res, varName, cache, 'rebalanceThrottle');
+    if (cacheMode != 'LOCAL') {
+        addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
+        addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
+        addProperty(res, varName, cache, 'rebalanceBatchSize');
+        addProperty(res, varName, cache, 'rebalanceOrder');
+        addProperty(res, varName, cache, 'rebalanceDelay');
+        addProperty(res, varName, cache, 'rebalanceTimeout');
+        addProperty(res, varName, cache, 'rebalanceThrottle');
 
-    res.needEmptyLine = true;
+        res.needEmptyLine = true;
+    }
 
     if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
@@ -716,6 +721,8 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
         res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
             + '(' + toJavaCode(val, enumType) + ');');
     }
+
+    return val;
 }
 
 /**
