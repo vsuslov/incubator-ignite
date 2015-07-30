@@ -1,0 +1,909 @@
+{
+  "screenTip": {
+    "workflowTitle": "Use clusters view to:",
+    "workflowContent": [
+      "<ul>",
+      "  <li>Configure clusters.</li>",
+      "  <li>Associate clusters with caches.</li>",
+      "</ul>"
+    ],
+    "whatsNextTitle": "What's next:",
+    "whatsNextContent": [
+      "<ul>",
+      "  <li>Configure cache type metadata.</li>",
+      "  <li>Configure caches.</li>",
+      "  <li>Generate XML and java code on Summary view.</li>",
+      "</ul>"
+    ]
+  },
+  "templateTip": [
+    "Use following template to add a new cluster:",
+    "<ul>",
+    "  <li>multicast - cluster with multicast discovery.</li>",
+    "  <li>local - cluster with static ips discovery and pre-configured list of IP addresses.</li>",
+    "</ul>"
+  ],
+  "general": [
+    {
+      "label": "Name",
+      "type": "text",
+      "model": "name",
+      "required": true,
+      "placeholder": "Input name",
+      "id": "defaultFocusId"
+    },
+    {
+      "label": "Caches",
+      "type": "dropdown-multiple",
+      "model": "caches",
+      "placeholder": "Choose caches",
+      "items": "caches",
+      "tip": [
+        "Select caches to start in cluster or add a new cache."
+      ],
+      "addLink": {
+        "label": "Add cache(s)",
+        "ref": "/configuration/caches"
+      }
+    },
+    {
+      "label": "Discovery",
+      "type": "dropdown-details",
+      "path": "discovery",
+      "model": "kind",
+      "required": true,
+      "placeholder": "Choose discovery",
+      "items": "discoveries",
+      "tip": [
+        "Discovery allows to discover remote nodes in grid."
+      ],
+      "details": {
+        "Vm": {
+          "expanded": true,
+          "fields": [
+            {
+              "type": "table-simple",
+              "path": "discovery.Vm",
+              "model": "addresses",
+              "editIdx": -1,
+              "reordering": true,
+              "ipaddress": true,
+              "placeholder": "IP address:port",
+              "focusNewItemId": "newIpAddress",
+              "focusCurItemId": "curIpAddress",
+              "addTip": "Add new address.",
+              "removeTip": "Remove address.",
+              "tip": [
+                "Addresses may be represented as follows:",
+                "<ul>",
+                "  <li>IP address (e.g. 127.0.0.1, 9.9.9.9, etc);</li>",
+                "  <li>IP address and port (e.g. 127.0.0.1:47500, 9.9.9.9:47501, etc);</li>",
+                "  <li>IP address and port range (e.g. 127.0.0.1:47500..47510, 9.9.9.9:47501..47504, etc);</li>",
+                "  <li>Hostname (e.g. host1.com, host2, etc);</li>",
+                "  <li>Hostname and port (e.g. host1.com:47500, host2:47502, etc).</li>",
+                "  <li>Hostname and port range (e.g. host1.com:47500..47510, host2:47502..47508, etc).</li>",
+                "</ul>",
+                "If port is 0 or not provided then default port will be used (depends on discovery SPI configuration).",
+                "If port range is provided (e.g. host:port1..port2) the following should be considered:",
+                "<ul>",
+                "  <li>port1 < port2 should be true;</li>",
+                "  <li>Both port1 and port2 should be greater than 0.</li>",
+                "</ul>"
+              ]
+            }
+          ]
+        },
+        "Multicast": {
+          "expanded": false,
+          "fields": [
+            {
+              "label": "IP address",
+              "type": "text",
+              "path": "discovery.Multicast",
+              "model": "multicastGroup",
+              "placeholder": "228.1.2.4",
+              "tip": [
+                "IP address of multicast group."
+              ]
+            },
+            {
+              "label": "Port number",
+              "type": "number",
+              "path": "discovery.Multicast",
+              "model": "multicastPort",
+              "max": 65535,
+              "placeholder": 47400,
+              "tip": [
+                "Port number which multicast messages are sent to."
+              ]
+            },
+            {
+              "label": "Waits for reply",
+              "type": "number",
+              "path": "discovery.Multicast",
+              "model": "responseWaitTime",
+              "placeholder": 500,
+              "tip": [
+                "Time in milliseconds IP finder waits for reply to multicast address request."
+              ]
+            },
+            {
+              "label": "Attempts count",
+              "type": "number",
+              "path": "discovery.Multicast",
+              "model": "addressRequestAttempts",
+              "placeholder": 2,
+              "tip": [
+                "Number of attempts to send multicast address request.",
+                "IP finder re-sends request only in case if no reply for previous request is received."
+              ]
+            },
+            {
+              "label": "Local address",
+              "type": "text",
+              "path": "discovery.Multicast",
+              "model": "localAddress",
+              "tip": [
+                "Local host address used by this IP finder.",
+                "If provided address is non-loopback then multicast socket is bound to this interface.",
+                "If local address is not set or is any local address then IP finder creates multicast sockets for all found non-loopback addresses."
+              ]
+            }
+          ]
+        },
+        "S3": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Bucket name",
+              "type": "text",
+              "required": true,
+              "path": "discovery.S3",
+              "model": "bucketName",
+              "tip": [
+                "Bucket name for IP finder."
+              ]
+            },
+            {
+              "label": "Note, AWS credentials will be generated as stubs.",
+              "type": "label"
+            }
+          ]
+        },
+        "Cloud": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Credential",
+              "type": "text",
+              "path": "discovery.Cloud",
+              "model": "credential",
+              "tip": [
+                "Credential that is used during authentication on the cloud.",
+                "Depending on a cloud platform it can be a password or access key."
+              ]
+            },
+            {
+              "label": "Path to credential",
+              "type": "text",
+              "path": "discovery.Cloud",
+              "model": "credentialPath",
+              "tip": [
+                "Path to a credential that is used during authentication on the cloud.",
+                "Access key or private key should be stored in a plain or PEM file without a passphrase."
+              ]
+            },
+            {
+              "label": "Identity",
+              "type": "text",
+              "required": true,
+              "path": "discovery.Cloud",
+              "model": "identity",
+              "tip": [
+                "Identity that is used as a user name during a connection to the cloud.",
+                "Depending on a cloud platform it can be an email address, user name, etc."
+              ]
+            },
+            {
+              "label": "Provider",
+              "type": "text",
+              "required": true,
+              "path": "discovery.Cloud",
+              "model": "provider",
+              "tip": [
+                "Cloud provider to use."
+              ]
+            },
+            {
+              "label": "Regions",
+              "type": "table-simple",
+              "path": "discovery.Cloud",
+              "model": "regions",
+              "editIdx": -1,
+              "focusNewItemId": "newRegion",
+              "focusCurItemId": "curRegion",
+              "addTip": "Add new region.",
+              "removeTip": "Remove region.",
+              "tableTip": [
+                "List of regions where VMs are located.",
+                "If the regions are not set then every region, that a cloud provider has, will be investigated. This could lead to significant performance degradation.",
+                "Note, that some cloud providers, like Google Compute Engine, doesn't have a notion of a region. For such providers a call to this method is redundant."
+              ],
+              "tip": [
+                "Region where VMs are located."
+              ]
+            },
+            {
+              "label": "Zones",
+              "type": "table-simple",
+              "path": "discovery.Cloud",
+              "model": "zones",
+              "editIdx": -1,
+              "focusNewItemId": "newZone",
+              "focusCurItemId": "curZone",
+              "addTip": "Add new zone.",
+              "removeTip": "Remove zone.",
+              "tableTip": [
+                "List of zones where VMs are located.",
+                "If the zones are not set then every zone from regions, set by {@link #setRegions(Collection)}}, will be taken into account.",
+                "Note, that some cloud providers, like Rackspace, doesn't have a notion of a zone. For such providers a call to this method is redundant."
+              ],
+              "tip": [
+                "Zone where VMs are located."
+              ]
+            }
+          ]
+        },
+        "GoogleStorage": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "Project name",
+              "type": "text",
+              "required": true,
+              "path": "discovery.GoogleStorage",
+              "model": "projectName",
+              "tip": [
+                "Google Cloud Platforms project name.",
+                "Usually this is an auto generated project number (ex. 208709979073) that can be found in 'Overview' section of Google Developer Console."
+              ]
+            },
+            {
+              "label": "Bucket name",
+              "type": "text",
+              "required": true,
+              "path": "discovery.GoogleStorage",
+              "model": "bucketName",
+              "tip": [
+                "Google Cloud Storage bucket name.",
+                "If the bucket doesn't exist Ignite will automatically create it.",
+                "However the name must be unique across whole Google Cloud Storage and Service Account Id must be authorized to perform this operation."
+              ]
+            },
+            {
+              "label": "Private key path",
+              "type": "text",
+              "required": true,
+              "path": "discovery.GoogleStorage",
+              "model": "serviceAccountP12FilePath",
+              "tip": [
+                "Full path to the private key in PKCS12 format of the Service Account."
+              ]
+            },
+            {
+              "label": "Account id",
+              "type": "text",
+              "required": true,
+              "path": "discovery.GoogleStorage",
+              "model": "accountId",
+              "tip": [
+                "Service account ID (typically an e-mail address)."
+              ]
+            }
+          ]
+        },
+        "Jdbc": {
+          "expanded": true,
+          "fields": [
+            {
+              "label": "DB schema should be initialized by Ignite",
+              "type": "check",
+              "path": "discovery.Jdbc",
+              "model": "initSchema",
+              "tip": [
+                "Flag indicating whether DB schema should be initialized by Ignite or was explicitly created by user."
+              ]
+            }
+          ]
+        },
+        "SharedFs": {
+          "expanded": false,
+          "fields": [
+            {
+              "label": "File path",
+              "type": "text",
+              "path": "discovery.SharedFs",
+              "model": "path",
+              "placeholder": "disco/tcp"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "advanced": [
+    {
+      "label": "Atomics configuration",
+      "tip": [
+        "Configuration for atomic data structures.",
+        "Atomics are distributed across the cluster, essentially enabling performing atomic operations (such as increment-and-get or compare-and-set) with the same globally-visible value."
+      ],
+      "fields": [
+        {
+          "label": "Backups",
+          "type": "number",
+          "path": "atomicConfiguration",
+          "model": "backups",
+          "placeholder": 0,
+          "tip": [
+            "Number of backup nodes."
+          ]
+        },
+        {
+          "label": "Cache mode",
+          "type": "dropdown",
+          "path": "atomicConfiguration",
+          "model": "cacheMode",
+          "placeholder": "PARTITIONED",
+          "items": "cacheModes",
+          "tip": [
+            "Cache modes:",
+            "<ul>",
+            "  <li>Partitioned - in this mode the overall key set will be divided into partitions and all partitions will be split equally between participating nodes.</li>",
+            "  <li>Replicated - in this mode all the keys are distributed to all participating nodes.</li>",
+            "  <li>Local - in this mode caches residing on different grid nodes will not know about each other.</li>",
+            "</ul>"
+          ]
+        },
+        {
+          "label": "Sequence reserve",
+          "type": "number",
+          "path": "atomicConfiguration",
+          "model": "atomicSequenceReserveSize",
+          "placeholder": 1000,
+          "tip": [
+            "Default number of sequence values reserved for IgniteAtomicSequence instances.",
+            "After a certain number has been reserved, consequent increments of sequence will happen locally, without communication with other nodes, until the next reservation has to be made."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Communication",
+      "tip": [
+        "Cluster communication network properties."
+      ],
+      "fields": [
+        {
+          "label": "Timeout",
+          "type": "number",
+          "model": "networkTimeout",
+          "placeholder": 5000,
+          "tip": [
+            "Maximum timeout in milliseconds for network requests."
+          ]
+        },
+        {
+          "label": "Send retry delay",
+          "type": "number",
+          "model": "networkSendRetryDelay",
+          "placeholder": 1000,
+          "tip": [
+            "Interval in milliseconds between message send retries."
+          ]
+        },
+        {
+          "label": "Send retry count",
+          "type": "number",
+          "model": "networkSendRetryCount",
+          "placeholder": 3,
+          "tip": [
+            "Message send retries count."
+          ]
+        },
+        {
+          "label": "Segment check frequency",
+          "type": "number",
+          "model": "segmentCheckFrequency",
+          "placeholder": 10000,
+          "tip": [
+            "Network segment check frequency in milliseconds.",
+            "If 0, periodic segment check is disabled and segment is checked only on topology changes (if segmentation resolvers are configured)."
+          ]
+        },
+        {
+          "label": "Wait for segment on start",
+          "type": "check",
+          "model": "waitForSegmentOnStart",
+          "tip": [
+            "Wait for segment on start flag.",
+            "<ul>",
+            "  <li>If enabled, node should wait for correct segment on start.</li>",
+            "  <li>If node detects that segment is incorrect on startup and enabled, node waits until segment becomes correct.</li>",
+            "  <li>If segment is incorrect on startup and disabled, exception is thrown.</li>",
+            "</ul>"
+          ]
+        },
+        {
+          "label": "Discovery startup delay",
+          "type": "number",
+          "model": "discoveryStartupDelay",
+          "placeholder": 600000,
+          "tip": [
+            "This value is used to expire messages from waiting list whenever node discovery discrepancies happen."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Deployment",
+      "tip": [
+        "Task and resources deployment in cluster."
+      ],
+      "fields": [
+        {
+          "label": "Mode",
+          "type": "dropdown",
+          "model": "deploymentMode",
+          "placeholder": "SHARED",
+          "items": "deploymentModes",
+          "tip": [
+            "Task classes and resources sharing mode."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Events",
+      "tip": [
+        " Grid events are used for notification about what happens within the grid."
+      ],
+      "fields": [
+        {
+          "label": "Include type",
+          "type": "dropdown-multiple",
+          "model": "includeEventTypes",
+          "placeholder": "Choose recorded event types",
+          "items": "events",
+          "tip": [
+            "Array of event types, which will be recorded by GridEventStorageManager#record(Event).",
+            "Note, that either the include event types or the exclude event types can be established."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Marshaller",
+      "tip": [
+        "Marshaller allows to marshal or unmarshal objects in grid.",
+        "It provides serialization/deserialization mechanism for all instances that are sent across networks or are otherwise serialized."
+      ],
+      "fields": [
+        {
+          "label": "Marshaller",
+          "type": "dropdown-details",
+          "path": "marshaller",
+          "model": "kind",
+          "placeholder": "Choose marshaller",
+          "items": "marshallers",
+          "tip": [
+            "Instance of marshaller to use in grid. If not provided, OptimizedMarshaller will be used on Java HotSpot VM, and JdkMarshaller will be used on other VMs."
+          ],
+          "details": {
+            "OptimizedMarshaller": {
+              "expanded": false,
+              "fields": [
+                {
+                  "label": "Streams pool size",
+                  "type": "number",
+                  "path": "marshaller.OptimizedMarshaller",
+                  "model": "poolSize",
+                  "placeholder": 0,
+                  "tip": [
+                    "Specifies size of cached object streams used by marshaller.",
+                    "Object streams are cached for performance reason to avoid costly recreation for every serialization routine.",
+                    "If 0 (default), pool is not used and each thread has its own cached object stream which it keeps reusing.",
+                    "Since each stream has an internal buffer, creating a stream for each thread can lead to high memory consumption if many large messages are marshalled or unmarshalled concurrently.",
+                    "Consider using pool in this case. This will limit number of streams that can be created and, therefore, decrease memory consumption.",
+                    "NOTE: Using streams pool can decrease performance since streams will be shared between different threads which will lead to more frequent context switching."
+                  ]
+                },
+                {
+                  "label": "Require serializable",
+                  "type": "check",
+                  "path": "marshaller.OptimizedMarshaller",
+                  "model": "requireSerializable",
+                  "tip": [
+                    "Whether marshaller should require Serializable interface or not."
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "label": "Marshal local jobs",
+          "type": "check",
+          "model": "marshalLocalJobs",
+          "placeholder": "false",
+          "tip": [
+            "If this flag is enabled, jobs mapped to local node will be marshalled as if it was remote node."
+          ]
+        },
+        {
+          "label": "Keep alive time",
+          "type": "number",
+          "model": "marshallerCacheKeepAliveTime",
+          "placeholder": 10000,
+          "tip": [
+            "Keep alive time of thread pool that is in charge of processing marshaller messages."
+          ]
+        },
+        {
+          "label": "Pool size",
+          "type": "number",
+          "model": "marshallerCacheThreadPoolSize",
+          "placeholder": "max(8, availableProcessors) * 2",
+          "tip": [
+            "Default size of thread pool that is in charge of processing marshaller messages."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Metrics",
+      "tip": [
+        "Cluster runtime metrics settings."
+      ],
+      "fields": [
+        {
+          "label": "Elapsed time",
+          "type": "number",
+          "model": "metricsExpireTime",
+          "placeholder": "Long.MAX_VALUE",
+          "min": 1,
+          "tip": [
+            "Time in milliseconds after which a certain metric value is considered expired."
+          ]
+        },
+        {
+          "label": "History size",
+          "type": "number",
+          "model": "metricsHistorySize",
+          "placeholder": 10000,
+          "min": 1,
+          "tip": [
+            "Number of metrics kept in history to compute totals and averages."
+          ]
+        },
+        {
+          "label": "Log frequency",
+          "type": "number",
+          "model": "metricsLogFrequency",
+          "placeholder": 60000,
+          "tip": [
+            "Frequency of metrics log print out. To disable set to 0"
+          ]
+        },
+        {
+          "label": "Update frequency",
+          "type": "number",
+          "model": "metricsUpdateFrequency",
+          "placeholder": 60000,
+          "tip": [
+            "Job metrics update frequency in milliseconds.",
+            "<ul>",
+            "  <li>If set to -1 job metrics are never updated.</li>",
+            "  <li>If set to 0 job metrics are updated on each job start and finish.</li>",
+            "  <li>Positive value defines the actual update frequency.</li>",
+            "</ul>"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Peer Class Loading",
+      "tip": [
+        "Cluster peer class loading settings."
+      ],
+      "fields": [
+        {
+          "label": "Enable peer class loading",
+          "type": "check",
+          "model": "peerClassLoadingEnabled",
+          "tip": [
+            "Enables/disables peer class loading."
+          ]
+        },
+        {
+          "label": "Local class path exclude",
+          "type": "text",
+          "model": "peerClassLoadingLocalClassPathExclude",
+          "placeholder": "[]",
+          "tip": [
+            "List of packages separated by comma from the system classpath that need to be peer-to-peer loaded from task originating node.",
+            "'*' is supported at the end of the package name which means that all sub-packages and their classes are included like in Java package import clause."
+          ]
+        },
+        {
+          "label": "Missed resources cache size",
+          "type": "number",
+          "model": "peerClassLoadingMissedResourcesCacheSize",
+          "placeholder": 100,
+          "tip": [
+            "If size greater than 0, missed resources will be cached and next resource request ignored.",
+            "If size is 0, then request for the resource will be sent to the remote node every time this resource is requested."
+          ]
+        },
+        {
+          "label": "Pool size",
+          "type": "number",
+          "model": "peerClassLoadingThreadPoolSize",
+          "placeholder": "availableProcessors",
+          "tip": [
+            "Thread pool size to use for peer class loading."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Swap",
+      "tip": [
+        "Settings for overflow data to disk if it cannot fit in memory."
+      ],
+      "fields": [
+        {
+          "label": "Swap space SPI",
+          "type": "dropdown-details",
+          "path": "swapSpaceSpi",
+          "model": "kind",
+          "items": "swapSpaceSpis",
+          "placeholder": "Choose swap SPI",
+          "tip": [
+            "Provides a mechanism in grid for storing data on disk.",
+            "Ignite cache uses swap space to overflow data to disk if it cannot fit in memory."
+          ],
+          "details": {
+            "FileSwapSpaceSpi": {
+              "fields": [
+                {
+                  "label": "Base directory",
+                  "type": "text",
+                  "path": "swapSpaceSpi.FileSwapSpaceSpi",
+                  "model": "baseDirectory",
+                  "placeholder": "swapspace",
+                  "tip": [
+                    "Base directory where to write files."
+                  ]
+                },
+                {
+                  "label": "Read stripe size",
+                  "type": "number",
+                  "path": "swapSpaceSpi.FileSwapSpaceSpi",
+                  "model": "readStripesNumber",
+                  "placeholder": "available CPU cores",
+                  "tip": [
+                    "Read stripe size defines number of file channels to be used concurrently."
+                  ]
+                },
+                {
+                  "label": "Maximum sparsity",
+                  "type": "number",
+                  "path": "swapSpaceSpi.FileSwapSpaceSpi",
+                  "model": "maximumSparsity",
+                  "placeholder": 0.5,
+                  "tip": [
+                    "This property defines maximum acceptable wasted file space to whole file size ratio.",
+                    "When this ratio becomes higher than specified number compacting thread starts working."
+                  ]
+                },
+                {
+                  "label": "Max write queue size",
+                  "type": "number",
+                  "path": "swapSpaceSpi.FileSwapSpaceSpi",
+                  "model": "maxWriteQueueSize",
+                  "placeholder": "1024 * 1024",
+                  "tip": [
+                    "Max write queue size in bytes.",
+                    "If there are more values are waiting for being written to disk then specified size, SPI will block on store operation."
+                  ]
+                },
+                {
+                  "label": "Write buffer size",
+                  "type": "number",
+                  "path": "swapSpaceSpi.FileSwapSpaceSpi",
+                  "model": "writeBufferSize",
+                  "placeholder": "Available CPU cores",
+                  "tip": [
+                    "Write buffer size in bytes.",
+                    "Write to disk occurs only when this buffer is full."
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "Time configuration",
+      "tip": [
+        "Time settings for CLOCK write ordering mode."
+      ],
+      "fields": [
+        {
+          "label": "Samples size",
+          "type": "number",
+          "model": "clockSyncSamples",
+          "placeholder": 8,
+          "tip": [
+            "Number of samples used to synchronize clocks between different nodes.",
+            "Clock synchronization is used for cache version assignment in CLOCK order mode."
+          ]
+        },
+        {
+          "label": "Frequency",
+          "type": "number",
+          "model": "clockSyncFrequency",
+          "placeholder": 120000,
+          "tip": [
+            "Frequency at which clock is synchronized between nodes, in milliseconds.",
+            "Clock synchronization is used for cache version assignment in CLOCK order mode."
+          ]
+        },
+        {
+          "label": "Port base",
+          "type": "number",
+          "model": "timeServerPortBase",
+          "max": 65535,
+          "placeholder": 31100,
+          "tip": [
+            "Time server provides clock synchronization between nodes.",
+            "Base UPD port number for grid time server. Time server will be started on one of free ports in range."
+          ]
+        },
+        {
+          "label": "Port range",
+          "type": "number",
+          "model": "timeServerPortRange",
+          "placeholder": 100,
+          "tip": [
+            "Time server port range."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Thread pools size",
+      "tip": [
+        "Settings for node thread pools."
+      ],
+      "fields": [
+        {
+          "label": "Public",
+          "type": "number",
+          "model": "publicThreadPoolSize",
+          "placeholder": "max(8, availableProcessors) * 2",
+          "tip": [
+            "Thread pool that is in charge of processing ComputeJob, GridJobs and user messages sent to node."
+          ]
+        },
+        {
+          "label": "System",
+          "type": "number",
+          "model": "systemThreadPoolSize",
+          "placeholder": "max(8, availableProcessors) * 2",
+          "tip": [
+            "Thread pool that is in charge of processing internal system messages."
+          ]
+        },
+        {
+          "label": "Management",
+          "type": "number",
+          "model": "managementThreadPoolSize",
+          "placeholder": 4,
+          "tip": [
+            "Thread pool that is in charge of processing internal and Visor ComputeJob, GridJobs."
+          ]
+        },
+        {
+          "label": "IGFS",
+          "type": "number",
+          "model": "igfsThreadPoolSize",
+          "placeholder": "availableProcessors",
+          "tip": [
+            "Thread pool that is in charge of processing outgoing IGFS messages."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Transactions",
+      "tip": [
+        "Settings for transactions."
+      ],
+      "fields": [
+        {
+          "label": "Concurrency",
+          "type": "dropdown",
+          "path": "transactionConfiguration",
+          "model": "defaultTxConcurrency",
+          "placeholder": "PESSIMISTIC",
+          "items": "transactionConcurrency",
+          "tip": [
+            "Cache transaction concurrency to use when one is not explicitly specified."
+          ]
+        },
+        {
+          "label": "Isolation",
+          "type": "dropdown",
+          "path": "transactionConfiguration",
+          "model": "transactionIsolation",
+          "placeholder": "REPEATABLE_READ",
+          "items": "transactionIsolation",
+          "tip": [
+            "Default transaction isolation."
+          ]
+        },
+        {
+          "label": "Default timeout",
+          "type": "number",
+          "path": "transactionConfiguration",
+          "model": "defaultTxTimeout",
+          "placeholder": 0,
+          "tip": [
+            "Default transaction timeout."
+          ]
+        },
+        {
+          "label": "Pessimistic log cleanup delay",
+          "type": "number",
+          "path": "transactionConfiguration",
+          "model": "pessimisticTxLogLinger",
+          "placeholder": 10000,
+          "tip": [
+            "Delay, in milliseconds, after which pessimistic recovery entries will be cleaned up for failed node."
+          ]
+        },
+        {
+          "label": "Pessimistic log size",
+          "type": "number",
+          "path": "transactionConfiguration",
+          "model": "pessimisticTxLogSize",
+          "placeholder": 0,
+          "tip": [
+            "Size of pessimistic transactions log stored on node in order to recover transaction commit if originating node has left grid before it has sent all messages to transaction nodes."
+          ]
+        },
+        {
+          "label": "Manager lookup",
+          "type": "text",
+          "model": "txManagerLookupClassName",
+          "tip": [
+            "Class name of transaction manager finder for integration for JEE app servers."
+          ]
+        },
+        {
+          "label": "Enable serializable cache transactions",
+          "type": "check",
+          "path": "transactionConfiguration",
+          "model": "txSerializableEnabled",
+          "tip": [
+            "Flag to enable/disable isolation level for cache transactions.",
+            "Serializable level does carry certain overhead and if not used, should be disabled."
+          ]
+        }
+      ]
+    }
+  ]
+}

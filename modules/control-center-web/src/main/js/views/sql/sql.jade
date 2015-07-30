@@ -1,0 +1,85 @@
+//-
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+         http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+extends ../templates/layout
+
+append scripts
+    script(src='/sql-controller.js')
+
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-chrome.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-sql.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js')
+
+block container
+    .row
+        .col-sm-12
+            .docs-content
+                .docs-header
+                    h1 Connect to Ignite and Execute SQL Queries
+                    hr
+                .docs-body(ng-controller='sqlController')
+                    - var tab = 'tabs[tabs.activeIdx]'
+
+                    .block-callout-parent.block-callout-border.margin-bottom-dflt
+                        .block-callout
+                            p(ng-bind-html='joinTip(screenTip)')
+                    .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
+                        div(ng-repeat='tab in tabs' title='Query' bs-pane)
+                    .row
+                        .col-sm-9(style='border-right: 1px solid #eee')
+                            div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                                'require: ["ace/ext/language_tools"],' +
+                                'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
+                        .col-sm-3
+                            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                                lable.labelHeader Caches:
+                                table.links(st-table='caches')
+                                    tbody
+                                        tr(ng-repeat='row in caches track by row._id')
+                                            td.col-sm-6(ng-class='{active: row._id == #{tab}.selectedItem._id}')
+                                                a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{row.name}}, {{row.mode | displayValue:modes:'Cache mode not set'}}
+                    hr(style='margin: 0')
+                    .settings-row
+                        label Page Size:&nbsp;
+                        button.btn.btn-default.base-control(ng-init='pageSize = pageSizes[0]' ng-model='pageSize' bs-options='item for item in pageSizes' bs-select)
+                    .settings-row
+                        button.btn.btn-primary(ng-click='') Explain
+                        button.btn.btn-primary(ng-click='') Execute
+                        button.btn.btn-primary(ng-click='' disabled) Scan
+
+                    div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
+                        hr
+                        div
+                            table.table.table-striped.col-sm-12.sql-results(st-table='rows' st-safe-src='#{tab}.rows')
+                                thead
+                                    tr(style='border-size: 0')
+                                        td(colspan='{{#{tab}.cols.length}}')
+                                            .col-sm-8
+                                                lable Page #:&nbsp;
+                                                b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
+                                                | Results:&nbsp;
+                                                b {{#{tab}.rows.length + #{tab}.total}}
+                                            .col-sm-4
+                                                button.btn.btn-primary.fieldButton(ng-click='') Next page
+                                                .input-tip
+                                                    input.form-control(type='text' st-search='' placeholder='Filter...')
+
+                                    tr
+                                        th(ng-repeat='column in #{tab}.cols' st-sort='{{column}}') {{column}}
+                                tbody
+                                    //tr
+                                    //    td(colspan='{{#{tab}.cols.length}}')
+                                    //        .loading-indicator
+                                    tr(ng-repeat='row in rows')
+                                        td(ng-repeat='column in #{tab}.cols') {{row[column]}}

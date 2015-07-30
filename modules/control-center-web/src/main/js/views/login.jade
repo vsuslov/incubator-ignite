@@ -1,0 +1,55 @@
+//-
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+mixin lbl(txt)
+    label.col-sm-3.required #{txt}
+
+.modal.center(role='dialog')
+    .modal-dialog
+        .modal-content
+            .modal-header.header
+                div(id='errors-container')
+                button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
+                h1.navbar-brand
+                    a(href='/') Apache Ignite Web Configurator
+                h4.modal-title(style='padding-right: 55px') Authentication
+                p(style='padding-right: 55px') Log in or register in order to collaborate
+            form.form-horizontal(name='loginForm')
+                .modal-body.row
+                    .col-sm-9.login.col-sm-offset-1
+                        .details-row(ng-show='action == "register"')
+                            +lbl('Full Name:')
+                            .col-sm-9
+                                input.form-control(type='text' ng-model='user_info.username' placeholder='John Smith' focus-me='action=="register"' ng-required='action=="register"')
+                        .details-row
+                            +lbl('Email:')
+                            .col-sm-9
+                                input.form-control(type='email' ng-model='user_info.email' placeholder='you@domain.com' focus-me='action=="login"' required)
+                        .details-row
+                            +lbl('Password:')
+                            .col-sm-9
+                                input.form-control(type='password' ng-model='user_info.password' placeholder='Password' required ng-enter='action == "login" && auth(action, user_info)')
+                        .details-row(ng-show='action == "register"')
+                            +lbl('Confirm:')
+                            .col-sm-9.input-tip.has-feedback
+                                input.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' required ng-enter='auth(action, user_info)')
+
+            .modal-footer
+                a.show-signup.ng-hide(ng-show='action != "login"' ng-click='action = "login";') log in
+                a.show-signup(ng-show='action != "register"' ng-click='action = "register"') sign up
+                | &nbsp;or&nbsp;
+                button.btn.btn-primary(ng-show='action == "login"' ng-click='auth(action, user_info)') Log In
+                button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid || user_info.password != user_info.confirm' ng-click='auth(action, user_info)') Sign Up
