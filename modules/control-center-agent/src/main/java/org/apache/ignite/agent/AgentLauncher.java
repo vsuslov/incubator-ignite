@@ -52,7 +52,7 @@ public class AgentLauncher {
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
-        URL dfltCfgUrl = AgentLauncher.class.getResource("/config.properties");
+        URL dfltCfgUrl = AgentLauncher.class.getResource("/default.config.properties");
 
         cfg.load(dfltCfgUrl);
 
