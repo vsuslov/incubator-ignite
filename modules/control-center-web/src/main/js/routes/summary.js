@@ -19,6 +19,7 @@ var db = require('../db');
 
 var router = require('express').Router();
 
+var generatorCommon = require('./generator/common');
 var generatorXml = require('./generator/xml');
 var generatorJava = require('./generator/java');
 var generatorDocker = require('./generator/docker');
@@ -81,8 +82,6 @@ router.post('/download', function (req, res) {
 
         // Set the archive name.
         res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '-server') + '-configuration.zip');
-
-        var generatorCommon = require('./generator/common');
 
         // Send the file to the page output.
         zip.pipe(res);

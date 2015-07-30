@@ -37,9 +37,9 @@ function toJavaName(prefix, name) {
  *
  * @param cluster Cluster to process.
  * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
- * @param clientMode If 'true' then generate configuration for client node.
+ * @param clientNearConfiguration Near cache configuration for client node.
  */
-exports.generateClusterConfiguration = function (cluster, javaClass, clientMode) {
+exports.generateClusterConfiguration = function (cluster, javaClass, clientNearConfiguration) {
     var res = generatorUtils.builder();
 
     res.datasourceBeans = [];
@@ -58,7 +58,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
     res.line();
 
-    if (clientMode) {
+    if (clientNearConfiguration) {
         res.line('cfg.setClientMode(true);');
         res.line();
     }
