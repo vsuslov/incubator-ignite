@@ -17,7 +17,7 @@
 
 var _ = require('lodash');
 
-var generatorUtils = require("./common");
+var generatorCommon = require("./common");
 
 /**
  * Convert some name to valid java name.
@@ -40,13 +40,13 @@ function toJavaName(prefix, name) {
  * @param clientNearConfiguration Near cache configuration for client node.
  */
 exports.generateClusterConfiguration = function (cluster, javaClass, clientNearConfiguration) {
-    var res = generatorUtils.builder();
+    var res = generatorCommon.builder();
 
     res.datasourceBeans = [];
 
     if (javaClass) {
         res.line('/**');
-        res.line(' * ' + generatorUtils.mainComment());
+        res.line(' * ' + generatorCommon.mainComment());
         res.line(' */');
         res.startBlock('public class ConfigurationFactory {');
         res.line('/**');
@@ -198,7 +198,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
     }
 
     addBeanWithProperties(res, 'cfg', cluster.atomicConfiguration, 'atomicConfiguration', 'atomicCfg',
-        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
+        generatorCommon.atomicConfiguration.className, generatorCommon.atomicConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -257,7 +257,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
     var marshaller = cluster.marshaller;
 
     if (marshaller && marshaller.kind) {
-        var marshallerDesc = generatorUtils.marshallers[marshaller.kind];
+        var marshallerDesc = generatorCommon.marshallers[marshaller.kind];
 
         addBeanWithProperties(res, 'cfg', marshaller[marshaller.kind], 'marshaller', 'marshaller',
             marshallerDesc.className, marshallerDesc.fields, true);
@@ -285,7 +285,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
 
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         addBeanWithProperties(res, 'cfg', cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi', 'swapSpi',
-            generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
+            generatorCommon.swapSpaceSpi.className, generatorCommon.swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
     }
@@ -305,8 +305,8 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
     res.needEmptyLine = true;
 
     addBeanWithProperties(res, 'cfg', cluster.transactionConfiguration, 'transactionConfiguration',
-        'transactionConfiguration', generatorUtils.transactionConfiguration.className,
-        generatorUtils.transactionConfiguration.fields);
+        'transactionConfiguration', generatorCommon.transactionConfiguration.className,
+        generatorCommon.transactionConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -336,7 +336,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientNearC
  */
 function addEvictionPolicy(res, varName, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
-        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
+        var e = generatorCommon.evictionPolicies[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
@@ -547,7 +547,7 @@ function addCacheConfiguration(res, cache, varName) {
 
     if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
-        var data = generatorUtils.storeFactories[cache.cacheStoreFactory.kind];
+        var data = generatorCommon.storeFactories[cache.cacheStoreFactory.kind];
 
         var sfVarName = toJavaName('storeFactory', cache.name);
         var dsVarName = 'none';
@@ -560,7 +560,7 @@ function addCacheConfiguration(res, cache, varName) {
             if (!_.contains(res.datasourceBeans, dataSourceBean)) {
                 res.datasourceBeans.push(dataSourceBean);
 
-                var dataSource = generatorUtils.dataSources[storeFactory.dialect];
+                var dataSource = generatorCommon.dataSources[storeFactory.dialect];
 
                 res.line();
 
@@ -715,7 +715,7 @@ function declareVariable(res, varNew, varName, varFullType, varFullActualType, v
 function addProperty(res, varName, obj, propName, enumType, setterName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val)) {
+    if (generatorCommon.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
@@ -736,7 +736,7 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
 function addClassProperty(res, varName, obj, propName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val)) {
+    if (generatorCommon.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(propName) + '(' + res.importClass(val) + '.class);');
@@ -790,7 +790,7 @@ function addMultiparamProperty(res, varName, obj, propName, type, setterName) {
 }
 
 function addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
-    if (bean && generatorUtils.hasProperty(bean, props)) {
+    if (bean && generatorCommon.hasProperty(bean, props)) {
         if (!res.emptyLineIfNeeded()) {
             res.line();
         }
@@ -839,7 +839,7 @@ function addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, be
 
                         case 'className':
                             if (bean[propName]) {
-                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + generatorUtils.knownClasses[bean[propName]].className + '());');
+                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + generatorCommon.knownClasses[bean[propName]].className + '());');
                             }
 
                             break;

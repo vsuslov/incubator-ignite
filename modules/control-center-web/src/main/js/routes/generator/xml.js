@@ -17,11 +17,11 @@
 
 var _ = require('lodash');
 
-var generatorUtils = require("./common");
+var generatorCommon = require("./common");
 var dataStructures = require("../../helpers/data-structures.js");
 
 exports.generateClusterConfiguration = function (cluster, clientNearConfiguration) {
-    var res = generatorUtils.builder();
+    var res = generatorCommon.builder();
 
     res.datasources = [];
     res.deep = 1;
@@ -155,7 +155,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
 
     // Generate atomics group.
     addBeanWithProperties(res, cluster.atomicConfiguration, 'atomicConfiguration',
-        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
+        generatorCommon.atomicConfiguration.className, generatorCommon.atomicConfiguration.fields);
     res.needEmptyLine = true;
 
     // Generate communication group.
@@ -209,7 +209,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
     var marshaller = cluster.marshaller;
 
     if (marshaller && marshaller.kind) {
-        var marshallerDesc = generatorUtils.marshallers[marshaller.kind];
+        var marshallerDesc = generatorCommon.marshallers[marshaller.kind];
 
         addBeanWithProperties(res, marshaller[marshaller.kind], 'marshaller', marshallerDesc.className, marshallerDesc.fields, true);
         res.needEmptyLine = true;
@@ -237,7 +237,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
     // Generate swap group.
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         addBeanWithProperties(res, cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi',
-            generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
+            generatorCommon.swapSpaceSpi.className, generatorCommon.swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
     }
@@ -258,7 +258,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
 
     // Generate transactions group.
     addBeanWithProperties(res, cluster.transactionConfiguration, 'transactionConfiguration',
-        generatorUtils.transactionConfiguration.className, generatorUtils.transactionConfiguration.fields);
+        generatorCommon.transactionConfiguration.className, generatorCommon.transactionConfiguration.fields);
     res.needEmptyLine = true;
 
     // Generate caches configs.
@@ -289,7 +289,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
     // 1. Add header.
     var xml = '<?xml version="1.0" encoding="UTF-8"?>\n\n';
 
-    xml += '<!-- ' + generatorUtils.mainComment() + ' -->\n';
+    xml += '<!-- ' + generatorCommon.mainComment() + ' -->\n';
     xml += '<beans xmlns="http://www.springframework.org/schema/beans"\n';
     xml += '       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n';
     xml += '       xmlns:util="http://www.springframework.org/schema/util"\n';
@@ -329,7 +329,7 @@ exports.generateClusterConfiguration = function (cluster, clientNearConfiguratio
 
 function createEvictionPolicy(res, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
-        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
+        var e = generatorCommon.evictionPolicies[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
@@ -356,7 +356,7 @@ function addCacheTypeMetadataDatabaseFields(res, meta, fieldProperty) {
 
             addProperty(res, field, 'javaName');
 
-            addElement(res, 'property', 'name', 'javaType', 'value', generatorUtils.javaBuildInClass(field.javaType));
+            addElement(res, 'property', 'name', 'javaType', 'value', generatorCommon.javaBuildInClass(field.javaType));
 
             res.endBlock('</bean>');
         });
@@ -375,7 +375,7 @@ function addCacheTypeMetadataQueryFields(res, meta, fieldProperty) {
         res.startBlock('<map>');
 
         _.forEach(fields, function (field) {
-            addElement(res, 'entry', 'key', field.name, 'value', generatorUtils.javaBuildInClass(field.className));
+            addElement(res, 'entry', 'key', field.name, 'value', generatorCommon.javaBuildInClass(field.className));
         });
 
         res.endBlock('</map>');
@@ -402,7 +402,7 @@ function addCacheTypeMetadataGroups(res, meta) {
                     res.startBlock('<entry key="' + field.name + '">');
 
                     res.startBlock('<bean class="org.apache.ignite.lang.IgniteBiTuple">');
-                    res.line('<constructor-arg value="' + generatorUtils.javaBuildInClass(field.className) + '"/>');
+                    res.line('<constructor-arg value="' + generatorCommon.javaBuildInClass(field.className) + '"/>');
                     res.line('<constructor-arg value="' + field.direction + '"/>');
                     res.endBlock('</bean>');
 
@@ -421,7 +421,7 @@ function addCacheTypeMetadataGroups(res, meta) {
 
 function generateCacheTypeMetadataConfiguration(res, meta) {
     if (!res)
-        res = generatorUtils.builder();
+        res = generatorCommon.builder();
 
     res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
 
@@ -449,7 +449,7 @@ function generateCacheTypeMetadataConfiguration(res, meta) {
 
 function generateCacheConfiguration(res, cacheCfg) {
     if (!res)
-        res = generatorUtils.builder();
+        res = generatorCommon.builder();
 
     res.startBlock('<bean class="org.apache.ignite.configuration.CacheConfiguration">');
 
@@ -510,8 +510,8 @@ function generateCacheConfiguration(res, cacheCfg) {
         for (var i = 0; i < cacheCfg.indexedTypes.length; i++) {
             var pair = cacheCfg.indexedTypes[i];
 
-            res.line('<value>' + generatorUtils.javaBuildInClass(pair.keyClass) + '</value>');
-            res.line('<value>' + generatorUtils.javaBuildInClass(pair.valueClass) + '</value>');
+            res.line('<value>' + generatorCommon.javaBuildInClass(pair.keyClass) + '</value>');
+            res.line('<value>' + generatorCommon.javaBuildInClass(pair.valueClass) + '</value>');
         }
 
         res.endBlock('</list>');
@@ -536,7 +536,7 @@ function generateCacheConfiguration(res, cacheCfg) {
 
     if (cacheCfg.cacheStoreFactory && cacheCfg.cacheStoreFactory.kind) {
         var storeFactory = cacheCfg.cacheStoreFactory[cacheCfg.cacheStoreFactory.kind];
-        var data = generatorUtils.storeFactories[cacheCfg.cacheStoreFactory.kind];
+        var data = generatorCommon.storeFactories[cacheCfg.cacheStoreFactory.kind];
 
         addBeanWithProperties(res, storeFactory, 'cacheStoreFactory', data.className, data.fields, true);
 
@@ -546,7 +546,7 @@ function generateCacheConfiguration(res, cacheCfg) {
                 }) < 0) {
                 res.datasources.push({
                     dataSourceBean: storeFactory.dataSourceBean,
-                    className: generatorUtils.dataSources[storeFactory.dialect]
+                    className: generatorCommon.dataSources[storeFactory.dialect]
                 });
             }
         }
@@ -640,14 +640,14 @@ function addElement(res, tag, attr1, val1, attr2, val2) {
 function addProperty(res, obj, propName, setterName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val))
+    if (generatorCommon.isDefined(val))
         addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
 
     return val;
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
-    if (bean && generatorUtils.hasProperty(bean, props)) {
+    if (bean && generatorCommon.hasProperty(bean, props)) {
         res.emptyLineIfNeeded();
         res.startBlock('<property name="' + beanPropName + '">');
         res.startBlock('<bean class="' + beanClass + '">');
@@ -663,7 +663,7 @@ function addBeanWithProperties(res, bean, beanPropName, beanClass, props, create
                     else if (descr.type == 'className') {
                         if (bean[propName]) {
                             res.startBlock('<property name="' + propName + '">');
-                            res.line('<bean class="' + generatorUtils.knownClasses[bean[propName]].className + '"/>');
+                            res.line('<bean class="' + generatorCommon.knownClasses[bean[propName]].className + '"/>');
                             res.endBlock('</property>');
                         }
                     }
