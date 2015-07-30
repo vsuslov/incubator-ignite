@@ -555,7 +555,7 @@ function addCacheConfiguration(res, cache, varName) {
         if (storeFactory.dialect) {
             var dataSourceBean = storeFactory.dataSourceBean;
 
-            dsVarName = 'dataSource' + generatorUtils.toJavaName(dataSourceBean);
+            dsVarName = 'dataSource' + toJavaName(dataSourceBean);
 
             if (!_.contains(res.datasourceBeans, dataSourceBean)) {
                 res.datasourceBeans.push(dataSourceBean);
