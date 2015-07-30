@@ -731,11 +731,10 @@ function addPropertyIfNotDefault(res, varName, obj, propName, dflt) {
     if (generatorUtils.isDefined(val) && val != dflt) {
         res.emptyLineIfNeeded();
 
-        res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
+        res.line(varName + '.' + getSetterName(propName)
             + '(' + toJavaCode(val, enumType) + ');');
     }
 }
-
 
 /**
  * Add property via setter assuming that it is a 'Class'.
