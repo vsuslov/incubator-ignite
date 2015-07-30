@@ -464,7 +464,7 @@ function generateCacheConfiguration(res, cacheCfg) {
     if (cacheMode == 'PARTITIONED')
         addProperty(res, cacheCfg, 'backups');
 
-    addProperty(res, cacheCfg, 'readFromBackup', true);
+    addProperty(res, cacheCfg, 'readFromBackup');
 
     addProperty(res, cacheCfg, 'startSize');
 
@@ -473,7 +473,7 @@ function generateCacheConfiguration(res, cacheCfg) {
     addProperty(res, cacheCfg, 'memoryMode');
     addProperty(res, cacheCfg, 'offHeapMaxMemory');
     addProperty(res, cacheCfg, 'swapEnabled');
-    addProperty(res, cacheCfg, 'copyOnRead', true);
+    addProperty(res, cacheCfg, 'copyOnRead');
 
     res.needEmptyLine = true;
 

@@ -479,7 +479,7 @@ function addCacheConfiguration(res, cache, varName) {
     if (cacheMode == 'PARTITIONED')
         addProperty(res, varName, cache, 'backups');
 
-    addProperty(res, varName, cache, 'readFromBackup', true);
+    addProperty(res, varName, cache, 'readFromBackup');
     addProperty(res, varName, cache, 'startSize');
 
     res.needEmptyLine = true;
@@ -487,7 +487,7 @@ function addCacheConfiguration(res, cache, varName) {
     addProperty(res, varName, cache, 'memoryMode', 'CacheMemoryMode');
     addProperty(res, varName, cache, 'offHeapMaxMemory');
     addProperty(res, varName, cache, 'swapEnabled');
-    addProperty(res, varName, cache, 'copyOnRead', true);
+    addProperty(res, varName, cache, 'copyOnRead');
 
     res.needEmptyLine = true;
 
