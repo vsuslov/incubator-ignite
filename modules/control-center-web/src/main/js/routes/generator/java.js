@@ -479,15 +479,15 @@ function addCacheConfiguration(res, cache, varName) {
     if (cacheMode == 'PARTITIONED')
         addProperty(res, varName, cache, 'backups');
 
+    addProperty(res, varName, cache, 'readFromBackup', true);
     addProperty(res, varName, cache, 'startSize');
-    addPropertyIfNotDefault(res, varName, cache, 'readFromBackup', true);
 
     res.needEmptyLine = true;
 
     addProperty(res, varName, cache, 'memoryMode', 'CacheMemoryMode');
     addProperty(res, varName, cache, 'offHeapMaxMemory');
     addProperty(res, varName, cache, 'swapEnabled');
-    addPropertyIfNotDefault(res, varName, cache, 'copyOnRead', true);
+    addProperty(res, varName, cache, 'copyOnRead', true);
 
     res.needEmptyLine = true;
 
@@ -723,17 +723,6 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
     }
 
     return val;
-}
-
-function addPropertyIfNotDefault(res, varName, obj, propName, dflt) {
-    var val = obj[propName];
-
-    if (generatorUtils.isDefined(val) && val != dflt) {
-        res.emptyLineIfNeeded();
-
-        res.line(varName + '.' + getSetterName(propName)
-            + '(' + toJavaCode(val) + ');');
-    }
 }
 
 /**

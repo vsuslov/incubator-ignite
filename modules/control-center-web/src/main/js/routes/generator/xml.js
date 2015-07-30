@@ -464,16 +464,16 @@ function generateCacheConfiguration(res, cacheCfg) {
     if (cacheMode == 'PARTITIONED')
         addProperty(res, cacheCfg, 'backups');
 
-    addProperty(res, cacheCfg, 'startSize');
+    addProperty(res, cacheCfg, 'readFromBackup', true);
 
-    addPropertyIfNotDefault(res, cacheCfg, 'readFromBackup', true);
+    addProperty(res, cacheCfg, 'startSize');
 
     res.needEmptyLine = true;
 
     addProperty(res, cacheCfg, 'memoryMode');
     addProperty(res, cacheCfg, 'offHeapMaxMemory');
     addProperty(res, cacheCfg, 'swapEnabled');
-    addPropertyIfNotDefault(res, cacheCfg, 'copyOnRead', true);
+    addProperty(res, cacheCfg, 'copyOnRead', true);
 
     res.needEmptyLine = true;
 
@@ -644,13 +644,6 @@ function addProperty(res, obj, propName, setterName) {
         addElement(res, 'property', 'name', setterName ? setterName : propName, 'value', escapeAttr(val));
 
     return val;
-}
-
-function addPropertyIfNotDefault(res, obj, propName, dflt) {
-    var val = obj[propName];
-
-    if (generatorUtils.isDefined(val) && val != dflt)
-        addElement(res, 'property', 'name', propName, 'value', escapeAttr(val));
 }
 
 function addBeanWithProperties(res, bean, beanPropName, beanClass, props, createBeanAlthoughNoProps) {
