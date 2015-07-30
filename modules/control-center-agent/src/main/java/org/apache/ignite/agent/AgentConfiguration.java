@@ -73,7 +73,7 @@ public class AgentConfiguration {
     }
 
     /**
-     * @param srvUri Uri.
+     * @param srvUri URI.
      */
     public void setServerUri(URI srvUri) {
         this.serverUri = srvUri;
@@ -87,14 +87,14 @@ public class AgentConfiguration {
     }
 
     /**
-     * @param nodeUri Node uri.
+     * @param nodeUri Node URI.
      */
     public void setNodeUri(URI nodeUri) {
         this.nodeUri = nodeUri;
     }
 
     /**
-     * @param cfgUrl Url.
+     * @param cfgUrl URL.
      */
     public void load(URL cfgUrl) throws IOException {
         Properties props = new Properties();

@@ -204,7 +204,7 @@ public class RemoteCallable implements AutoCloseable {
     }
 
     /** {@inheritDoc} */
-    public void close() {
+    @Override public void close() {
         executorSrvc.shutdown();
     }
 
@@ -237,7 +237,7 @@ public class RemoteCallable implements AutoCloseable {
          * @param hnd Handler.
          * @param async Async.
          */
-        public MethodDescriptor(Method mtd, Object hnd, boolean async) {
+        MethodDescriptor(Method mtd, Object hnd, boolean async) {
             this.mtd = mtd;
             this.hnd = hnd;
             this.async = async;

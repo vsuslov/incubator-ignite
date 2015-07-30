@@ -88,7 +88,7 @@ AgentManager.prototype.findClient = function(userId) {
  * For tests only!!!
  * @return {Client}
  */
-AgentManager.prototype.getOneClient = function() {
+AgentManager.prototype._getFirstClient = function() {
     for (var userId in this._clients) {
         if (this._clients.hasOwnProperty(userId)) {
             var m = this._clients[userId];

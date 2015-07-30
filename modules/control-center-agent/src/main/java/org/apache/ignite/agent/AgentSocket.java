@@ -99,7 +99,7 @@ public class AgentSocket implements WebSocketSender {
      * @param msg Message.
      * @return Whether or not message was sent.
      */
-    public boolean send(JsonObject msg) {
+    @Override public boolean send(JsonObject msg) {
         return send(Utils.GSON.toJson(msg));
     }
 
@@ -107,13 +107,13 @@ public class AgentSocket implements WebSocketSender {
      * @param msg Message.
      * @return Whether or not message was sent.
      */
-    public boolean send(String msg) {
+    @Override public boolean send(String msg) {
         try {
             ses.getRemote().sendString(msg);
 
             return true;
         }
-        catch (IOException e) {
+        catch (IOException ignored) {
             log.log(Level.SEVERE, "Failed to send message to Control Center");
 
             return false;
@@ -148,7 +148,7 @@ public class AgentSocket implements WebSocketSender {
     }
 
     /**
-     * @param errorMsg Authentication failed message or {@code null} if authentication succes.
+     * @param errorMsg Authentication failed message or {@code null} if authentication success.
      */
     @Remote
     public void authResult(String errorMsg) {

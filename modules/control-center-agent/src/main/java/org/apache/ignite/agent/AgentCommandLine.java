@@ -1,4 +1,4 @@
-package org.apache.ignite.agent;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,6 +15,8 @@ package org.apache.ignite.agent;/*
  * limitations under the License.
  */
 
+package org.apache.ignite.agent;
+
 import com.beust.jcommander.*;
 
 /**
@@ -30,7 +32,8 @@ public class AgentCommandLine {
     private String pwd;
 
     /** */
-    @Parameter(names = {"-s", "--serverUri"}, description = "Link to web-control-center web-socket server, for example: wss://control-center.gridgain.com")
+    @Parameter(names = {"-s", "--serverUri"},
+        description = "Link to web-control-center web-socket server, for example: wss://control-center.gridgain.com")
     private String serverUri;
 
     /** */

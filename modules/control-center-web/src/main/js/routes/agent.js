@@ -20,7 +20,7 @@ var agentManager = require('../agents/agent-manager');
 
 /* GET summary page. */
 router.post('/topology', function(req, res) {
-    var c = agentManager.getAgentManager().getOneClient();
+    var c = agentManager.getAgentManager()._getFirstClient();
 
     if (!c)
         return res.status(500).send("Client not found");
