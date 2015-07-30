@@ -185,6 +185,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         $scope.createItem = function () {
             $table.tableReset();
 
+            $scope.selectedItem = undefined;
+
             $scope.backupItem = angular.copy($scope.create.template);
             $scope.backupItem.caches = [];
             $scope.backupItem.space = $scope.spaces[0]._id;

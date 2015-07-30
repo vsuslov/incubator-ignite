@@ -328,6 +328,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         $scope.createItem = function () {
             $table.tableReset();
 
+            $scope.selectedItem = undefined;
+
             $scope.backupItem = angular.copy($scope.template);
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
