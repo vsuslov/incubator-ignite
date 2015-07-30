@@ -732,7 +732,7 @@ function addPropertyIfNotDefault(res, varName, obj, propName, dflt) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(propName)
-            + '(' + toJavaCode(val, enumType) + ');');
+            + '(' + toJavaCode(val) + ');');
     }
 }
 
