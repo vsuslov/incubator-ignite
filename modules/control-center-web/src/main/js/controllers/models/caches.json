@@ -58,7 +58,7 @@
       "label": "Backups",
       "type": "number",
       "model": "backups",
-      "hide": "backupItem.mode == 'LOCAL'",
+      "hide": "backupItem.mode != 'PARTITIONED'",
       "placeholder": 0,
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
