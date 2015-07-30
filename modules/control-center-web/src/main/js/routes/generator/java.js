@@ -564,7 +564,7 @@ function addCacheConfiguration(res, cache, varName) {
 
                 res.line();
 
-                declareVariable(res, true, dsVarName, dataSource.className);
+                declareVariable(res, true, dsVarName, dataSource);
 
                 res.line(dsVarName + '.setURL(_URL_);');
                 res.line(dsVarName + '.setUsername(_User_Name_);');
