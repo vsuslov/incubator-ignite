@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- *
+ * Executor for REST requests.
  */
 public class RestExecutor {
     /** */
