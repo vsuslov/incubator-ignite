@@ -55,8 +55,8 @@ router.post('/generator', function (req, res) {
 });
 
 router.post('/download', function (req, res) {
-    // Get cluster.
-    db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
+    // Get cluster with all inner objects (caches, metadata).
+    db.Cluster.findById(req.body._id).deepPopulate('caches caches.queryMetadata caches.storeMetadata').exec(function (err, cluster) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -80,7 +80,7 @@ router.post('/download', function (req, res) {
         });
 
         // Set the archive name.
-        res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '') + '-configuration.zip');
+        res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '-server') + '-configuration.zip');
 
         var generatorCommon = require('./generator/common');
 
