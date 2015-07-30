@@ -87,8 +87,6 @@ router.post('/download', function (req, res) {
         // Send the file to the page output.
         zip.pipe(res);
 
-        var javaClass = req.body.javaClass;
-
         if (!clientNearConfiguration) {
             zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
 
@@ -99,8 +97,10 @@ router.post('/download', function (req, res) {
         }
 
         zip.append(generatorXml.generateClusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientNearConfiguration),
-                {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
+            .append(generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
+                {name: cluster.name + '.snippet.java'})
+            .append(generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
+                {name: 'ConfigurationFactory.java'})
             .finalize();
     });
 });

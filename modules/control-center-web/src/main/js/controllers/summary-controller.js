@@ -120,7 +120,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     };
 
     $scope.download = function () {
-        $http.post('summary/download', {_id: $scope.selectedItem._id, javaClass: $scope.javaClass, os: $scope.os})
+        $http.post('summary/download', {_id: $scope.selectedItem._id, os: $scope.os})
             .success(function (data) {
                 var file = document.createElement('a');
 
