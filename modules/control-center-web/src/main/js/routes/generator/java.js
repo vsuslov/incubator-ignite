@@ -480,14 +480,14 @@ function addCacheConfiguration(res, cache, varName) {
         addProperty(res, varName, cache, 'backups');
 
     addProperty(res, varName, cache, 'startSize');
-    addProperty(res, varName, cache, 'readFromBackup');
+    addPropertyIfNotDefault(res, varName, cache, 'readFromBackup', true);
 
     res.needEmptyLine = true;
 
     addProperty(res, varName, cache, 'memoryMode', 'CacheMemoryMode');
     addProperty(res, varName, cache, 'offHeapMaxMemory');
     addProperty(res, varName, cache, 'swapEnabled');
-    addProperty(res, varName, cache, 'copyOnRead');
+    addPropertyIfNotDefault(res, varName, cache, 'copyOnRead', true);
 
     res.needEmptyLine = true;
 
@@ -724,6 +724,18 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
 
     return val;
 }
+
+function addPropertyIfNotDefault(res, varName, obj, propName, dflt) {
+    var val = obj[propName];
+
+    if (generatorUtils.isDefined(val) && val != dflt) {
+        res.emptyLineIfNeeded();
+
+        res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
+            + '(' + toJavaCode(val, enumType) + ');');
+    }
+}
+
 
 /**
  * Add property via setter assuming that it is a 'Class'.
