@@ -732,6 +732,21 @@
                     "  <li>H2 database.</li>",
                     "</ul>"
                   ]
+                },
+                {
+                  "label": "Metadata",
+                  "type": "dropdown-multiple",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
+                  "model": "storeMetadata",
+                  "placeholder": "Choose metadata",
+                  "items": "storeMetadata",
+                  "tip": [
+                    "Select cache type metadata to associate database with cache."
+                  ],
+                  "addLink": {
+                    "label": "Add metadata(s)",
+                    "ref": "/configuration/metadata"
+                  }
                 }
               ]
             },
