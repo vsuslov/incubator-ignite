@@ -18,7 +18,6 @@
 package org.apache.ignite.agent;
 
 import java.io.*;
-import java.net.*;
 import java.util.logging.*;
 
 /**
@@ -44,21 +43,10 @@ public class LoggingConfigurator {
                 return;
             }
 
-            URL jarLogCfgUrl = AgentLauncher.class.getResource("/logging.properties");
+            File agentHome = Utils.getAgentHome();
 
-            String path = jarLogCfgUrl.getFile();
-
-            int jarSeparatorIdx = path.lastIndexOf("!/");
-
-            if (jarSeparatorIdx != -1) {
-                path = path.substring(0, jarSeparatorIdx);
-
-                if (path.startsWith("file:"))
-                    path = path.substring("file:".length());
-
-                File jarFile = new File(path);
-
-                File logCfg = new File(jarFile.getParentFile(), "logging.properties");
+            if (agentHome != null) {
+                File logCfg = new File(agentHome, "logging.properties");
 
                 if (logCfg.isFile()) {
                     readConfiguration(logCfg);

@@ -48,6 +48,10 @@ public class AgentConfiguration {
     @Parameter(names = {"-c", "--config"}, description = "Path to configuration file")
     private String cfgPath;
 
+    /** */
+    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to drivers folder")
+    private String driversFolder;
+
     /**
      * @return Login.
      */
@@ -119,6 +123,20 @@ public class AgentConfiguration {
     }
 
     /**
+     * @return Configured drivers folder.
+     */
+    public String getDriversFolder() {
+        return driversFolder;
+    }
+
+    /**
+     * @param driversFolder Driver folder.
+     */
+    public void setDriversFolder(String driversFolder) {
+        this.driversFolder = driversFolder;
+    }
+
+    /**
      * @param cfgUrl URL.
      */
     public void load(URL cfgUrl) throws IOException {
@@ -167,5 +185,8 @@ public class AgentConfiguration {
 
         if (cmd.getConfigPath() != null)
             setNodeUri(cmd.getNodeUri());
+
+        if (cmd.getDriversFolder() != null)
+            setDriversFolder(cmd.getDriversFolder());
     }
 }

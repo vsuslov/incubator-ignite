@@ -17,9 +17,11 @@
 
 package org.apache.ignite.agent.handlers;
 
+import org.apache.ignite.agent.*;
 import org.apache.ignite.agent.remote.*;
 import org.apache.ignite.schema.parser.*;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -27,6 +29,30 @@ import java.util.*;
  * Remote API to extract DB metadata.
  */
 public class DBExtractor {
+    /** */
+    private final AgentConfiguration cfg;
+
+    /** */
+    private final String driversFolder;
+
+    /**
+     * @param cfg Config.
+     */
+    public DBExtractor(AgentConfiguration cfg) {
+        this.cfg = cfg;
+
+        String driversFolder = cfg.getDriversFolder();
+
+        if (driversFolder == null) {
+            File agentHome = Utils.getAgentHome();
+
+            if (agentHome != null)
+                driversFolder = agentHome + "/drivers";
+        }
+
+        this.driversFolder = driversFolder;
+    }
+
     /**
      * @param jdbcDriverJarPath JDBC driver JAR path.
      * @param jdbcDriverCls JDBC driver class.
@@ -38,8 +64,35 @@ public class DBExtractor {
     @Remote
     public Collection<DbTable> extractMetadata(String jdbcDriverJarPath, String jdbcDriverCls, String jdbcUrl,
         Properties jdbcInfo, boolean tblsOnly) throws SQLException {
+        if (!new File(jdbcDriverJarPath).isAbsolute() && driversFolder != null)
+            jdbcDriverJarPath = new File(driversFolder, jdbcDriverJarPath).getPath();
+
         Connection conn = DBReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
 
         return DBReader.getInstance().extractMetadata(conn, tblsOnly);
+    }
+
+    /**
+     * @return Drivers in drivers folder
+     * @see AgentConfiguration#driversFolder
+     */
+    @Remote
+    public List<String> availableDrivers() {
+        if (driversFolder == null)
+            return Collections.emptyList();
+
+        String[] list = new File(driversFolder).list();
+
+        if (list == null)
+            return Collections.emptyList();
+
+        List<String> res = new ArrayList<>();
+
+        for (String fileName : list) {
+            if (fileName.endsWith(".jar"))
+                res.add(fileName);
+        }
+
+        return res;
     }
 }

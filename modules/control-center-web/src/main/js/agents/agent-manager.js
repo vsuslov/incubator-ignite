@@ -187,9 +187,18 @@ Client.prototype.authResult = function(error) {
  * @param {Object} jdbcInfo
  * @param {Boolean} tablesOnly
  * @param {Function} cb Callback. Take 3 arguments: {String} error, {Object} exception, {Object} result.
+ * @return {Array} List of tables (see org.apache.ignite.schema.parser.DbTable java class)
  */
 Client.prototype.extractMetadata = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, tablesOnly, cb) {
     this._invokeRmtMethod('extractMetadata', arguments)
+};
+
+/**
+ * @param {Function} cb Callback.
+ * @return {Array} List of jars from driver folder.
+ */
+Client.prototype.availableDrivers = function(cb) {
+    this._invokeRmtMethod('availableDrivers', arguments)
 };
 
 Client.prototype._invokeRmtMethod = function(methodName, args) {
@@ -199,6 +208,13 @@ Client.prototype._invokeRmtMethod = function(methodName, args) {
 
     if (m.length > 0 && typeof m[m.length - 1] == 'function')
         cb = m.pop();
+
+    if (this._ws.readyState != 1) {
+        if (cb)
+            cb({type: 'org.apache.ignite.agent.AgentException', message: 'Connection is closed'});
+
+        return
+    }
 
     var msg = {
         mtdName: methodName,
