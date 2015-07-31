@@ -130,8 +130,9 @@ mixin details-row
         div(ng-switch-when='dropdown-multiple')
             label(class=lblDetailClasses ng-class='{required: detail.required}') {{::detail.label}}:
             .col-sm-8
-                button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
-            +tipField('detail.tip')
+                +tipField('detail.tip')
+                .input-tip
+                    button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
         div(ng-switch-when='table-simple')&attributes(detailCommon)
             div(ng-if='detail.label')
                 label.table-header {{::detail.label}}:

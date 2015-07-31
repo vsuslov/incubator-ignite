@@ -742,11 +742,7 @@
                   "items": "storeMetadata",
                   "tip": [
                     "Select cache type metadata to associate database with cache."
-                  ],
-                  "addLink": {
-                    "label": "Add metadata(s)",
-                    "ref": "/configuration/metadata"
-                  }
+                  ]
                 }
               ]
             },
