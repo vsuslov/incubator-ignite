@@ -425,22 +425,27 @@ function generateCacheTypeMetadataConfiguration(res, meta) {
 
     res.startBlock('<bean class="org.apache.ignite.cache.CacheTypeMetadata">');
 
-    addProperty(res, meta, 'databaseSchema');
-    addProperty(res, meta, 'databaseTable');
+    var kind = meta.kind;
 
     addProperty(res, meta, 'keyType');
     addProperty(res, meta, 'valueType');
 
-    addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
-    addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    if (kind != 'query') {
+        addProperty(res, meta, 'databaseSchema');
+        addProperty(res, meta, 'databaseTable');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    }
 
-    addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
-    addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-    addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
+    if (kind != 'store') {
+        addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
-    addListProperty(res, meta, 'textFields');
+        addListProperty(res, meta, 'textFields');
 
-    addCacheTypeMetadataGroups(res, meta);
+        addCacheTypeMetadataGroups(res, meta);
+    }
 
     res.endBlock('</bean>');
 
