@@ -426,26 +426,28 @@ function addCacheTypeMetadataGroups(res, meta) {
 function addCacheTypeMetadataConfiguration(res, meta) {
     declareVariable(res, needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
 
-    addProperty(res, 'typeMeta', meta, 'databaseSchema');
-    addProperty(res, 'typeMeta', meta, 'databaseTable');
+    var kind = meta.kind;
 
     addClassProperty(res, 'typeMeta', meta, 'keyType');
     addClassProperty(res, 'typeMeta', meta, 'valueType');
 
-    addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+    if (kind != 'query') {
+        addProperty(res, 'typeMeta', meta, 'databaseSchema');
+        addProperty(res, 'typeMeta', meta, 'databaseTable');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    }
 
-    addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    if (kind != 'store') {
+        addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
-    addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        res.needEmptyLine = true;
+        addListProperty(res, 'typeMeta', meta, 'textFields');
 
-    addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-
-    addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
-
-    res.needEmptyLine = true;
-    addListProperty(res, 'typeMeta', meta, 'textFields');
-
-    addCacheTypeMetadataGroups(res, meta);
+        addCacheTypeMetadataGroups(res, meta);
+    }
 
     res.line();
     res.line('types.add(typeMeta);');
