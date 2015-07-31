@@ -18,6 +18,7 @@
  */
 
 var router = require('express').Router();
+var crypto = require('crypto');
 var db = require('../db');
 
 /**
@@ -76,6 +77,12 @@ router.post('/get', function (req, res) {
     });
 });
 
+function _randomValueHex (len) {
+    return crypto.randomBytes(Math.ceil(len/2))
+        .toString('hex') // convert to hexadecimal format
+        .slice(0,len);   // return required number of characters
+}
+
 /**
  * Create new notebook for user account.
  *
@@ -90,7 +97,9 @@ router.get('/new', function (req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        (new db.Notebook({space: space.id, name: 'Notebook', paragraph: []})).save(function (err, notebook) {
+        var name =  'Notebook'  + ' ' + _randomValueHex(8);
+
+        (new db.Notebook({space: space.id, name: name, paragraph: []})).save(function (err, notebook) {
             if (err)
                 return res.status(500).send(err.message);
 
