@@ -64,8 +64,8 @@ public class ConnectorConfiguration {
     /** Default REST idle timeout for query cursor. */
     private static final long DFLT_IDLE_QRY_CUR_TIMEOUT = 10 * 60 * 1000;
 
-    /** Default REST check frequency for query cursor. */
-    private static final long DFLT_QRY_CHECK_FRQ = 60 * 1000;
+    /** Default REST check frequency for idle query cursor. */
+    private static final long DFLT_IDLE_QRY_CUR_CHECK_FRQ = 60 * 1000;
 
     /** Jetty XML configuration path. */
     private String jettyPath;
@@ -94,8 +94,8 @@ public class ConnectorConfiguration {
     /** REST idle timeout for query cursor. */
     private long idleQryCurTimeout = DFLT_IDLE_QRY_CUR_TIMEOUT;
 
-    /** REST idle timeout for query cursor. */
-    private long qryCheckFrq = DFLT_QRY_CHECK_FRQ;
+    /** REST idle check frequency for query cursor. */
+    private long idleQryCurCheckFreq = DFLT_IDLE_QRY_CUR_CHECK_FRQ;
 
     /** REST TCP send queue limit. */
     private int sndQueueLimit;
@@ -161,7 +161,7 @@ public class ConnectorConfiguration {
         sslCtxFactory = cfg.getSslContextFactory();
         sslEnabled = cfg.isSslEnabled();
         idleQryCurTimeout = cfg.getIdleQueryCursorTimeout();
-        qryCheckFrq = cfg.getQueryCheckFrequency();
+        idleQryCurCheckFreq = cfg.getIdleQueryCursorCheckFrequency();
     }
 
     /**
@@ -577,7 +577,7 @@ public class ConnectorConfiguration {
      * <p>
      * This setting is used to reject open query cursors that is not used. If no fetch query request
      * come within idle timeout, it will be removed on next check for old query cursors
-     * (see {@link #getQueryCheckFrequency()}).
+     * (see {@link #getIdleQueryCursorCheckFrequency()}).
      *
      * @return Idle query cursors timeout in milliseconds
      */
@@ -586,24 +586,24 @@ public class ConnectorConfiguration {
     }
 
     /**
-     * Sets query check frequency.
+     * Sets idle query cursor check frequency.
      *
-     * @param qryCheckFrq Idle query check frequency in milliseconds.
-     * @see #getQueryCheckFrequency()
+     * @param idleQryCurCheckFreq Idle query check frequency in milliseconds.
+     * @see #getIdleQueryCursorCheckFrequency()
      */
-    public void setQueryCheckFrequency(long qryCheckFrq) {
-        this.qryCheckFrq = qryCheckFrq;
+    public void setIdleQueryCursorCheckFrequency(long idleQryCurCheckFreq) {
+        this.idleQryCurCheckFreq = idleQryCurCheckFreq;
     }
 
     /**
-     * Gets query cursors check frequency.
+     * Gets idle query cursors check frequency.
      * This setting is used to reject open query cursors that is not used.
      * <p>
      * Scheduler tries with specified period to close queries' cursors that are overtime.
      *
-     * @return Query check frequency in milliseconds.
+     * @return Idle query cursor check frequency in milliseconds.
      */
-    public long getQueryCheckFrequency() {
-        return qryCheckFrq;
+    public long getIdleQueryCursorCheckFrequency() {
+        return idleQryCurCheckFreq;
     }
 }

@@ -59,7 +59,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
 
         final long idleQryCurTimeout = ctx.config().getConnectorConfiguration().getIdleQueryCursorTimeout();
 
-        long qryCheckFrq = ctx.config().getConnectorConfiguration().getQueryCheckFrequency();
+        long qryCheckFrq = ctx.config().getConnectorConfiguration().getIdleQueryCursorCheckFrequency();
 
         ctx.timeout().schedule(new Runnable() {
             @Override public void run() {
