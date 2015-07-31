@@ -421,6 +421,19 @@ QueryCursor.prototype.page = function() {
 }
 
 /**
+ * Gets queryId of the query.
+ *
+ * @this{QueryCursor}
+ * @returns {Object} Query id may be null.
+ */
+QueryCursor.prototype.queryId = function() {
+    if (this.isFinished())
+        return undefined;
+
+    return this._res.queryId;
+}
+
+/**
  * Closes all resources related to this cursor.
  *
  * @this{QueryCursor}

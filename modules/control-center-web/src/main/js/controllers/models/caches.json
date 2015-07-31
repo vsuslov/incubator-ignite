@@ -58,7 +58,7 @@
       "label": "Backups",
       "type": "number",
       "model": "backups",
-      "hide": "backupItem.mode == 'LOCAL'",
+      "hide": "backupItem.mode != 'PARTITIONED'",
       "placeholder": 0,
       "tip": [
         "Number of nodes used to back up single partition for partitioned cache."
@@ -416,6 +416,7 @@
     },
     {
       "label": "Rebalance",
+      "hide": "backupItem.mode == 'LOCAL'",
       "tip": [
         "Cache rebalance settings."
       ],
@@ -495,6 +496,7 @@
     },
     {
       "label": "Server near cache",
+      "hide": "backupItem.mode != 'PARTITIONED'",
       "tip": [
         "Near cache settings.",
         "Near cache is a small local cache that stores most recently or most frequently accessed data.",
@@ -729,6 +731,17 @@
                     "  <li>My SQL.</li>",
                     "  <li>H2 database.</li>",
                     "</ul>"
+                  ]
+                },
+                {
+                  "label": "Metadata",
+                  "type": "dropdown-multiple",
+                  "path": "cacheStoreFactory.CacheJdbcPojoStoreFactory",
+                  "model": "storeMetadata",
+                  "placeholder": "Choose metadata",
+                  "items": "storeMetadata",
+                  "tip": [
+                    "Select cache type metadata to associate database with cache."
                   ]
                 }
               ]

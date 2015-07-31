@@ -20,8 +20,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     $scope.getModel = $common.getModel;
 
     $scope.javaClassItems = [
-        {label: 'snippet', value: false},
-        {label: 'factory class', value: true}
+        {label: 'snippet', value: 1},
+        {label: 'factory class', value: 2}
     ];
 
     $scope.evictionPolicies = [
@@ -34,8 +34,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
     $scope.oss = ['debian:8', 'ubuntu:14.10'];
 
-    $scope.configServer = {javaClassServer: false, os: undefined};
-    $scope.backupItem = {javaClassClient: false};
+    $scope.configServer = {javaClassServer: 1, os: undefined};
+    $scope.backupItem = {javaClassClient: 1};
 
     $http.get('/models/summary.json')
         .success(function (data) {
@@ -62,7 +62,8 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     };
 
     $scope.reloadServer = function () {
-        $scope.javaServer = $scope.configServer.javaClassServer ? $scope.configServer.javaClass : $scope.configServer.javaSnippet;
+        $scope.javaServer = $scope.configServer.javaClassServer === 2 ?
+            $scope.configServer.javaClass : $scope.configServer.javaSnippet;
 
         if ($scope.configServer.docker) {
             var os = $scope.configServer.os ? $scope.configServer.os : $scope.oss[0];
@@ -108,7 +109,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
 
     $scope.generateClient = function () {
         $http.post('summary/generator', {
-            _id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient,
+            _id: $scope.selectedItem._id, javaClass: $scope.backupItem.javaClassClient === 2,
             clientNearConfiguration: $scope.backupItem.nearConfiguration
         })
             .success(function (data) {
@@ -120,7 +121,7 @@ controlCenterModule.controller('summaryController', ['$scope', '$http', '$common
     };
 
     $scope.download = function () {
-        $http.post('summary/download', {_id: $scope.selectedItem._id, javaClass: $scope.javaClass, os: $scope.os})
+        $http.post('summary/download', {_id: $scope.selectedItem._id, os: $scope.os})
             .success(function (data) {
                 var file = document.createElement('a');
 

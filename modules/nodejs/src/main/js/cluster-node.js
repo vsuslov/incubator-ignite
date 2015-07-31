@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
- /**
-  * @constructor
-  * @this{ClusterNode}
-  * @param {string} nodeId Node id
-  * @param {Object.<string,string>} attr Node Attributes
-  */
-function ClusterNode(nodeId, attr) {
+/**
+ * @constructor
+ * @this{ClusterNode}
+ * @param {string} nodeId Node id
+ * @param {Object.<string,string>} attr Node Attributes
+ * @param {Object.<string,string>} caches Node caches name, mode
+ */
+function ClusterNode(nodeId, attr, caches) {
     this._nodeId = nodeId;
     this._attr = attr;
+    this._caches = caches;
 }
 
 /**
@@ -38,6 +40,13 @@ ClusterNode.prototype.nodeId = function() {
  */
 ClusterNode.prototype.attributes = function() {
     return this._attr;
+}
+
+/**
+ * @returns {Object.<string,string>} Node caches name, mode
+ */
+ClusterNode.prototype.caches = function() {
+    return this._caches;
 }
 
 exports.ClusterNode = ClusterNode

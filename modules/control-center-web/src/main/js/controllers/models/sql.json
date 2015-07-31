@@ -1,5 +1,8 @@
 {
   "screenTip": [
     "Select cache and execute SQL queries."
+  ],
+  "missingClientTip": [
+    "Please download and install client."
   ]
 }

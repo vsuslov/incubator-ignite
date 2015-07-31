@@ -17,7 +17,7 @@
 
 var _ = require('lodash');
 
-var generatorUtils = require("./common");
+var generatorCommon = require("./common");
 
 /**
  * Convert some name to valid java name.
@@ -37,16 +37,16 @@ function toJavaName(prefix, name) {
  *
  * @param cluster Cluster to process.
  * @param javaClass If 'true' then generate factory class otherwise generate code snippet.
- * @param clientMode If 'true' then generate configuration for client node.
+ * @param clientNearConfiguration Near cache configuration for client node.
  */
-exports.generateClusterConfiguration = function (cluster, javaClass, clientMode) {
-    var res = generatorUtils.builder();
+exports.generateClusterConfiguration = function (cluster, javaClass, clientNearConfiguration) {
+    var res = generatorCommon.builder();
 
     res.datasourceBeans = [];
 
     if (javaClass) {
         res.line('/**');
-        res.line(' * ' + generatorUtils.mainComment());
+        res.line(' * ' + generatorCommon.mainComment());
         res.line(' */');
         res.startBlock('public class ConfigurationFactory {');
         res.line('/**');
@@ -58,7 +58,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     declareVariable(res, true, 'cfg', 'org.apache.ignite.configuration.IgniteConfiguration');
     res.line();
 
-    if (clientMode) {
+    if (clientNearConfiguration) {
         res.line('cfg.setClientMode(true);');
         res.line();
     }
@@ -198,7 +198,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     }
 
     addBeanWithProperties(res, 'cfg', cluster.atomicConfiguration, 'atomicConfiguration', 'atomicCfg',
-        generatorUtils.atomicConfiguration.className, generatorUtils.atomicConfiguration.fields);
+        generatorCommon.atomicConfiguration.className, generatorCommon.atomicConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -257,7 +257,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     var marshaller = cluster.marshaller;
 
     if (marshaller && marshaller.kind) {
-        var marshallerDesc = generatorUtils.marshallers[marshaller.kind];
+        var marshallerDesc = generatorCommon.marshallers[marshaller.kind];
 
         addBeanWithProperties(res, 'cfg', marshaller[marshaller.kind], 'marshaller', 'marshaller',
             marshallerDesc.className, marshallerDesc.fields, true);
@@ -285,7 +285,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
 
     if (cluster.swapSpaceSpi && cluster.swapSpaceSpi.kind == 'FileSwapSpaceSpi') {
         addBeanWithProperties(res, 'cfg', cluster.swapSpaceSpi.FileSwapSpaceSpi, 'swapSpaceSpi', 'swapSpi',
-            generatorUtils.swapSpaceSpi.className, generatorUtils.swapSpaceSpi.fields, true);
+            generatorCommon.swapSpaceSpi.className, generatorCommon.swapSpaceSpi.fields, true);
 
         res.needEmptyLine = true;
     }
@@ -305,8 +305,8 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
     res.needEmptyLine = true;
 
     addBeanWithProperties(res, 'cfg', cluster.transactionConfiguration, 'transactionConfiguration',
-        'transactionConfiguration', generatorUtils.transactionConfiguration.className,
-        generatorUtils.transactionConfiguration.fields);
+        'transactionConfiguration', generatorCommon.transactionConfiguration.className,
+        generatorCommon.transactionConfiguration.fields);
 
     res.needEmptyLine = true;
 
@@ -336,7 +336,7 @@ exports.generateClusterConfiguration = function (cluster, javaClass, clientMode)
  */
 function addEvictionPolicy(res, varName, evictionPolicy, propertyName) {
     if (evictionPolicy && evictionPolicy.kind) {
-        var e = generatorUtils.evictionPolicies[evictionPolicy.kind];
+        var e = generatorCommon.evictionPolicies[evictionPolicy.kind];
 
         var obj = evictionPolicy[evictionPolicy.kind.toUpperCase()];
 
@@ -426,26 +426,28 @@ function addCacheTypeMetadataGroups(res, meta) {
 function addCacheTypeMetadataConfiguration(res, meta) {
     declareVariable(res, needNewVariable(res, 'typeMeta'), 'typeMeta', 'org.apache.ignite.cache.CacheTypeMetadata');
 
-    addProperty(res, 'typeMeta', meta, 'databaseSchema');
-    addProperty(res, 'typeMeta', meta, 'databaseTable');
+    var kind = meta.kind;
 
     addClassProperty(res, 'typeMeta', meta, 'keyType');
     addClassProperty(res, 'typeMeta', meta, 'valueType');
 
-    addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+    if (kind != 'query') {
+        addProperty(res, 'typeMeta', meta, 'databaseSchema');
+        addProperty(res, 'typeMeta', meta, 'databaseTable');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+        addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    }
 
-    addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
+    if (kind != 'store') {
+        addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
+        addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
 
-    addCacheTypeMetadataQueryFields(res, meta, 'queryFields');
+        res.needEmptyLine = true;
+        addListProperty(res, 'typeMeta', meta, 'textFields');
 
-    addCacheTypeMetadataQueryFields(res, meta, 'ascendingFields');
-
-    addCacheTypeMetadataQueryFields(res, meta, 'descendingFields');
-
-    res.needEmptyLine = true;
-    addListProperty(res, 'typeMeta', meta, 'textFields');
-
-    addCacheTypeMetadataGroups(res, meta);
+        addCacheTypeMetadataGroups(res, meta);
+    }
 
     res.line();
     res.line('types.add(typeMeta);');
@@ -472,12 +474,15 @@ function addCacheConfiguration(res, cache, varName) {
 
     addProperty(res, varName, cache, 'name');
 
-    addProperty(res, varName, cache, 'mode', 'CacheMode', 'cacheMode');
+    var cacheMode = addProperty(res, varName, cache, 'mode', 'CacheMode', 'cacheMode');
 
     addProperty(res, varName, cache, 'atomicityMode', 'CacheAtomicityMode');
-    addProperty(res, varName, cache, 'backups');
-    addProperty(res, varName, cache, 'startSize');
+
+    if (cacheMode == 'PARTITIONED')
+        addProperty(res, varName, cache, 'backups');
+
     addProperty(res, varName, cache, 'readFromBackup');
+    addProperty(res, varName, cache, 'startSize');
 
     res.needEmptyLine = true;
 
@@ -490,7 +495,7 @@ function addCacheConfiguration(res, cache, varName) {
 
     addEvictionPolicy(res, varName, cache.evictionPolicy, 'evictionPolicy');
 
-    if (cache.nearCacheEnabled) {
+    if (cacheMode == 'PARTITIONED' && cache.nearCacheEnabled) {
         res.needEmptyLine = true;
 
         res.importClass('org.apache.ignite.configuration.NearCacheConfiguration');
@@ -520,7 +525,7 @@ function addCacheConfiguration(res, cache, varName) {
 
             var pair = cache.indexedTypes[i];
 
-            res.append(toJavaCode(pair.keyClass, 'class')).append(', ').append(toJavaCode(pair.valueClass, 'class'))
+            res.append(toJavaCode(res.importClass(pair.keyClass), 'class')).append(', ').append(toJavaCode(res.importClass(pair.valueClass), 'class'))
         }
 
         res.line(');');
@@ -530,19 +535,21 @@ function addCacheConfiguration(res, cache, varName) {
 
     res.needEmptyLine = true;
 
-    addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
-    addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
-    addProperty(res, varName, cache, 'rebalanceBatchSize');
-    addProperty(res, varName, cache, 'rebalanceOrder');
-    addProperty(res, varName, cache, 'rebalanceDelay');
-    addProperty(res, varName, cache, 'rebalanceTimeout');
-    addProperty(res, varName, cache, 'rebalanceThrottle');
+    if (cacheMode != 'LOCAL') {
+        addProperty(res, varName, cache, 'rebalanceMode', 'CacheRebalanceMode');
+        addProperty(res, varName, cache, 'rebalanceThreadPoolSize');
+        addProperty(res, varName, cache, 'rebalanceBatchSize');
+        addProperty(res, varName, cache, 'rebalanceOrder');
+        addProperty(res, varName, cache, 'rebalanceDelay');
+        addProperty(res, varName, cache, 'rebalanceTimeout');
+        addProperty(res, varName, cache, 'rebalanceThrottle');
 
-    res.needEmptyLine = true;
+        res.needEmptyLine = true;
+    }
 
     if (cache.cacheStoreFactory && cache.cacheStoreFactory.kind) {
         var storeFactory = cache.cacheStoreFactory[cache.cacheStoreFactory.kind];
-        var data = generatorUtils.storeFactories[cache.cacheStoreFactory.kind];
+        var data = generatorCommon.storeFactories[cache.cacheStoreFactory.kind];
 
         var sfVarName = toJavaName('storeFactory', cache.name);
         var dsVarName = 'none';
@@ -550,16 +557,16 @@ function addCacheConfiguration(res, cache, varName) {
         if (storeFactory.dialect) {
             var dataSourceBean = storeFactory.dataSourceBean;
 
-            dsVarName = 'dataSource' + generatorUtils.toJavaName(dataSourceBean);
+            dsVarName = toJavaName('dataSource', dataSourceBean);
 
             if (!_.contains(res.datasourceBeans, dataSourceBean)) {
                 res.datasourceBeans.push(dataSourceBean);
 
-                var dataSource = generatorUtils.dataSources[storeFactory.dialect];
+                var dataSource = generatorCommon.dataSources[storeFactory.dialect];
 
                 res.line();
 
-                declareVariable(res, true, dsVarName, dataSource.className);
+                declareVariable(res, true, dsVarName, dataSource);
 
                 res.line(dsVarName + '.setURL(_URL_);');
                 res.line(dsVarName + '.setUsername(_User_Name_);');
@@ -710,12 +717,14 @@ function declareVariable(res, varNew, varName, varFullType, varFullActualType, v
 function addProperty(res, varName, obj, propName, enumType, setterName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val)) {
+    if (generatorCommon.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(setterName ? setterName : propName)
             + '(' + toJavaCode(val, enumType) + ');');
     }
+
+    return val;
 }
 
 /**
@@ -729,7 +738,7 @@ function addProperty(res, varName, obj, propName, enumType, setterName) {
 function addClassProperty(res, varName, obj, propName) {
     var val = obj[propName];
 
-    if (generatorUtils.isDefined(val)) {
+    if (generatorCommon.isDefined(val)) {
         res.emptyLineIfNeeded();
 
         res.line(varName + '.' + getSetterName(propName) + '(' + res.importClass(val) + '.class);');
@@ -783,7 +792,7 @@ function addMultiparamProperty(res, varName, obj, propName, type, setterName) {
 }
 
 function addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, beanClass, props, createBeanAlthoughNoProps) {
-    if (bean && generatorUtils.hasProperty(bean, props)) {
+    if (bean && generatorCommon.hasProperty(bean, props)) {
         if (!res.emptyLineIfNeeded()) {
             res.line();
         }
@@ -832,7 +841,7 @@ function addBeanWithProperties(res, varName, bean, beanPropName, beanVarName, be
 
                         case 'className':
                             if (bean[propName]) {
-                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + generatorUtils.knownClasses[bean[propName]].className + '());');
+                                res.line(beanVarName + '.' + getSetterName(propName) + '(new ' + generatorCommon.knownClasses[bean[propName]].className + '());');
                             }
 
                             break;

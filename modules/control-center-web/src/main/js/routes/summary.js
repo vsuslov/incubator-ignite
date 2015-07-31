@@ -19,6 +19,7 @@ var db = require('../db');
 
 var router = require('express').Router();
 
+var generatorCommon = require('./generator/common');
 var generatorXml = require('./generator/xml');
 var generatorJava = require('./generator/java');
 var generatorDocker = require('./generator/docker');
@@ -55,8 +56,8 @@ router.post('/generator', function (req, res) {
 });
 
 router.post('/download', function (req, res) {
-    // Get cluster.
-    db.Cluster.findById(req.body._id).populate('caches').exec(function (err, cluster) {
+    // Get cluster with all inner objects (caches, metadata).
+    db.Cluster.findById(req.body._id).deepPopulate('caches caches.queryMetadata caches.storeMetadata').exec(function (err, cluster) {
         if (err)
             return res.status(500).send(err.message);
 
@@ -80,14 +81,10 @@ router.post('/download', function (req, res) {
         });
 
         // Set the archive name.
-        res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '') + '-configuration.zip');
-
-        var generatorCommon = require('./generator/common');
+        res.attachment(cluster.name + (clientNearConfiguration ? '-client' : '-server') + '-configuration.zip');
 
         // Send the file to the page output.
         zip.pipe(res);
-
-        var javaClass = req.body.javaClass;
 
         if (!clientNearConfiguration) {
             zip.append(generatorDocker.generateClusterConfiguration(cluster, req.body.os), {name: "Dockerfile"});
@@ -99,8 +96,10 @@ router.post('/download', function (req, res) {
         }
 
         zip.append(generatorXml.generateClusterConfiguration(cluster, clientNearConfiguration), {name: cluster.name + ".xml"})
-            .append(generatorJava.generateClusterConfiguration(cluster, javaClass, clientNearConfiguration),
-                {name: javaClass ? 'ConfigurationFactory.java' : cluster.name + '.snipplet.java'})
+            .append(generatorJava.generateClusterConfiguration(cluster, false, clientNearConfiguration),
+                {name: cluster.name + '.snippet.java'})
+            .append(generatorJava.generateClusterConfiguration(cluster, true, clientNearConfiguration),
+                {name: 'ConfigurationFactory.java'})
             .finalize();
     });
 });

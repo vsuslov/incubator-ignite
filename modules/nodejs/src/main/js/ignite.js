@@ -129,9 +129,8 @@ Ignite.prototype.cluster = function() {
                 else {
                     var nodes = [];
 
-                    for (var node of res) {
-                        nodes.push(new ClusterNode(node.nodeId, node.attributes));
-                    }
+                    for (var node of res)
+                        nodes.push(new ClusterNode(node.nodeId, node.attributes, node.caches));
 
                     resolve(nodes);
                 }

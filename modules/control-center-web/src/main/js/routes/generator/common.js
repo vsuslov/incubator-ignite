@@ -176,7 +176,7 @@ exports.marshallers = {
 };
 
 var javaBuildInClasses = {
-    BigDecimal: {className: 'java.math.Boolean'},
+    BigDecimal: {className: 'java.math.BigDecimal'},
     Boolean: {className: 'java.lang.Boolean'},
     Byte: {className: 'java.lang.Byte'},
     Date: {className: 'java.sql.Date'},
@@ -309,7 +309,7 @@ exports.generateProperties = function (cluster) {
     }
 
     if (datasources.length > 0)
-        return '# ' + mainComment() + '\n\n' + res.join();
+        return '# ' + mainComment() + '\n\n' + res.join('');
 
     return undefined;
 };

@@ -39,6 +39,9 @@ public class GridJettyJsonConfig extends JsonConfig {
     private static class ToStringJsonProcessor implements JsonValueProcessor {
         /** {@inheritDoc} */
         @Override public Object processArrayValue(Object val, JsonConfig jsonCfg) {
+            if (val != null && val.getClass() == UUID.class)
+                return val.toString();
+
             throw new UnsupportedOperationException("Serialize array to string is not supported: " + val);
         }
 

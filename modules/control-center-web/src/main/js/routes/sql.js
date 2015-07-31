@@ -17,8 +17,8 @@
 
 var router = require('express').Router();
 var db = require('../db');
-router.get('/', function(req, res) {
-    res.render('sql/sql');
+router.get('/:noteId', function (req, res) {
+    res.render('sql/sql', {noteId: req.params.noteId});
 });
 
 module.exports = router;
