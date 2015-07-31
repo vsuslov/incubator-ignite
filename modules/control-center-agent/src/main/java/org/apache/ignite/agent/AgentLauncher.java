@@ -52,18 +52,16 @@ public class AgentLauncher {
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
-        URL dfltCfgUrl = AgentLauncher.class.getResource("/default.config.properties");
+        cfg.load(AgentLauncher.class.getResource("/default.config.properties"));
 
-        cfg.load(dfltCfgUrl);
-
-        AgentCommandLineOptions cmdCfg = new AgentCommandLineOptions();
+        AgentConfiguration cmdCfg = new AgentConfiguration();
 
         new JCommander(cmdCfg, args);
 
-        if (cmdCfg.getConfigFile() != null)
-            cfg.load(new File(cmdCfg.getConfigFile()).toURI().toURL());
+        if (cmdCfg.getConfigPath() != null)
+            cfg.load(new File(cmdCfg.getConfigPath()).toURI().toURL());
 
-        cfg.assign(cmdCfg);
+        cfg.merge(cmdCfg);
 
         if (cfg.getLogin() == null) {
             System.out.print("Login: ");
@@ -108,7 +106,7 @@ public class AgentLauncher {
 
                     log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
 
-                    client.connect(agentSock, cfg.getServerUri());
+                    client.connect(agentSock, URI.create(cfg.getServerUri()));
 
                     agentSock.waitForClose();
 
