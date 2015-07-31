@@ -377,12 +377,14 @@ controlCenterModule.directive('match', function ($parse) {
 });
 
 // Directive to bind ENTER key press with some user action.
-controlCenterModule.directive('ngEnter', function () {
+controlCenterModule.directive('onEnter', function ($timeout) {
     return function (scope, element, attrs) {
         element.bind('keydown keypress', function (event) {
             if (event.which === 13) {
                 scope.$apply(function () {
-                    scope.$eval(attrs.ngEnter);
+                    $timeout(function () {
+                        scope.$eval(attrs.onEnter)
+                    });
                 });
 
                 event.preventDefault();
@@ -392,12 +394,12 @@ controlCenterModule.directive('ngEnter', function () {
 });
 
 // Directive to bind ESC key press with some user action.
-controlCenterModule.directive('ngEscape', function () {
+controlCenterModule.directive('onEscape', function () {
     return function (scope, element, attrs) {
         element.bind('keydown keyup', function (event) {
             if (event.which === 27) {
                 scope.$apply(function () {
-                    scope.$eval(attrs.ngEscape);
+                    scope.$eval(attrs.onEscape);
                 });
 
                 event.preventDefault();
@@ -407,7 +409,7 @@ controlCenterModule.directive('ngEscape', function () {
 });
 
 // Factory function to focus element.
-controlCenterModule.factory('focus', function ($timeout, $window) {
+controlCenterModule.factory('$focus', function ($timeout, $window) {
     return function (id) {
         // Timeout makes sure that is invoked after any other event has been triggered.
         // E.g. click events that need to run before the focus or inputs elements that are
@@ -421,11 +423,24 @@ controlCenterModule.factory('focus', function ($timeout, $window) {
     };
 });
 
+// Directive to focus next element on ENTER key.
+controlCenterModule.directive('enterFocusNext', function ($focus) {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if (event.which === 13) {
+                event.preventDefault();
+
+                $focus(attrs.enterFocusNextId);
+            }
+        });
+    };
+});
+
 // Directive to mark elements to focus.
-controlCenterModule.directive('eventFocus', function (focus) {
+controlCenterModule.directive('eventFocus', function ($focus) {
     return function (scope, elem, attr) {
         elem.on(attr.eventFocus, function () {
-            focus(attr.eventFocusId);
+            $focus(attr.eventFocusId);
         });
 
         // Removes bound events in the element itself when the scope is destroyed
@@ -445,8 +460,8 @@ controlCenterModule.controller('activeLink', [
 
 // Login popup controller.
 controlCenterModule.controller('auth', [
-    '$scope', '$modal', '$alert', '$http', '$window', '$common',
-    function ($scope, $modal, $alert, $http, $window, $common) {
+    '$scope', '$modal', '$alert', '$http', '$window', '$common', '$focus',
+    function ($scope, $modal, $alert, $http, $window, $common, $focus) {
         $scope.errorMessage = $common.errorMessage;
 
         $scope.action = 'login';
@@ -467,7 +482,11 @@ controlCenterModule.controller('auth', [
 
         $scope.login = function () {
             // Show when some event occurs (use $promise property to ensure the template has been loaded)
-            authModal.$promise.then(authModal.show);
+            authModal.$promise.then(function () {
+                authModal.show();
+
+                $focus('user_email');
+            });
         };
 
         $scope.auth = function (action, user_info) {
@@ -484,7 +503,7 @@ controlCenterModule.controller('auth', [
     }]);
 
 // Navigation bar controller.
-controlCenterModule.controller('notebooks', ['$scope', '$http','$common', function ($scope, $http, $common) {
+controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', function ($scope, $http, $common) {
     $scope.notebooks = [];
 
     // When landing on the page, get clusters and show them.
@@ -494,8 +513,8 @@ controlCenterModule.controller('notebooks', ['$scope', '$http','$common', functi
 
             if ($scope.notebooks.length > 0) {
                 $scope.notebookDropdown = [
-                    { text: 'Create new notebook', href: '/notebooks/new', target: '_self' },
-                    { divider: true }
+                    {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
+                    {divider: true}
                 ];
 
                 _.forEach($scope.notebooks, function (notebook) {

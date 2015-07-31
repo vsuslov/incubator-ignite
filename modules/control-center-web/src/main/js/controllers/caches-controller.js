@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
+controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
         $scope.javaBuildInTypes = $common.javaBuildInTypes;

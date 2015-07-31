@@ -33,23 +33,22 @@ mixin lbl(txt)
                         .details-row(ng-show='action == "register"')
                             +lbl('Full Name:')
                             .col-sm-9
-                                input.form-control(type='text' ng-model='user_info.username' placeholder='John Smith' focus-me='action=="register"' ng-required='action=="register"')
+                                input#user_name.form-control(enter-focus-next enter-focus-next-id='user_email' type='text' ng-model='user_info.username' placeholder='John Smith' ng-required='action=="register"')
                         .details-row
                             +lbl('Email:')
                             .col-sm-9
-                                input.form-control(type='email' ng-model='user_info.email' placeholder='you@domain.com' focus-me='action=="login"' required)
+                                input#user_email.form-control(enter-focus-next enter-focus-next-id='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required)
                         .details-row
                             +lbl('Password:')
                             .col-sm-9
-                                input.form-control(type='password' ng-model='user_info.password' placeholder='Password' required ng-enter='action == "login" && auth(action, user_info)')
+                                input#user_password.form-control(enter-focus-next enter-focus-next-id='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' required on-enter='action == "login" && auth(action, user_info)')
                         .details-row(ng-show='action == "register"')
                             +lbl('Confirm:')
                             .col-sm-9.input-tip.has-feedback
-                                input.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' required ng-enter='auth(action, user_info)')
-
+                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' required on-enter='auth(action, user_info)')
             .modal-footer
-                a.show-signup.ng-hide(ng-show='action != "login"' ng-click='action = "login";') log in
-                a.show-signup(ng-show='action != "register"' ng-click='action = "register"') sign up
+                a.show-signup.ng-hide(event-focus='click' event-focus-id='user_email' ng-show='action != "login"' ng-click='action = "login";') log in
+                a.show-signup(event-focus='click' event-focus-id='user_name' ng-show='action != "register"' ng-click='action = "register"') sign up
                 | &nbsp;or&nbsp;
                 button.btn.btn-primary(ng-show='action == "login"' ng-click='auth(action, user_info)') Log In
                 button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid || user_info.password != user_info.confirm' ng-click='auth(action, user_info)') Sign Up

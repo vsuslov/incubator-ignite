@@ -94,6 +94,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query' || isJavaBuildInType()",
+      "focusNewItemId": "newKeyFields",
+      "focusCurItemId": "curKeyFields",
       "addTip": "Add key field.",
       "removeTip": "Remove key field.",
       "tip": [
@@ -107,6 +109,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+      "focusNewItemId": "newValFields",
+      "focusCurItemId": "curValFields",
       "addTip": "Add value field.",
       "removeTip": "Remove value field.",
       "tip": [
