@@ -355,6 +355,18 @@ var PersistenceSchema = new Schema({
 // Define persistence model.
 exports.Persistence = mongoose.model('Persistence', PersistenceSchema);
 
+// Define persistence schema.
+var NotebookSchema = new Schema({
+    space: {type: ObjectId, ref: 'Space'},
+    name: String,
+    paragraph: [{
+        query: String
+    }]
+});
+
+// Define persistence model.
+exports.Notebook = mongoose.model('Notebook', NotebookSchema);
+
 exports.upsert = function (model, data, cb) {
     if (data._id) {
         var id = data._id;

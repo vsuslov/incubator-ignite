@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', function ($scope, $http, $common) {
+controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http', '$common',
+    function ($scope, $controller, $http, $common) {
+    // Initialize the super class and extend it.
+    angular.extend(this, $controller('notebooks', {$scope: $scope}));
+
     $scope.joinTip = $common.joinTip;
 
     $scope.pageSizes = [50, 100, 200, 400, 800, 1000];
@@ -25,6 +29,22 @@ controlCenterModule.controller('sqlController', ['$scope', '$http', '$common', f
         {value: 'REPLICATED', label: 'REPLICATED'},
         {value: 'LOCAL', label: 'LOCAL'}
     ];
+
+    var loadNotebook = function() {
+        $http.post('/notebooks/get', {nodeId: $scope.nodeId})
+            .success(function (notebook) {
+                $scope.notebook = notebook;
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    };
+
+    loadNotebook();
+
+    $scope.addParagraph = function(notebook) {
+        notebook.paragraphs.push({});
+    };
 
     $scope.tabs = [];
 

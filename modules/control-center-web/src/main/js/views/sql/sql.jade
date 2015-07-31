@@ -11,6 +11,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
 extends ../templates/layout
 
 append scripts
@@ -27,7 +28,7 @@ block container
                 .docs-header
                     h1 Connect to Ignite and Execute SQL Queries
                     hr
-                .docs-body(ng-controller='sqlController')
+                .docs-body(ng-controller='sqlController' ng-init='noteId = #{JSON.stringify(noteId)};')
                     - var tab = 'tabs[tabs.activeIdx]'
 
                     .block-callout-parent.block-callout-border.margin-bottom-dflt
