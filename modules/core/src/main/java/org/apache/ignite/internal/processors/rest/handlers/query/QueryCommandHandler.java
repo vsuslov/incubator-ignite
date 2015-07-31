@@ -68,12 +68,12 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 for (Map.Entry<Long, QueryCursorIterator> e : qryCurs.entrySet()) {
                     QueryCursorIterator val = e.getValue();
 
-                    long createTime = val.lastUsage();
+                    long createTime = val.timestamp();
 
                     if (createTime + idleQryCurTimeout > time)
                         if (val.lock().tryLock()) {
                             try {
-                                val.lastUsage(-1);
+                                val.timestamp(-1);
 
                                 qryCurs.remove(e.getKey(), val);
 
@@ -246,7 +246,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 val.lock().lock();
 
                 try{
-                    if (val.lastUsage() == -1)
+                    if (val.timestamp() == -1)
                         return new GridRestResponse(true);
 
                     val.close();
@@ -298,11 +298,11 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                 val.lock().lock();
 
                 try {
-                    if (val.lastUsage() == -1)
+                    if (val.timestamp() == -1)
                         return new GridRestResponse(GridRestResponse.STATUS_FAILED,
                             "Query is closed by timeout. Restart query with ID: " + req.queryId());
 
-                    val.lastUsage(U.currentTimeMillis());
+                    val.timestamp(U.currentTimeMillis());
 
                     Iterator cur = val.iterator();
 
@@ -365,7 +365,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         t.lock().lock();
 
         try{
-            if (t.lastUsage() == -1)
+            if (t.timestamp() == -1)
                 return;
 
             t.close();
@@ -388,7 +388,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         private Iterator iter;
 
         /** Last timestamp. */
-        private volatile long lastUsage;
+        private volatile long timestamp;
 
         /** Reentrant lock. */
         private final ReentrantLock lock = new ReentrantLock();
@@ -400,7 +400,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         public QueryCursorIterator(QueryCursor cur, Iterator iter) {
             this.cur = cur;
             this.iter = iter;
-            lastUsage = U.currentTimeMillis();
+            timestamp = U.currentTimeMillis();
         }
 
         /**
@@ -418,17 +418,17 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
         }
 
         /**
-         * @return Last usage
+         * @return Timestamp.
          */
-        public long lastUsage() {
-            return lastUsage;
+        public long timestamp() {
+            return timestamp;
         }
 
         /**
          * @param time Current time or -1 if cursor is closed.
          */
-        public void lastUsage(long time) {
-            lastUsage = time;
+        public void timestamp(long time) {
+            timestamp = time;
         }
 
         /**
