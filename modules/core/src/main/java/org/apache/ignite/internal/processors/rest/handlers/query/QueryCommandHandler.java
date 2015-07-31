@@ -249,6 +249,8 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
                     if (val.timestamp() == -1)
                         return new GridRestResponse(true);
 
+                    val.timestamp(-1);
+
                     val.close();
 
                     qryCurs.remove(req.queryId());
