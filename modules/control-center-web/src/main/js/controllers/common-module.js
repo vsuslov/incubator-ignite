@@ -498,8 +498,9 @@ controlCenterModule.controller('notebooks', ['$scope', '$http','$common', functi
                     { divider: true }
                 ];
 
-                for (notebook of $scope.notebooks)
+                _.forEach($scope.notebooks, function (notebook) {
                     $scope.notebookDropdown.push({text: notebook.name, href: '/sql/' + notebook._id, target: '_self'});
+                });
             }
         })
         .error(function (errMsg) {

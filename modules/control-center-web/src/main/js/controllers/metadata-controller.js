@@ -258,6 +258,15 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         $scope.metadatas = [];
 
+        $scope.isJavaBuildInType = function () {
+            var item = $scope.backupItem;
+
+            if (item && item.keyType)
+                return _.contains($common.javaBuildInTypes, item.keyType);
+
+            return false;
+        };
+
         $http.get('/models/metadata.json')
             .success(function (data) {
                 $scope.screenTip = data.screenTip;
@@ -334,8 +343,60 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
+        function isEmpty(arr) {
+            if ($common.isDefined(arr))
+                return arr.length == 0;
+            else
+                return true;
+        }
+
         // Check metadata logical consistency.
         function validate(item) {
+            var kind = item.kind;
+
+            if (kind == 'query' || kind == 'both') {
+                if (isEmpty(item.queryFields) && isEmpty(item.ascendingFields) && isEmpty(item.descendingFields)
+                    && isEmpty(item.textFields) && isEmpty(item.groups)) {
+                        $common.showError('SQL fields are not specified!');
+
+                        return false;
+                }
+
+                var groups = item.groups;
+                if (groups && groups.length > 0) {
+                    for (var i = 0; i < groups.length; i++) {
+                        var group = groups[i];
+                        var fields = group.fields;
+
+                        if (isEmpty(fields)) {
+                            $common.showError('Group "' + group.name + '" has no fields.');
+
+                            return false;
+                        }
+
+                        if (fields.length == 1) {
+                            $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
+
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            if (kind == 'store' || kind == 'both') {
+                if (isEmpty(item.keyFields) && !_.contains($common.javaBuildInTypes, item.keyType)) {
+                    $common.showError('Key fields are not specified!');
+
+                    return false;
+                }
+
+                if (isEmpty(item.valueFields)) {
+                    $common.showError('Value fields are not specified!');
+
+                    return false;
+                }
+            }
+
             return true;
         }
 

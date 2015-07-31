@@ -93,7 +93,7 @@
       "model": "keyFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind == 'query'",
+      "hide": "backupItem.kind == 'query' || isJavaBuildInType()",
       "addTip": "Add key field.",
       "removeTip": "Remove key field.",
       "tip": [
