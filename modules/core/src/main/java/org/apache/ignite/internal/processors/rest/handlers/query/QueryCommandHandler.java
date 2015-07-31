@@ -64,17 +64,14 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
 
         ctx.timeout().schedule(new Runnable() {
             @Override public void run() {
-                long time = System.currentTimeMillis();
+                long time = U.currentTimeMillis();
 
                 for (Map.Entry<Long, GridTuple3<QueryCursor, Iterator, Long>> e : qryCurs.entrySet()) {
                     synchronized (e.getValue()) {
                         long createTime = e.getValue().get3();
 
-                        if (createTime + idleQryCurTimeout > time) {
+                        if (createTime + idleQryCurTimeout > time && qryCurs.remove(e.getKey(), e.getValue()))
                             e.getValue().get1().close();
-
-                            qryCurs.remove(e.getKey());
-                        }
                     }
                 }
             }
@@ -161,8 +158,7 @@ public class QueryCommandHandler extends GridRestCommandHandlerAdapter {
 
                 Iterator cur = qryCur.iterator();
 
-                GridTuple3<QueryCursor, Iterator, Long> val =
-                    new GridTuple3<>(qryCur, cur, System.currentTimeMillis());
+                GridTuple3<QueryCursor, Iterator, Long> val = new GridTuple3<>(qryCur, cur, U.currentTimeMillis());
 
                 synchronized (val) {
                     qryCurs.put(qryId, val);
