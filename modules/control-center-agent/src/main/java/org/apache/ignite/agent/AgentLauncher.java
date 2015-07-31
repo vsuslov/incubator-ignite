@@ -31,12 +31,7 @@ import java.util.logging.*;
 public class AgentLauncher {
     /** Static initializer. */
     static {
-        try {
-            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/logging.properties"));
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        LoggingConfigurator.configure();
     }
 
     /** */
