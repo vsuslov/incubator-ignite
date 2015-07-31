@@ -163,10 +163,8 @@ Client.prototype.executeRest = function(path, params, method, headers, body, cb)
 
     var newArgs = argsToArray(arguments);
 
-    newArgs[5] = function(err, ex, res) {
-        if (err)
-            cb(err);
-        else if (ex)
+    newArgs[5] = function(ex, res) {
+        if (ex)
             cb(ex.message);
         else
             cb(null, res.code, res.message)
@@ -251,12 +249,10 @@ Client.prototype._rmtCallRes = function(msg) {
 
     delete this._cbMap[msg.reqId];
 
-    if (msg.error)
-        cb(msg.error);
-    else if (msg.ex)
-        cb(null, ex);
+    if (msg.ex)
+        cb(msg.ex);
     else
-        cb(null, null, msg.res);
+        cb(null, msg.res);
 };
 
 /**

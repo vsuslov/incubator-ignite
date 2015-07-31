@@ -18,7 +18,6 @@
 package org.apache.ignite.agent.remote;
 
 import com.google.gson.*;
-import org.apache.ignite.agent.*;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -31,6 +30,15 @@ import java.util.logging.*;
 public class RemoteHandler implements AutoCloseable {
     /** */
     private static final Logger log = Logger.getLogger(RemoteHandler.class.getName());
+
+    /** */
+    public static final Gson GSON = new Gson();
+
+    /** */
+    private static final String INTERNAL_EXCEPTION_TYPE = "org.apache.ignite.agent.AgentException";
+
+    /** */
+    public static final Object[] EMPTY_OBJECTS = new Object[0];
 
     /** */
     private final WebSocketSender snd;
@@ -79,7 +87,7 @@ public class RemoteHandler implements AutoCloseable {
         final MethodDescriptor desc = methods.get(mtdName);
 
         if (desc == null) {
-            sendError(reqId, "Unknown method: " + mtdName);
+            sendException(reqId, INTERNAL_EXCEPTION_TYPE, "Unknown method: " + mtdName);
 
             return;
         }
@@ -94,19 +102,19 @@ public class RemoteHandler implements AutoCloseable {
             args = new Object[paramTypes.length];
 
             if (argsJson == null || argsJson.size() != paramTypes.length) {
-                sendError(reqId, "Inconsistent parameters");
+                sendException(reqId, INTERNAL_EXCEPTION_TYPE, "Inconsistent parameters");
 
                 return;
             }
 
             for (int i = 0; i < paramTypes.length; i++)
-                args[i] = Utils.GSON.fromJson(argsJson.get(i), paramTypes[i]);
+                args[i] = GSON.fromJson(argsJson.get(i), paramTypes[i]);
         }
         else {
-            args = Utils.EMPTY_OBJECTS;
+            args = EMPTY_OBJECTS;
 
             if (argsJson != null && argsJson.size() > 0) {
-                sendError(reqId, "Inconsistent parameters");
+                sendException(reqId, INTERNAL_EXCEPTION_TYPE, "Inconsistent parameters");
 
                 return;
             }
@@ -118,9 +126,12 @@ public class RemoteHandler implements AutoCloseable {
 
                 try {
                     res = desc.mtd.invoke(desc.hnd, args);
-                } catch (Exception e) {
+                } catch (Throwable e) {
+                    if (e instanceof InvocationTargetException)
+                        e = ((InvocationTargetException)e).getTargetException();
+
                     if (reqId != null)
-                        sendException(reqId, e);
+                        sendException(reqId, e.getClass().getName(), e.getMessage());
                     else
                         log.log(Level.SEVERE, "Exception on execute remote method", e);
 
@@ -139,9 +150,10 @@ public class RemoteHandler implements AutoCloseable {
 
     /**
      * @param reqId Request id.
-     * @param ex Exception.
+     * @param exType Exception class name.
+     * @param exMsg Exception message.
      */
-    protected void sendException(Long reqId, Exception ex) {
+    protected void sendException(Long reqId, String exType, String exMsg) {
         if (reqId == null)
             return;
 
@@ -151,27 +163,10 @@ public class RemoteHandler implements AutoCloseable {
         res.addProperty("reqId", reqId);
 
         JsonObject exJson = new JsonObject();
-        exJson.addProperty("type", ex.getClass().getName());
-        exJson.addProperty("message", ex.getMessage());
+        exJson.addProperty("type", exType);
+        exJson.addProperty("message", exMsg);
 
         res.add("ex", exJson);
-
-        snd.send(res);
-    }
-
-    /**
-     * @param reqId Request id.
-     * @param err Exception.
-     */
-    protected void sendError(Long reqId, String err) {
-        if (reqId == null)
-            return;
-
-        JsonObject res = new JsonObject();
-
-        res.addProperty("type", "CallRes");
-        res.addProperty("reqId", reqId);
-        res.addProperty("error", err);
 
         snd.send(res);
     }
@@ -196,7 +191,7 @@ public class RemoteHandler implements AutoCloseable {
         if (type == void.class)
             resJson = JsonNull.INSTANCE;
         else
-            resJson = Utils.GSON.toJsonTree(res, type);
+            resJson = GSON.toJsonTree(res, type);
 
         resp.add("res", resJson);
 

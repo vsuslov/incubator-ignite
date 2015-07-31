@@ -18,15 +18,13 @@
 package org.apache.ignite.agent;
 
 import com.google.gson.*;
+import org.apache.ignite.agent.handlers.*;
 import org.apache.ignite.agent.remote.*;
-import org.apache.ignite.schema.parser.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
 import java.io.*;
 import java.net.*;
-import java.sql.*;
-import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
@@ -37,6 +35,12 @@ import java.util.logging.*;
 public class AgentSocket implements WebSocketSender {
     /** */
     private static final Logger log = Logger.getLogger(AgentSocket.class.getName());
+
+    /** */
+    public static final Gson GSON = new Gson();
+
+    /** */
+    public static final JsonParser PARSER = new JsonParser();
 
     /** */
     private final CountDownLatch closeLatch = new CountDownLatch(1);
@@ -80,11 +84,11 @@ public class AgentSocket implements WebSocketSender {
      */
     @OnWebSocketConnect
     public void onConnect(Session ses) {
-        log.log(Level.INFO, "Authentication...");
+        log.log(Level.INFO, "Connection established");
 
         this.ses = ses;
 
-        remote = RemoteHandler.wrap(this, this, restExecutor);
+        remote = RemoteHandler.wrap(this, this, restExecutor, new DBExtractor());
 
         JsonObject authMsg = new JsonObject();
 
@@ -100,7 +104,7 @@ public class AgentSocket implements WebSocketSender {
      * @return Whether or not message was sent.
      */
     @Override public boolean send(JsonObject msg) {
-        return send(Utils.GSON.toJson(msg));
+        return send(GSON.toJson(msg));
     }
 
     /**
@@ -142,7 +146,7 @@ public class AgentSocket implements WebSocketSender {
      */
     @OnWebSocketMessage
     public void onMessage(String msg) {
-        JsonElement jsonElement = Utils.PARSER.parse(msg);
+        JsonElement jsonElement = PARSER.parse(msg);
 
         remote.onMessage((JsonObject)jsonElement);
     }
@@ -159,23 +163,6 @@ public class AgentSocket implements WebSocketSender {
 
             ses.close();
         }
-    }
-
-    /**
-     *
-     * @param jdbcDriverJarPath JDBC driver JAR path.
-     * @param jdbcDriverClass JDBC driver class.
-     * @param jdbcUrl JDBC URL.
-     * @param jdbcInfo Properties to connect to database.
-     *
-     * @return Collection of tables.
-     */
-    @Remote
-    public Collection<DbTable> extractMetadata(String jdbcDriverJarPath, String jdbcDriverClass, String jdbcUrl,
-        Properties jdbcInfo, boolean tablesOnly) throws SQLException {
-        Connection conn = DBReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo);
-
-        return DBReader.getInstance().extractMetadata(conn, tablesOnly);
     }
 
     /**
