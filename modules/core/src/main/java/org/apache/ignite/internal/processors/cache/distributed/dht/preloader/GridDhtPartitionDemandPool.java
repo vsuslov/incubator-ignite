@@ -572,13 +572,11 @@ public class GridDhtPartitionDemandPool {
                 while (sent < maxC && it.hasNext()) {
                     int p = it.next();
 
-                    Collection<Integer> ps = new ArrayList<>(1);
+                    Collection<Integer> ps = Collections.singleton(p);
 
                     boolean res = remaining.replace(p, false, true);
 
                     assert res;
-
-                    ps.add(p);
 
                     // Create copy.
                     GridDhtPartitionDemandMessage initD = new GridDhtPartitionDemandMessage(d, ps);
@@ -762,9 +760,7 @@ public class GridDhtPartitionDemandPool {
             try {
                 for (Integer p : remaining.keySet()) {
                     if (remaining.replace(p, false, true)) {
-                        Collection<Integer> nextPs = new ArrayList<>(1);
-
-                        nextPs.add(p);
+                        Collection<Integer> nextPs = Collections.singleton(p);
 
                         // Create copy.
                         GridDhtPartitionDemandMessage nextD = new GridDhtPartitionDemandMessage(d, nextPs);
