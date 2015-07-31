@@ -202,6 +202,14 @@ function javaBuildInClass(className) {
 
 exports.javaBuildInClass = javaBuildInClass;
 
+/**
+ * @param className Class name to check.
+ * @returns 'true' if given class name is a java build-in type.
+ */
+exports.isJavaBuildInClass = function (className) {
+    return isDefined(javaBuildInClasses[className]);
+};
+
 exports.knownClasses = {
     Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
     DB2: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.DB2Dialect', {}),

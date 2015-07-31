@@ -428,13 +428,16 @@ function addCacheTypeMetadataConfiguration(res, meta) {
 
     var kind = meta.kind;
 
-    addClassProperty(res, 'typeMeta', meta, 'keyType');
+    var keyType = addClassProperty(res, 'typeMeta', meta, 'keyType');
     addClassProperty(res, 'typeMeta', meta, 'valueType');
 
     if (kind != 'query') {
         addProperty(res, 'typeMeta', meta, 'databaseSchema');
         addProperty(res, 'typeMeta', meta, 'databaseTable');
-        addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+
+        if (!generatorCommon.isJavaBuildInClass(keyType))
+            addCacheTypeMetadataDatabaseFields(res, meta, 'keyFields');
+
         addCacheTypeMetadataDatabaseFields(res, meta, 'valueFields');
     }
 
