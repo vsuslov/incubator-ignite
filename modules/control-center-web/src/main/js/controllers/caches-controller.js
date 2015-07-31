@@ -227,6 +227,8 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
         $scope.createItem = function () {
             $table.tableReset();
 
+            $scope.selectedItem = undefined;
+
             $scope.backupItem = {mode: 'PARTITIONED', atomicityMode: 'ATOMIC', readFromBackup: true, copyOnRead: true};
             $scope.backupItem.queryMetadata = [];
             $scope.backupItem.spaceMetadata = [];

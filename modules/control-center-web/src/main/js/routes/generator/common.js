@@ -116,34 +116,35 @@ exports.builder = function () {
 
     res.imports = {};
 
-    res.importClass = function (fullClassName) {
+    res.importClass = function (className) {
+        var fullClassName = javaBuildInClass(className);
+
         var dotIdx = fullClassName.lastIndexOf('.');
 
-        var shortName;
-
-        if (dotIdx > 0)
-            shortName = fullClassName.substr(dotIdx + 1);
-        else
-            shortName = fullClassName;
+        var shortName = dotIdx > 0 ? fullClassName.substr(dotIdx + 1) : fullClassName;
 
         if (this.imports[shortName]) {
             if (this.imports[shortName] != fullClassName)
                 throw "Class name conflict: " + this.imports[shortName] + ' and ' + fullClassName;
         }
-        else {
+        else
             this.imports[shortName] = fullClassName;
-        }
 
         return shortName;
     };
 
+    /**
+     * @returns String with "java imports" section.
+     */
     res.generateImports = function () {
         var res = [];
 
         for (var clsName in this.imports) {
-            if (this.imports.hasOwnProperty(clsName))
+            if (this.imports.hasOwnProperty(clsName) && this.imports[clsName].lastIndexOf('java.lang.', 0) != 0)
                 res.push('import ' + this.imports[clsName] + ';');
         }
+
+        res.sort();
 
         return res.join('\n')
     };
@@ -175,7 +176,7 @@ exports.marshallers = {
 };
 
 var javaBuildInClasses = {
-    BigDecimal: {className: 'java.math.Boolean'},
+    BigDecimal: {className: 'java.math.BigDecimal'},
     Boolean: {className: 'java.lang.Boolean'},
     Byte: {className: 'java.lang.Byte'},
     Date: {className: 'java.sql.Date'},
@@ -190,14 +191,16 @@ var javaBuildInClasses = {
     UUID: {className: 'java.util.UUID'}
 };
 
-exports.javaBuildInClass = function (className) {
+function javaBuildInClass(className) {
     var fullClassName = javaBuildInClasses[className];
 
     if (fullClassName)
         return fullClassName.className;
 
     return className;
-};
+}
+
+exports.javaBuildInClass = javaBuildInClass;
 
 exports.knownClasses = {
     Oracle: new ClassDescriptor('org.apache.ignite.cache.store.jdbc.dialect.OracleDialect', {}),
@@ -306,7 +309,7 @@ exports.generateProperties = function (cluster) {
     }
 
     if (datasources.length > 0)
-        return '# ' + mainComment() + '\n\n' + res.join();
+        return '# ' + mainComment() + '\n\n' + res.join('');
 
     return undefined;
 };
