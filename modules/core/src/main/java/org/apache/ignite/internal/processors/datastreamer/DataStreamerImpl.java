@@ -39,6 +39,7 @@ import org.apache.ignite.internal.util.tostring.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.lang.*;
+import org.apache.ignite.plugin.security.*;
 import org.apache.ignite.stream.*;
 import org.jetbrains.annotations.*;
 import org.jsr166.*;
@@ -145,6 +146,9 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
     /** Busy lock. */
     private final GridSpinBusyLock busyLock = new GridSpinBusyLock();
 
+    /** */
+    private CacheException disconnectErr;
+
     /** Closed flag. */
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -245,7 +249,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
 
         fut = new DataStreamerFuture(this);
 
-        publicFut = new IgniteFutureImpl<>(fut);
+        publicFut = new IgniteCacheFutureImpl<>(fut);
     }
 
     /**
@@ -284,8 +288,12 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
      * Enters busy lock.
      */
     private void enterBusy() {
-        if (!busyLock.enterBusy())
+        if (!busyLock.enterBusy()) {
+            if (disconnectErr != null)
+                throw disconnectErr;
+
             throw new IllegalStateException("Data streamer has been closed.");
+        }
     }
 
     /**
@@ -406,6 +414,8 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
     @Override public IgniteFuture<?> addData(Collection<? extends Map.Entry<K, V>> entries) {
         A.notEmpty(entries, "entries");
 
+        checkSecurityPermission(SecurityPermission.CACHE_PUT);
+
         enterBusy();
 
         try {
@@ -435,7 +445,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
 
             load0(entries0, resFut, keys, 0);
 
-            return new IgniteFutureImpl<>(resFut);
+            return new IgniteCacheFutureImpl<>(resFut);
         }
         catch (IgniteException e) {
             return new IgniteFinishedFutureImpl<>(e);
@@ -487,7 +497,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
 
             load0(entries, resFut, keys, 0);
 
-            return new IgniteFutureImpl<>(resFut);
+            return new IgniteCacheFutureImpl<>(resFut);
         }
         catch (Throwable e) {
             resFut.onDone(e);
@@ -512,6 +522,11 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
     /** {@inheritDoc} */
     @Override public IgniteFuture<?> addData(K key, V val) {
         A.notNull(key, "key");
+
+        if (val == null)
+            checkSecurityPermission(SecurityPermission.CACHE_REMOVE);
+        else
+            checkSecurityPermission(SecurityPermission.CACHE_PUT);
 
         KeyCacheObject key0 = cacheObjProc.toCacheKeyObject(cacheObjCtx, key, true);
         CacheObject val0 = cacheObjProc.toCacheObject(cacheObjCtx, val, true);
@@ -630,6 +645,12 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
                             // so complete result future right away.
                             resFut.onDone();
                         }
+                    }
+                    catch (IgniteClientDisconnectedCheckedException e1) {
+                        if (log.isDebugEnabled())
+                            log.debug("Future finished with disconnect error [nodeId=" + nodeId + ", err=" + e1 + ']');
+
+                        resFut.onDone(e1);
                     }
                     catch (IgniteCheckedException e1) {
                         if (log.isDebugEnabled())
@@ -757,6 +778,12 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
                     try {
                         fut.get();
                     }
+                    catch (IgniteClientDisconnectedCheckedException e) {
+                        if (log.isDebugEnabled())
+                            log.debug("Failed to flush buffer: " + e);
+
+                        throw CU.convertToCacheException(e);
+                    }
                     catch (IgniteCheckedException e) {
                         if (log.isDebugEnabled())
                             log.debug("Failed to flush buffer: " + e);
@@ -802,7 +829,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
             doFlush();
         }
         catch (IgniteCheckedException e) {
-            throw GridCacheUtils.convertToCacheException(e);
+            throw CU.convertToCacheException(e);
         }
         finally {
             leaveBusy();
@@ -843,7 +870,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
             closeEx(cancel);
         }
         catch (IgniteCheckedException e) {
-            throw GridCacheUtils.convertToCacheException(e);
+            throw CU.convertToCacheException(e);
         }
     }
 
@@ -852,6 +879,15 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
      * @throws IgniteCheckedException If failed.
      */
     public void closeEx(boolean cancel) throws IgniteCheckedException {
+        closeEx(cancel, null);
+    }
+
+    /**
+     * @param cancel {@code True} to close with cancellation.
+     * @param err Error.
+     * @throws IgniteCheckedException If failed.
+     */
+    public void closeEx(boolean cancel, IgniteCheckedException err) throws IgniteCheckedException {
         if (!closed.compareAndSet(false, true))
             return;
 
@@ -868,7 +904,7 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
                 cancelled = true;
 
                 for (Buffer buf : bufMappings.values())
-                    buf.cancelAll();
+                    buf.cancelAll(err);
             }
             else
                 doFlush();
@@ -881,10 +917,26 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
             e = e0;
         }
 
-        fut.onDone(null, e);
+        fut.onDone(null, e != null ? e : err);
 
         if (e != null)
             throw e;
+    }
+
+    /**
+     * @param reconnectFut Reconnect future.
+     * @throws IgniteCheckedException If failed.
+     */
+    public void onDisconnected(IgniteFuture<?> reconnectFut) throws IgniteCheckedException {
+        IgniteClientDisconnectedCheckedException err = new IgniteClientDisconnectedCheckedException(reconnectFut,
+            "Data streamer has been closed, client node disconnected.");
+
+        disconnectErr = (CacheException)CU.convertToCacheException(err);
+
+        for (Buffer buf : bufMappings.values())
+            buf.cancelAll(err);
+
+        closeEx(true, err);
     }
 
     /**
@@ -933,6 +985,20 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
     /** {@inheritDoc} */
     @Override public int compareTo(Delayed o) {
         return nextFlushTime() > ((DataStreamerImpl)o).nextFlushTime() ? 1 : -1;
+    }
+
+    /**
+     * Check permissions for streaming.
+     *
+     * @param perm Security permission.
+     * @throws org.apache.ignite.plugin.security.SecurityException If permissions are not enough for streaming.
+     */
+    private void checkSecurityPermission(SecurityPermission perm)
+        throws org.apache.ignite.plugin.security.SecurityException{
+        if (!ctx.security().enabled())
+            return;
+
+        ctx.security().authorize(cacheName, perm, null);
     }
 
     /**
@@ -1027,7 +1093,11 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
                 submit(entries0, topVer, curFut0);
 
                 if (cancelled)
-                    curFut0.onDone(new IgniteCheckedException("Data streamer has been cancelled: " + DataStreamerImpl.this));
+                    curFut0.onDone(new IgniteCheckedException("Data streamer has been cancelled: " +
+                        DataStreamerImpl.this));
+                else if (ctx.clientDisconnected())
+                    curFut0.onDone(new IgniteClientDisconnectedCheckedException(ctx.cluster().clientReconnectFuture(),
+                        "Client node disconnected."));
             }
 
             return curFut0;
@@ -1227,11 +1297,18 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
                         log.debug("Sent request to node [nodeId=" + node.id() + ", req=" + req + ']');
                 }
                 catch (IgniteCheckedException e) {
-                    if (ctx.discovery().alive(node) && ctx.discovery().pingNode(node.id()))
-                        ((GridFutureAdapter<Object>)fut).onDone(e);
-                    else
-                        ((GridFutureAdapter<Object>)fut).onDone(new ClusterTopologyCheckedException("Failed to send " +
-                            "request (node has left): " + node.id()));
+                    GridFutureAdapter<Object> fut0 = ((GridFutureAdapter<Object>)fut);
+
+                    try {
+                        if (ctx.discovery().alive(node) && ctx.discovery().pingNode(node.id()))
+                            fut0.onDone(e);
+                        else
+                            fut0.onDone(new ClusterTopologyCheckedException("Failed to send request (node has left): "
+                                + node.id()));
+                    }
+                    catch (IgniteClientDisconnectedCheckedException e0) {
+                        fut0.onDone(e0);
+                    }
                 }
             }
         }
@@ -1304,10 +1381,11 @@ public class DataStreamerImpl<K, V> implements IgniteDataStreamer<K, V>, Delayed
         }
 
         /**
-         *
+         * @param err Error.
          */
-        void cancelAll() {
-            IgniteCheckedException err = new IgniteCheckedException("Data streamer has been cancelled: " + DataStreamerImpl.this);
+        void cancelAll(@Nullable IgniteCheckedException err) {
+            if (err == null)
+                err = new IgniteCheckedException("Data streamer has been cancelled: " + DataStreamerImpl.this);
 
             for (IgniteInternalFuture<?> f : locFuts) {
                 try {

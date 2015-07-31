@@ -20,7 +20,6 @@ package org.apache.ignite.configuration;
 import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
 import org.apache.ignite.cache.affinity.*;
-import org.apache.ignite.cache.affinity.rendezvous.*;
 import org.apache.ignite.cache.eviction.*;
 import org.apache.ignite.cache.query.annotations.*;
 import org.apache.ignite.cache.store.*;
@@ -33,6 +32,7 @@ import org.jetbrains.annotations.*;
 import javax.cache.*;
 import javax.cache.configuration.*;
 import javax.cache.expiry.*;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -828,7 +828,7 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
 
     /**
      * Gets caching mode to use. You can configure cache either to be local-only,
-     * fully replicated, partitioned, or near. If not provided, {@link CacheMode#REPLICATED}
+     * fully replicated, partitioned, or near. If not provided, {@link CacheMode#PARTITIONED}
      * mode will be used by default (defined by {@link #DFLT_CACHE_MODE} constant).
      *
      * @return {@code True} if cache is local.
@@ -967,7 +967,9 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
      * Gets class name of transaction manager finder for integration for JEE app servers.
      *
      * @return Transaction manager finder.
+     * @deprecated Use {@link TransactionConfiguration#getTxManagerLookupClassName()} instead.
      */
+    @Deprecated
     public String getTransactionManagerLookupClassName() {
         return tmLookupClsName;
     }
@@ -978,7 +980,9 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
      * @param tmLookupClsName Name of class implementing GridCacheTmLookup interface that is used to
      *      receive JTA transaction manager.
      * @return {@code this} for chaining.
+     * @deprecated Use {@link TransactionConfiguration#setTxManagerLookupClassName(String)} instead.
      */
+    @Deprecated
     public CacheConfiguration<K, V> setTransactionManagerLookupClassName(String tmLookupClsName) {
         this.tmLookupClsName = tmLookupClsName;
 
@@ -1306,7 +1310,7 @@ public class CacheConfiguration<K, V> extends MutableConfiguration<K, V> {
      * For better efficiency user should usually make sure that new nodes get placed on
      * the same place of consistent hash ring as the left nodes, and that nodes are
      * restarted before this delay expires. To place nodes on the same place in consistent hash ring,
-     * use {@link RendezvousAffinityFunction#setHashIdResolver(AffinityNodeHashResolver)}
+     * use {@link IgniteConfiguration#setConsistentId(Serializable)}
      * to make sure that a node maps to the same hash ID event if restarted. As an example,
      * node IP address and port combination may be used in this case.
      * <p>

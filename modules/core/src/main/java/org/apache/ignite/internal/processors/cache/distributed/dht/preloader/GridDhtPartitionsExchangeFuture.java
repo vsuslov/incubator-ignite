@@ -244,17 +244,6 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
     }
 
     /** {@inheritDoc} */
-    @Override public GridDiscoveryTopologySnapshot topologySnapshot() throws IgniteCheckedException {
-        get();
-
-        if (topSnapshot.get() == null)
-            topSnapshot.compareAndSet(null, new GridDiscoveryTopologySnapshot(discoEvt.topologyVersion(),
-                discoEvt.topologyNodes()));
-
-        return topSnapshot.get();
-    }
-
-    /** {@inheritDoc} */
     @Override public AffinityTopologyVersion topologyVersion() {
         return exchId.topologyVersion();
     }
@@ -474,6 +463,9 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
 
                 oldestNode.set(oldest);
 
+                if (!F.isEmpty(reqs))
+                    blockGateways();
+
                 startCaches();
 
                 // True if client node joined or failed.
@@ -489,24 +481,25 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
                 else {
                     assert discoEvt.type() == EVT_DISCOVERY_CUSTOM_EVT : discoEvt;
 
-                    boolean clientOnlyStart = true;
+                    boolean clientOnlyCacheEvt = true;
 
                     for (DynamicCacheChangeRequest req : reqs) {
-                        if (!req.clientStartOnly()) {
-                            clientOnlyStart = false;
+                        if (req.clientStartOnly() || req.close())
+                            continue;
 
-                            break;
-                        }
+                        clientOnlyCacheEvt = false;
+
+                        break;
                     }
 
-                    clientNodeEvt = clientOnlyStart;
+                    clientNodeEvt = clientOnlyCacheEvt;
                 }
 
                 if (clientNodeEvt) {
                     ClusterNode node = discoEvt.eventNode();
 
                     // Client need to initialize affinity for local join event or for stated client caches.
-                    if (!node.isLocal()) {
+                    if (!node.isLocal() || clientCacheClose()) {
                         for (GridCacheContext cacheCtx : cctx.cacheContexts()) {
                             if (cacheCtx.isLocal())
                                 continue;
@@ -733,9 +726,6 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
                 if (log.isDebugEnabled())
                     log.debug("After waiting for partition release future: " + this);
 
-                if (!F.isEmpty(reqs))
-                    blockGateways();
-
                 if (exchId.isLeft())
                     cctx.mvcc().removeExplicitNodeLocks(exchId.nodeId(), exchId.topologyVersion());
 
@@ -751,13 +741,19 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
                         U.warn(log, "Failed to wait for locks release future. " +
                             "Dumping pending objects that might be the cause: " + cctx.localNodeId());
 
-                        U.warn(log, "Locked entries:");
+                        U.warn(log, "Locked keys:");
+
+                        for (IgniteTxKey key : cctx.mvcc().lockedKeys())
+                            U.warn(log, "Locked key: " + key);
+
+                        for (IgniteTxKey key : cctx.mvcc().nearLockedKeys())
+                            U.warn(log, "Locked near key: " + key);
 
                         Map<IgniteTxKey, Collection<GridCacheMvccCandidate>> locks =
                             cctx.mvcc().unfinishedLocks(exchId.topologyVersion());
 
                         for (Map.Entry<IgniteTxKey, Collection<GridCacheMvccCandidate>> e : locks.entrySet())
-                            U.warn(log, "Locked entry [key=" + e.getKey() + ", mvcc=" + e.getValue() + ']');
+                            U.warn(log, "Awaited locked entry [key=" + e.getKey() + ", mvcc=" + e.getValue() + ']');
                     }
                 }
 
@@ -839,31 +835,20 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
     }
 
     /**
+     * @return {@code True} if exchange initiated for client cache close.
+     */
+    private boolean clientCacheClose() {
+        return reqs != null && reqs.size() == 1 && reqs.iterator().next().close();
+    }
+
+    /**
      *
      */
     private void dumpPendingObjects() {
         U.warn(log, "Failed to wait for partition release future. Dumping pending objects that might be the cause: " +
             cctx.localNodeId());
 
-        U.warn(log, "Pending transactions:");
-
-        for (IgniteInternalTx tx : cctx.tm().activeTransactions())
-            U.warn(log, ">>> " + tx);
-
-        U.warn(log, "Pending explicit locks:");
-
-        for (GridCacheExplicitLockSpan lockSpan : cctx.mvcc().activeExplicitLocks())
-            U.warn(log, ">>> " + lockSpan);
-
-        U.warn(log, "Pending cache futures:");
-
-        for (GridCacheFuture<?> fut : cctx.mvcc().activeFutures())
-            U.warn(log, ">>> " + fut);
-
-        U.warn(log, "Pending atomic cache futures:");
-
-        for (GridCacheFuture<?> fut : cctx.mvcc().atomicFutures())
-            U.warn(log, ">>> " + fut);
+        cctx.exchange().dumpPendingObjects();
     }
 
     /**
@@ -903,7 +888,7 @@ public class GridDhtPartitionsExchangeFuture extends GridFutureAdapter<AffinityT
      */
     private void blockGateways() {
         for (DynamicCacheChangeRequest req : reqs) {
-            if (req.stop())
+            if (req.stop() || req.close())
                 cctx.cache().blockGateway(req);
         }
     }

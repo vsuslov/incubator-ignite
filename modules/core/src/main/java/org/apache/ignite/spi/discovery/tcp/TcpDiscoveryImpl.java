@@ -112,7 +112,14 @@ abstract class TcpDiscoveryImpl {
      * @return Local node ID.
      */
     public UUID getLocalNodeId() {
-        return spi.getLocalNodeId();
+        return spi.locNode.id();
+    }
+
+    /**
+     * @return Configured node ID (actual node ID can be different if client reconnects).
+     */
+    public UUID getConfiguredNodeId() {
+        return spi.cfgNodeId;
     }
 
     /**
@@ -121,6 +128,13 @@ abstract class TcpDiscoveryImpl {
      */
     protected void onException(String msg, Exception e){
         spi.getExceptionRegistry().onException(msg, e);
+    }
+
+    /**
+     * Called when a chunk of data is received from a remote node.
+     */
+    protected void onDataReceived() {
+        // No-op
     }
 
     /**
@@ -266,10 +280,10 @@ abstract class TcpDiscoveryImpl {
      * maximum acknowledgement timeout, {@code false} otherwise.
      */
     protected boolean checkAckTimeout(long ackTimeout) {
-        if (ackTimeout > spi.maxAckTimeout) {
+        if (ackTimeout > spi.getMaxAckTimeout()) {
             LT.warn(log, null, "Acknowledgement timeout is greater than maximum acknowledgement timeout " +
                 "(consider increasing 'maxAckTimeout' configuration property) " +
-                "[ackTimeout=" + ackTimeout + ", maxAckTimeout=" + spi.maxAckTimeout + ']');
+                "[ackTimeout=" + ackTimeout + ", maxAckTimeout=" + spi.getMaxAckTimeout() + ']');
 
             return false;
         }

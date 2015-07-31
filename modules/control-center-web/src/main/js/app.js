@@ -26,6 +26,7 @@ var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
 var publicRoutes = require('./routes/public');
+var notebooksRoutes = require('./routes/notebooks');
 var clustersRouter = require('./routes/clusters');
 var cachesRouter = require('./routes/caches');
 var metadataRouter = require('./routes/metadata');
@@ -33,6 +34,7 @@ var summary = require('./routes/summary');
 var adminRouter = require('./routes/admin');
 var profileRouter = require('./routes/profile');
 var sqlRouter = require('./routes/sql');
+var agentRouter = require('./routes/agent');
 
 var passport = require('passport');
 
@@ -122,7 +124,11 @@ app.use('/configuration/clusters', clustersRouter);
 app.use('/configuration/caches', cachesRouter);
 app.use('/configuration/metadata', metadataRouter);
 app.use('/configuration/summary', summary);
-app.use('/sql', sqlRouter);
+
+app.use('/notebooks', mustAuthenticated, notebooksRoutes);
+app.use('/sql', mustAuthenticated, sqlRouter);
+
+app.use('/agent', mustAuthenticated, agentRouter);
 
 // Catch 404 and forward to error handler.
 app.use(function (req, res, next) {

@@ -19,6 +19,7 @@ package org.apache.ignite.spi;
 
 import org.apache.ignite.*;
 import org.apache.ignite.cluster.*;
+import org.apache.ignite.configuration.*;
 import org.apache.ignite.events.*;
 import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.managers.communication.*;
@@ -27,6 +28,7 @@ import org.apache.ignite.internal.processors.timeout.*;
 import org.apache.ignite.internal.util.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
+import org.apache.ignite.lang.*;
 import org.apache.ignite.plugin.extensions.communication.*;
 import org.apache.ignite.plugin.security.*;
 import org.apache.ignite.resources.*;
@@ -58,9 +60,6 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
     /** Ignite instance. */
     protected Ignite ignite;
 
-    /** Local node id. */
-    protected UUID nodeId;
-
     /** Grid instance name. */
     protected String gridName;
 
@@ -72,6 +71,18 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
 
     /** Discovery listener. */
     private GridLocalEventListener paramsLsnr;
+
+    /** Local node. */
+    private ClusterNode locNode;
+
+    /** Failure detection timeout usage switch. */
+    private boolean failureDetectionTimeoutEnabled = true;
+
+    /**
+     *  Failure detection timeout. Initialized with the value of
+     *  {@link IgniteConfiguration#getFailureDetectionTimeout()}.
+     */
+    private long failureDetectionTimeout;
 
     /**
      * Creates new adapter and initializes it from the current (this) class.
@@ -111,7 +122,19 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
 
     /** {@inheritDoc} */
     @Override public UUID getLocalNodeId() {
-        return nodeId;
+        return ignite.cluster().localNode().id();
+    }
+
+    /**
+     * @return Local node.
+     */
+    protected ClusterNode getLocalNode() {
+        if (locNode != null)
+            return locNode;
+
+        locNode = getSpiContext().localNode();
+
+        return locNode;
     }
 
     /** {@inheritDoc} */
@@ -194,17 +217,27 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
         spiCtx = new GridDummySpiContext(locNode, true, spiCtx);
     }
 
+    /** {@inheritDoc} */
+    @Override public void onClientDisconnected(IgniteFuture<?> reconnectFut) {
+        // No-op.
+    }
+
+    /** {@inheritDoc} */
+    @Override public void onClientReconnected(boolean clusterRestarted) {
+        // No-op.
+    }
+
     /**
      * Inject ignite instance.
+     *
+     * @param ignite Ignite instance.
      */
     @IgniteInstanceResource
     protected void injectResources(Ignite ignite) {
         this.ignite = ignite;
 
-        if (ignite != null) {
-            nodeId = ignite.configuration().getNodeId();
+        if (ignite != null)
             gridName = ignite.name();
-        }
     }
 
     /**
@@ -560,6 +593,54 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
     }
 
     /**
+     * Initiates and checks failure detection timeout value.
+     */
+    protected void initFailureDetectionTimeout() {
+        if (failureDetectionTimeoutEnabled) {
+            failureDetectionTimeout = ignite.configuration().getFailureDetectionTimeout();
+
+            if (failureDetectionTimeout <= 0)
+                throw new IgniteSpiException("Invalid failure detection timeout value: " + failureDetectionTimeout);
+            else if (failureDetectionTimeout <= 10)
+                // Because U.currentTimeInMillis() is updated once in 10 milliseconds.
+                log.warning("Failure detection timeout is too low, it may lead to unpredictable behaviour " +
+                    "[failureDetectionTimeout=" + failureDetectionTimeout + ']');
+        }
+        // Intentionally compare references using '!=' below
+        else if (ignite.configuration().getFailureDetectionTimeout() !=
+                IgniteConfiguration.DFLT_FAILURE_DETECTION_TIMEOUT)
+            log.warning("Failure detection timeout will be ignored (one of SPI parameters has been set explicitly)");
+
+    }
+
+    /**
+     * Enables or disables failure detection timeout.
+     *
+     * @param enabled {@code true} if enable, {@code false} otherwise.
+     */
+    public void failureDetectionTimeoutEnabled(boolean enabled) {
+        failureDetectionTimeoutEnabled = enabled;
+    }
+
+    /**
+     * Checks whether failure detection timeout is enabled for this {@link IgniteSpi}.
+     *
+     * @return {@code true} if enabled, {@code false} otherwise.
+     */
+    public boolean failureDetectionTimeoutEnabled() {
+        return failureDetectionTimeoutEnabled;
+    }
+
+    /**
+     * Returns failure detection timeout set to use for network related operations.
+     *
+     * @return failure detection timeout in milliseconds or {@code 0} if the timeout is disabled.
+     */
+    public long failureDetectionTimeout() {
+        return failureDetectionTimeout;
+    }
+
+    /**
      * Temporarily SPI context.
      */
     private class GridDummySpiContext implements IgniteSpiContext {
@@ -765,16 +846,22 @@ public abstract class IgniteSpiAdapter implements IgniteSpi, IgniteSpiManagement
 
         /** {@inheritDoc} */
         @Override public void addTimeoutObject(IgniteSpiTimeoutObject obj) {
-            assert ignite instanceof IgniteKernal : ignite;
+            Ignite ignite0 = ignite;
 
-            ((IgniteKernal)ignite).context().timeout().addTimeoutObject(new GridSpiTimeoutObject(obj));
+            if (!(ignite0 instanceof IgniteKernal))
+                throw new IgniteSpiException("Wrong Ignite instance is set: " + ignite0);
+
+            ((IgniteKernal)ignite0).context().timeout().addTimeoutObject(new GridSpiTimeoutObject(obj));
         }
 
         /** {@inheritDoc} */
         @Override public void removeTimeoutObject(IgniteSpiTimeoutObject obj) {
-            assert ignite instanceof IgniteKernal : ignite;
+            Ignite ignite0 = ignite;
 
-            ((IgniteKernal)ignite).context().timeout().removeTimeoutObject(new GridSpiTimeoutObject(obj));
+            if (!(ignite0 instanceof IgniteKernal))
+                throw new IgniteSpiException("Wrong Ignite instance is set: " + ignite0);
+
+            ((IgniteKernal)ignite0).context().timeout().removeTimeoutObject(new GridSpiTimeoutObject(obj));
         }
     }
 }

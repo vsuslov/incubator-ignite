@@ -18,7 +18,9 @@
 package org.apache.ignite.internal;
 
 import org.apache.ignite.*;
+import org.apache.ignite.cluster.*;
 import org.apache.ignite.configuration.*;
+import org.apache.ignite.internal.processors.json.*;
 import org.apache.ignite.internal.managers.checkpoint.*;
 import org.apache.ignite.internal.managers.collision.*;
 import org.apache.ignite.internal.managers.communication.*;
@@ -49,6 +51,7 @@ import org.apache.ignite.internal.processors.query.*;
 import org.apache.ignite.internal.processors.resource.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.schedule.*;
+import org.apache.ignite.internal.processors.scripting.*;
 import org.apache.ignite.internal.processors.security.*;
 import org.apache.ignite.internal.processors.segmentation.*;
 import org.apache.ignite.internal.processors.service.*;
@@ -198,6 +201,10 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
 
     /** */
     @GridToStringInclude
+    private IgniteScriptingProcessor scriptProc;
+
+    /** */
+    @GridToStringInclude
     private DataStreamProcessor dataLdrProc;
 
     /** */
@@ -239,6 +246,10 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
     /** */
     @GridToStringExclude
     private ClusterProcessor cluster;
+
+    /** */
+    @GridToStringExclude
+    private IgniteJsonProcessor json;
 
     /** */
     @GridToStringExclude
@@ -303,6 +314,12 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
     /** Marshaller context. */
     private MarshallerContextImpl marshCtx;
 
+    /** */
+    private ClusterNode locNode;
+
+    /** */
+    private volatile boolean disconnected;
+
     /**
      * No-arg constructor is required by externalization.
      */
@@ -325,6 +342,7 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
      * @param mgmtExecSvc Management executor service.
      * @param igfsExecSvc IGFS executor service.
      * @param restExecSvc REST executor service.
+     * @param plugins Plugin providers.
      * @throws IgniteCheckedException In case of error.
      */
     @SuppressWarnings("TypeMayBeWeakened")
@@ -477,6 +495,10 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
             dataStructuresProc = (DataStructuresProcessor)comp;
         else if (comp instanceof ClusterProcessor)
             cluster = (ClusterProcessor)comp;
+        else if (comp instanceof IgniteScriptingProcessor)
+            scriptProc = (IgniteScriptingProcessor)comp;
+        else if (comp instanceof IgniteJsonProcessor)
+            json = (IgniteJsonProcessor)comp;
         else if (!(comp instanceof DiscoveryNodeValidationProcessor))
             assert (comp instanceof GridPluginComponent) : "Unknown manager class: " + comp.getClass();
 
@@ -503,7 +525,13 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
 
     /** {@inheritDoc} */
     @Override public UUID localNodeId() {
-        return cfg.getNodeId();
+        if (locNode != null)
+            return locNode.id();
+
+        if (discoMgr != null)
+            locNode = discoMgr.localNode();
+
+        return locNode != null ? locNode.id() : config().getNodeId();
     }
 
     /** {@inheritDoc} */
@@ -654,6 +682,11 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
     /** {@inheritDoc} */
     @Override public GridRestProcessor rest() {
         return restProc;
+    }
+
+    /** {@inheritDoc} */
+    @Override public IgniteScriptingProcessor scripting() {
+        return scriptProc;
     }
 
     /** {@inheritDoc} */
@@ -893,6 +926,11 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
     }
 
     /** {@inheritDoc} */
+    @Override public IgniteJsonProcessor json() {
+        return json;
+    }
+
+    /** {@inheritDoc} */
     @Override public MarshallerContextImpl marshallerContext() {
         return marshCtx;
     }
@@ -900,6 +938,21 @@ public class GridKernalContextImpl implements GridKernalContext, Externalizable 
     /** {@inheritDoc} */
     @Override public boolean clientNode() {
         return cfg.isClientMode() || cfg.isDaemon();
+    }
+
+    /** {@inheritDoc} */
+    @Override public boolean clientDisconnected() {
+        if (locNode == null)
+            locNode = discoMgr != null ? discoMgr.localNode() : null;
+
+        return locNode != null ? (locNode.isClient() && disconnected) : false;
+    }
+
+    /**
+     * @param disconnected Disconnected flag.
+     */
+    void disconnected(boolean disconnected) {
+        this.disconnected = disconnected;
     }
 
     /** {@inheritDoc} */

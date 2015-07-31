@@ -4,5 +4,14 @@
     },
     "mongoDB": {
         "url": "mongodb://localhost/web-control-center"
+    },
+    "monitor": {
+        "server": {
+            "port": 3001,
+            "ssl": true,
+            "key": "keys/test.key",
+            "cert": "keys/test.crt",
+            "keyPassphrase": "password"
+        }
     }
 }

@@ -131,6 +131,8 @@ public class IgniteCacheTestSuite4 extends TestSuite {
 
         suite.addTestSuite(CacheRemoveAllSelfTest.class);
 
+        suite.addTestSuite(CacheStopAndDestroySelfTest.class);
+
         suite.addTestSuite(CacheOffheapMapEntrySelfTest.class);
 
         suite.addTestSuite(CacheJdbcStoreSessionListenerSelfTest.class);
@@ -143,8 +145,6 @@ public class IgniteCacheTestSuite4 extends TestSuite {
 
         suite.addTestSuite(IgniteStartCacheInTransactionSelfTest.class);
         suite.addTestSuite(IgniteStartCacheInTransactionAtomicSelfTest.class);
-
-        suite.addTestSuite(IgniteCacheManyClientsTest.class);
 
         suite.addTestSuite(CacheReadThroughRestartSelfTest.class);
         suite.addTestSuite(CacheReadThroughReplicatedRestartSelfTest.class);

@@ -20,6 +20,7 @@ package org.apache.ignite.internal.processors.rest.protocols.http.jetty;
 import net.sf.json.*;
 import net.sf.json.processors.*;
 import org.apache.ignite.*;
+import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.request.*;
@@ -29,6 +30,7 @@ import org.apache.ignite.lang.*;
 import org.apache.ignite.plugin.security.*;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.*;
+import org.glassfish.json.*;
 import org.jetbrains.annotations.*;
 
 import javax.servlet.*;
@@ -71,20 +73,26 @@ public class GridJettyRestHandler extends AbstractHandler {
     /** Authentication checker. */
     private final IgniteClosure<String, Boolean> authChecker;
 
+    /** Grid context. */
+    GridKernalContext ctx;
+
     /**
      * Creates new HTTP requests handler.
      *
+     * @param ctx Grid context.
      * @param hnd Handler.
      * @param authChecker Authentication checking closure.
      * @param log Logger.
      */
-    GridJettyRestHandler(GridRestProtocolHandler hnd, IgniteClosure<String, Boolean> authChecker, IgniteLogger log) {
+    GridJettyRestHandler(GridKernalContext ctx, GridRestProtocolHandler hnd,
+        IgniteClosure<String, Boolean> authChecker, IgniteLogger log) {
         assert hnd != null;
         assert log != null;
 
         this.hnd = hnd;
         this.log = log;
         this.authChecker = authChecker;
+        this.ctx = ctx;
 
         // Init default page and favicon.
         try {
@@ -291,6 +299,8 @@ public class GridJettyRestHandler extends AbstractHandler {
         JSON json;
 
         try {
+            createResponse(req, cmd, cmdRes);
+
             json = JSONSerializer.toJSON(cmdRes, cfg);
         }
         catch (JSONException e) {
@@ -314,6 +324,36 @@ public class GridJettyRestHandler extends AbstractHandler {
     }
 
     /**
+     * @param req Request.
+     * @param cmd Rest command.
+     * @param cmdRes Rest response.
+     */
+    private void createResponse(HttpServletRequest req, GridRestCommand cmd,
+        GridRestResponse cmdRes) {
+        if (cmdRes.getResponse() == null || !(req.getHeader("Content-Type") != null &&
+            req.getHeader("Content-Type").contains("json")))
+            return;
+
+        if (cmd == CACHE_GET_ALL) {
+            Map o = (Map)cmdRes.getResponse();
+
+            List<Object> res = new ArrayList<>();
+
+            for (Object k : o.keySet())
+                res.add(ctx.scripting().createScriptingEntry(ctx.scripting().toScriptObject(k),
+                    ctx.scripting().toScriptObject(o.get(k))));
+
+            cmdRes.setResponse(res);
+
+        }
+        else {
+            Object o = cmdRes.getResponse();
+
+            cmdRes.setResponse(ctx.scripting().toScriptObject(o));
+        }
+    }
+
+    /**
      * Creates REST request.
      *
      * @param cmd Command.
@@ -323,11 +363,21 @@ public class GridJettyRestHandler extends AbstractHandler {
      * @throws IgniteCheckedException If creation failed.
      */
     @Nullable private GridRestRequest createRequest(GridRestCommand cmd,
-        Map<String, Object> params,
-        ServletRequest req) throws IgniteCheckedException {
+        Map<String, Object> params, HttpServletRequest req) throws IgniteCheckedException {
         GridRestRequest restReq;
 
         switch (cmd) {
+            case GET_OR_CREATE_CACHE:
+            case DESTROY_CACHE: {
+                GridRestCacheRequest restReq0 = new GridRestCacheRequest();
+
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
             case ATOMIC_DECREMENT:
             case ATOMIC_INCREMENT: {
                 DataStructuresRequest restReq0 = new DataStructuresRequest();
@@ -341,15 +391,25 @@ public class GridJettyRestHandler extends AbstractHandler {
                 break;
             }
 
+            case CACHE_CONTAINS_KEY:
+            case CACHE_CONTAINS_KEYS:
             case CACHE_GET:
             case CACHE_GET_ALL:
+            case CACHE_GET_AND_PUT:
+            case CACHE_GET_AND_REPLACE:
+            case CACHE_PUT_IF_ABSENT:
+            case CACHE_GET_AND_PUT_IF_ABSENT:
             case CACHE_PUT:
             case CACHE_PUT_ALL:
             case CACHE_REMOVE:
+            case CACHE_REMOVE_VALUE:
+            case CACHE_REPLACE_VALUE:
+            case CACHE_GET_AND_REMOVE:
             case CACHE_REMOVE_ALL:
             case CACHE_ADD:
             case CACHE_CAS:
             case CACHE_METRICS:
+            case CACHE_SIZE:
             case CACHE_REPLACE:
             case CACHE_APPEND:
             case CACHE_PREPEND: {
@@ -357,35 +417,104 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 String cacheName = (String)params.get("cacheName");
 
-                restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
-                restReq0.key(params.get("key"));
-                restReq0.value(params.get("val"));
-                restReq0.value2(params.get("val2"));
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Object o = ctx.scripting().toJavaObject(parseRequest(req));
 
-                Object val1 = params.get("val1");
+                    Map<Object, Object> map = new HashMap<>();
 
-                if (val1 != null)
-                    restReq0.value(val1);
+                    switch (cmd) {
+                        case CACHE_PUT_ALL: {
+                            List entries = (List)ctx.scripting().getField("entries", o);
 
-                restReq0.cacheFlags(intValue("cacheFlags", params, 0));
-                restReq0.ttl(longValue("exp", params, null));
+                            for (Object entry : entries) {
+                                Object key = ctx.scripting().getField("key", entry);
+                                Object val = ctx.scripting().getField("value", entry);
 
-                if (cmd == CACHE_GET_ALL || cmd == CACHE_PUT_ALL || cmd == CACHE_REMOVE_ALL) {
-                    List<Object> keys = values("k", params);
-                    List<Object> vals = values("v", params);
+                                map.put(key, val);
+                            }
 
-                    if (keys.size() < vals.size())
-                        throw new IgniteCheckedException("Number of keys must be greater or equals to number of values.");
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
 
-                    Map<Object, Object> map = U.newHashMap(keys.size());
+                            restReq0.values(map);
 
-                    Iterator<Object> keyIt = keys.iterator();
-                    Iterator<Object> valIt = vals.iterator();
+                            break;
+                        }
 
-                    while (keyIt.hasNext())
-                        map.put(keyIt.next(), valIt.hasNext() ? valIt.next() : null);
+                        case CACHE_GET_ALL:
+                        case CACHE_REMOVE_ALL:
+                        case CACHE_CONTAINS_KEYS: {
+                            Object cacheObj = ctx.scripting().toJavaObject(o);
 
-                    restReq0.values(map);
+                            List keys = (List)ctx.scripting().getField("keys", cacheObj);
+
+                            for (Object key : keys)
+                                map.put(key, null);
+
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+
+                            restReq0.values(map);
+
+                            break;
+                        }
+
+                        case CACHE_GET:
+                        case CACHE_PUT:
+                        case CACHE_REMOVE:
+                        case CACHE_CONTAINS_KEY:
+                        case CACHE_GET_AND_PUT:
+                        case CACHE_GET_AND_PUT_IF_ABSENT:
+                        case CACHE_GET_AND_REMOVE:
+                        case CACHE_PUT_IF_ABSENT:
+                        case CACHE_REMOVE_VALUE:
+                        case CACHE_REPLACE:
+                        case CACHE_GET_AND_REPLACE:
+                        case CACHE_REPLACE_VALUE: {
+                            Object cacheObj = ctx.scripting().toJavaObject(o);
+
+                            restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+
+                            restReq0.key(ctx.scripting().getField("key", cacheObj));
+                            restReq0.value(ctx.scripting().getField("val", cacheObj));
+                            restReq0.value2(ctx.scripting().getField("oldVal", cacheObj));
+                            break;
+                        }
+
+                        default:
+                            throw new IgniteCheckedException("Invalid command: " + cmd);
+                    }
+                }
+                else {
+                    restReq0.cacheName(F.isEmpty(cacheName) ? null : cacheName);
+                    restReq0.key(params.get("key"));
+                    restReq0.value(params.get("val"));
+                    restReq0.value2(params.get("val2"));
+
+                    Object val1 = params.get("val1");
+
+                    if (val1 != null)
+                        restReq0.value(val1);
+
+                    restReq0.cacheFlags(intValue("cacheFlags", params, 0));
+                    restReq0.ttl(longValue("exp", params, null));
+
+                    if (cmd == CACHE_GET_ALL || cmd == CACHE_PUT_ALL || cmd == CACHE_REMOVE_ALL ||
+                        cmd == CACHE_CONTAINS_KEYS) {
+                        List<Object> keys = values("k", params);
+                        List<Object> vals = values("v", params);
+
+                        if (keys.size() < vals.size())
+                            throw new IgniteCheckedException("Number of keys must be greater or equals to number of values.");
+
+                        Map<Object, Object> map = U.newHashMap(keys.size());
+
+                        Iterator<Object> keyIt = keys.iterator();
+                        Iterator<Object> valIt = vals.iterator();
+
+                        while (keyIt.hasNext())
+                            map.put(keyIt.next(), valIt.hasNext() ? valIt.next() : null);
+
+                        restReq0.values(map);
+                    }
                 }
 
                 restReq = restReq0;
@@ -441,8 +570,132 @@ public class GridJettyRestHandler extends AbstractHandler {
                 break;
             }
 
+            case NAME:
             case VERSION: {
                 restReq = new GridRestRequest();
+
+                break;
+            }
+
+            case RUN_SCRIPT: {
+                RestRunScriptRequest restReq0 = new RestRunScriptRequest();
+
+                restReq0.script((String)params.get("func"));
+
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Map o = parseRequest(req);
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
+                }
+                else
+                    restReq0.argument(params.get("arg"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case AFFINITY_RUN_SCRIPT: {
+                RestRunScriptRequest restReq0 = new RestRunScriptRequest();
+
+                restReq0.script((String)params.get("func"));
+                restReq0.cacheName((String) params.get("cacheName"));
+
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Map o = parseRequest(req);
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
+
+                    Object cacheObj = ctx.scripting().toJavaObject(o.get("key"));
+                    restReq0.affinityKey(cacheObj);
+                }
+                else {
+                    restReq0.argument(params.get("arg"));
+                    restReq0.affinityKey(params.get("key"));
+                }
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case EXECUTE_MAP_REDUCE_SCRIPT: {
+                RestMapReduceScriptRequest restReq0 = new RestMapReduceScriptRequest();
+
+                restReq0.mapFunction((String) params.get("map"));
+
+
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Map o = parseRequest(req);
+                    restReq0.argument(ctx.scripting().toScriptObject(o.get("arg")));
+                }
+                else
+                    restReq0.argument(params.get("arg"));
+
+                restReq0.reduceFunction((String) params.get("reduce"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case EXECUTE_SQL_QUERY:
+            case EXECUTE_SQL_FIELDS_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                restReq0.sqlQuery((String) params.get("qry"));
+
+                if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").contains("json")) {
+                    Map o = parseRequest(req);
+                    List args = (List) ctx.scripting().toScriptObject(o.get("arg"));
+                    restReq0.arguments(args.toArray());
+                }
+                else
+                    restReq0.arguments(values("arg", params).toArray());
+
+                restReq0.typeName((String) params.get("type"));
+
+                String psz = (String) params.get("psz");
+
+                if (psz != null)
+                    restReq0.pageSize(Integer.parseInt(psz));
+
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case FETCH_SQL_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                String qryId = (String) params.get("qryId");
+
+                if (qryId != null)
+                    restReq0.queryId(Long.parseLong(qryId));
+
+                String psz = (String) params.get("psz");
+
+                if (psz != null)
+                    restReq0.pageSize(Integer.parseInt(psz));
+
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
+
+                break;
+            }
+
+            case CLOSE_SQL_QUERY: {
+                RestSqlQueryRequest restReq0 = new RestSqlQueryRequest();
+
+                String qryId = (String) params.get("qryId");
+
+                if (qryId != null)
+                    restReq0.queryId(Long.parseLong(qryId));
+
+                restReq0.cacheName((String)params.get("cacheName"));
+
+                restReq = restReq0;
 
                 break;
             }
@@ -630,5 +883,19 @@ public class GridJettyRestHandler extends AbstractHandler {
             return ((String[])obj)[0];
 
         return null;
+    }
+
+    /**
+     * @param req Request.
+     * @return JSON object.
+     * @throws IgniteCheckedException If failed.
+     */
+    private Map parseRequest(HttpServletRequest req) throws IgniteCheckedException{
+        try {
+            return new JsonProviderImpl().createReader(req.getInputStream()).readObject();
+        }
+        catch (IOException e) {
+            throw new IgniteCheckedException(e);
+        }
     }
 }

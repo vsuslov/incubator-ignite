@@ -482,3 +482,27 @@ controlCenterModule.controller('auth', [
                 });
         };
     }]);
+
+// Navigation bar controller.
+controlCenterModule.controller('notebooks', ['$scope', '$http','$common', function ($scope, $http, $common) {
+    $scope.notebooks = [];
+
+    // When landing on the page, get clusters and show them.
+    $http.post('/notebooks/list')
+        .success(function (data) {
+            $scope.notebooks = data;
+
+            if ($scope.notebooks.length > 0) {
+                $scope.notebookDropdown = [
+                    { text: 'Create new notebook', href: '/notebooks/new', target: '_self' },
+                    { divider: true }
+                ];
+
+                for (notebook of $scope.notebooks)
+                    $scope.notebookDropdown.push({text: notebook.name, href: '/sql/' + notebook._id, target: '_self'});
+            }
+        })
+        .error(function (errMsg) {
+            $common.showError(errMsg);
+        });
+}]);

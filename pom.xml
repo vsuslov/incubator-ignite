@@ -32,7 +32,7 @@
 
     <groupId>org.apache.ignite</groupId>
     <artifactId>apache-ignite</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -48,6 +48,7 @@
     </scm>
 
     <modules>
+        <module>modules/apache-license-gen</module>
         <module>modules/tools</module>
         <module>modules/core</module>
         <module>modules/hadoop</module>
@@ -64,14 +65,17 @@
         <module>modules/jta</module>
         <module>modules/aws</module>
         <module>modules/log4j</module>
+        <module>modules/log4j2</module>
         <module>modules/slf4j</module>
         <module>modules/jcl</module>
-        <module>modules/webconfig</module>
         <module>modules/codegen</module>
         <module>modules/gce</module>
         <module>modules/cloud</module>
         <module>modules/mesos</module>
+        <module>modules/nodejs</module>
         <module>modules/kafka</module>
+        <module>modules/yarn</module>
+        <module>modules/json</module>
     </modules>
 
     <profiles>
@@ -612,8 +616,6 @@
                                         <echo file="${basedir}/target/site/${project.artifactId}-hadoop-${project.version}-bin.zip.sha1" append="true" message=" ${project.artifactId}-hadoop-${project.version}-bin.zip" />
                                         <echo file="${basedir}/target/site/${project.artifactId}-${project.version}-src.zip.md5" append="true" message=" ${project.artifactId}-${project.version}-src.zip" />
                                         <echo file="${basedir}/target/site/${project.artifactId}-${project.version}-src.zip.sha1" append="true" message=" ${project.artifactId}-${project.version}-src.zip" />
-
-                                        <copy file="${basedir}/KEYS" todir="${basedir}/target/site" failonerror="false" />
                                     </target>
                                 </configuration>
                             </execution>
@@ -679,7 +681,6 @@
             </build>
         </profile>
 
-
         <profile>
             <id>schema-import</id>
             <activation>
@@ -731,6 +732,33 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>ignite-npm</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>publish</argument>
+                                <argument>modules/nodejs/src/main/js</argument>
+                            </arguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

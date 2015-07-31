@@ -111,11 +111,14 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
     /** */
     private IgniteInClosure2X<TcpDiscoveryAbstractMessage, Socket> afterWrite;
 
+    /** */
+    private boolean reconnectDisabled;
+
     /** {@inheritDoc} */
     @Override protected IgniteConfiguration getConfiguration(String gridName) throws Exception {
         IgniteConfiguration cfg = super.getConfiguration(gridName);
 
-        TestTcpDiscoverySpi disco = new TestTcpDiscoverySpi();
+        TcpDiscoverySpi disco = getDiscoverySpi();
 
         disco.setMaxMissedClientHeartbeats(maxMissedClientHbs);
 
@@ -151,15 +154,28 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         else
             throw new IllegalArgumentException();
 
-        if (longSockTimeouts) {
-            disco.setAckTimeout(2000);
-            disco.setSocketTimeout(2000);
+        if (useFailureDetectionTimeout())
+            cfg.setFailureDetectionTimeout(failureDetectionTimeout());
+        else {
+            if (longSockTimeouts) {
+                disco.setAckTimeout(2000);
+                disco.setSocketTimeout(2000);
+            }
+            else {
+                disco.setAckTimeout(gridName.startsWith("client") ? TcpDiscoverySpi.DFLT_ACK_TIMEOUT_CLIENT :
+                    TcpDiscoverySpi.DFLT_ACK_TIMEOUT);
+                disco.setSocketTimeout(gridName.startsWith("client") ? TcpDiscoverySpi.DFLT_SOCK_TIMEOUT_CLIENT :
+                    TcpDiscoverySpi.DFLT_SOCK_TIMEOUT);
+            }
         }
 
         disco.setJoinTimeout(joinTimeout);
         disco.setNetworkTimeout(netTimeout);
 
-        disco.afterWrite(afterWrite);
+        disco.setClientReconnectDisabled(reconnectDisabled);
+
+        if (disco instanceof TestTcpDiscoverySpi)
+            ((TestTcpDiscoverySpi)disco).afterWrite(afterWrite);
 
         cfg.setDiscoverySpi(disco);
 
@@ -167,6 +183,14 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
             cfg.setNodeId(nodeId);
 
         return cfg;
+    }
+
+    /**
+     * Returns TCP Discovery SPI instance to use in a test.
+     * @return TCP Discovery SPI.
+     */
+    protected TcpDiscoverySpi getDiscoverySpi() {
+        return new TestTcpDiscoverySpi();
     }
 
     /** {@inheritDoc} */
@@ -197,6 +221,24 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         longSockTimeouts = false;
 
         assert G.allGrids().isEmpty();
+    }
+
+    /**
+     * Checks whether to use failure detection timeout instead of setting explicit timeouts.
+     *
+     * @return {@code true} if use.
+     */
+    protected boolean useFailureDetectionTimeout() {
+        return false;
+    }
+
+    /**
+     * Gets failure detection timeout to use.
+     *
+     * @return Failure detection timeout.
+     */
+    protected long failureDetectionTimeout() {
+        return 0;
     }
 
     /**
@@ -385,12 +427,12 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        ((TcpDiscoverySpi)srv1.configuration().getDiscoverySpi()).addIncomeConnectionListener(new IgniteInClosure<Socket>() {
+        ((TcpDiscoverySpi)srv1.configuration().getDiscoverySpi()).addIncomeConnectionListener(new IgniteInClosure
+            <Socket>() {
             @Override public void apply(Socket sock) {
                 try {
                     latch.await();
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -409,11 +451,14 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         startServerNodes(2);
         startClientNodes(1);
 
+        checkNodes(2, 1);
+
         Ignite srv0 = G.ignite("server-0");
         Ignite srv1 = G.ignite("server-1");
         Ignite client = G.ignite("client-0");
 
-        ((TcpDiscoverySpi)srv0.configuration().getDiscoverySpi()).setAckTimeout(1000);
+        if (!useFailureDetectionTimeout())
+            ((TcpDiscoverySpi)srv0.configuration().getDiscoverySpi()).setAckTimeout(1000);
 
         ((TestTcpDiscoverySpi)client.configuration().getDiscoverySpi()).pauseSocketWrite();
 
@@ -524,7 +569,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         TestTcpDiscoverySpi spi = ((TestTcpDiscoverySpi)ignite.configuration().getDiscoverySpi());
 
-        spi.pauseAll();
+        spi.pauseAll(false);
 
         try {
             spi.brakeConnection();
@@ -568,7 +613,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         TestTcpDiscoverySpi spi = ((TestTcpDiscoverySpi)ignite.configuration().getDiscoverySpi());
 
-        spi.pauseAll();
+        spi.pauseAll(false);
 
         try {
             spi.brakeConnection();
@@ -606,7 +651,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         attachListeners(2, 2);
 
-        ((TestTcpDiscoverySpi)G.ignite("client-1").configuration().getDiscoverySpi()).pauseAll();
+        ((TestTcpDiscoverySpi)G.ignite("client-1").configuration().getDiscoverySpi()).pauseAll(true);
 
         stopGrid("server-2");
 
@@ -633,6 +678,8 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
     public void testClientSegmentation() throws Exception {
         clientsPerSrv = 1;
 
+        reconnectDisabled = true;
+
         startServerNodes(3);
         startClientNodes(3);
 
@@ -656,6 +703,8 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         final TcpDiscoverySpi disco = (TcpDiscoverySpi)G.ignite("client-2").configuration().getDiscoverySpi();
 
         try {
+            log.info("Fail server: " + 2);
+
             failServer(2);
 
             await(srvFailedLatch);
@@ -747,8 +796,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
             @Override public void apply(TcpDiscoveryAbstractMessage msg) {
                 try {
                     Thread.sleep(1000000);
-                }
-                catch (InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                     Thread.interrupted();
                 }
             }
@@ -886,8 +934,8 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         try {
             startClientNodes(1);
 
-            assertEquals(G.ignite("server-0").cluster().localNode().id(), ((TcpDiscoveryNode)G.ignite("client-0")
-                .cluster().localNode()).clientRouterNodeId());
+            assertEquals(G.ignite("server-0").cluster().localNode().id(),
+                ((TcpDiscoveryNode) G.ignite("client-0").cluster().localNode()).clientRouterNodeId());
 
             checkNodes(2, 1);
 
@@ -1206,6 +1254,528 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
     }
 
     /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectAfterFail() throws Exception {
+        reconnectAfterFail(false);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectAfterFailTopologyChanged() throws Exception {
+        reconnectAfterFail(true);
+    }
+
+    /**
+     * @param changeTop If {@code true} topology is changed after client disconnects.
+     * @throws Exception If failed.
+     */
+    private void reconnectAfterFail(final boolean changeTop) throws Exception {
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        Ignite srv = G.ignite("server-0");
+
+        TestTcpDiscoverySpi srvSpi = ((TestTcpDiscoverySpi)srv.configuration().getDiscoverySpi());
+
+        Ignite client = G.ignite("client-0");
+
+        final ClusterNode clientNode = client.cluster().localNode();
+
+        final UUID clientId = clientNode.id();
+
+        final TestTcpDiscoverySpi clientSpi = ((TestTcpDiscoverySpi)client.configuration().getDiscoverySpi());
+
+        assertEquals(2L, clientNode.order());
+
+        final CountDownLatch failLatch = new CountDownLatch(1);
+
+        final CountDownLatch joinLatch = new CountDownLatch(1);
+
+        srv.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                info("Server event: " + evt);
+
+                DiscoveryEvent evt0 = (DiscoveryEvent)evt;
+
+                if (evt0.eventNode().id().equals(clientId) && (evt.type() == EVT_NODE_FAILED)) {
+                    if (evt.type() == EVT_NODE_FAILED)
+                        failLatch.countDown();
+                }
+                else if (evt.type() == EVT_NODE_JOINED) {
+                    TcpDiscoveryNode node = (TcpDiscoveryNode)evt0.eventNode();
+
+                    if ("client-0".equals(node.attribute(IgniteNodeAttributes.ATTR_GRID_NAME))) {
+                        assertEquals(changeTop ? 5L : 4L, node.order());
+
+                        joinLatch.countDown();
+                    }
+                }
+
+                return true;
+            }
+        }, EVT_NODE_FAILED, EVT_NODE_JOINED);
+
+        final CountDownLatch reconnectLatch = new CountDownLatch(1);
+
+        final CountDownLatch disconnectLatch = new CountDownLatch(1);
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                info("Client event: " + evt);
+
+                if (evt.type() == EVT_CLIENT_NODE_DISCONNECTED) {
+                    assertEquals(1, reconnectLatch.getCount());
+
+                    disconnectLatch.countDown();
+
+                    if (changeTop)
+                        clientSpi.pauseAll(false);
+                }
+                else if (evt.type() == EVT_CLIENT_NODE_RECONNECTED) {
+                    assertEquals(0, disconnectLatch.getCount());
+
+                    reconnectLatch.countDown();
+                }
+
+                return true;
+            }
+        }, EVT_CLIENT_NODE_DISCONNECTED, EVT_CLIENT_NODE_RECONNECTED);
+
+        srvSpi.failNode(client.cluster().localNode().id(), null);
+
+        if (changeTop) {
+            Ignite g = startGrid("server-" + srvIdx.getAndIncrement());
+
+            srvNodeIds.add(g.cluster().localNode().id());
+
+            clientSpi.resumeAll();
+        }
+
+        assertTrue(disconnectLatch.await(5000, MILLISECONDS));
+        assertTrue(reconnectLatch.await(5000, MILLISECONDS));
+        assertTrue(failLatch.await(5000, MILLISECONDS));
+        assertTrue(joinLatch.await(5000, MILLISECONDS));
+
+        long topVer = changeTop ? 5L : 4L;
+
+        assertEquals(topVer, client.cluster().localNode().order());
+
+        assertEquals(topVer, client.cluster().topologyVersion());
+
+        Collection<ClusterNode> clientTop = client.cluster().topology(topVer);
+
+        assertEquals(changeTop ? 3 : 2, clientTop.size());
+
+        clientNodeIds.remove(clientId);
+
+        clientNodeIds.add(client.cluster().localNode().id());
+
+        checkNodes(changeTop ? 2 : 1, 1);
+
+        Ignite g = startGrid("server-" + srvIdx.getAndIncrement());
+
+        srvNodeIds.add(g.cluster().localNode().id());
+
+        checkNodes(changeTop ? 3 : 2, 1);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectAfterFailConcurrentJoin() throws Exception {
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        Ignite srv = G.ignite("server-0");
+
+        TestTcpDiscoverySpi srvSpi = ((TestTcpDiscoverySpi)srv.configuration().getDiscoverySpi());
+
+        Ignite client = G.ignite("client-0");
+
+        final ClusterNode clientNode = client.cluster().localNode();
+
+        assertEquals(2L, clientNode.order());
+
+        final CountDownLatch reconnectLatch = new CountDownLatch(1);
+        final CountDownLatch disconnectLatch = new CountDownLatch(1);
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                info("Client event: " + evt);
+
+                if (evt.type() == EVT_CLIENT_NODE_DISCONNECTED) {
+                    assertEquals(1, reconnectLatch.getCount());
+
+                    disconnectLatch.countDown();
+                }
+                else if (evt.type() == EVT_CLIENT_NODE_RECONNECTED) {
+                    assertEquals(0, disconnectLatch.getCount());
+
+                    reconnectLatch.countDown();
+                }
+
+                return true;
+            }
+        }, EVT_CLIENT_NODE_DISCONNECTED, EVT_CLIENT_NODE_RECONNECTED);
+
+        final int CLIENTS = 20;
+
+        clientsPerSrv = CLIENTS + 1;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        IgniteInternalFuture<?> fut = GridTestUtils.runMultiThreadedAsync(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                latch.await();
+
+                Ignite g = startGrid("client-" + clientIdx.getAndIncrement());
+
+                clientNodeIds.add(g.cluster().localNode().id());
+
+                return null;
+            }
+        }, CLIENTS, "start-client");
+
+        srvSpi.failNode(client.cluster().localNode().id(), null);
+
+        latch.countDown();
+
+        assertTrue(disconnectLatch.await(awaitTime(), MILLISECONDS));
+        assertTrue(reconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        clientNodeIds.add(client.cluster().localNode().id());
+
+        fut.get();
+
+        checkNodes(1, CLIENTS + 1);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testClientFailReconnectDisabled() throws Exception {
+        reconnectDisabled = true;
+
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        Ignite srv = G.ignite("server-0");
+
+        TestTcpDiscoverySpi srvSpi = ((TestTcpDiscoverySpi)srv.configuration().getDiscoverySpi());
+
+        Ignite client = G.ignite("client-0");
+
+        final CountDownLatch segmentedLatch = new CountDownLatch(1);
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                if (evt.type() == EVT_NODE_SEGMENTED)
+                    segmentedLatch.countDown();
+
+                return false;
+            }
+        }, EVT_NODE_SEGMENTED);
+
+        srvFailedLatch = new CountDownLatch(1);
+
+        attachListeners(1, 0);
+
+        log.info("Fail client node.");
+
+        srvSpi.failNode(client.cluster().localNode().id(), null);
+
+        assertTrue(srvFailedLatch.await(5000, MILLISECONDS));
+        assertTrue(segmentedLatch.await(5000, MILLISECONDS));
+
+        checkNodes(1, 0);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectSegmentedAfterJoinTimeoutServerFailed() throws Exception {
+        reconnectSegmentedAfterJoinTimeout(true);
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectSegmentedAfterJoinTimeoutNetworkError() throws Exception {
+        reconnectSegmentedAfterJoinTimeout(false);
+    }
+
+    /**
+     * @param failSrv If {@code true} fails server, otherwise server does not send join message.
+     * @throws Exception If failed.
+     */
+    protected void reconnectSegmentedAfterJoinTimeout(boolean failSrv) throws Exception {
+        netTimeout = 4000;
+        joinTimeout = 5000;
+
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        final Ignite srv = G.ignite("server-0");
+        Ignite client = G.ignite("client-0");
+
+        TestTcpDiscoverySpi srvSpi = ((TestTcpDiscoverySpi)srv.configuration().getDiscoverySpi());
+        TestTcpDiscoverySpi clientSpi = ((TestTcpDiscoverySpi)client.configuration().getDiscoverySpi());
+
+        final CountDownLatch disconnectLatch = new CountDownLatch(1);
+        final CountDownLatch segmentedLatch = new CountDownLatch(1);
+        final AtomicBoolean err = new AtomicBoolean(false);
+
+        if (!failSrv) {
+            srvFailedLatch = new CountDownLatch(1);
+
+            attachListeners(1, 0);
+        }
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                if (evt.type() == EVT_CLIENT_NODE_DISCONNECTED) {
+                    log.info("Disconnected event.");
+
+                    assertEquals(1, segmentedLatch.getCount());
+                    assertEquals(1, disconnectLatch.getCount());
+                    assertFalse(err.get());
+
+                    disconnectLatch.countDown();
+                }
+                else if (evt.type() == EVT_NODE_SEGMENTED) {
+                    log.info("Segmented event.");
+
+                    assertEquals(1, segmentedLatch.getCount());
+                    assertEquals(0, disconnectLatch.getCount());
+                    assertFalse(err.get());
+
+                    segmentedLatch.countDown();
+                }
+                else {
+                    log.error("Unexpected event: " + evt);
+
+                    err.set(true);
+                }
+
+                return true;
+            }
+        }, EVT_CLIENT_NODE_DISCONNECTED, EVT_CLIENT_NODE_RECONNECTED, EVT_NODE_SEGMENTED);
+
+        if (failSrv) {
+            log.info("Fail server.");
+
+            failServer(0);
+        }
+        else {
+            log.info("Fail client connection.");
+
+            srvSpi.failClientReconnect.set(1_000_000);
+            srvSpi.skipNodeAdded = true;
+
+            clientSpi.brakeConnection();
+        }
+
+        assertTrue(disconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        assertTrue(segmentedLatch.await(awaitTime(), MILLISECONDS));
+
+        waitSegmented(client);
+
+        assertFalse(err.get());
+
+        if (!failSrv) {
+            await(srvFailedLatch);
+
+            GridTestUtils.waitForCondition(new GridAbsPredicate() {
+                @Override public boolean apply() {
+                    return srv.cluster().nodes().size() == 1;
+                }
+            }, awaitTime());
+
+            checkNodes(1, 0);
+        }
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testReconnectClusterRestart() throws Exception {
+        netTimeout = 3000;
+        joinTimeout = 60_000;
+
+        final CountDownLatch disconnectLatch = new CountDownLatch(1);
+        final CountDownLatch reconnectLatch = new CountDownLatch(1);
+        final AtomicBoolean err = new AtomicBoolean(false);
+
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        Ignite srv = G.ignite("server-0");
+        Ignite client = G.ignite("client-0");
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override public boolean apply(Event evt) {
+                if (evt.type() == EVT_CLIENT_NODE_DISCONNECTED) {
+                    log.info("Disconnected event.");
+
+                    assertEquals(1, reconnectLatch.getCount());
+                    assertEquals(1, disconnectLatch.getCount());
+
+                    disconnectLatch.countDown();
+                }
+                else if (evt.type() == EVT_CLIENT_NODE_RECONNECTED) {
+                    log.info("Reconnected event.");
+
+                    assertEquals(1, reconnectLatch.getCount());
+                    assertEquals(0, disconnectLatch.getCount());
+                    assertFalse(err.get());
+
+                    reconnectLatch.countDown();
+                }
+                else {
+                    log.error("Unexpected event: " + evt);
+
+                    err.set(true);
+                }
+
+                return true;
+            }
+        }, EVT_CLIENT_NODE_DISCONNECTED, EVT_CLIENT_NODE_RECONNECTED, EVT_NODE_SEGMENTED);
+
+        log.info("Stop server.");
+
+        srv.close();
+
+        assertTrue(disconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        srvNodeIds.clear();
+        srvIdx.set(0);
+
+        Thread.sleep(3000);
+
+        log.info("Restart server.");
+
+        startServerNodes(1);
+
+        assertTrue(reconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        clientNodeIds.clear();
+        clientNodeIds.add(client.cluster().localNode().id());
+
+        checkNodes(1, 1);
+
+        assertFalse(err.get());
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
+    public void testDisconnectAfterNetworkTimeout() throws Exception {
+        netTimeout = 5000;
+        joinTimeout = 60_000;
+        maxMissedClientHbs = 2;
+
+        startServerNodes(1);
+
+        startClientNodes(1);
+
+        final Ignite srv = G.ignite("server-0");
+        Ignite client = G.ignite("client-0");
+
+        TestTcpDiscoverySpi srvSpi = ((TestTcpDiscoverySpi)srv.configuration().getDiscoverySpi());
+        TestTcpDiscoverySpi clientSpi = ((TestTcpDiscoverySpi)client.configuration().getDiscoverySpi());
+
+        final CountDownLatch disconnectLatch = new CountDownLatch(1);
+        final CountDownLatch reconnectLatch = new CountDownLatch(1);
+        final AtomicBoolean err = new AtomicBoolean(false);
+
+        client.events().localListen(new IgnitePredicate<Event>() {
+            @Override
+            public boolean apply(Event evt) {
+                if (evt.type() == EVT_CLIENT_NODE_DISCONNECTED) {
+                    log.info("Disconnected event.");
+
+                    assertEquals(1, reconnectLatch.getCount());
+                    assertEquals(1, disconnectLatch.getCount());
+                    assertFalse(err.get());
+
+                    disconnectLatch.countDown();
+                }
+                else if (evt.type() == EVT_CLIENT_NODE_RECONNECTED) {
+                    log.info("Reconnected event.");
+
+                    assertEquals(1, reconnectLatch.getCount());
+                    assertEquals(0, disconnectLatch.getCount());
+                    assertFalse(err.get());
+
+                    reconnectLatch.countDown();
+                }
+                else {
+                    log.error("Unexpected event: " + evt);
+
+                    err.set(true);
+                }
+
+                return true;
+            }
+        }, EVT_CLIENT_NODE_DISCONNECTED, EVT_CLIENT_NODE_RECONNECTED, EVT_NODE_SEGMENTED);
+
+        log.info("Fail client connection1.");
+
+        srvSpi.failClientReconnect.set(1_000_000);
+        srvSpi.skipNodeAdded = true;
+
+        clientSpi.brakeConnection();
+
+        assertTrue(disconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        log.info("Fail client connection2.");
+
+        srvSpi.failClientReconnect.set(0);
+        srvSpi.skipNodeAdded = false;
+
+        clientSpi.brakeConnection();
+
+        assertTrue(reconnectLatch.await(awaitTime(), MILLISECONDS));
+
+        clientNodeIds.clear();
+
+        clientNodeIds.add(client.cluster().localNode().id());
+
+        GridTestUtils.waitForCondition(new GridAbsPredicate() {
+            @Override
+            public boolean apply() {
+                return srv.cluster().nodes().size() == 2;
+            }
+        }, awaitTime());
+
+        checkNodes(1, 1);
+
+        assertFalse(err.get());
+    }
+
+    /**
+     * @param ignite Ignite.
+     * @throws Exception If failed.
+     */
+    private void waitSegmented(final Ignite ignite) throws Exception {
+        GridTestUtils.waitForCondition(new GridAbsPredicate() {
+            @Override public boolean apply() {
+                return IgniteState.STOPPED_ON_SEGMENTATION == Ignition.state(ignite.name());
+            }
+        }, 5000);
+
+        assertEquals(IgniteState.STOPPED_ON_SEGMENTATION, Ignition.state(ignite.name()));
+    }
+
+    /**
      * @param clientIdx Client index.
      * @param srvIdx Server index.
      * @throws Exception In case of error.
@@ -1228,7 +1798,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
      * @param cnt Number of nodes.
      * @throws Exception In case of error.
      */
-    private void startServerNodes(int cnt) throws Exception {
+    protected void startServerNodes(int cnt) throws Exception {
         for (int i = 0; i < cnt; i++) {
             Ignite g = startGrid("server-" + srvIdx.getAndIncrement());
 
@@ -1240,7 +1810,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
      * @param cnt Number of nodes.
      * @throws Exception In case of error.
      */
-    private void startClientNodes(int cnt) throws Exception {
+    protected void startClientNodes(int cnt) throws Exception {
         for (int i = 0; i < cnt; i++) {
             Ignite g = startGrid("client-" + clientIdx.getAndIncrement());
 
@@ -1357,7 +1927,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
      * @param srvCnt Number of server nodes.
      * @param clientCnt Number of client nodes.
      */
-    private void checkNodes(int srvCnt, int clientCnt) {
+    protected void checkNodes(int srvCnt, int clientCnt) {
         long topVer = -1;
 
         for (int i = 0; i < srvCnt; i++) {
@@ -1401,7 +1971,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
     private void checkRemoteNodes(Ignite ignite, int expCnt) {
         Collection<ClusterNode> nodes = ignite.cluster().forRemotes().nodes();
 
-        assertEquals(expCnt, nodes.size());
+        assertEquals("Unexpected state for node: " + ignite.name(), expCnt, nodes.size());
 
         for (ClusterNode node : nodes) {
             UUID id = node.id();
@@ -1419,8 +1989,17 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
      * @param latch Latch.
      * @throws InterruptedException If interrupted.
      */
-    private void await(CountDownLatch latch) throws InterruptedException {
-        assertTrue("Latch count: " + latch.getCount(), latch.await(10000, MILLISECONDS));
+    protected void await(CountDownLatch latch) throws InterruptedException {
+        assertTrue("Latch count: " + latch.getCount(), latch.await(awaitTime(), MILLISECONDS));
+    }
+
+    /**
+     * Time to wait for operation completion.
+     *
+     * @return Time in milliseconds.
+     */
+    protected long awaitTime() {
+        return 10_000;
     }
 
     /**
@@ -1470,6 +2049,9 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         /** */
         private volatile String delayJoinAckFor;
+
+        /** */
+        private volatile boolean skipNodeAdded;
 
         /**
          * @param lock Lock.
@@ -1538,10 +2120,17 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
 
         /** {@inheritDoc} */
         @Override protected void writeToSocket(Socket sock, TcpDiscoveryAbstractMessage msg,
-            GridByteArrayOutputStream bout) throws IOException, IgniteCheckedException {
+            GridByteArrayOutputStream bout, long timeout) throws IOException, IgniteCheckedException {
             waitFor(writeLock);
 
             boolean fail = false;
+
+            if (skipNodeAdded &&
+                (msg instanceof TcpDiscoveryNodeAddedMessage || msg instanceof TcpDiscoveryNodeAddFinishedMessage)) {
+                log.info("Skip message: " + msg);
+
+                return;
+            }
 
             if (msg instanceof TcpDiscoveryNodeAddedMessage)
                 fail = failNodeAdded.getAndDecrement() > 0;
@@ -1556,17 +2145,18 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
                 sock.close();
             }
 
-            super.writeToSocket(sock, msg, bout);
+            super.writeToSocket(sock, msg, bout, timeout);
 
             if (afterWrite != null)
                 afterWrite.apply(msg, sock);
         }
 
         /** {@inheritDoc} */
-        @Override protected Socket openSocket(InetSocketAddress sockAddr) throws IOException {
+        @Override protected Socket openSocket(InetSocketAddress sockAddr,
+            IgniteSpiOperationTimeoutHelper timeoutHelper) throws IOException, IgniteSpiOperationTimeoutException {
             waitFor(openSockLock);
 
-            return super.openSocket(sockAddr);
+            return super.openSocket(sockAddr, new IgniteSpiOperationTimeoutHelper(this));
         }
 
         /**
@@ -1577,12 +2167,13 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         }
 
         /**
-         *
+         * @param suspend If {@code true} suspends worker threads.
          */
-        public void pauseAll() {
+        public void pauseAll(boolean suspend) {
             pauseResumeOperation(true, openSockLock, writeLock);
 
-            impl.workerThread().suspend();
+            if (suspend)
+                impl.workerThread().suspend();
         }
 
         /**
@@ -1595,7 +2186,8 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
         }
 
         /** {@inheritDoc} */
-        @Override protected void writeToSocket(TcpDiscoveryAbstractMessage msg, Socket sock, int res) throws IOException {
+        @Override protected void writeToSocket(TcpDiscoveryAbstractMessage msg, Socket sock, int res, long timeout)
+            throws IOException {
             if (delayJoinAckFor != null && msg instanceof TcpDiscoveryJoinRequestMessage) {
                 TcpDiscoveryJoinRequestMessage msg0 = (TcpDiscoveryJoinRequestMessage)msg;
 
@@ -1613,7 +2205,7 @@ public class TcpClientDiscoverySpiSelfTest extends GridCommonAbstractTest {
                 }
             }
 
-            super.writeToSocket(msg, sock, res);
+            super.writeToSocket(msg, sock, res, timeout);
         }
 
         /** {@inheritDoc} */

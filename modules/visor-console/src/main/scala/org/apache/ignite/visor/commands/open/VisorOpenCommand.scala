@@ -144,7 +144,7 @@ class VisorOpenCommand extends VisorConsoleCommand {
                     try
                         // Cache, IGFS, indexing SPI configurations should be excluded from daemon node config.
                         spring.loadConfigurations(url, "cacheConfiguration", "fileSystemConfiguration",
-                            "indexingSpi").get1()
+                            "lifecycleBeans", "indexingSpi").get1()
                     finally {
                         if (log4jTup != null)
                             U.removeLog4jNoOpLogger(log4jTup)
@@ -240,8 +240,11 @@ class VisorOpenCommand extends VisorConsoleCommand {
         if ("true".equalsIgnoreCase(sys.props.getOrElse(IGNITE_QUIET, "true")))
             cfg.setGridLogger(new NullLogger)
 
-        val startedGridName = try {
-            Ignition.start(cfg).name
+        ignite = try {
+            // We need to stop previous daemon node before to start new one.
+            prevIgnite.foreach(g => Ignition.stop(g.name(), true))
+
+            Ignition.start(cfg).asInstanceOf[IgniteEx]
         }
         finally {
             Ignition.setDaemon(daemon)
@@ -249,15 +252,9 @@ class VisorOpenCommand extends VisorConsoleCommand {
             System.setProperty(IGNITE_NO_SHUTDOWN_HOOK, shutdownHook)
         }
 
-        ignite =
-            try
-                Ignition.ignite(startedGridName).asInstanceOf[IgniteEx]
-            catch {
-                case _: IllegalStateException =>
-                    throw new IgniteException("Named grid unavailable: " + startedGridName)
-            }
+        prevIgnite = Some(ignite)
 
-        visor.open(startedGridName, cfgPath)
+        visor.open(ignite.name(), cfgPath)
     }
 }
 
