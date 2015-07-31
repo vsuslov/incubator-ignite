@@ -28,9 +28,9 @@ import java.util.logging.*;
 /**
  * Allow to execute methods remotely from NodeJS server by web-socket command.
  */
-public class RemoteCallable implements AutoCloseable {
+public class RemoteHandler implements AutoCloseable {
     /** */
-    private static final Logger log = Logger.getLogger(RemoteCallable.class.getName());
+    private static final Logger log = Logger.getLogger(RemoteHandler.class.getName());
 
     /** */
     private final WebSocketSender snd;
@@ -45,7 +45,7 @@ public class RemoteCallable implements AutoCloseable {
      * @param snd Session.
      * @param hnds Handlers.
      */
-    private RemoteCallable(WebSocketSender snd, Object ... hnds) {
+    private RemoteHandler(WebSocketSender snd, Object ... hnds) {
         this.snd = snd;
 
         for (Object hnd : hnds) {
@@ -212,8 +212,8 @@ public class RemoteCallable implements AutoCloseable {
      * @param hnds Handler.
      * @param snd Sender.
      */
-    public static RemoteCallable wrap(WebSocketSender snd, Object ... hnds) {
-        return new RemoteCallable(snd, hnds);
+    public static RemoteHandler wrap(WebSocketSender snd, Object ... hnds) {
+        return new RemoteHandler(snd, hnds);
     }
 
     /**

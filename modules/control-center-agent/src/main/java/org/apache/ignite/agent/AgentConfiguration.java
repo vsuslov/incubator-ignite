@@ -127,7 +127,7 @@ public class AgentConfiguration {
     /**
      * @param cmd Command.
      */
-    public void assign(AgentCommandLine cmd) {
+    public void assign(AgentCommandLineOptions cmd) {
         if (cmd.getLogin() != null)
             setLogin(cmd.getLogin());
 

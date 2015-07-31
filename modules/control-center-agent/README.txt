@@ -5,7 +5,7 @@ Control Center Agent communicates with grid nodes via REST interface and connect
 
 ---------------------------
 Usage example:
-agent.sh -l ivan.ivanov@gmail.com -p qwerty -s wss://control-center.gridgain.com
+agent.sh -l john.smith@gmail.com -p qwerty -s wss://control-center.gridgain.com
 
 Command line arguments:
     -l User's login (email) on web-control-center

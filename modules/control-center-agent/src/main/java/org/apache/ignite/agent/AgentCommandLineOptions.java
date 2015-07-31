@@ -22,7 +22,7 @@ import com.beust.jcommander.*;
 /**
  * Command line bean.
  */
-public class AgentCommandLine {
+public class AgentCommandLineOptions {
     /** */
     @Parameter(names = {"-l", "--login"}, description = "User's login (email) on web-control-center")
     private String login;

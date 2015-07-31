@@ -56,7 +56,7 @@ public class AgentLauncher {
 
         cfg.load(dfltCfgUrl);
 
-        AgentCommandLine cmdCfg = new AgentCommandLine();
+        AgentCommandLineOptions cmdCfg = new AgentCommandLineOptions();
 
         new JCommander(cmdCfg, args);
 
@@ -103,7 +103,7 @@ public class AgentLauncher {
             client.start();
 
             try {
-                while (true) {
+                while (!Thread.interrupted()) {
                     AgentSocket agentSock = new AgentSocket(cfg, restExecutor);
 
                     log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());

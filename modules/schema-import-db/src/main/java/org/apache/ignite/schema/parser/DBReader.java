@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- *
+ * Singleton to extract DataBase
  */
 public class DBReader {
     /** Logger. */

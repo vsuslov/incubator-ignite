@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent;
+package org.apache.ignite.agent.remote;
 
 import com.google.gson.*;
 
 /**
- *
+ * Sender for messages to web-socket.
  */
 public interface WebSocketSender {
     /**

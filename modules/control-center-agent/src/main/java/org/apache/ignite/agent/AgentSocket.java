@@ -31,7 +31,7 @@ import java.util.concurrent.*;
 import java.util.logging.*;
 
 /**
- *
+ * Handler for web-socket connection.
  */
 @WebSocket
 public class AgentSocket implements WebSocketSender {
@@ -48,7 +48,7 @@ public class AgentSocket implements WebSocketSender {
     private final RestExecutor restExecutor;
 
     /** */
-    private RemoteCallable remote;
+    private RemoteHandler remote;
 
     /** */
     private Session ses;
@@ -84,7 +84,7 @@ public class AgentSocket implements WebSocketSender {
 
         this.ses = ses;
 
-        remote = RemoteCallable.wrap(this, this, restExecutor);
+        remote = RemoteHandler.wrap(this, this, restExecutor);
 
         JsonObject authMsg = new JsonObject();
 
