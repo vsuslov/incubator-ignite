@@ -27,7 +27,6 @@ import org.apache.ignite.internal.processors.affinity.*;
 import org.apache.ignite.internal.processors.cache.*;
 import org.apache.ignite.internal.processors.cache.distributed.dht.*;
 import org.apache.ignite.internal.processors.timeout.*;
-import org.apache.ignite.internal.util.*;
 import org.apache.ignite.internal.util.future.*;
 import org.apache.ignite.internal.util.tostring.*;
 import org.apache.ignite.internal.util.typedef.*;
@@ -36,6 +35,7 @@ import org.apache.ignite.internal.util.worker.*;
 import org.apache.ignite.lang.*;
 import org.apache.ignite.thread.*;
 import org.jetbrains.annotations.*;
+import org.jsr166.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -187,16 +187,6 @@ public class GridDhtPartitionDemandPool {
     }
 
     /**
-     * Wakes up demand workers when new exchange future was added.
-     */
-    void onExchangeFutureAdded() {
-        synchronized (dmdWorkers) {
-            for (DemandWorker w : dmdWorkers)
-                w.addMessage(DUMMY_TOP);
-        }
-    }
-
-    /**
      * Force preload.
      */
     void forcePreload() {
@@ -339,11 +329,8 @@ public class GridDhtPartitionDemandPool {
             assert assigns != null;
 
             synchronized (dmdWorkers) {
-                for (DemandWorker w : dmdWorkers) {
+                for (DemandWorker w : dmdWorkers)
                     w.addAssignments(assigns);
-
-                    w.addMessage(DUMMY_TOP);
-                }
             }
         }
         else if (delay > 0) {
@@ -403,13 +390,6 @@ public class GridDhtPartitionDemandPool {
         /** Partition-to-node assignments. */
         private final LinkedBlockingDeque<GridDhtPreloaderAssignments> assignQ = new LinkedBlockingDeque<>();
 
-        /** Message queue. */
-        private final LinkedBlockingDeque<SupplyMessage> msgQ =
-            new LinkedBlockingDeque<>();
-
-        /** Counter. */
-        private long cntr;
-
         /** Hide worker logger and use cache logger instead. */
         private IgniteLogger log = GridDhtPartitionDemandPool.this.log;
 
@@ -441,23 +421,6 @@ public class GridDhtPartitionDemandPool {
          */
         private boolean topologyChanged() {
             return !assignQ.isEmpty() || cctx.shared().exchange().topologyChanged();
-        }
-
-        /**
-         * @param msg Message.
-         */
-        private void addMessage(SupplyMessage msg) {
-            if (!enterBusy())
-                return;
-
-            try {
-                assert dummyTopology(msg) || msg.supply().workerId() == id;
-
-                msgQ.offer(msg);
-            }
-            finally {
-                leaveBusy();
-            }
         }
 
         /**
@@ -558,14 +521,6 @@ public class GridDhtPartitionDemandPool {
         }
 
         /**
-         * @param idx Unique index for this topic.
-         * @return Topic for partition.
-         */
-        public Object topic(long idx) {
-            return TOPIC_CACHE.topic(cctx.namexx(), cctx.nodeId(), id, idx);
-        }
-
-        /**
          * @param node Node to demand from.
          * @param topVer Topology version.
          * @param d Demand message.
@@ -576,243 +531,258 @@ public class GridDhtPartitionDemandPool {
          * @throws IgniteCheckedException If failed to send message.
          */
         private Set<Integer> demandFromNode(
-            ClusterNode node,
+            final ClusterNode node,
             final AffinityTopologyVersion topVer,
-            GridDhtPartitionDemandMessage d,
-            GridDhtPartitionsExchangeFuture exchFut
+            final GridDhtPartitionDemandMessage d,
+            final GridDhtPartitionsExchangeFuture exchFut
         ) throws InterruptedException, IgniteCheckedException {
-            GridDhtPartitionTopology top = cctx.dht().topology();
+            final GridDhtPartitionTopology top = cctx.dht().topology();
 
-            cntr++;
+            long timeout = GridDhtPartitionDemandPool.this.timeout.get();
 
-            d.topic(topic(cntr));
+            d.timeout(timeout);
             d.workerId(id);
 
-            Set<Integer> missed = new HashSet<>();
+            final Set<Integer> missed = new HashSet<>();
 
-            // Get the same collection that will be sent in the message.
-            Collection<Integer> remaining = d.partitions();
+            final ConcurrentHashMap8<Integer, Boolean> remaining = new ConcurrentHashMap8<>();
 
-            // Drain queue before processing a new node.
-            drainQueue();
+            for (int p : d.partitions())
+                remaining.put(p, false);
 
             if (isCancelled() || topologyChanged())
                 return missed;
 
-            cctx.io().addOrderedHandler(d.topic(), new CI2<UUID, GridDhtPartitionSupplyMessage>() {
-                @Override public void apply(UUID nodeId, GridDhtPartitionSupplyMessage msg) {
-                    addMessage(new SupplyMessage(nodeId, msg));
-                }
-            });
+            for (int p : d.partitions()) {
+                cctx.io().addOrderedHandler(topic(p, node.id()), new CI2<UUID, GridDhtPartitionSupplyMessage>() {
+                    @Override public void apply(UUID nodeId, GridDhtPartitionSupplyMessage msg) {
+                        handleSupplyMessage(new SupplyMessage(nodeId, msg), node, topVer, top, remaining,
+                            exchFut, missed, d);
+                    }
+                });
+            }
 
             try {
-                boolean retry;
+                Iterator<Integer> it = remaining.keySet().iterator();
 
-                // DoWhile.
-                // =======
-                do {
-                    retry = false;
+                final int maxC = Runtime.getRuntime().availableProcessors() / 2; //Todo: make param
+
+                int sent = 0;
+
+                while (sent < maxC && it.hasNext()) {
+                    int p = it.next();
+
+                    Collection<Integer> ps = new ArrayList<>(1);
+
+                    boolean res = remaining.replace(p, false, true);
+
+                    assert res;
+
+                    ps.add(p);
 
                     // Create copy.
-                    d = new GridDhtPartitionDemandMessage(d, remaining);
+                    GridDhtPartitionDemandMessage initD = new GridDhtPartitionDemandMessage(d, ps);
 
-                    long timeout = GridDhtPartitionDemandPool.this.timeout.get();
+                    initD.topic(topic(p, node.id()));
 
-                    d.timeout(timeout);
+                    // Send initial demand message.
+                    cctx.io().send(node, initD, cctx.ioPolicy());
 
-                    if (log.isDebugEnabled())
-                        log.debug("Sending demand message [node=" + node.id() + ", demand=" + d + ']');
-
-                    // Send demand message.
-                    cctx.io().send(node, d, cctx.ioPolicy());
-
-                    // While.
-                    // =====
-                    while (!isCancelled() && !topologyChanged()) {
-                        SupplyMessage s = poll(msgQ, timeout, this);
-
-                        // If timed out.
-                        if (s == null) {
-                            if (msgQ.isEmpty()) { // Safety check.
-                                U.warn(log, "Timed out waiting for partitions to load, will retry in " + timeout +
-                                    " ms (you may need to increase 'networkTimeout' or 'rebalanceBatchSize'" +
-                                    " configuration properties).");
-
-                                growTimeout(timeout);
-
-                                // Ordered listener was removed if timeout expired.
-                                cctx.io().removeOrderedHandler(d.topic());
-
-                                // Must create copy to be able to work with IO manager thread local caches.
-                                d = new GridDhtPartitionDemandMessage(d, remaining);
-
-                                // Create new topic.
-                                d.topic(topic(++cntr));
-
-                                // Create new ordered listener.
-                                cctx.io().addOrderedHandler(d.topic(),
-                                    new CI2<UUID, GridDhtPartitionSupplyMessage>() {
-                                        @Override public void apply(UUID nodeId,
-                                            GridDhtPartitionSupplyMessage msg) {
-                                            addMessage(new SupplyMessage(nodeId, msg));
-                                        }
-                                    });
-
-                                // Resend message with larger timeout.
-                                retry = true;
-
-                                break; // While.
-                            }
-                            else
-                                continue; // While.
-                        }
-
-                        // If topology changed.
-                        if (dummyTopology(s)) {
-                            if (topologyChanged())
-                                break; // While.
-                            else
-                                continue; // While.
-                        }
-
-                        // Check that message was received from expected node.
-                        if (!s.senderId().equals(node.id())) {
-                            U.warn(log, "Received supply message from unexpected node [expectedId=" + node.id() +
-                                ", rcvdId=" + s.senderId() + ", msg=" + s + ']');
-
-                            continue; // While.
-                        }
-
-                        if (log.isDebugEnabled())
-                            log.debug("Received supply message: " + s);
-
-                        GridDhtPartitionSupplyMessage supply = s.supply();
-
-                        // Check whether there were class loading errors on unmarshal
-                        if (supply.classError() != null) {
-                            if (log.isDebugEnabled())
-                                log.debug("Class got undeployed during preloading: " + supply.classError());
-
-                            retry = true;
-
-                            // Quit preloading.
-                            break;
-                        }
-
-                        // Preload.
-                        for (Map.Entry<Integer, CacheEntryInfoCollection> e : supply.infos().entrySet()) {
-                            int p = e.getKey();
-
-                            if (cctx.affinity().localNode(p, topVer)) {
-                                GridDhtLocalPartition part = top.localPartition(p, topVer, true);
-
-                                assert part != null;
-
-                                if (part.state() == MOVING) {
-                                    boolean reserved = part.reserve();
-
-                                    assert reserved : "Failed to reserve partition [gridName=" +
-                                        cctx.gridName() + ", cacheName=" + cctx.namex() + ", part=" + part + ']';
-
-                                    part.lock();
-
-                                    try {
-                                        Collection<Integer> invalidParts = new GridLeanSet<>();
-
-                                        // Loop through all received entries and try to preload them.
-                                        for (GridCacheEntryInfo entry : e.getValue().infos()) {
-                                            if (!invalidParts.contains(p)) {
-                                                if (!part.preloadingPermitted(entry.key(), entry.version())) {
-                                                    if (log.isDebugEnabled())
-                                                        log.debug("Preloading is not permitted for entry due to " +
-                                                            "evictions [key=" + entry.key() +
-                                                            ", ver=" + entry.version() + ']');
-
-                                                    continue;
-                                                }
-
-                                                if (!preloadEntry(node, p, entry, topVer)) {
-                                                    invalidParts.add(p);
-
-                                                    if (log.isDebugEnabled())
-                                                        log.debug("Got entries for invalid partition during " +
-                                                            "preloading (will skip) [p=" + p + ", entry=" + entry + ']');
-                                                }
-                                            }
-                                        }
-
-                                        boolean last = supply.last().contains(p);
-
-                                        // If message was last for this partition,
-                                        // then we take ownership.
-                                        if (last) {
-                                            remaining.remove(p);
-
-                                            top.own(part);
-
-                                            if (log.isDebugEnabled())
-                                                log.debug("Finished rebalancing partition: " + part);
-
-                                            if (cctx.events().isRecordable(EVT_CACHE_REBALANCE_PART_LOADED))
-                                                preloadEvent(p, EVT_CACHE_REBALANCE_PART_LOADED,
-                                                    exchFut.discoveryEvent());
-                                        }
-                                    }
-                                    finally {
-                                        part.unlock();
-                                        part.release();
-                                    }
-                                }
-                                else {
-                                    remaining.remove(p);
-
-                                    if (log.isDebugEnabled())
-                                        log.debug("Skipping rebalancing partition (state is not MOVING): " + part);
-                                }
-                            }
-                            else {
-                                remaining.remove(p);
-
-                                if (log.isDebugEnabled())
-                                    log.debug("Skipping rebalancing partition (it does not belong on current node): " + p);
-                            }
-                        }
-
-                        remaining.removeAll(s.supply().missed());
-
-                        // Only request partitions based on latest topology version.
-                        for (Integer miss : s.supply().missed())
-                            if (cctx.affinity().localNode(miss, topVer))
-                                missed.add(miss);
-
-                        if (remaining.isEmpty())
-                            break; // While.
-
-                        if (s.supply().ack()) {
-                            retry = true;
-
-                            break;
-                        }
-                    }
+                    sent++;
                 }
-                while (retry && !isCancelled() && !topologyChanged());
+
+                do {
+                    U.sleep(1000);//Todo: improve
+                }
+                while (!isCancelled() && !topologyChanged() && !remaining.isEmpty());
 
                 return missed;
             }
             finally {
-                cctx.io().removeOrderedHandler(d.topic());
+                for (int p : d.partitions())
+                    cctx.io().removeOrderedHandler(topic(p, node.id()));
             }
         }
 
         /**
-         * @throws InterruptedException If interrupted.
+         * @param p Partition.
+         * @param id remote node id.
+         * @return topic
          */
-        private void drainQueue() throws InterruptedException {
-            while (!msgQ.isEmpty()) {
-                SupplyMessage msg = msgQ.take();
+        private Object topic(int p, UUID id) {
+            return TOPIC_CACHE.topic("Preloading", id, cctx.cacheId(), p);
+        }
 
+        /**
+         * @param s Supply message.
+         * @param node Node.
+         * @param topVer Topology version.
+         * @param top Topology.
+         * @param remaining Remaining.
+         * @param exchFut Exchange future.
+         * @param missed Missed.
+         * @param d initial DemandMessage.
+         */
+        private void handleSupplyMessage(
+            SupplyMessage s,
+            ClusterNode node,
+            AffinityTopologyVersion topVer,
+            GridDhtPartitionTopology top,
+            ConcurrentHashMap8<Integer, Boolean> remaining,
+            GridDhtPartitionsExchangeFuture exchFut,
+            Set<Integer> missed,
+            GridDhtPartitionDemandMessage d) {
+
+            //Todo: check and remove
+            // Check that message was received from expected node.
+            if (!s.senderId().equals(node.id())) {
+                U.warn(log, "Received supply message from unexpected node [expectedId=" + node.id() +
+                    ", rcvdId=" + s.senderId() + ", msg=" + s + ']');
+
+                return;
+            }
+
+            if (log.isDebugEnabled())
+                log.debug("Received supply message: " + s);
+
+            GridDhtPartitionSupplyMessage supply = s.supply();
+
+            // Check whether there were class loading errors on unmarshal
+            if (supply.classError() != null) {
                 if (log.isDebugEnabled())
-                    log.debug("Drained supply message: " + msg);
+                    log.debug("Class got undeployed during preloading: " + supply.classError());
+
+                return;
+            }
+
+            assert supply.infos().entrySet().size() == 1;//Todo: remove after supply message refactoring
+
+            // Preload.
+            for (Map.Entry<Integer, CacheEntryInfoCollection> e : supply.infos().entrySet()) {//todo:only one partition (supply refactoring)
+                int p = e.getKey();
+
+                if (cctx.affinity().localNode(p, topVer)) {
+                    GridDhtLocalPartition part = top.localPartition(p, topVer, true);
+
+                    assert part != null;
+
+                    if (part.state() == MOVING) {
+                        boolean reserved = part.reserve();
+
+                        assert reserved : "Failed to reserve partition [gridName=" +
+                            cctx.gridName() + ", cacheName=" + cctx.namex() + ", part=" + part + ']';
+
+                        part.lock();
+
+                        try {
+                            // Loop through all received entries and try to preload them.
+                            for (GridCacheEntryInfo entry : e.getValue().infos()) {
+                                if (!part.preloadingPermitted(entry.key(), entry.version())) {
+                                    if (log.isDebugEnabled())
+                                        log.debug("Preloading is not permitted for entry due to " +
+                                            "evictions [key=" + entry.key() +
+                                            ", ver=" + entry.version() + ']');
+
+                                    continue;
+                                }
+                                try {
+                                    if (!preloadEntry(node, p, entry, topVer)) {
+                                        if (log.isDebugEnabled())
+                                            log.debug("Got entries for invalid partition during " +
+                                                "preloading (will skip) [p=" + p + ", entry=" + entry + ']');
+
+                                        break;
+                                    }
+                                }
+                                catch (IgniteCheckedException ex) {
+                                    cancel();
+
+                                    return;
+                                }
+                            }
+
+                            boolean last = supply.last().contains(p);//Todo: refactor as boolean "last"
+
+                            // If message was last for this partition,
+                            // then we take ownership.
+                            if (last) {
+                                top.own(part);
+
+                                if (log.isDebugEnabled())
+                                    log.debug("Finished rebalancing partition: " + part);
+
+                                if (cctx.events().isRecordable(EVT_CACHE_REBALANCE_PART_LOADED))
+                                    preloadEvent(p, EVT_CACHE_REBALANCE_PART_LOADED,
+                                        exchFut.discoveryEvent());
+
+                                remaining.remove(p);
+
+                                demandNextPartition(node, remaining, d);
+                            }
+                        }
+                        finally {
+                            part.unlock();
+                            part.release();
+                        }
+                    }
+                    else {
+                        remaining.remove(p);
+
+                        if (log.isDebugEnabled())
+                            log.debug("Skipping rebalancing partition (state is not MOVING): " + part);
+                    }
+                }
+                else {
+                    remaining.remove(p);
+
+                    if (log.isDebugEnabled())
+                        log.debug("Skipping rebalancing partition (it does not belong on current node): " + p);
+                }
+            }
+
+            for (Integer miss : s.supply().missed()) // Todo: miss as param, not collection
+                remaining.remove(miss);
+
+            // Only request partitions based on latest topology version.
+            for (Integer miss : s.supply().missed())
+                if (cctx.affinity().localNode(miss, topVer))
+                    missed.add(miss);
+        }
+
+        /**
+         * @param node Node.
+         * @param remaining Remaining.
+         * @param d initial DemandMessage.
+         */
+        private void demandNextPartition(
+            final ClusterNode node,
+            final ConcurrentHashMap8<Integer, Boolean> remaining,
+            final GridDhtPartitionDemandMessage d
+        ) {
+            try {
+                for (Integer p : remaining.keySet()) {
+                    if (remaining.replace(p, false, true)) {
+                        Collection<Integer> nextPs = new ArrayList<>(1);
+
+                        nextPs.add(p);
+
+                        // Create copy.
+                        GridDhtPartitionDemandMessage nextD = new GridDhtPartitionDemandMessage(d, nextPs);
+
+                        nextD.topic(topic(p, node.id()));
+
+                        // Send demand message.
+                        cctx.io().send(node, nextD, cctx.ioPolicy());
+
+                        break;
+                    }
+                }
+            }
+            catch (IgniteCheckedException e) {
+                U.error(log, "Failed to receive partitions from node (rebalancing will not " +
+                    "fully finish) [node=" + node.id() + ", msg=" + d + ']', e);
+
+                cancel();
             }
         }
 
@@ -980,7 +950,7 @@ public class GridDhtPartitionDemandPool {
 
         /** {@inheritDoc} */
         @Override public String toString() {
-            return S.toString(DemandWorker.class, this, "assignQ", assignQ, "msgQ", msgQ, "super", super.toString());
+            return S.toString(DemandWorker.class, this, "assignQ", assignQ, "super", super.toString());
         }
     }
 

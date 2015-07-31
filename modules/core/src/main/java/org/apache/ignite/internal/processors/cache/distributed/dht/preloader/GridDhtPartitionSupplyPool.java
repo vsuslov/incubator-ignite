@@ -452,11 +452,11 @@ class GridDhtPartitionSupplyPool {
                         // Mark as last supply message.
                         s.last(part);
 
-                        if (ack) {
-                            s.markAck();
-
-                            break; // Partition for loop.
-                        }
+//                        if (ack) {
+//                            s.markAck();
+//
+//                            break; // Partition for loop.
+//                        }
                     }
                     finally {
                         loc.release();
