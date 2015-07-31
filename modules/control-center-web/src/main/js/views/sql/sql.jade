@@ -29,57 +29,63 @@ block container
                     h1 Connect to Ignite and Execute SQL Queries
                     hr
                 .docs-body(ng-controller='sqlController' ng-init='noteId = #{JSON.stringify(noteId)};')
-                    - var tab = 'tabs[tabs.activeIdx]'
+                    div(ng-if='!caches')
+                        .block-callout-parent.block-callout-border.margin-bottom-dflt
+                            .block-callout
+                                p(ng-bind-html='joinTip(missingClientTip)')
+                    div(ng-if='caches')
+                        .block-callout-parent.block-callout-border.margin-bottom-dflt
+                            .block-callout
+                                p(ng-bind-html='joinTip(screenTip)')
 
-                    .block-callout-parent.block-callout-border.margin-bottom-dflt
-                        .block-callout
-                            p(ng-bind-html='joinTip(screenTip)')
-                    .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
-                        div(ng-repeat='tab in tabs' title='Query' bs-pane)
-                    .row
-                        .col-sm-9(style='border-right: 1px solid #eee')
-                            div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
-                                'require: ["ace/ext/language_tools"],' +
-                                'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
-                                'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
-                        .col-sm-3
-                            div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
-                                lable.labelHeader Caches:
-                                table.links(st-table='caches')
+                        - var tab = 'tabs[tabs.activeIdx]'
+
+                        .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
+                            div(ng-repeat='tab in tabs' title='Query' bs-pane)
+                        .row
+                            .col-sm-9(style='border-right: 1px solid #eee')
+                                div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
+                                    'require: ["ace/ext/language_tools"],' +
+                                    'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
+                                    'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
+                            .col-sm-3
+                                div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
+                                    lable.labelHeader Caches:
+                                    table.links(st-table='caches')
+                                        tbody
+                                            tr(ng-repeat='row in caches track by row.name')
+                                                td.col-sm-6(ng-class='{active: row.name == #{tab}.selectedItem.name}')
+                                                    a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{::row.name}}, {{::row.mode}}
+                        hr(style='margin: 0')
+                        .settings-row
+                            label Page Size:&nbsp;
+                            button.btn.btn-default.base-control(ng-model='#{tab}.pageSize' bs-options='item for item in pageSizes' bs-select)
+                        .settings-row
+                            button.btn.btn-primary(ng-click='explain(#{tab})') Explain
+                            button.btn.btn-primary(ng-click='execute(#{tab})') Execute
+                            button.btn.btn-primary(ng-click='scan(#{tab})' disabled) Scan
+
+                        div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
+                            hr
+                            div
+                                table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
+                                    thead
+                                        tr(style='border-size: 0')
+                                            td(colspan='{{#{tab}.meta.length}}')
+                                                .col-sm-8
+                                                    lable Page #:&nbsp;
+                                                    b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
+                                                    | Results:&nbsp;
+                                                    b {{#{tab}.rows.length + #{tab}.total}}
+                                                .col-sm-4
+                                                    button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
+                                                    //.input-tip
+                                                    //    input.form-control(st-search placeholder='Filter...' type='search')
+                                        tr
+                                            th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
                                     tbody
-                                        tr(ng-repeat='row in caches track by row.name')
-                                            td.col-sm-6(ng-class='{active: row.name == #{tab}.selectedItem.name}')
-                                                a(ng-click='#{tab}.selectedItem = row') {{$index + 1}}) {{::row.name}}, {{::row.mode}}
-                    hr(style='margin: 0')
-                    .settings-row
-                        label Page Size:&nbsp;
-                        button.btn.btn-default.base-control(ng-model='#{tab}.pageSize' bs-options='item for item in pageSizes' bs-select)
-                    .settings-row
-                        button.btn.btn-primary(ng-click='explain(#{tab})') Explain
-                        button.btn.btn-primary(ng-click='execute(#{tab})') Execute
-                        button.btn.btn-primary(ng-click='scan(#{tab})' disabled) Scan
-
-                    div(ng-show='#{tab}.rows.length > 0' style='margin-top: 0.65em')
-                        hr
-                        div
-                            table.table.table-striped.col-sm-12.sql-results(st-table='displayedCollection' st-safe-src='#{tab}.rows')
-                                thead
-                                    tr(style='border-size: 0')
-                                        td(colspan='{{#{tab}.meta.length}}')
-                                            .col-sm-8
-                                                lable Page #:&nbsp;
-                                                b {{#{tab}.page}}&nbsp;&nbsp;&nbsp;
-                                                | Results:&nbsp;
-                                                b {{#{tab}.rows.length + #{tab}.total}}
-                                            .col-sm-4
-                                                button.btn.btn-primary.fieldButton(ng-click='nextPage(#{tab})' ng-disabled='!#{tab}.queryId') Next page
-                                                //.input-tip
-                                                //    input.form-control(st-search placeholder='Filter...' type='search')
-                                    tr
-                                        th(ng-repeat='col in #{tab}.meta track by $index' st-sort='getter' data-ng-bind='::col.fieldName' bs-tooltip='col.schemaName + "." + col.typeName + "." + col.fieldName')
-                                tbody
-                                    //tr
-                                    //    td(colspan='{{#{tab}.cols.length}}')
-                                    //        .loading-indicator
-                                    tr(ng-repeat='row in displayedCollection track by $index')
-                                        td(ng-repeat='val in row track by $index') {{ val }}
+                                        //tr
+                                        //    td(colspan='{{#{tab}.cols.length}}')
+                                        //        .loading-indicator
+                                        tr(ng-repeat='row in displayedCollection track by $index')
+                                            td(ng-repeat='val in row track by $index') {{ val }}

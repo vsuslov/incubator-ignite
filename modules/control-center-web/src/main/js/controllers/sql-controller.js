@@ -64,23 +64,28 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
     $http.get('/models/sql.json')
         .success(function (data) {
             $scope.screenTip = data.screenTip;
+            $scope.missingClientTip = data.missingClientTip;
         })
         .error(function (errMsg) {
             $common.showError(errMsg);
         });
 
-    $scope.caches = [];
+    $scope.caches = undefined;
 
     $http.post('/agent/topology')
         .success(function (clusters) {
             var node = clusters[0];
 
+            console.log(clusters);
             $scope.caches = node.caches;
 
             if ($scope.tabs.length == 0)
                 $scope.addTab();
         })
         .error(function (errMsg) {
+            $scope.caches = undefined;
+
+            console.log(errMsg);
             $common.showError(errMsg);
         });
 
