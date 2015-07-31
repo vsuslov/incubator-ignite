@@ -237,9 +237,7 @@ Client.prototype._rmtAuthMessage = function(msg) {
 
                     self._manager._addClient(account._id, self);
 
-                            self._ignite = new apacheIgnite.Ignite(new AgentServer(self));
-                        }
-                    });
+                    self._ignite = new apacheIgnite.Ignite(new AgentServer(self));
                 }
             });
         }
