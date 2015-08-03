@@ -507,8 +507,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 });
         };
 
-        function focusInvalidField(index, newId, curId) {
-            $focus(index < 0 ? newId : curId);
+        function focusInvalidField(index, id) {
+            $focus(index < 0 ? 'new' + id : 'cur' + id);
 
             return false;
         }
@@ -523,7 +523,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 if (idx >= 0 && idx != index) {
                     $common.showError('Field with such name already exists!');
 
-                    return focusInvalidField(index, 'newTextField', 'curTextField');
+                    return focusInvalidField(index, 'TextField');
                 }
             }
 
@@ -531,9 +531,9 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         var pairFields = {
-            queryFields: {msg: 'Query field class', newId: 'newQryField', curId: 'curQryField'},
-            ascendingFields: {msg: 'Ascending field class', newId: 'newAscField', curId: 'curAscField'},
-            descendingFields: {msg: 'Descending field class', newId: 'newDescField', curId: 'curDescField'}
+            queryFields: {msg: 'Query field class', id: 'QryField'},
+            ascendingFields: {msg: 'Ascending field class', id: 'AscField'},
+            descendingFields: {msg: 'Descending field class', id: 'DescField'}
         };
 
         $scope.tablePairValid = function (item, field, name, clsName, index) {
@@ -541,7 +541,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
             if (pairField) {
                 if (!$common.isValidJavaClass(pairField.msg, clsName, true))
-                    return focusInvalidField(index, pairField.newId + '_next', pairField.curId + '_next');
+                    return focusInvalidField(index, pairField.id + 'Next');
 
                 var model = item[field.model];
 
@@ -554,7 +554,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                     if (idx >= 0 && idx != index) {
                         $common.showError('Field with such name already exists!');
 
-                        return focusInvalidField(index, pairField.newId, pairField.curId);
+                        return focusInvalidField(index, pairField.id);
                     }
                 }
             }
@@ -567,8 +567,8 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         var dbFields = {
-            keyFields: {msg: 'Key field', newId: 'newKeyField', curId: 'curKeyField'},
-            valueFields: {msg: 'Value field', newId: 'newValField', curId: 'curValField'}
+            keyFields: {msg: 'Key field', id: 'KeyField'},
+            valueFields: {msg: 'Value field', id: 'ValueField'}
         };
 
         $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType, index) {
@@ -587,7 +587,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 };
 
                 if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', newJavaName))
-                    return focusInvalidField(index, dbField.newId + '_next', dbField.curId + '_next');
+                    return focusInvalidField(index, dbField.id + 'Next');
 
                 if ($common.isDefined(model)) {
                     var idx = _.findIndex(model, function (dbMeta) {
@@ -598,7 +598,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                     if (idx >= 0 && index != idx) {
                         $common.showError('DB field with such name already exists!');
 
-                        return focusInvalidField(index, dbField.newId, dbField.curId);
+                        return focusInvalidField(index, dbField.id);
                     }
 
                     if (index < 0) {
@@ -639,7 +639,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 if (idx >= 0 && idx != index) {
                     $common.showError('Group with such name already exists!');
 
-                    return focusInvalidField(index, 'newGroupName', 'curGroupName');
+                    return focusInvalidField(index, 'GroupName');
                 }
             }
 
@@ -714,7 +714,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         function tableGroupItemValid(fieldName, className, groupIndex, index) {
             if (!$common.isValidJavaClass('Group field', className, true))
-                return focusInvalidField(index, 'newFieldName_next', 'curFieldName_next');
+                return focusInvalidField(index, 'FieldNameNext');
 
             var fields = $scope.backupItem.groups[groupIndex].fields;
 
@@ -727,7 +727,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 if (idx >= 0 && idx != index) {
                     $common.showError('Field with such name already exists in group!');
 
-                    return focusInvalidField(index, 'newFieldName', 'curFieldName');
+                    return focusInvalidField(index, 'FieldName');
                 }
             }
 

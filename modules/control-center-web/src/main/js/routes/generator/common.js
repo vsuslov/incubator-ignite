@@ -17,9 +17,11 @@
 
 var _ = require('lodash');
 
-exports.isDefined = function (v) {
+function isDefined(v) {
     return !(v === undefined || v === null);
-};
+}
+
+exports.isDefined = isDefined;
 
 exports.mainComment = mainComment;
 

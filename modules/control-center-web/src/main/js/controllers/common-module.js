@@ -92,7 +92,7 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
     }
 
     var javaBuildInClasses = [
-        'BigDecimal, Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
+        'BigDecimal', 'Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
     ];
 
     var javaBuildInFullNameClasses = [
@@ -464,8 +464,8 @@ controlCenterModule.directive('match', function ($parse) {
 
 // Directive to bind ENTER key press with some user action.
 controlCenterModule.directive('onEnter', function ($timeout) {
-    return function (scope, element, attrs) {
-        element.bind('keydown keypress', function (event) {
+    return function (scope, elem, attrs) {
+        elem.on('keydown keypress', function (event) {
             if (event.which === 13) {
                 scope.$apply(function () {
                     $timeout(function () {
@@ -476,13 +476,18 @@ controlCenterModule.directive('onEnter', function ($timeout) {
                 event.preventDefault();
             }
         });
+
+        // Removes bound events in the element itself when the scope is destroyed
+        scope.$on('$destroy', function () {
+            elem.off('keydown keypress');
+        });
     };
 });
 
 // Directive to bind ESC key press with some user action.
 controlCenterModule.directive('onEscape', function () {
-    return function (scope, element, attrs) {
-        element.bind('keydown keyup', function (event) {
+    return function (scope, elem, attrs) {
+        elem.on('keydown keypress', function (event) {
             if (event.which === 27) {
                 scope.$apply(function () {
                     scope.$eval(attrs.onEscape);
@@ -490,6 +495,55 @@ controlCenterModule.directive('onEscape', function () {
 
                 event.preventDefault();
             }
+        });
+
+        // Removes bound events in the element itself when the scope is destroyed
+        scope.$on('$destroy', function () {
+            elem.off('keydown keypress');
+        });
+    };
+});
+
+// Directive to retain selection.
+controlCenterModule.directive('retainSelection', function ($timeout) {
+    return function (scope, elem, attr) {
+        elem.on('keydown', function (event) {
+            var key = event.which;
+
+            console.log(key);
+
+            var input = this;
+
+            var start = input.selectionStart;
+
+            $timeout(function() {
+                var setCursor = false;
+
+                // Handle Backspace.
+                if (key == 8 && start > 0) {
+                    start -= 1;
+
+                    setCursor = true;
+                }
+                // Handle Del.
+                else if (key == 46)
+                    setCursor = true;
+                // Handle: Caps Lock, Tab, Shift, Ctrl, Alt, Esc, Enter, Arrows, Home, End, PgUp, PgDown, F1..F12, Num Lock, Scroll Lock.
+                else  if (!(key == 9 || key == 13 || (key > 15 && key < 20) || key == 27 ||
+                    (key > 32 && key < 41) || (key > 111 && key < 124) || key == 144 || key == 145)) {
+                    start += 1;
+
+                    setCursor = true;
+                }
+
+                if (setCursor)
+                    input.setSelectionRange(start, start);
+            });
+        });
+
+        // Removes bound events in the element itself when the scope is destroyed
+        scope.$on('$destroy', function () {
+            elem.off('keydown');
         });
     };
 });
@@ -501,18 +555,18 @@ controlCenterModule.factory('$focus', function ($timeout, $window) {
         // E.g. click events that need to run before the focus or inputs elements that are
         // in a disabled state but are enabled when those events are triggered.
         $timeout(function () {
-            var element = $window.document.getElementById(id);
+            var elem = $window.document.getElementById(id);
 
-            if (element)
-                element.focus();
+            if (elem)
+                elem.focus();
         });
     };
 });
 
 // Directive to focus next element on ENTER key.
 controlCenterModule.directive('enterFocusNext', function ($focus) {
-    return function (scope, element, attrs) {
-        element.bind('keydown keypress', function (event) {
+    return function (scope, elem, attrs) {
+        elem.on('keydown keypress', function (event) {
             if (event.which === 13) {
                 event.preventDefault();
 

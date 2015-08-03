@@ -19,9 +19,6 @@ extends sidebar
 append scripts
     script(src='/summary-controller.js')
 
-    script(src='//cdn.jsdelivr.net/angularjs/1.3.15/angular-animate.min.js')
-    script(src='//cdn.jsdelivr.net/angularjs/1.3.15/angular-sanitize.min.js')
-
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-chrome.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-xml.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-java.js')
@@ -86,7 +83,7 @@ block content
                                     .col-sm-2
                                         label(for='os') Operation System:
                                     .col-sm-4
-                                        input#os.form-control(type='text' ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' data-animation='am-flip-x' bs-typeahead bs-options='os for os in oss')
+                                        input#os.form-control(type='text' ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' bs-typeahead retain-selection bs-options='os for os in oss')
                                 div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
                 .panel.panel-default

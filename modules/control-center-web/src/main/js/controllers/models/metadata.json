@@ -111,8 +111,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "focusNewItemId": "newValField",
-      "focusCurItemId": "curValField",
+      "focusNewItemId": "newValueField",
+      "focusCurItemId": "curValueField",
       "addTip": "Add value field.",
       "removeTip": "Remove value field.",
       "tip": [

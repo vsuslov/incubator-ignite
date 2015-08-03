@@ -53,13 +53,13 @@ mixin btn-down(show, click)
     i.tipField.fa.fa-arrow-down(ng-show=show ng-click=click bs-tooltip data-title='Move item down')
 
 mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, focusId, index)
-    -var focusIdNext = focusId + '_next'
+    -var focusIdNext = focusId + 'Next'
 
     .col-sm-6
         label.fieldSep /
         .input-tip
             if keyJavaBuildInTypes
-                input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
+                input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
             else
                 input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder on-escape='tableReset()')
     .col-sm-6
@@ -71,7 +71,7 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJav
         +btn-save(btnVisible, btnSave)
         .input-tip
             if valueJavaBuildInTypes
-                input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
+                input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
             else
                 input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
 
@@ -164,7 +164,7 @@ mixin details-row
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusId, index)
-    -var focusIdNext = focusId + '_next'
+    -var focusIdNext = focusId + 'Next'
 
     .col-sm-3
         label.fieldSep /
@@ -188,7 +188,7 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusI
             button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
 
 mixin table-group-item-edit(fieldName, className, direction, index)
-    -var focusIdNext = fieldName + '_next'
+    -var focusIdNext = fieldName + 'Next'
     -var args = fieldName + ', ' + className
     -var btnVisible = 'tableGroupItemSaveVisible(' + args + ')'
     -var btnSave = 'tableGroupItemSave(' + args + ', ' + direction + ', groupIndex, ' + index +')'
@@ -201,7 +201,7 @@ mixin table-group-item-edit(fieldName, className, direction, index)
     .col-sm-5
         label.fieldSep /
         .input-tip
-            input.form-control(id=focusIdNext type='text' ng-model=className placeholder='Class name' bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            input.form-control(id=focusIdNext type='text' ng-model=className placeholder='Class name' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
     .col-sm-3
         +btn-save(btnVisible, btnSave)
         .input-tip
@@ -235,7 +235,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses')&attributes(fieldCommon)
         div(ng-switch-when='password' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
