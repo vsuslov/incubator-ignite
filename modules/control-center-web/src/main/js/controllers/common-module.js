@@ -509,11 +509,7 @@ controlCenterModule.directive('retainSelection', function ($timeout) {
     return function (scope, elem, attr) {
         elem.on('keydown', function (event) {
             var key = event.which;
-
-            console.log(key);
-
             var input = this;
-
             var start = input.selectionStart;
 
             $timeout(function() {
