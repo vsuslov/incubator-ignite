@@ -127,7 +127,7 @@ exports.builder = function () {
 
         if (this.imports[shortName]) {
             if (this.imports[shortName] != fullClassName)
-                throw "Class name conflict: " + this.imports[shortName] + ' and ' + fullClassName;
+                return fullClassName; // Short class names conflict. Return full name.
         }
         else
             this.imports[shortName] = fullClassName;
