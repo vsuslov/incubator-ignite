@@ -101,12 +101,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             if ($common.isDefined(model)) {
                 var idx = _.indexOf(model, val);
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
+                if (idx >= 0 && idx != index) {
                     var msg = 'Such IP address already exists!';
 
                     if (field.model == 'regions')

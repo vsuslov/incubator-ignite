@@ -59,7 +59,7 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJav
         label.fieldSep /
         .input-tip
             if keyJavaBuildInTypes
-                input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead data-min-length='1' bs-options='javaType for javaType in javaBuildInTypes' on-escape='tableReset()')
+                input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
             else
                 input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=keyModel placeholder=keyPlaceholder on-escape='tableReset()')
     .col-sm-6
@@ -71,7 +71,7 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJav
         +btn-save(btnVisible, btnSave)
         .input-tip
             if valueJavaBuildInTypes
-                input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead data-min-length='1' bs-options='javaType for javaType in javaBuildInTypes' on-enter=btnVisibleAndSave on-escape='tableReset()')
+                input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
             else
                 input.form-control(id=focusIdNext type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
 
@@ -187,9 +187,9 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusI
         .input-tip
             button.form-control(ng-model=javaType bs-select data-placeholder='Java type' bs-options='item.value as item.label for item in {{javaTypes}}')
 
-mixin table-group-item-edit(fieldName, className, direction, focusId, index)
-    -var focusIdNext = focusId + '_next'
-    - var args = fieldName + ', ' + className
+mixin table-group-item-edit(fieldName, className, direction, index)
+    -var focusIdNext = fieldName + '_next'
+    -var args = fieldName + ', ' + className
     -var btnVisible = 'tableGroupItemSaveVisible(' + args + ')'
     -var btnSave = 'tableGroupItemSave(' + args + ', ' + direction + ', groupIndex, ' + index +')'
     -var btnVisibleAndSave = btnVisible + ' && ' + btnSave
@@ -197,11 +197,11 @@ mixin table-group-item-edit(fieldName, className, direction, focusId, index)
     .col-sm-4
         label.fieldSep /
         .input-tip
-            input.form-control(id=focusId enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=fieldName placeholder='Field name' on-escape='tableReset()')
+            input.form-control(id=fieldName enter-focus-next enter-focus-next-id=focusIdNext type='text' ng-model=fieldName placeholder='Field name' on-escape='tableReset()')
     .col-sm-5
         label.fieldSep /
         .input-tip
-            input.form-control(id=focusIdNext type='text' ng-model=className placeholder='Class name' bs-typeahead data-min-length='1' bs-options='javaType for javaType in javaBuildInTypes' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            input.form-control(id=focusIdNext type='text' ng-model=className placeholder='Class name' bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
     .col-sm-3
         +btn-save(btnVisible, btnSave)
         .input-tip
@@ -235,7 +235,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(type='text' placeholder='{{::field.placeholder}}' bs-typeahead data-min-length='1' bs-options='javaType for javaType in javaBuildInTypes')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' bs-typeahead data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses')&attributes(fieldCommon)
         div(ng-switch-when='password' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
@@ -333,7 +333,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
             .col-sm-6
                 label.table-header {{::field.label}}:
                 +tipLabel('field.tip')
-                +btn-add('tableNewItem(field)', 'field.addTip', 'newGroupId')
+                +btn-add('tableNewItem(field)', 'field.addTip', 'newGroupName')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-6
                     .table-details
@@ -343,14 +343,14 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                     td.col-sm-12
                                         div
                                             .col-sm-12(ng-show='!tableEditing(field, $index)')
-                                                a.labelFormField(event-focus='click' event-focus-id='curGroupId' ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
+                                                a.labelFormField(event-focus='click' event-focus-id='curGroupName' ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
                                                 +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                                 +btn-add('tableGroupNewItem($index)', 'field.addItemTip', 'newGroupItemId')
                                             div(ng-if='tableEditing(field, $index)')
                                                 label.labelField {{$index + 1}})
                                                 +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
                                                 .input-tip
-                                                    input#curGroupId.form-control(type='text' ng-model='curGroupName' placeholder='Index name' on-enter='tableGroupSaveVisible(curGroupName) && tableGroupSave(curGroupName, $index)' on-escape='tableReset()')
+                                                    input#curGroupName.form-control(type='text' ng-model='curGroupName' placeholder='Index name' on-enter='tableGroupSaveVisible(curGroupName) && tableGroupSave(curGroupName, $index)' on-escape='tableReset()')
                                             div
                                                 table.links-edit.col-sm-12(st-table='group.fields' ng-init='groupIndex = $index')
                                                     tbody
@@ -360,14 +360,14 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                                     a.labelFormField(event-focus='click' event-focus-id='curGroupItemId' ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
                                                                     +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
                                                                 div(ng-if='tableGroupItemEditing(groupIndex, $index)')
-                                                                    +table-group-item-edit('curFieldName', 'curClassName', 'curDirection', 'curGroupItemId', '$index')
+                                                                    +table-group-item-edit('curFieldName', 'curClassName', 'curDirection', '$index')
                                                     tfoot(ng-if='tableGroupNewItemActive(groupIndex)')
                                                         tr.col-sm-12(style='padding-left: 18px')
                                                             td
-                                                                +table-group-item-edit('newFieldName', 'newClassName', 'newDirection', 'newGroupItemId', '-1')
+                                                                +table-group-item-edit('newFieldName', 'newClassName', 'newDirection', '-1')
                             tfoot(ng-show='tableNewItemActive(field)')
                                 tr
                                     td.col-sm-12
                                         +btn-save('tableGroupSaveVisible(newGroupName)', 'tableGroupSave(newGroupName, -1)')
                                         .input-tip
-                                            input#newGroupId.form-control(type='text' ng-model='newGroupName' placeholder='Group name' on-enter='tableGroupSaveVisible(newGroupName) && tableGroupSave(newGroupName, -1)' on-escape='tableReset()')
+                                            input#newGroupName.form-control(type='text' ng-model='newGroupName' placeholder='Group name' on-enter='tableGroupSaveVisible(newGroupName) && tableGroupSave(newGroupName, -1)' on-escape='tableReset()')

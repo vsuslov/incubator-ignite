@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
+controlCenterModule.controller('metadataController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
-        $scope.javaBuildInTypes = $common.javaBuildInTypes;
+        $scope.javaBuildInClasses = $common.javaBuildInClasses;
 
         $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
@@ -258,11 +258,23 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
 
         $scope.metadatas = [];
 
-        $scope.isJavaBuildInType = function () {
+        $scope.required = function (field) {
+            var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
+
+            var item = $scope.backupItem;
+
+            if (item && item.kind && item.kind != 'query') {
+                return model == 'databaseSchema' || model == 'databaseTable';
+            }
+
+            return false;
+        };
+
+        $scope.isJavaBuildInClass = function () {
             var item = $scope.backupItem;
 
             if (item && item.keyType)
-                return _.contains($common.javaBuildInTypes, item.keyType);
+                return $common.isJavaBuildInClass(item.keyType);
 
             return false;
         };
@@ -343,23 +355,30 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             $scope.backupItem.space = $scope.spaces[0]._id;
         };
 
-        function isEmpty(arr) {
-            if ($common.isDefined(arr))
-                return arr.length == 0;
-            else
-                return true;
-        }
-
         // Check metadata logical consistency.
         function validate(item) {
             var kind = item.kind;
 
-            if (kind == 'query' || kind == 'both') {
-                if (isEmpty(item.queryFields) && isEmpty(item.ascendingFields) && isEmpty(item.descendingFields)
-                    && isEmpty(item.textFields) && isEmpty(item.groups)) {
-                        $common.showError('SQL fields are not specified!');
+            if (!$common.isValidJavaClass('Key type', item.keyType, true)) {
+                $focus('keyType');
 
-                        return false;
+                return false;
+            }
+
+
+            if (!$common.isValidJavaClass('Value type', item.valueType, false)) {
+                $focus('valueType');
+
+                return false;
+            }
+
+            if (kind == 'query' || kind == 'both') {
+                if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
+                    $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
+                    $common.isEmptyArray(item.groups)) {
+                    $common.showError('SQL fields are not specified!');
+
+                    return false;
                 }
 
                 var groups = item.groups;
@@ -368,7 +387,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                         var group = groups[i];
                         var fields = group.fields;
 
-                        if (isEmpty(fields)) {
+                        if ($common.isEmptyArray(fields)) {
                             $common.showError('Group "' + group.name + '" has no fields.');
 
                             return false;
@@ -384,13 +403,13 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             }
 
             if (kind == 'store' || kind == 'both') {
-                if (isEmpty(item.keyFields) && !_.contains($common.javaBuildInTypes, item.keyType)) {
+                if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
                     $common.showError('Key fields are not specified!');
 
                     return false;
                 }
 
-                if (isEmpty(item.valueFields)) {
+                if ($common.isEmptyArray(item.valueFields)) {
                     $common.showError('Value fields are not specified!');
 
                     return false;
@@ -488,44 +507,55 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                 });
         };
 
+        function focusInvalidField(index, newId, curId) {
+            $focus(index < 0 ? newId : curId);
+
+            return false;
+        }
+
         $scope.tableSimpleValid = function (item, field, name, index) {
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
                 var idx = _.indexOf(model, name);
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
+                if (idx >= 0 && idx != index) {
                     $common.showError('Field with such name already exists!');
 
-                    return false;
+                    return focusInvalidField(index, 'newTextField', 'curTextField');
                 }
             }
 
             return true;
         };
 
+        var pairFields = {
+            queryFields: {msg: 'Query field class', newId: 'newQryField', curId: 'curQryField'},
+            ascendingFields: {msg: 'Ascending field class', newId: 'newAscField', curId: 'curAscField'},
+            descendingFields: {msg: 'Descending field class', newId: 'newDescField', curId: 'curDescField'}
+        };
+
         $scope.tablePairValid = function (item, field, name, clsName, index) {
-            var model = item[field.model];
+            var pairField = pairFields[field.model];
 
-            if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (pair) {
-                    return pair.name == name
-                });
+            if (pairField) {
+                if (!$common.isValidJavaClass(pairField.msg, clsName, true))
+                    return focusInvalidField(index, pairField.newId + '_next', pairField.curId + '_next');
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
+                var model = item[field.model];
 
-                // Found duplicate.
-                if (idx >= 0) {
-                    $common.showError('Field with such name already exists!');
+                if ($common.isDefined(model)) {
+                    var idx = _.findIndex(model, function (pair) {
+                        return pair.name == name
+                    });
 
-                    return false;
+                    // Found duplicate.
+                    if (idx >= 0 && idx != index) {
+                        $common.showError('Field with such name already exists!');
+
+                        return focusInvalidField(index, pairField.newId, pairField.curId);
+                    }
                 }
             }
 
@@ -533,52 +563,68 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         $scope.tableDbFieldSaveVisible = function (databaseName, databaseType, javaName, javaType) {
-            return $common.isNonEmpty(databaseName) && $common.isDefined(databaseType) &&
-                $common.isNonEmpty(javaName) && $common.isDefined(javaType);
+            return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) && !$common.isEmptyString(javaName) && $common.isDefined(javaType);
+        };
+
+        var dbFields = {
+            keyFields: {msg: 'Key field', newId: 'newKeyField', curId: 'curKeyField'},
+            valueFields: {msg: 'Value field', newId: 'newValField', curId: 'curValField'}
         };
 
         $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType, index) {
-            var item = $scope.backupItem;
+            var dbField = dbFields[field.model];
 
-            var model = item[field.model];
+            if (dbField) {
+                var backupItem = $scope.backupItem;
 
-            var newItem = {databaseName: newDatabaseName, databaseType: newDatabaseType, javaName: newJavaName, javaType: newJavaType};
+                var model = backupItem[field.model];
 
-            if ($common.isDefined(model)) {
-                var idx = _.findIndex(model, function (dbMeta) {
-                    return dbMeta.databaseName == newDatabaseName
-                });
+                var newItem = {
+                    databaseName: newDatabaseName,
+                    databaseType: newDatabaseType,
+                    javaName: newJavaName,
+                    javaType: newJavaType
+                };
 
-                // Found duplicate.
-                if (idx >= 0 && index != idx) {
-                    $common.showError('DB field with such name already exists!');
+                if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', newJavaName))
+                    return focusInvalidField(index, dbField.newId + '_next', dbField.curId + '_next');
 
-                    return;
+                if ($common.isDefined(model)) {
+                    var idx = _.findIndex(model, function (dbMeta) {
+                        return dbMeta.databaseName == newDatabaseName
+                    });
+
+                    // Found duplicate.
+                    if (idx >= 0 && index != idx) {
+                        $common.showError('DB field with such name already exists!');
+
+                        return focusInvalidField(index, dbField.newId, dbField.curId);
+                    }
+
+                    if (index < 0) {
+                        if (model)
+                            model.push(newItem);
+                        else
+                            backupItem[field.model] = [newItem];
+                    }
+                    else {
+                        var item = model[index];
+
+                        item.databaseName = newDatabaseName;
+                        item.databaseType = newDatabaseType;
+                        item.javaName = newJavaName;
+                        item.javaType = newJavaType;
+                    }
                 }
+                else
+                    backupItem[field.model] = [newItem];
 
-                if (index < 0) {
-                    if (model)
-                        model.push(newItem);
-                    else
-                        item[field.model] = [newItem];
-                }
-                else {
-                    var dbField = model[index];
-
-                    dbField.databaseName = newDatabaseName;
-                    dbField.databaseType = newDatabaseType;
-                    dbField.javaName = newJavaName;
-                    dbField.javaType = newJavaType;
-                }
+                $table.tableReset();
             }
-            else
-                item[field.model] = [newItem];
-
-            $table.tableReset();
         };
 
         $scope.tableGroupSaveVisible = function (group) {
-            return $common.isNonEmpty(group);
+            return !$common.isEmptyString(group);
         };
 
         function tableGroupValid(groupName, index) {
@@ -589,15 +635,11 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
                     return group.name == groupName;
                 });
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
+                if (idx >= 0 && idx != index) {
                     $common.showError('Group with such name already exists!');
 
-                    return false;
+                    return focusInvalidField(index, 'newGroupName', 'curGroupName');
                 }
             }
 
@@ -667,26 +709,25 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         };
 
         $scope.tableGroupItemSaveVisible = function (fieldName, className) {
-            return $common.isNonEmpty(fieldName) && $common.isNonEmpty(className);
+            return !$common.isEmptyString(fieldName) && !$common.isEmptyString(className);
         };
 
-        function tableGroupItemValid(fieldName, groupIndex, index) {
-            var groupItems = $scope.backupItem.groups[groupIndex].fields;
+        function tableGroupItemValid(fieldName, className, groupIndex, index) {
+            if (!$common.isValidJavaClass('Group field', className, true))
+                return focusInvalidField(index, 'newFieldName_next', 'curFieldName_next');
 
-            if ($common.isDefined(groupItems)) {
-                var idx = _.findIndex(groupItems, function (groupItem) {
-                    return groupItem.name == fieldName;
+            var fields = $scope.backupItem.groups[groupIndex].fields;
+
+            if ($common.isDefined(fields)) {
+                var idx = _.findIndex(fields, function (field) {
+                    return field.name == fieldName;
                 });
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
+                if (idx >= 0 && idx != index) {
                     $common.showError('Field with such name already exists in group!');
 
-                    return false;
+                    return focusInvalidField(index, 'newFieldName', 'curFieldName');
                 }
             }
 
@@ -694,7 +735,7 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
         }
 
         $scope.tableGroupItemSave = function (fieldName, className, direction, groupIndex, index) {
-            if (tableGroupItemValid(fieldName, groupIndex, index)) {
+            if (tableGroupItemValid(fieldName, className, groupIndex, index)) {
                 $table.tableReset();
 
                 var group = $scope.backupItem.groups[groupIndex];
@@ -769,4 +810,5 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             }
         };
     }]
-);
+)
+;

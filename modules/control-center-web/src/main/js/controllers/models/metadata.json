@@ -71,6 +71,7 @@
       "label": "Key type",
       "type": "withJavaBuildInTypes",
       "model": "keyType",
+      "id": "keyType",
       "required": true,
       "placeholder": "Full class name for Key",
       "tip": [
@@ -81,6 +82,7 @@
       "label": "Value type",
       "type": "text",
       "model": "valueType",
+      "id": "valueType",
       "required": true,
       "placeholder": "Full class name for Value",
       "tip": [
@@ -93,9 +95,9 @@
       "model": "keyFields",
       "keyName": "name",
       "valueName": "className",
-      "hide": "backupItem.kind == 'query' || isJavaBuildInType()",
-      "focusNewItemId": "newKeyFields",
-      "focusCurItemId": "curKeyFields",
+      "hide": "backupItem.kind == 'query' || isJavaBuildInClass()",
+      "focusNewItemId": "newKeyField",
+      "focusCurItemId": "curKeyField",
       "addTip": "Add key field.",
       "removeTip": "Remove key field.",
       "tip": [
@@ -109,8 +111,8 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "focusNewItemId": "newValFields",
-      "focusCurItemId": "curValFields",
+      "focusNewItemId": "newValField",
+      "focusCurItemId": "curValField",
       "addTip": "Add value field.",
       "removeTip": "Remove value field.",
       "tip": [

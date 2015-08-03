@@ -18,7 +18,7 @@
 controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
-        $scope.javaBuildInTypes = $common.javaBuildInTypes;
+        $scope.javaBuildInClasses = $common.javaBuildInClasses;
 
         $scope.tableReset = $table.tableReset;
         $scope.tableNewItem = $table.tableNewItem;
@@ -126,21 +126,26 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             return false;
         };
 
+        function focusInvalidField(index, newId, curId) {
+            $focus(index < 0 ? newId : curId);
+
+            return false;
+        }
+
         $scope.tableSimpleValid = function (item, field, fx, index) {
+            if (!$common.isValidJavaClass('SQL function', fx, false))
+                return focusInvalidField(index, 'newSqlFxField', 'curSqlFxField');
+
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
                 var idx = _.indexOf(model, fx);
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
-                    $common.showError('SQL function such class name already exists!');
+                if (idx >= 0 && idx != index) {
+                    $common.showError('SQL function with such class name already exists!');
 
-                    return false;
+                    return focusInvalidField(index, 'newSqlFxField', 'curSqlFxField');
                 }
             }
 
@@ -148,6 +153,12 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
         };
 
         $scope.tablePairValid = function (item, field, keyCls, valCls, index) {
+            if (!$common.isValidJavaClass('Indexed type key', keyCls, true))
+                return focusInvalidField(index, 'newIndexedType', 'curIndexedType');
+
+            if (!$common.isValidJavaClass('Indexed type value', valCls, true))
+                return focusInvalidField(index, 'newIndexedType_next', 'curIndexedType_next');
+
             var model = item[field.model];
 
             if ($common.isDefined(model)) {
@@ -155,15 +166,11 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                     return pair.keyClass == keyCls
                 });
 
-                // Found itself.
-                if (index >= 0 && index == idx)
-                    return true;
-
                 // Found duplicate.
-                if (idx >= 0) {
+                if (idx >= 0 && idx != index) {
                     $common.showError('Indexed type with such key class already exists!');
 
-                    return false;
+                    return focusInvalidField(index, 'newIndexedType', 'curIndexedType');
                 }
             }
 

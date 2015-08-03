@@ -76,7 +76,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         .success(function (clusters) {
             var node = clusters[0];
 
-            console.log(clusters);
             $scope.caches = node.caches;
 
             if ($scope.tabs.length == 0)
@@ -85,7 +84,6 @@ controlCenterModule.controller('sqlController', ['$scope', '$controller', '$http
         .error(function (errMsg) {
             $scope.caches = undefined;
 
-            console.log(errMsg);
             $common.showError(errMsg);
         });
 

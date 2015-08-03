@@ -58,14 +58,83 @@ controlCenterModule.config(function ($alertProvider) {
 
 // Common functions to be used in controllers.
 controlCenterModule.service('$common', ['$alert', function ($alert) {
+    function isDefined(v) {
+        return !(v === undefined || v === null);
+    }
+
+    function isEmptyArray(arr) {
+        if (isDefined(arr))
+            return arr.length == 0;
+
+        return true;
+    }
+
+    function isEmptyString(s) {
+        if (isDefined(s))
+            return s.trim().length == 0;
+
+        return true;
+    }
+
     var msgModal = undefined;
 
     function errorMessage(errMsg) {
         return errMsg ? errMsg : 'Internal server error.';
     }
 
-    function isDefined(v) {
-        return !(v === undefined || v === null);
+    function showError(msg) {
+        if (msgModal)
+            msgModal.hide();
+
+        msgModal = $alert({title: errorMessage(msg)});
+
+        return false;
+    }
+
+    var javaBuildInClasses = [
+        'BigDecimal, Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
+    ];
+
+    var javaBuildInFullNameClasses = [
+        'java.math.BigDecimal', 'java.lang.Boolean', 'java.lang.Byte', 'java.sql.Date', 'java.lang.Double',
+        'java.lang.Float', 'java.lang.Integer', 'java.lang.Long', 'java.lang.Short', 'java.lang.String',
+        'java.sql.Time', 'java.sql.Timestamp', 'java.util.UUID'
+    ];
+
+    function isJavaBuildInClass(cls) {
+        if (isEmptyString(cls))
+            return false;
+
+        return _.contains(javaBuildInClasses, cls) || _.contains(javaBuildInFullNameClasses, cls);
+    }
+
+    var javaKeywords = [
+        'abstract',     'assert',        'boolean',      'break',           'byte',
+        'case',         'catch',         'char',         'class',           'const',
+        'continue',     'default',       'do',           'double',          'else',
+        'enum',         'extends',       'false',        'final',           'finally',
+        'float',        'for',           'goto',         'if',              'implements',
+        'import',       'instanceof',    'int',          'interface',       'long',
+        'native',       'new',           'null',         'package',         'private',
+        'protected',    'public',        'return',       'short',           'static',
+        'strictfp',     'super',         'switch',       'synchronized',    'this',
+        'throw',        'throws',        'transient',    'true',            'try',
+        'void',         'volatile',      'while'
+    ];
+
+    var VALID_JAVA_IDENTIFIER = new RegExp('^[a-zA-Z_$][a-zA-Z\d_$]*');
+
+    function isValidJavaIdentifier(msg, ident) {
+        if (isEmptyString(ident))
+            return showError(msg + ' could not be empty!');
+
+        if (_.contains(javaKeywords, ident))
+            return showError(msg + ' could not contains reserved java keyword: "' + ident + '"!');
+
+        if (!VALID_JAVA_IDENTIFIER.test(ident))
+            return showError(msg + ' contains invalid identifier: "' + ident + '"!');
+
+        return true;
     }
 
     return {
@@ -107,19 +176,13 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
                 return rtrimmed;
             });
 
-            return lines.join("");
+            return lines.join('');
         },
         isDefined: isDefined,
-        isNonEmpty: function (s) {
-            return isDefined(s) && s.trim().length > 0;
-        },
+        isEmptyArray: isEmptyArray,
+        isEmptyString: isEmptyString,
         errorMessage: errorMessage,
-        showError: function (msg) {
-            if (msgModal)
-                msgModal.hide();
-
-            msgModal = $alert({title: errorMessage(msg)});
-        },
+        showError: showError,
         showInfo: function (msg) {
             if (msgModal)
                 msgModal.hide();
@@ -130,9 +193,32 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
                 duration: 2
             });
         },
-        javaBuildInTypes: [
-            'Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
-        ]
+        javaBuildInClasses: javaBuildInClasses,
+        isJavaBuildInClass: isJavaBuildInClass,
+        isValidJavaIdentifier: isValidJavaIdentifier,
+        isValidJavaClass: function (msg, ident, allowBuildInClass) {
+            if (isEmptyString(ident))
+                return showError(msg + ' could not be empty!');
+
+            var parts = ident.split('.');
+
+            var len = parts.length;
+
+            if (!allowBuildInClass && isJavaBuildInClass(ident))
+                return showError(msg + ' should not be the Java build-in class!');
+
+            if (len < 2 && !isJavaBuildInClass(ident))
+                return showError(msg + ' does not have package specified!');
+
+            for (var i = 0; i < parts.length; i++) {
+                var part = parts[i];
+
+                if (!isValidJavaIdentifier(msg, part))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }]);
 
@@ -165,7 +251,7 @@ controlCenterModule.service('$confirm', function ($modal, $rootScope, $q) {
     return confirmModal;
 });
 
-// "Save as" popup service.
+// 'Save as' popup service.
 controlCenterModule.service('$copy', function ($modal, $rootScope, $q) {
     var scope = $rootScope.$new();
 
@@ -260,7 +346,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
             }
         },
         tableSimpleSaveVisible: function (newValue) {
-            return $common.isNonEmpty(newValue);
+            return !$common.isEmptyString(newValue);
         },
         tableSimpleUp: function (item, field, index) {
             _tableReset();
@@ -299,7 +385,7 @@ controlCenterModule.service('$table', ['$common', function ($common) {
             }
         },
         tablePairSaveVisible: function (newKey, newValue) {
-            return $common.isNonEmpty(newKey) && $common.isNonEmpty(newValue);
+            return !$common.isEmptyString(newKey) && !$common.isEmptyString(newValue);
         }
     }
 }]);
@@ -335,10 +421,10 @@ controlCenterModule.filter('displayValue', function () {
  */
 controlCenterModule.filter('compact', function () {
     return function (s) {
-        return s.replace("org.apache.ignite.internal.visor.", "o.a.i.i.v.").
-            replace("org.apache.ignite.internal.", "o.a.i.i.").
-            replace("org.apache.ignite.scalar.", "o.a.i.s.").
-            replace("org.apache.ignite.", "o.a.i.");
+        return s.replace('org.apache.ignite.internal.visor.', 'o.a.i.i.v.').
+            replace('org.apache.ignite.internal.', 'o.a.i.i.').
+            replace('org.apache.ignite.scalar.', 'o.a.i.s.').
+            replace('org.apache.ignite.', 'o.a.i.');
     }
 });
 
@@ -426,7 +512,7 @@ controlCenterModule.factory('$focus', function ($timeout, $window) {
 // Directive to focus next element on ENTER key.
 controlCenterModule.directive('enterFocusNext', function ($focus) {
     return function (scope, element, attrs) {
-        element.bind("keydown keypress", function (event) {
+        element.bind('keydown keypress', function (event) {
             if (event.which === 13) {
                 event.preventDefault();
 
@@ -468,13 +554,13 @@ controlCenterModule.controller('auth', [
 
         $scope.valid = false;
 
-        $scope.userDropdown = [{"text": "Profile", "href": "/profile"}];
+        $scope.userDropdown = [{text: 'Profile', href: '/profile'}];
 
         if (!$scope.becomeUsed) {
             if ($scope.user && $scope.user.admin)
-                $scope.userDropdown.push({"text": "Admin Panel", "href": "/admin"});
+                $scope.userDropdown.push({text: 'Admin Panel', href: '/admin'});
 
-            $scope.userDropdown.push({"text": "Log Out", "href": "/logout"});
+            $scope.userDropdown.push({text: 'Log Out', href: '/logout'});
         }
 
         // Pre-fetch an external template populated with a custom scope
