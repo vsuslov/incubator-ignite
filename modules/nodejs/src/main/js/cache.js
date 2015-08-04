@@ -263,6 +263,15 @@ Cache.prototype.size = function(callback) {
 }
 
 /**
+ * Returns cache metadata.
+ *
+ * @this {Cache}
+ */
+Cache.prototype.metadata = function(callback) {
+    return this.__createPromise(this._createCommand("metadata"));
+}
+
+/**
  * Execute sql query
  *
  * @param {SqlQuery|SqlFieldsQuery} qry Query

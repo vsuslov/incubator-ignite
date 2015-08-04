@@ -24,9 +24,9 @@ import org.apache.ignite.internal.processors.*;
 import org.apache.ignite.internal.processors.rest.client.message.*;
 import org.apache.ignite.internal.processors.rest.handlers.*;
 import org.apache.ignite.internal.processors.rest.handlers.cache.*;
-import org.apache.ignite.internal.processors.rest.handlers.query.*;
 import org.apache.ignite.internal.processors.rest.handlers.datastructures.*;
-import org.apache.ignite.internal.processors.rest.handlers.scripting.IgniteScriptingCommandHandler;
+import org.apache.ignite.internal.processors.rest.handlers.query.*;
+import org.apache.ignite.internal.processors.rest.handlers.scripting.*;
 import org.apache.ignite.internal.processors.rest.handlers.task.*;
 import org.apache.ignite.internal.processors.rest.handlers.top.*;
 import org.apache.ignite.internal.processors.rest.handlers.version.*;
@@ -597,6 +597,7 @@ public class GridRestProcessor extends GridProcessorAdapter {
 
             case CACHE_METRICS:
             case CACHE_SIZE:
+            case CACHE_METADATA:
             case TOPOLOGY:
             case NODE:
             case VERSION:
