@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$confirm', '$copy', '$table', function ($scope, $http, $common, $confirm, $copy, $table) {
+controlCenterModule.controller('clustersController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
 
@@ -95,6 +95,18 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: 'JdkMarshaller', label: 'JdkMarshaller'}
         ];
 
+        var simpleTables = {
+            addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
+            regions: {msg: 'Such region already exists!', id: 'Region'},
+            zones: {msg: 'Such zone already exists!', id: 'Zone'}
+        };
+
+        function focusInvalidField(index, id) {
+            $focus(index < 0 ? 'new' + id : 'cur' + id);
+
+            return false;
+        }
+
         $scope.tableSimpleValid = function (item, field, val, index) {
             var model = $common.getModel(item, field)[field.model];
 
@@ -103,16 +115,13 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
                 // Found duplicate.
                 if (idx >= 0 && idx != index) {
-                    var msg = 'Such IP address already exists!';
+                    var simpleTable = simpleTables[field.model];
 
-                    if (field.model == 'regions')
-                        msg = 'Such region already exists!';
-                    if (field.model == 'zones')
-                        msg = 'Such zone already exists!';
+                    if (simpleTable) {
+                        $common.showError(simpleTable.msg);
 
-                    $common.showError(msg);
-
-                    return false;
+                        return focusInvalidField(index, simpleTable.id);
+                    }
                 }
             }
 
