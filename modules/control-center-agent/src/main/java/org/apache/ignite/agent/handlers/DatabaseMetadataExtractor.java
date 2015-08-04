@@ -30,17 +30,12 @@ import java.util.*;
  */
 public class DatabaseMetadataExtractor {
     /** */
-    private final AgentConfiguration cfg;
-
-    /** */
     private final String driversFolder;
 
     /**
      * @param cfg Config.
      */
     public DatabaseMetadataExtractor(AgentConfiguration cfg) {
-        this.cfg = cfg;
-
         String driversFolder = cfg.getDriversFolder();
 
         if (driversFolder == null) {

@@ -70,13 +70,13 @@ public class RestExecutor {
 
     /**
      * @param path Path.
-     * @param method Method.
+     * @param mtd Method.
      * @param params Params.
      * @param headers Headers.
      * @param body Body.
      */
     @Remote
-    public RestResult executeRest(String path, Map<String, String> params, String method, Map<String, String> headers,
+    public RestResult executeRest(String path, Map<String, String> params, String mtd, Map<String, String> headers,
         String body) throws IOException, URISyntaxException {
         URIBuilder builder = new URIBuilder(cfg.getNodeUri());
 
@@ -94,9 +94,9 @@ public class RestExecutor {
 
         HttpRequestBase httpReq;
 
-        if ("GET".equalsIgnoreCase(method))
+        if ("GET".equalsIgnoreCase(mtd))
             httpReq = new HttpGet(builder.build());
-        else if ("POST".equalsIgnoreCase(method)) {
+        else if ("POST".equalsIgnoreCase(mtd)) {
             HttpPost post;
 
             if (body == null) {
@@ -118,7 +118,7 @@ public class RestExecutor {
             httpReq = post;
         }
         else
-            throw new IOException("Unknown HTTP-method: " + method);
+            throw new IOException("Unknown HTTP-method: " + mtd);
 
         if (headers != null) {
             for (Map.Entry<String, String> entry : headers.entrySet())
