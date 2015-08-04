@@ -26,9 +26,9 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * Remote API to extract DB metadata.
+ * Remote API to extract database metadata.
  */
-public class DBExtractor {
+public class DatabaseMetadataExtractor {
     /** */
     private final AgentConfiguration cfg;
 
@@ -38,13 +38,13 @@ public class DBExtractor {
     /**
      * @param cfg Config.
      */
-    public DBExtractor(AgentConfiguration cfg) {
+    public DatabaseMetadataExtractor(AgentConfiguration cfg) {
         this.cfg = cfg;
 
         String driversFolder = cfg.getDriversFolder();
 
         if (driversFolder == null) {
-            File agentHome = Utils.getAgentHome();
+            File agentHome = AgentUtils.getAgentHome();
 
             if (agentHome != null)
                 driversFolder = agentHome + "/drivers";
@@ -67,9 +67,9 @@ public class DBExtractor {
         if (!new File(jdbcDriverJarPath).isAbsolute() && driversFolder != null)
             jdbcDriverJarPath = new File(driversFolder, jdbcDriverJarPath).getPath();
 
-        Connection conn = DBReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
+        Connection conn = DbMetadataReader.getInstance().connect(jdbcDriverJarPath, jdbcDriverCls, jdbcUrl, jdbcInfo);
 
-        return DBReader.getInstance().extractMetadata(conn, tblsOnly);
+        return DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly);
     }
 
     /**

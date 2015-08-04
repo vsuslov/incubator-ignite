@@ -23,11 +23,11 @@ import java.net.*;
 /**
  * Utility methods.
  */
-public class Utils {
+public class AgentUtils {
     /**
      * Default constructor.
      */
-    private Utils() {
+    private AgentUtils() {
         // No-op.
     }
 

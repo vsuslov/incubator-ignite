@@ -20,15 +20,15 @@ package org.apache.ignite.agent.remote;
 import java.lang.annotation.*;
 
 /**
- * Method annotated by this annotation can be executed remotely from NodeJS server by web-socket command.
+ * Use this annotation to assosiate methods with remote NodeJS server commands.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Remote {
     /**
      * Whether or not method should be executed synchronously.
-     * @return {@code true} if method will be executed in separated thread,
-     * {@code false} if method executed in web-socket thread.
+     *
+     * @return {@code true} if method will be executed in separated thread otherwise if method will be executed in handler thread.
      */
     boolean async() default true;
 }

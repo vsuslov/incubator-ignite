@@ -26,14 +26,14 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Singleton to extract DataBase
+ * Singleton to extract database metadata.
  */
-public class DBReader {
+public class DbMetadataReader {
     /** Logger. */
-    private static final Logger log = Logger.getLogger(DBReader.class.getName());
+    private static final Logger log = Logger.getLogger(DbMetadataReader.class.getName());
 
     /** */
-    private static final DBReader INSTANCE = new DBReader();
+    private static final DbMetadataReader INSTANCE = new DbMetadataReader();
 
     /** */
     private final Map<String, Driver> drivers = new HashMap<>();
@@ -41,7 +41,7 @@ public class DBReader {
     /**
      * Default constructor.
      */
-    private DBReader() {
+    private DbMetadataReader() {
         // No-op.
     }
 
@@ -121,7 +121,7 @@ public class DBReader {
     /**
      * @return Instance.
      */
-    public static DBReader getInstance() {
+    public static DbMetadataReader getInstance() {
         return INSTANCE;
     }
 }

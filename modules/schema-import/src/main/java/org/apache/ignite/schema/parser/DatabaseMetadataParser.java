@@ -44,7 +44,7 @@ public class DatabaseMetadataParser {
 
         Map<String, Collection<PojoDescriptor>> childrens = new HashMap<>();
 
-        for (DbTable tbl : DBReader.getInstance().extractMetadata(conn, tblsOnly)) {
+        for (DbTable tbl : DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly)) {
             String schema = tbl.schema();
 
             PojoDescriptor parent = parents.get(schema);

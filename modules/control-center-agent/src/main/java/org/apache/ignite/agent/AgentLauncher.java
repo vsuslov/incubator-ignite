@@ -18,6 +18,7 @@
 package org.apache.ignite.agent;
 
 import com.beust.jcommander.*;
+import org.apache.ignite.agent.handlers.*;
 import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
@@ -26,12 +27,12 @@ import java.net.*;
 import java.util.logging.*;
 
 /**
- * Main class.
+ * Control Center Agent launcher.
  */
 public class AgentLauncher {
     /** Static initializer. */
     static {
-        LoggingConfigurator.configure();
+        AgentLoggingConfigurator.configure();
     }
 
     /** */
@@ -77,6 +78,8 @@ public class AgentLauncher {
      * @param args Args.
      */
     public static void main(String[] args) throws Exception {
+        log.log(Level.INFO, "Starting Apache Ignite Control Center Agent...");
+
         AgentConfiguration cfg = getConfiguration(args);
 
         RestExecutor restExecutor = new RestExecutor(cfg);

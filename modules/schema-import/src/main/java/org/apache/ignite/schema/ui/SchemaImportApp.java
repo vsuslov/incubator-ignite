@@ -342,7 +342,7 @@ public class SchemaImportApp extends Application {
             @Override protected Void call() throws Exception {
                 long started = System.currentTimeMillis();
 
-                try (Connection conn = DBReader.getInstance().connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo)) {
+                try (Connection conn = DbMetadataReader.getInstance().connect(jdbcDrvJarPath, jdbcDrvCls, jdbcUrl, jdbcInfo)) {
                     pojos = DatabaseMetadataParser.parse(conn, tblsOnly);
                 }
 
@@ -1321,7 +1321,7 @@ public class SchemaImportApp extends Application {
 
                 if (customPrefsFile == null)
                     log.log(Level.WARNING, "Failed to resolve path to file with custom preferences: " +
-                        customPrefsFile);
+                        customPrefsFileName);
                 else {
                     Properties customPrefs = new Properties();
 

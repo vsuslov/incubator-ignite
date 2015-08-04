@@ -81,7 +81,7 @@ public class RestExecutor {
         URIBuilder builder = new URIBuilder(cfg.getNodeUri());
 
         if (path != null) {
-            if (!path.startsWith("/") && !cfg.getNodeUri().toString().endsWith("/"))
+            if (!path.startsWith("/") && !cfg.getNodeUri().endsWith("/"))
                 path = '/' +  path;
 
             builder.setPath(path);

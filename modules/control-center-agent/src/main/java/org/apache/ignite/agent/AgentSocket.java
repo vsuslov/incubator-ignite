@@ -88,7 +88,7 @@ public class AgentSocket implements WebSocketSender {
 
         this.ses = ses;
 
-        remote = RemoteHandler.wrap(this, this, restExecutor, new DBExtractor(cfg));
+        remote = RemoteHandler.wrap(this, this, restExecutor, new DatabaseMetadataExtractor(cfg));
 
         JsonObject authMsg = new JsonObject();
 

@@ -23,17 +23,22 @@ import java.util.logging.*;
 /**
  * Configurator for java.util.Logger.
  */
-public class LoggingConfigurator {
+public class AgentLoggingConfigurator {
+    /** */
+    private static final String CFG_PATH_PROPERTY = "log.config.path";
+
+    private static final String PROPERTIES_FILE = "logging.properties";
+
     /**
      * Perform configure.
      */
     public static void configure() {
         try {
-            if (System.getProperty("log.config.path") != null) {
-                File logCfg = new File(System.getProperty("log.config.path"));
+            if (System.getProperty(CFG_PATH_PROPERTY) != null) {
+                File logCfg = new File(System.getProperty(CFG_PATH_PROPERTY));
 
                 if (!logCfg.isFile()) {
-                    System.err.println("Failed to load loggin configuration, file not found: " + logCfg);
+                    System.err.println("Failed to load logging configuration, file not found: " + logCfg);
 
                     System.exit(1);
                 }
@@ -43,10 +48,10 @@ public class LoggingConfigurator {
                 return;
             }
 
-            File agentHome = Utils.getAgentHome();
+            File agentHome = AgentUtils.getAgentHome();
 
             if (agentHome != null) {
-                File logCfg = new File(agentHome, "logging.properties");
+                File logCfg = new File(agentHome, PROPERTIES_FILE);
 
                 if (logCfg.isFile()) {
                     readConfiguration(logCfg);
@@ -55,10 +60,10 @@ public class LoggingConfigurator {
                 }
             }
 
-            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/logging.properties"));
+            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/" + PROPERTIES_FILE));
         }
         catch (IOException e) {
-            System.err.println("Failed to load loggin configuration");
+            System.err.println("Failed to load logging configuration");
 
             e.printStackTrace();
 
