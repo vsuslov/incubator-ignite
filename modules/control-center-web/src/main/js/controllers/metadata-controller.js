@@ -109,6 +109,36 @@ controlCenterModule.controller('metadataController', ['$scope', '$http', '$commo
             {value: true, label: 'DESC'}
         ];
 
+        $scope.fieldz = [
+            {
+                use: true,
+                key: true,
+                ak: true,
+                databaseName: 'name1',
+                databaseType: 'dbType1',
+                javaName: 'javaName1',
+                javaType: 'javaType1'
+            },
+            {
+                use: true,
+                key: false,
+                ak: false,
+                databaseName: 'name2',
+                databaseType: 'dbType2',
+                javaName: 'javaName2',
+                javaType: 'javaType2'
+            },
+            {
+                use: false,
+                key: false,
+                ak: false,
+                databaseName: 'name3',
+                databaseType: 'dbType3',
+                javaName: 'javaName3',
+                javaType: 'javaType3'
+            }
+        ];
+
         $scope.data = {
             curTableIdx: 0,
             curFieldIdx: 0,

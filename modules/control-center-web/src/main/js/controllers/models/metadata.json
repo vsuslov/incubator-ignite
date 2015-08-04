@@ -1,10 +1,9 @@
 {
   "screenTip": {
-    "workflowTitle": "Use metadata view to:",
+    "workflowTitle": "What's now:",
     "workflowContent": [
       "<ul>",
       "  <li>Manually configure metadata for queries and persistence.</li>",
-      "Or",
       "  <li>Automatically configure metadata from database schema.</li>",
       "</ul>"
     ],

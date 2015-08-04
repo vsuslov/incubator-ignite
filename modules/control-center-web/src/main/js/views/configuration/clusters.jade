@@ -55,7 +55,8 @@ block content
                 div(bs-collapse data-start-collapsed='true')
                     .panel-title(ng-show='expanded')
                         h3
-                            a(bs-collapse-toggle='0' ng-click='expanded = !expanded;') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+                            i.fa.fa-chevron-circle-up(ng-click='expanded = !expanded')
+                            a(bs-collapse-toggle='0' ng-click='expanded = !expanded') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
                     .panel-collapse(bs-collapse-target)
                         .span(bs-collapse data-start-collapsed='true' data-allow-multiple='true')
                             .panel.panel-default(ng-repeat='group in advanced')
@@ -70,7 +71,10 @@ block content
                                             +form-row
                     .panel-title
                         h3
-                            a(bs-collapse-toggle='0' ng-click='expanded = !expanded;') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+                            i.fa.fa-chevron-circle-up(ng-show='expanded' ng-click='expanded = !expanded')
+                            i.fa.fa-chevron-circle-down(ng-show='!expanded' ng-click='expanded = !expanded')
+                            a(bs-collapse-toggle='0' ng-click='expanded = !expanded') {{expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+
             div
                 button.btn.btn-primary(ng-disabled='inputForm.$invalid' ng-click='saveItem()') Save
                 button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
