@@ -504,7 +504,7 @@ controlCenterModule.directive('onEscape', function () {
     };
 });
 
-// Directive to retain selection.
+// Directive to retain selection. To fix angular-strap typeahead bug with setting cursor to the end of text.
 controlCenterModule.directive('retainSelection', function ($timeout) {
     return function (scope, elem, attr) {
         elem.on('keydown', function (event) {
