@@ -20,7 +20,7 @@ package org.apache.ignite.agent.remote;
 import java.lang.annotation.*;
 
 /**
- * Use this annotation to assosiate methods with remote NodeJS server commands.
+ * Use this annotation to associate methods with remote NodeJS server commands.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

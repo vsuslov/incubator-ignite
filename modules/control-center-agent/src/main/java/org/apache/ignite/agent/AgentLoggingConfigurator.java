@@ -27,6 +27,7 @@ public class AgentLoggingConfigurator {
     /** */
     private static final String CFG_PATH_PROPERTY = "log.config.path";
 
+    /** */
     private static final String PROPERTIES_FILE = "logging.properties";
 
     /**
