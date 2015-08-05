@@ -43,14 +43,21 @@ public class AgentLauncher {
 
     /**
      * @param args Args.
-     * @return Agent configuration.
      */
-    protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        log.log(Level.INFO, "Starting Apache Ignite Control Center Agent...");
+
         AgentConfiguration cfg = new AgentConfiguration();
 
         AgentConfiguration cmdCfg = new AgentConfiguration();
 
-        new JCommander(cmdCfg, args);
+        JCommander jCommander = new JCommander(cmdCfg, args);
+
+        if (cmdCfg.help()) {
+            jCommander.usage();
+
+            return;
+        }
 
         if (cmdCfg.getConfigPath() != null)
             cfg.load(new File(cmdCfg.getConfigPath()).toURI().toURL());
@@ -68,17 +75,6 @@ public class AgentLauncher {
 
             cfg.setPassword(new String(System.console().readPassword()));
         }
-
-        return cfg;
-    }
-
-    /**
-     * @param args Args.
-     */
-    public static void main(String[] args) throws Exception {
-        log.log(Level.INFO, "Starting Apache Ignite Control Center Agent...");
-
-        AgentConfiguration cfg = getConfiguration(args);
 
         RestExecutor restExecutor = new RestExecutor(cfg);
 

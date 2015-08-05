@@ -52,6 +52,10 @@ public class AgentConfiguration {
     @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to folder with JDBC drivers, for example /home/user/drivers")
     private String driversFolder;
 
+    /** */
+    @Parameter(names = { "-h", "--help" }, description = "Print this help message")
+    private boolean help;
+
     /**
      * @return Login.
      */
@@ -188,5 +192,12 @@ public class AgentConfiguration {
 
         if (cmd.getDriversFolder() != null)
             setDriversFolder(cmd.getDriversFolder());
+    }
+
+    /**
+     * @return {@code true} If agent options usage should be printed.
+     */
+    public boolean help() {
+        return help;
     }
 }
