@@ -30,7 +30,7 @@
         <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>control-center-agent</artifactId>
+    <artifactId>ignite-control-center-agent</artifactId>
     <version>1.4.1-SNAPSHOT</version>
 
     <properties>

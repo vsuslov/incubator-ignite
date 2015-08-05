@@ -743,6 +743,7 @@
             <id>control-center</id>
             <modules>
                 <module>modules/control-center-agent</module>
+                <module>modules/control-center-web</module>
                 <module>modules/schema-import-db</module>
             </modules>
         </profile>
