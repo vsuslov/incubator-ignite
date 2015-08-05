@@ -37,19 +37,19 @@ public class AgentConfiguration {
 
     /** */
     @Parameter(names = {"-s", "--serverUri"},
-        description = "Link to web-control-center web-socket server, for example: wss://control-center.gridgain.com")
-    private String serverUri;
+        description = "Link to web-control-center web-socket server, for example: wss://localhost:3001 or wss://control-center.gridgain.com")
+    private String srvUri = "wss://localhost:3001";
 
     /** */
     @Parameter(names = {"-n", "--nodeUri"}, description = "ignite REST server, for example: http://localhost:8080")
-    private String nodeUri;
+    private String nodeUri = "http://localhost:8080";
 
     /** */
     @Parameter(names = {"-c", "--config"}, description = "Path to configuration file")
     private String cfgPath;
 
     /** */
-    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to drivers folder")
+    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to folder with JDBC drivers, for example /home/user/drivers")
     private String driversFolder;
 
     /**
@@ -84,14 +84,14 @@ public class AgentConfiguration {
      * @return Server URI.
      */
     public String getServerUri() {
-        return serverUri;
+        return srvUri;
     }
 
     /**
      * @param srvUri URI.
      */
     public void setServerUri(String srvUri) {
-        this.serverUri = srvUri;
+        this.srvUri = srvUri;
     }
 
     /**

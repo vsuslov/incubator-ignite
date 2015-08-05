@@ -186,12 +186,7 @@ public class RemoteHandler implements AutoCloseable {
 
         resp.addProperty("reqId", reqId);
 
-        JsonElement resJson;
-
-        if (type == void.class)
-            resJson = JsonNull.INSTANCE;
-        else
-            resJson = GSON.toJsonTree(res, type);
+        JsonElement resJson = type == void.class ? JsonNull.INSTANCE : GSON.toJsonTree(res, type);
 
         resp.add("res", resJson);
 

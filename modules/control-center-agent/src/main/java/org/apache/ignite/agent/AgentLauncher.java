@@ -48,8 +48,6 @@ public class AgentLauncher {
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
-        cfg.load(AgentLauncher.class.getResource("/default.config.properties"));
-
         AgentConfiguration cmdCfg = new AgentConfiguration();
 
         new JCommander(cmdCfg, args);
