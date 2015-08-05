@@ -26,7 +26,7 @@
             <directory>${project.build.directory}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>agent-${version}.jar</include>
+                <include>agent-${project.version}.jar</include>
             </includes>
         </fileSet>
     </fileSets>
