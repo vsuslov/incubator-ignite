@@ -19,7 +19,6 @@ package org.apache.ignite.agent;
 
 import com.beust.jcommander.*;
 import org.apache.ignite.agent.handlers.*;
-import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
 import java.io.*;
@@ -40,6 +39,51 @@ public class AgentLauncher {
 
     /** */
     private static final int RECONNECT_INTERVAL = 3000;
+
+    /** */
+    private final AgentConfiguration cfg;
+
+    /**
+     * @param cfg Config.
+     */
+    public AgentLauncher(AgentConfiguration cfg) {
+        this.cfg = cfg;
+    }
+
+    /**
+     *
+     */
+    public void run() throws Exception {
+        RestExecutor restExecutor = new RestExecutor(cfg);
+
+        try {
+            WebSocketClient client = new WebSocketClient(cfg.sslContextFactory());
+
+            client.setMaxIdleTimeout(Long.MAX_VALUE);
+
+            client.start();
+
+            try {
+                while (!Thread.interrupted()) {
+                    AgentSocket agentSock = new AgentSocket(cfg, restExecutor, new DatabaseMetadataExtractor(cfg));
+
+                    log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
+
+                    client.connect(agentSock, URI.create(cfg.getServerUri()));
+
+                    agentSock.waitForClose();
+
+                    Thread.sleep(RECONNECT_INTERVAL);
+                }
+            }
+            finally {
+                client.stop();
+            }
+        }
+        finally {
+            restExecutor.stop();
+        }
+    }
 
     /**
      * @param args Args.
@@ -76,41 +120,8 @@ public class AgentLauncher {
             cfg.setPassword(new String(System.console().readPassword()));
         }
 
-        RestExecutor restExecutor = new RestExecutor(cfg);
+        AgentLauncher agentLauncher = new AgentLauncher(cfg);
 
-        restExecutor.start();
-
-        try {
-            SslContextFactory sslCtxFactory = new SslContextFactory();
-
-            if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
-                sslCtxFactory.setTrustAll(true);
-
-            WebSocketClient client = new WebSocketClient(sslCtxFactory);
-
-            client.setMaxIdleTimeout(Long.MAX_VALUE);
-
-            client.start();
-
-            try {
-                while (!Thread.interrupted()) {
-                    AgentSocket agentSock = new AgentSocket(cfg, restExecutor);
-
-                    log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
-
-                    client.connect(agentSock, URI.create(cfg.getServerUri()));
-
-                    agentSock.waitForClose();
-
-                    Thread.sleep(RECONNECT_INTERVAL);
-                }
-            }
-            finally {
-                client.stop();
-            }
-        }
-        finally {
-            restExecutor.stop();
-        }
+        agentLauncher.run();
     }
 }

@@ -44,19 +44,14 @@ public class RestExecutor {
     private final AgentConfiguration cfg;
 
     /** */
-    private CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
     /**
      * @param cfg Config.
      */
     public RestExecutor(AgentConfiguration cfg) {
         this.cfg = cfg;
-    }
 
-    /**
-     *
-     */
-    public void start() {
         httpClient = HttpClientBuilder.create().build();
     }
 
@@ -64,8 +59,7 @@ public class RestExecutor {
      *
      */
     public void stop() throws IOException {
-        if (httpClient != null)
-            httpClient.close();
+        httpClient.close();
     }
 
     /**

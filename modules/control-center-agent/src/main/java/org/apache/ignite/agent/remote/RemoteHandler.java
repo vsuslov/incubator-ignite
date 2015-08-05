@@ -53,7 +53,7 @@ public class RemoteHandler implements AutoCloseable {
      * @param snd Session.
      * @param hnds Handlers.
      */
-    private RemoteHandler(WebSocketSender snd, Object ... hnds) {
+    private RemoteHandler(WebSocketSender snd, Collection<Object> hnds) {
         this.snd = snd;
 
         for (Object hnd : hnds) {
@@ -202,7 +202,7 @@ public class RemoteHandler implements AutoCloseable {
      * @param hnds Handler.
      * @param snd Sender.
      */
-    public static RemoteHandler wrap(WebSocketSender snd, Object ... hnds) {
+    public static RemoteHandler wrap(WebSocketSender snd, Collection<Object> hnds) {
         return new RemoteHandler(snd, hnds);
     }
 

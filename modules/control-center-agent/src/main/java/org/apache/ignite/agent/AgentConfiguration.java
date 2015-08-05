@@ -18,6 +18,7 @@
 package org.apache.ignite.agent;
 
 import com.beust.jcommander.*;
+import org.eclipse.jetty.util.ssl.*;
 
 import java.io.*;
 import java.net.*;
@@ -55,6 +56,9 @@ public class AgentConfiguration {
     /** */
     @Parameter(names = { "-h", "--help" }, description = "Print this help message")
     private boolean help;
+
+    /** */
+    private SslContextFactory sslCtxFactory;
 
     /**
      * @return Login.
@@ -199,5 +203,19 @@ public class AgentConfiguration {
      */
     public boolean help() {
         return help;
+    }
+
+    /**
+     * @return SSL context factory.
+     */
+    public synchronized SslContextFactory sslContextFactory() {
+        if (sslCtxFactory == null) {
+            sslCtxFactory = new SslContextFactory();
+
+            if (Boolean.TRUE.equals(Boolean.getBoolean("trust.all")))
+                sslCtxFactory.setTrustAll(true);
+        }
+
+        return sslCtxFactory;
     }
 }

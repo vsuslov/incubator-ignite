@@ -18,13 +18,13 @@
 package org.apache.ignite.agent;
 
 import com.google.gson.*;
-import org.apache.ignite.agent.handlers.*;
 import org.apache.ignite.agent.remote.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
@@ -49,7 +49,7 @@ public class AgentSocket implements WebSocketSender {
     private final AgentConfiguration cfg;
 
     /** */
-    private final RestExecutor restExecutor;
+    private final Object[] rmtCallHandlers;
 
     /** */
     private RemoteHandler remote;
@@ -60,9 +60,9 @@ public class AgentSocket implements WebSocketSender {
     /**
      * @param cfg Config.
      */
-    public AgentSocket(AgentConfiguration cfg, RestExecutor restExecutor) {
+    public AgentSocket(AgentConfiguration cfg, Object ... rmtCallHandlers) {
         this.cfg = cfg;
-        this.restExecutor = restExecutor;
+        this.rmtCallHandlers = rmtCallHandlers;
     }
 
     /**
@@ -88,7 +88,12 @@ public class AgentSocket implements WebSocketSender {
 
         this.ses = ses;
 
-        remote = RemoteHandler.wrap(this, this, restExecutor, new DatabaseMetadataExtractor(cfg));
+        Collection<Object> hnds = new ArrayList<>();
+
+        hnds.addAll(Arrays.asList(rmtCallHandlers));
+        hnds.add(this);
+
+        remote = RemoteHandler.wrap(this, hnds);
 
         JsonObject authMsg = new JsonObject();
 
