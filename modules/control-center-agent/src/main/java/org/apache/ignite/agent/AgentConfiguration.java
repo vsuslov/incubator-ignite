@@ -17,28 +17,43 @@
 
 package org.apache.ignite.agent;
 
+import com.beust.jcommander.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
 /**
- *
+ * Agent configuration.
  */
 public class AgentConfiguration {
     /** */
+    @Parameter(names = {"-l", "--login"}, description = "User's login (email) on web-control-center")
     private String login;
 
     /** */
+    @Parameter(names = {"-p", "--password"}, description = "User's password")
     private String pwd;
 
     /** */
-    private URI serverUri;
+    @Parameter(names = {"-s", "--serverUri"},
+        description = "Link to web-control-center web-socket server, for example: wss://control-center.gridgain.com")
+    private String serverUri;
 
     /** */
-    private URI nodeUri;
+    @Parameter(names = {"-n", "--nodeUri"}, description = "ignite REST server, for example: http://localhost:8080")
+    private String nodeUri;
+
+    /** */
+    @Parameter(names = {"-c", "--config"}, description = "Path to configuration file")
+    private String cfgPath;
+
+    /** */
+    @Parameter(names = {"-drv", "--driver-folder"}, description = "Path to drivers folder")
+    private String driversFolder;
 
     /**
-     *
+     * @return Login.
      */
     public String getLogin() {
         return login;
@@ -52,7 +67,7 @@ public class AgentConfiguration {
     }
 
     /**
-     *
+     * @return Password.
      */
     public String getPassword() {
         return pwd;
@@ -66,35 +81,63 @@ public class AgentConfiguration {
     }
 
     /**
-     *
+     * @return Server URI.
      */
-    public URI getServerUri() {
+    public String getServerUri() {
         return serverUri;
     }
 
     /**
-     * @param srvUri Uri.
+     * @param srvUri URI.
      */
-    public void setServerUri(URI srvUri) {
+    public void setServerUri(String srvUri) {
         this.serverUri = srvUri;
     }
 
     /**
-     *
+     * @return Node URI.
      */
-    public URI getNodeUri() {
+    public String getNodeUri() {
         return nodeUri;
     }
 
     /**
-     * @param nodeUri Node uri.
+     * @param nodeUri Node URI.
      */
-    public void setNodeUri(URI nodeUri) {
+    public void setNodeUri(String nodeUri) {
         this.nodeUri = nodeUri;
     }
 
     /**
-     * @param cfgUrl Url.
+     * @return Configuration path.
+     */
+    public String getConfigPath() {
+        return cfgPath;
+    }
+
+    /**
+     * @param cfgPath Config path.
+     */
+    public void setConfigPath(String cfgPath) {
+        this.cfgPath = cfgPath;
+    }
+
+    /**
+     * @return Configured drivers folder.
+     */
+    public String getDriversFolder() {
+        return driversFolder;
+    }
+
+    /**
+     * @param driversFolder Driver folder.
+     */
+    public void setDriversFolder(String driversFolder) {
+        this.driversFolder = driversFolder;
+    }
+
+    /**
+     * @param cfgUrl URL.
      */
     public void load(URL cfgUrl) throws IOException {
         Properties props = new Properties();
@@ -116,18 +159,18 @@ public class AgentConfiguration {
         val = (String)props.remove("serverURI");
 
         if (val != null)
-            setServerUri(URI.create(val));
+            setServerUri(val);
 
         val = (String)props.remove("nodeURI");
 
         if (val != null)
-            setNodeUri(URI.create(val));
+            setNodeUri(val);
     }
 
     /**
      * @param cmd Command.
      */
-    public void assign(AgentCommandLine cmd) {
+    public void merge(AgentConfiguration cmd) {
         if (cmd.getLogin() != null)
             setLogin(cmd.getLogin());
 
@@ -135,9 +178,15 @@ public class AgentConfiguration {
             setPassword(cmd.getPassword());
 
         if (cmd.getServerUri() != null)
-            setServerUri(URI.create(cmd.getServerUri()));
+            setServerUri(cmd.getServerUri());
 
         if (cmd.getNodeUri() != null)
-            setNodeUri(URI.create(cmd.getNodeUri()));
+            setNodeUri(cmd.getNodeUri());
+
+        if (cmd.getConfigPath() != null)
+            setNodeUri(cmd.getNodeUri());
+
+        if (cmd.getDriversFolder() != null)
+            setDriversFolder(cmd.getDriversFolder());
     }
 }

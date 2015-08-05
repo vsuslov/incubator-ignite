@@ -33,14 +33,14 @@ public interface GridCacheSqlIndexMetadata extends Externalizable {
      *
      * @return Index name.
      */
-    public String name();
+    public String getName();
 
     /**
      * Gets names of fields indexed by this index.
      *
      * @return Indexed fields names.
      */
-    public Collection<String> fields();
+    public Collection<String> getFields();
 
     /**
      * Gets order of the index for each indexed field.
@@ -51,9 +51,14 @@ public interface GridCacheSqlIndexMetadata extends Externalizable {
     public boolean descending(String field);
 
     /**
+     * @return Descendings.
+     */
+    public Collection<String> getDescendings();
+
+    /**
      * Gets whether this is a unique index.
      *
      * @return {@code True} if index is unique, {@code false} otherwise.
      */
-    public boolean unique();
+    public boolean isUnique();
 }

@@ -36,7 +36,7 @@ public interface GridCacheSqlMetadata extends Externalizable {
      *
      * @return Cache name.
      */
-    public String cacheName();
+    public String getCacheName();
 
     /**
      * Gets the collection of types stored in cache.
@@ -47,12 +47,12 @@ public interface GridCacheSqlMetadata extends Externalizable {
      *
      * @return Collection of available types.
      */
-    public Collection<String> types();
+    public Collection<String> getTypes();
 
     /**
      * Gets key class name for provided type.
      * <p>
-     * Use {@link #types()} method to get available types.
+     * Use {@link #getTypes()} method to get available types.
      *
      * @param type Type name.
      * @return Key class name or {@code null} if type name is unknown.
@@ -62,7 +62,7 @@ public interface GridCacheSqlMetadata extends Externalizable {
     /**
      * Gets value class name for provided type.
      * <p>
-     * Use {@link #types()} method to get available types.
+     * Use {@link #getTypes()} method to get available types.
      *
      * @param type Type name.
      * @return Value class name or {@code null} if type name is unknown.
@@ -76,6 +76,26 @@ public interface GridCacheSqlMetadata extends Externalizable {
      * @return Fields map or {@code null} if type name is unknown.
      */
     @Nullable public Map<String, String> fields(String type);
+
+    /**
+     * @return Key classes.
+     */
+    public Map<String, String> getKeyClasses();
+
+    /**
+     * @return Value classes.
+     */
+    public Map<String, String> getValClasses();
+
+    /**
+     * @return Fields.
+     */
+    public Map<String, Map<String, String>> getFields();
+
+    /**
+     * @return Indexes.
+     */
+    public Map<String, Collection<GridCacheSqlIndexMetadata>> getIndexes();
 
     /**
      * Gets descriptors of indexes created for provided type.

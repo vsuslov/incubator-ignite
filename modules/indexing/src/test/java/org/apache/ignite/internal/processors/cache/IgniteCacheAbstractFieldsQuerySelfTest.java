@@ -221,8 +221,8 @@ public abstract class IgniteCacheAbstractFieldsQuerySelfTest extends GridCommonA
             boolean wasComplexKeys = false;
 
             for (GridCacheSqlMetadata meta : metas) {
-                if (meta.cacheName() == null) {
-                    Collection<String> types = meta.types();
+                if (meta.getCacheName() == null) {
+                    Collection<String> types = meta.getTypes();
 
                     assert types != null;
                     assert types.size() == 4;
@@ -278,16 +278,16 @@ public abstract class IgniteCacheAbstractFieldsQuerySelfTest extends GridCommonA
 
                     wasNull = true;
                 }
-                else if (CACHE.equals(meta.cacheName()))
+                else if (CACHE.equals(meta.getCacheName()))
                     wasNamed = true;
-                else if (EMPTY_CACHE.equals(meta.cacheName())) {
-                    assert meta.types().isEmpty();
+                else if (EMPTY_CACHE.equals(meta.getCacheName())) {
+                    assert meta.getTypes().isEmpty();
 
                     wasEmpty = true;
                 }
-                else if (CACHE_NO_PRIMITIVES.equals(meta.cacheName()))
+                else if (CACHE_NO_PRIMITIVES.equals(meta.getCacheName()))
                     wasNoPrimitives = true;
-                else if (CACHE_COMPLEX_KEYS.equals(meta.cacheName()))
+                else if (CACHE_COMPLEX_KEYS.equals(meta.getCacheName()))
                     wasComplexKeys = true;
             }
 

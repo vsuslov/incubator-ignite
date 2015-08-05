@@ -18,6 +18,7 @@
 package org.apache.ignite.agent;
 
 import com.beust.jcommander.*;
+import org.apache.ignite.agent.handlers.*;
 import org.eclipse.jetty.util.ssl.*;
 import org.eclipse.jetty.websocket.client.*;
 
@@ -26,17 +27,12 @@ import java.net.*;
 import java.util.logging.*;
 
 /**
- *
+ * Control Center Agent launcher.
  */
 public class AgentLauncher {
     /** Static initializer. */
     static {
-        try {
-            LogManager.getLogManager().readConfiguration(AgentLauncher.class.getResourceAsStream("/logging.properties"));
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        AgentLoggingConfigurator.configure();
     }
 
     /** */
@@ -47,22 +43,21 @@ public class AgentLauncher {
 
     /**
      * @param args Args.
+     * @return Agent configuration.
      */
     protected static AgentConfiguration getConfiguration(String[] args) throws IOException {
         AgentConfiguration cfg = new AgentConfiguration();
 
-        URL dftlCfgUrl = AgentLauncher.class.getResource("/default.config.properties");
+        cfg.load(AgentLauncher.class.getResource("/default.config.properties"));
 
-        cfg.load(dftlCfgUrl);
-
-        AgentCommandLine cmdCfg = new AgentCommandLine();
+        AgentConfiguration cmdCfg = new AgentConfiguration();
 
         new JCommander(cmdCfg, args);
 
-        if (cmdCfg.getConfigFile() != null)
-            cfg.load(new File(cmdCfg.getConfigFile()).toURI().toURL());
+        if (cmdCfg.getConfigPath() != null)
+            cfg.load(new File(cmdCfg.getConfigPath()).toURI().toURL());
 
-        cfg.assign(cmdCfg);
+        cfg.merge(cmdCfg);
 
         if (cfg.getLogin() == null) {
             System.out.print("Login: ");
@@ -83,11 +78,13 @@ public class AgentLauncher {
      * @param args Args.
      */
     public static void main(String[] args) throws Exception {
+        log.log(Level.INFO, "Starting Apache Ignite Control Center Agent...");
+
         AgentConfiguration cfg = getConfiguration(args);
 
-        Agent agent = new Agent(cfg);
+        RestExecutor restExecutor = new RestExecutor(cfg);
 
-        agent.start();
+        restExecutor.start();
 
         try {
             SslContextFactory sslCtxFactory = new SslContextFactory();
@@ -102,12 +99,12 @@ public class AgentLauncher {
             client.start();
 
             try {
-                while (true) {
-                    AgentSocket agentSock = new AgentSocket(cfg, agent);
+                while (!Thread.interrupted()) {
+                    AgentSocket agentSock = new AgentSocket(cfg, restExecutor);
 
                     log.log(Level.INFO, "Connecting to: " + cfg.getServerUri());
 
-                    client.connect(agentSock, cfg.getServerUri());
+                    client.connect(agentSock, URI.create(cfg.getServerUri()));
 
                     agentSock.waitForClose();
 
@@ -119,7 +116,7 @@ public class AgentLauncher {
             }
         }
         finally {
-            agent.stop();
+            restExecutor.stop();
         }
     }
 }

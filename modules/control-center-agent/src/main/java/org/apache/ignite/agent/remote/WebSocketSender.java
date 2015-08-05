@@ -15,59 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent.remote;
+
+import com.google.gson.*;
 
 /**
- *
+ * Sender for messages to web-socket.
  */
-public class AuthMessage extends AbstractMessage {
-    /** */
-    private String login;
-
-    /** */
-    private String password;
+public interface WebSocketSender {
+    /**
+     * Send message.
+     * @param msg Message.
+     * @return {@code true} if message sent successfully.
+     */
+    public boolean send(String msg);
 
     /**
-     * Default constructor.
+     * Send message.
+     * @param msg Message.
+     * @return {@code true} if message sent successfully.
      */
-    public AuthMessage() {
-        // No-op.
-    }
-
-    /**
-     * @param login Login.
-     * @param pwd Password.
-     */
-    public AuthMessage(String login, String pwd) {
-        this.login = login;
-        password = pwd;
-    }
-
-    /**
-     *
-     */
-    public String getLogin() {
-        return login;
-    }
-
-    /**
-     * @param login Login.
-     */
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    /**
-     *
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * @param pwd Password.
-     */
-    public void setPassword(String pwd) {
-        password = pwd;
-    }
+    public boolean send(JsonObject msg);
 }

@@ -19,7 +19,6 @@ package org.apache.ignite.schema.parser;
 
 import javafx.collections.*;
 import org.apache.ignite.schema.model.*;
-import org.apache.ignite.schema.parser.dialect.*;
 
 import java.sql.*;
 import java.util.*;
@@ -41,29 +40,11 @@ public class DatabaseMetadataParser {
      * @throws SQLException If parsing failed.
      */
     public static ObservableList<PojoDescriptor> parse(Connection conn, boolean tblsOnly) throws SQLException {
-        DatabaseMetadataDialect dialect;
-
-        try {
-            String dbProductName = conn.getMetaData().getDatabaseProductName();
-
-            if ("Oracle".equals(dbProductName))
-                dialect = new OracleMetadataDialect();
-            else if (dbProductName.startsWith("DB2/"))
-                dialect = new DB2MetadataDialect();
-            else
-                dialect = new JdbcMetadataDialect();
-        }
-        catch (SQLException e) {
-            log.log(Level.SEVERE, "Failed to resolve dialect (JdbcMetaDataDialect will be used.", e);
-
-            dialect = new JdbcMetadataDialect();
-        }
-
         Map<String, PojoDescriptor> parents = new HashMap<>();
 
         Map<String, Collection<PojoDescriptor>> childrens = new HashMap<>();
 
-        for (DbTable tbl : dialect.tables(conn, tblsOnly)) {
+        for (DbTable tbl : DbMetadataReader.getInstance().extractMetadata(conn, tblsOnly)) {
             String schema = tbl.schema();
 
             PojoDescriptor parent = parents.get(schema);

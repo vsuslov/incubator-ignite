@@ -22,6 +22,7 @@ import org.apache.ignite.cache.*;
 import org.apache.ignite.cluster.*;
 import org.apache.ignite.internal.*;
 import org.apache.ignite.internal.processors.cache.*;
+import org.apache.ignite.internal.processors.cache.query.*;
 import org.apache.ignite.internal.processors.cache.transactions.*;
 import org.apache.ignite.internal.processors.rest.*;
 import org.apache.ignite.internal.processors.rest.handlers.*;
@@ -76,7 +77,8 @@ public class GridCacheCommandHandler extends GridRestCommandHandlerAdapter {
         CACHE_APPEND,
         CACHE_PREPEND,
         CACHE_METRICS,
-        CACHE_SIZE
+        CACHE_SIZE,
+        CACHE_METADATA
     );
 
     /** Requests with required parameter {@code key}. */
@@ -177,6 +179,16 @@ public class GridCacheCommandHandler extends GridRestCommandHandlerAdapter {
                                 return new GridRestResponse(f.get());
                             }
                         });
+
+                    break;
+                }
+
+                case CACHE_METADATA: {
+                    IgniteInternalCache<Object, Object> cache = localCache(cacheName);
+
+                    GridCacheSqlMetadata res = F.first(cache.context().queries().sqlMetadata());
+
+                    fut = new GridFinishedFuture<>(new GridRestResponse(res));
 
                     break;
                 }

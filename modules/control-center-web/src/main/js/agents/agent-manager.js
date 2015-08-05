@@ -119,36 +119,26 @@ function Client(ws, manager) {
         }
     });
 
-    ws.on('message', function (msg) {
-        self._handleMessage(JSON.parse(msg))
+    ws.on('message', function (msgStr) {
+        var msg = JSON.parse(msgStr);
+
+        self['_rmt' + msg.type](msg);
     });
 
-    this._restCounter = 0;
+    this._reqCounter = 0;
 
     this._cbMap = {};
 }
 
 /**
- * @param {String|Object} msg
- * @param {Function} cb
- */
-Client.prototype.sendMessage = function(msg, cb) {
-    if (typeof msg == 'object') {
-        msg = JSON.stringify(msg);
-    }
-
-    this._ws.send(msg, cb);
-};
-
-/**
  * @param {String} path
  * @param {Object} params
- * @param {Function} cb
- * @param {String} method
- * @param {String} body
- * @param {Object} headers
+ * @param {String} [method]
+ * @param {Object} [headers]
+ * @param {String} [body]
+ * @param {Function} [cb] Callback. Take 3 arguments: {String} error, {number} httpCode, {string} response.
  */
-Client.prototype.invokeRest = function(path, params, cb, method, body, headers) {
+Client.prototype.executeRest = function(path, params, method, headers, body, cb) {
     var self = this;
 
     if (typeof(params) != 'object')
@@ -171,79 +161,114 @@ Client.prototype.invokeRest = function(path, params, cb, method, body, headers) 
     if (method != 'GET' && method != 'POST')
         throw "Unknown HTTP method: " + method;
 
-    var reqId = this._restCounter++;
+    var newArgs = argsToArray(arguments);
 
-    this._cbMap[reqId] = cb;
+    newArgs[5] = function(ex, res) {
+        if (ex)
+            cb(ex.message);
+        else
+            cb(null, res.code, res.message)
+    };
 
-    this.sendMessage({
-        id: reqId,
-        type: 'RestRequest',
-        method: method,
-        params: params,
-        path: path,
-        body: body,
-        headers: headers
-    }, function(err) {
-        if (err) {
-            delete self._cbMap[reqId];
-
-            cb(err)
-        }
-    })
+    this._invokeRmtMethod('executeRest', newArgs);
 };
 
 /**
- * @param {Object} msg
+ * @param {string} error
  */
-Client.prototype._handleMessage = function(msg) {
+Client.prototype.authResult = function(error) {
+    this._invokeRmtMethod('authResult', arguments)
+};
+
+/**
+ * @param {String} jdbcDriverJarPath
+ * @param {String} jdbcDriverClass
+ * @param {String} jdbcUrl
+ * @param {Object} jdbcInfo
+ * @param {Boolean} tablesOnly
+ * @param {Function} cb Callback. Take 3 arguments: {String} error, {Object} exception, {Object} result.
+ * @return {Array} List of tables (see org.apache.ignite.schema.parser.DbTable java class)
+ */
+Client.prototype.extractMetadata = function(jdbcDriverJarPath, jdbcDriverClass, jdbcUrl, jdbcInfo, tablesOnly, cb) {
+    this._invokeRmtMethod('extractMetadata', arguments)
+};
+
+/**
+ * @param {Function} cb Callback.
+ * @return {Array} List of jars from driver folder.
+ */
+Client.prototype.availableDrivers = function(cb) {
+    this._invokeRmtMethod('availableDrivers', arguments)
+};
+
+Client.prototype._invokeRmtMethod = function(methodName, args) {
+    var cb = null;
+
+    var m = argsToArray(args);
+
+    if (m.length > 0 && typeof m[m.length - 1] == 'function')
+        cb = m.pop();
+
+    if (this._ws.readyState != 1) {
+        if (cb)
+            cb({type: 'org.apache.ignite.agent.AgentException', message: 'Connection is closed'});
+
+        return
+    }
+
+    var msg = {
+        mtdName: methodName,
+        args: m
+    };
+
+    if (cb) {
+        var reqId = this._reqCounter++;
+
+        this._cbMap[reqId] = cb;
+
+        msg.reqId = reqId;
+    }
+
+    this._ws.send(JSON.stringify(msg))
+};
+
+Client.prototype._rmtAuthMessage = function(msg) {
     var self = this;
 
-    switch (msg.type) {
-        case 'AuthMessage':
-            var account = db.Account.findByUsername(msg.login, function(err, account) {
-                if (err) {
-                    ws.send("{type: 'AuthResult', success: false}");
+    var account = db.Account.findByUsername(msg.login, function(err, account) {
+        if (err) {
+            self.authResult("User not found");
+        }
+        else {
+            account.authenticate(msg.password, function(err, user, res) {
+                if (!user) {
+                    self.authResult(res.message);
                 }
                 else {
-                    account.authenticate(msg.password, function(err, user, res) {
-                        if (!user) {
-                            self._ws.send(JSON.stringify({type: 'AuthResult', success: false, message: res.message}));
-                        }
-                        else {
-                            self._ws.send("{type: 'AuthResult', success: true}");
+                    self.authResult(null);
 
-                            self._user = account;
+                    self._user = account;
 
-                            self._manager._addClient(account._id, self);
+                    self._manager._addClient(account._id, self);
 
-                            self._ignite = new apacheIgnite.Ignite(new AgentServer(self));
-                        }
-                    });
+                    self._ignite = new apacheIgnite.Ignite(new AgentServer(self));
                 }
             });
+        }
+    });
+};
 
-            break;
+Client.prototype._rmtCallRes = function(msg) {
+    var cb = this._cbMap[msg.reqId];
 
-        case 'RestResult':
-            var cb = this._cbMap[msg.requestId];
+    if (!cb) return;
 
-            if (!cb)
-                break;
+    delete this._cbMap[msg.reqId];
 
-            delete this._cbMap[msg.requestId];
-
-            if (!msg.executed) {
-                cb(msg.message)
-            }
-            else {
-                cb(null, msg.code, msg.message)
-            }
-
-            break;
-
-        default:
-            this._ws.close()
-    }
+    if (msg.ex)
+        cb(msg.ex);
+    else
+        cb(null, msg.res);
 };
 
 /**
@@ -259,6 +284,19 @@ function removeFromArray(arr, val) {
     while ((idx = arr.indexOf(val)) !== -1) {
         arr.splice(idx, 1);
     }
+}
+
+/**
+ * @param args
+ * @returns {Array}
+ */
+function argsToArray(args) {
+    var res = [];
+
+    for (var i = 0; i < args.length; i++)
+        res.push(args[i])
+
+    return res;
 }
 
 exports.AgentManager = AgentManager;

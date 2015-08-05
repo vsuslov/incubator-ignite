@@ -17,8 +17,9 @@
 
 package org.apache.ignite.agent;
 
-import org.apache.http.*;
-import org.apache.ignite.agent.messages.*;
+import com.google.gson.*;
+import org.apache.ignite.agent.handlers.*;
+import org.apache.ignite.agent.remote.*;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
@@ -28,12 +29,18 @@ import java.util.concurrent.*;
 import java.util.logging.*;
 
 /**
- *
+ * Handler for web-socket connection.
  */
 @WebSocket
-public class AgentSocket {
+public class AgentSocket implements WebSocketSender {
     /** */
     private static final Logger log = Logger.getLogger(AgentSocket.class.getName());
+
+    /** */
+    public static final Gson GSON = new Gson();
+
+    /** */
+    public static final JsonParser PARSER = new JsonParser();
 
     /** */
     private final CountDownLatch closeLatch = new CountDownLatch(1);
@@ -42,14 +49,20 @@ public class AgentSocket {
     private final AgentConfiguration cfg;
 
     /** */
-    private final Agent agent;
+    private final RestExecutor restExecutor;
+
+    /** */
+    private RemoteHandler remote;
+
+    /** */
+    private Session ses;
 
     /**
      * @param cfg Config.
      */
-    public AgentSocket(AgentConfiguration cfg, Agent agent) {
+    public AgentSocket(AgentConfiguration cfg, RestExecutor restExecutor) {
         this.cfg = cfg;
-        this.agent = agent;
+        this.restExecutor = restExecutor;
     }
 
     /**
@@ -60,6 +73,9 @@ public class AgentSocket {
     public void onClose(int statusCode, String reason) {
         log.log(Level.INFO, String.format("Connection closed: %d - %s", statusCode, reason));
 
+        if (remote != null)
+            remote.close();
+
         closeLatch.countDown();
     }
 
@@ -68,14 +84,43 @@ public class AgentSocket {
      */
     @OnWebSocketConnect
     public void onConnect(Session ses) {
-        log.log(Level.INFO, "Authentication...");
+        log.log(Level.INFO, "Connection established");
 
-        AuthMessage authMsg = new AuthMessage(cfg.getLogin(), cfg.getPassword());
+        this.ses = ses;
 
+        remote = RemoteHandler.wrap(this, this, restExecutor, new DatabaseMetadataExtractor(cfg));
+
+        JsonObject authMsg = new JsonObject();
+
+        authMsg.addProperty("type", "AuthMessage");
+        authMsg.addProperty("login", cfg.getLogin());
+        authMsg.addProperty("password", cfg.getPassword());
+
+        send(authMsg);
+    }
+
+    /**
+     * @param msg Message.
+     * @return Whether or not message was sent.
+     */
+    @Override public boolean send(JsonObject msg) {
+        return send(GSON.toJson(msg));
+    }
+
+    /**
+     * @param msg Message.
+     * @return Whether or not message was sent.
+     */
+    @Override public boolean send(String msg) {
         try {
-            ses.getRemote().sendString(MessageFactory.toString(authMsg));
-        } catch (IOException t) {
-            t.printStackTrace();
+            ses.getRemote().sendString(msg);
+
+            return true;
+        }
+        catch (IOException ignored) {
+            log.log(Level.SEVERE, "Failed to send message to Control Center");
+
+            return false;
         }
     }
 
@@ -90,6 +135,9 @@ public class AgentSocket {
         else
             log.log(Level.SEVERE, "Connection error", error);
 
+        if (remote != null)
+            remote.close();
+
         closeLatch.countDown();
     }
 
@@ -97,44 +145,24 @@ public class AgentSocket {
      * @param msg Message.
      */
     @OnWebSocketMessage
-    public void onMessage(Session ses, String msg) {
-        AbstractMessage m = MessageFactory.fromString(msg);
+    public void onMessage(String msg) {
+        JsonElement jsonElement = PARSER.parse(msg);
 
-        if (m instanceof AuthResult) {
-            if (((AuthResult)m).isSuccess())
-                log.info("Authentication success");
-            else {
-                log.info("Authentication failed: " + ((AuthResult)m).getMessage());
+        remote.onMessage((JsonObject)jsonElement);
+    }
 
-                ses.close();
-            }
+    /**
+     * @param errorMsg Authentication failed message or {@code null} if authentication success.
+     */
+    @Remote
+    public void authResult(String errorMsg) {
+        if (errorMsg == null)
+            log.info("Authentication success");
+        else {
+            log.info("Authentication failed: " + errorMsg);
+
+            ses.close();
         }
-        else if (m instanceof RestRequest) {
-            RestRequest restReq = (RestRequest)m;
-
-            RestResult restRes;
-
-            try {
-                restRes = agent.executeRest(restReq);
-            }
-            catch (Exception e) {
-                restRes = new RestResult();
-
-                restRes.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                restRes.setMessage(e.getMessage());
-            }
-
-            restRes.setRequestId(((RestRequest)m).getId());
-
-            try {
-                ses.getRemote().sendString(MessageFactory.toString(restRes));
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else
-            log.log(Level.SEVERE, "Unknown message: " + msg);
     }
 
     /**

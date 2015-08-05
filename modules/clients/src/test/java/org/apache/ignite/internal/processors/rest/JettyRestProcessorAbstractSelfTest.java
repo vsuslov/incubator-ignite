@@ -1172,6 +1172,20 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
     /**
      * @throws Exception If failed.
      */
+    public void testMetadata() throws Exception {
+        String ret = content(F.asMap("cmd", GridRestCommand.CACHE_METADATA.key()));
+
+        assertNotNull(ret);
+        assertTrue(!ret.isEmpty());
+
+        info("Cache metadata result: " + ret);
+
+        jsonEquals(ret, pattern("\\{.+\\}", true));
+    }
+
+    /**
+     * @throws Exception If failed.
+     */
     public void testTopology() throws Exception {
         String ret = content(F.asMap("cmd", GridRestCommand.TOPOLOGY.key(), "attr", "false", "mtr", "false"));
 

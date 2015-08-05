@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent;
+package org.apache.ignite.agent.handlers;
 
 import org.apache.commons.codec.*;
 import org.apache.http.*;
@@ -24,17 +24,22 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
-import org.apache.ignite.agent.messages.*;
+import org.apache.ignite.agent.*;
+import org.apache.ignite.agent.remote.*;
 
 import java.io.*;
 import java.net.*;
 import java.nio.charset.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
- *
+ * Executor for REST requests.
  */
-public class Agent {
+public class RestExecutor {
+    /** */
+    private static final Logger log = Logger.getLogger(RestExecutor.class.getName());
+
     /** */
     private final AgentConfiguration cfg;
 
@@ -44,7 +49,7 @@ public class Agent {
     /**
      * @param cfg Config.
      */
-    public Agent(AgentConfiguration cfg) {
+    public RestExecutor(AgentConfiguration cfg) {
         this.cfg = cfg;
     }
 
@@ -64,36 +69,37 @@ public class Agent {
     }
 
     /**
-     * @param restReq Request.
+     * @param path Path.
+     * @param mtd Method.
+     * @param params Params.
+     * @param headers Headers.
+     * @param body Body.
      */
-    public RestResult executeRest(RestRequest restReq) throws IOException, URISyntaxException {
+    @Remote
+    public RestResult executeRest(String path, Map<String, String> params, String mtd, Map<String, String> headers,
+        String body) throws IOException, URISyntaxException {
         URIBuilder builder = new URIBuilder(cfg.getNodeUri());
 
-        String path = restReq.getPath();
-
         if (path != null) {
-            if (!path.startsWith("/") && !cfg.getNodeUri().toString().endsWith("/"))
+            if (!path.startsWith("/") && !cfg.getNodeUri().endsWith("/"))
                 path = '/' +  path;
 
             builder.setPath(path);
         }
 
-        if (restReq.getParams() != null) {
-            for (Map.Entry<String, String> entry : restReq.getParams().entrySet())
+        if (params != null) {
+            for (Map.Entry<String, String> entry : params.entrySet())
                 builder.addParameter(entry.getKey(), entry.getValue());
         }
 
-        if (restReq.getHeaders() != null)
-            restReq.setHeaders(restReq.getHeaders());
-
         HttpRequestBase httpReq;
 
-        if ("GET".equalsIgnoreCase(restReq.getMethod()))
+        if ("GET".equalsIgnoreCase(mtd))
             httpReq = new HttpGet(builder.build());
-        else if ("POST".equalsIgnoreCase(restReq.getMethod())) {
+        else if ("POST".equalsIgnoreCase(mtd)) {
             HttpPost post;
 
-            if (restReq.getBody() == null) {
+            if (body == null) {
                 List<NameValuePair> nvps = builder.getQueryParams();
 
                 builder.clearParameters();
@@ -106,13 +112,18 @@ public class Agent {
             else {
                 post = new HttpPost(builder.build());
 
-                post.setEntity(new StringEntity(restReq.getBody()));
+                post.setEntity(new StringEntity(body));
             }
 
             httpReq = post;
         }
         else
-            throw new IOException("Unknown HTTP-method: " + restReq.getMethod());
+            throw new IOException("Unknown HTTP-method: " + mtd);
+
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet())
+                httpReq.addHeader(entry.getKey(), entry.getValue());
+        }
 
         try (CloseableHttpResponse resp = httpClient.execute(httpReq)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -129,13 +140,27 @@ public class Agent {
                 charset = Charsets.toCharset(encoding);
             }
 
-            RestResult res = new RestResult();
+            return new RestResult(resp.getStatusLine().getStatusCode(), new String(out.toByteArray(), charset));
+        }
+    }
 
-            res.setCode(resp.getStatusLine().getStatusCode());
-            res.setExecuted(true);
-            res.setMessage(new String(out.toByteArray(), charset));
+    /**
+     *
+     */
+    public static class RestResult {
+        /** */
+        private int code;
 
-            return res;
+        /** */
+        private String message;
+
+        /**
+         * @param code Code.
+         * @param msg Message.
+         */
+        public RestResult(int code, String msg) {
+            this.code = code;
+            message = msg;
         }
     }
 }

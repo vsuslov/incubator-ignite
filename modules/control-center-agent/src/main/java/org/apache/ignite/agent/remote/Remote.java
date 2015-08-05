@@ -15,11 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent.remote;
+
+import java.lang.annotation.*;
 
 /**
- *
+ * Use this annotation to associate methods with remote NodeJS server commands.
  */
-public abstract class AbstractMessage {
-    // No-op.
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Remote {
+    /**
+     * Whether or not method should be executed synchronously.
+     *
+     * @return {@code true} if method will be executed in separated thread otherwise if method will be executed in handler thread.
+     */
+    boolean async() default true;
 }

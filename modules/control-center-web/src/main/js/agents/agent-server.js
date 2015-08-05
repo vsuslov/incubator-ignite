@@ -44,13 +44,17 @@ AgentServer.prototype.runCommand = function(cmd, callback) {
 
     var headers = undefined;
 
+    var method = 'GET';
+
     if (cmd._isPost()) {
         body = cmd.postData();
+
+        method = 'POST';
 
         headers = {'Content-Length': body.length, 'JSONObject': 'application/json'};
     }
 
-    this._client.invokeRest("ignite", params, function(error, code, message) {
+    this._client.executeRest("ignite", params, method, headers, body, function(error, code, message) {
         if (error) {
             callback(error);
             return
@@ -84,7 +88,7 @@ AgentServer.prototype.runCommand = function(cmd, callback) {
         else {
             callback.call(null, null, igniteResponse.response);
         }
-    }, cmd._method(), body, headers);
+    });
 };
 
 exports.AgentServer = AgentServer;

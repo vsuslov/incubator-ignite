@@ -15,43 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.agent.messages;
+package org.apache.ignite.agent;
+
+import java.io.*;
+import java.net.*;
 
 /**
- *
+ * Utility methods.
  */
-public class AuthResult extends AbstractMessage {
-    /** */
-    private boolean success;
-
-    /** */
-    private String message;
-
+public class AgentUtils {
     /**
-     *
+     * Default constructor.
      */
-    public boolean isSuccess() {
-        return success;
+    private AgentUtils() {
+        // No-op.
     }
 
     /**
-     * @param success Success.
+     * @return Folder where agent.jar is located.
      */
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
+    public static File getAgentHome() {
+        URL jarLogCfgUrl = AgentLauncher.class.getResource("/logging.properties");
 
-    /**
-     *
-     */
-    public String getMessage() {
-        return message;
-    }
+        String path = jarLogCfgUrl.getFile();
 
-    /**
-     * @param msg Message.
-     */
-    public void setMessage(String msg) {
-        message = msg;
+        int jarSeparatorIdx = path.lastIndexOf("!/");
+
+        if (jarSeparatorIdx == -1)
+            return null;
+
+        path = path.substring(0, jarSeparatorIdx);
+
+        if (path.startsWith("file:"))
+            path = path.substring("file:".length());
+
+        File jarFile = new File(path);
+
+        return jarFile.getParentFile();
     }
 }
