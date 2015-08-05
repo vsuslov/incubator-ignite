@@ -1310,7 +1310,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         Map<String, String> params = new HashMap<>();
         params.put("cmd", GridRestCommand.EXECUTE_SQL_QUERY.key());
         params.put("type", "Person");
-        params.put("psz", "10");
+        params.put("pageSize", "10");
         params.put("cacheName", "person");
         params.put("qry", URLEncoder.encode(qry));
         params.put("arg1", "1000");
@@ -1341,7 +1341,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         Map<String, String> params = new HashMap<>();
         params.put("cmd", GridRestCommand.EXECUTE_SQL_QUERY.key());
         params.put("type", "String");
-        params.put("psz", "1");
+        params.put("pageSize", "1");
         params.put("qry", URLEncoder.encode("select * from String"));
 
         String ret = content(params);
@@ -1356,7 +1356,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertNotNull(qryId);
 
         ret = content(F.asMap("cmd", GridRestCommand.FETCH_SQL_QUERY.key(),
-            "psz", "1", "qryId", String.valueOf(qryId)));
+            "pageSize", "1", "qryId", String.valueOf(qryId)));
 
         json = JSONObject.fromObject(ret);
 
@@ -1368,7 +1368,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         assertFalse(last);
 
         ret = content(F.asMap("cmd", GridRestCommand.FETCH_SQL_QUERY.key(),
-            "psz", "1", "qryId", String.valueOf(qryId)));
+            "pageSize", "1", "qryId", String.valueOf(qryId)));
 
         json = JSONObject.fromObject(ret);
 
@@ -1390,7 +1390,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         Map<String, String> params = new HashMap<>();
         params.put("cmd", GridRestCommand.EXECUTE_SQL_FIELDS_QUERY.key());
-        params.put("psz", "10");
+        params.put("pageSize", "10");
         params.put("cacheName", "person");
         params.put("qry", URLEncoder.encode(qry));
 
@@ -1416,7 +1416,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
 
         Map<String, String> params = new HashMap<>();
         params.put("cmd", GridRestCommand.EXECUTE_SQL_FIELDS_QUERY.key());
-        params.put("psz", "10");
+        params.put("pageSize", "10");
         params.put("cacheName", "person");
         params.put("qry", URLEncoder.encode(qry));
 
@@ -1454,7 +1454,7 @@ public abstract class JettyRestProcessorAbstractSelfTest extends AbstractRestPro
         Map<String, String> params = new HashMap<>();
         params.put("cmd", GridRestCommand.EXECUTE_SQL_QUERY.key());
         params.put("type", "Person");
-        params.put("psz", "1");
+        params.put("pageSize", "1");
         params.put("cacheName", "person");
         params.put("qry", URLEncoder.encode(qry));
         params.put("arg1", "1000");

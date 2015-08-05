@@ -654,10 +654,10 @@ public class GridJettyRestHandler extends AbstractHandler {
 
                 restReq0.typeName((String) params.get("type"));
 
-                String psz = (String) params.get("psz");
+                String pageSize = (String) params.get("pageSize");
 
-                if (psz != null)
-                    restReq0.pageSize(Integer.parseInt(psz));
+                if (pageSize != null)
+                    restReq0.pageSize(Integer.parseInt(pageSize));
 
                 restReq0.cacheName((String)params.get("cacheName"));
 
@@ -674,10 +674,10 @@ public class GridJettyRestHandler extends AbstractHandler {
                 if (qryId != null)
                     restReq0.queryId(Long.parseLong(qryId));
 
-                String psz = (String) params.get("psz");
+                String pageSize = (String) params.get("pageSize");
 
-                if (psz != null)
-                    restReq0.pageSize(Integer.parseInt(psz));
+                if (pageSize != null)
+                    restReq0.pageSize(Integer.parseInt(pageSize));
 
                 restReq0.cacheName((String)params.get("cacheName"));
 
