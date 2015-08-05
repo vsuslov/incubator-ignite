@@ -189,6 +189,7 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusI
 
 mixin table-group-item-edit(fieldName, className, direction, index)
     -var focusIdNext = fieldName + 'Next'
+    -var focusIdNext2 = fieldName + 'Next2'
     -var args = fieldName + ', ' + className
     -var btnVisible = 'tableGroupItemSaveVisible(' + args + ')'
     -var btnSave = 'tableGroupItemSave(' + args + ', ' + direction + ', groupIndex, ' + index +')'
@@ -201,11 +202,11 @@ mixin table-group-item-edit(fieldName, className, direction, index)
     .col-sm-5
         label.fieldSep /
         .input-tip
-            input.form-control(id=focusIdNext type='text' ng-model=className placeholder='Class name' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            input.form-control(id=focusIdNext enter-focus-next enter-focus-next-id=focusIdNext2 type='text' ng-model=className placeholder='Class name' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
     .col-sm-3
         +btn-save(btnVisible, btnSave)
         .input-tip
-            button.form-control(ng-model=direction bs-select data-placeholder='Sort' bs-options='item.value as item.label for item in {{sortDirections}}')
+            select.form-control(id=focusIdNext2 ng-model=direction ng-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin form-row
     +form-row-custom(['col-sm-2'], ['col-sm-4'])
@@ -257,7 +258,6 @@ mixin form-row-custom(lblClasses, fieldClasses)
                 +tipField('field.tip')
                 .input-tip
                     select.form-control(ng-options='item.value as item.label for item in {{field.items}}')&attributes(fieldCommon)
-                        option(value='') {{::field.placeholder}}
         div(ng-switch-when='dropdown' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
@@ -352,7 +352,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                             .col-sm-12(ng-show='!tableEditing(field, $index)')
                                                 a.labelFormField(event-focus='click' event-focus-id='curGroupName' ng-click='curGroup = tableStartEdit(backupItem, field, $index); curGroupName = curGroup.name; curFields = curGroup.fields') {{$index + 1}}) {{group.name}}
                                                 +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
-                                                +btn-add('tableGroupNewItem($index)', 'field.addItemTip', 'newGroupItemId')
+                                                +btn-add('tableGroupNewItem($index)', 'field.addItemTip', 'newFieldName')
                                             div(ng-if='tableEditing(field, $index)')
                                                 label.labelField {{$index + 1}})
                                                 +btn-save('tableGroupSaveVisible(curGroupName)', 'tableGroupSave(curGroupName, $index)')
@@ -364,7 +364,7 @@ mixin form-row-custom(lblClasses, fieldClasses)
                                                         tr(ng-repeat='groupItem in group.fields')
                                                             td
                                                                 div(ng-show='!tableGroupItemEditing(groupIndex, $index)')
-                                                                    a.labelFormField(event-focus='click' event-focus-id='curGroupItemId' ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
+                                                                    a.labelFormField(event-focus='click' event-focus-id='curFieldName' ng-click='curGroupItem = tableGroupItemStartEdit(groupIndex, $index); curFieldName = curGroupItem.name; curClassName = curGroupItem.className; curDirection = curGroupItem.direction') {{$index + 1}}) {{groupItem.name}} / {{groupItem.className}} / {{groupItem.direction ? "DESC" : "ASC"}}
                                                                     +btn-remove('tableRemoveGroupItem(group, $index)', 'field.removeItemTip')
                                                                 div(ng-if='tableGroupItemEditing(groupIndex, $index)')
                                                                     +table-group-item-edit('curFieldName', 'curClassName', 'curDirection', '$index')

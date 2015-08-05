@@ -37,6 +37,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
+        $scope.template = $scope.templates[0].value;
+
         $scope.discoveries = [
             {value: 'Vm', label: 'static IPs'},
             {value: 'Multicast', label: 'multicast'},
@@ -192,7 +194,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
             $scope.selectedItem = undefined;
 
-            $scope.backupItem = angular.copy($scope.create.template);
+            $scope.backupItem = angular.copy($scope.template);
             $scope.backupItem.caches = [];
             $scope.backupItem.space = $scope.spaces[0]._id;
         };

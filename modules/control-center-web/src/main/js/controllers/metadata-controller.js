@@ -61,6 +61,8 @@ controlCenterModule.controller('metadataController', [
                 {value: 'h2', label: 'H2 database'}
             ];
 
+            $scope.rdbms = 'oracle';
+
             $scope.jdbcTypes = [
                 {value: 'BIT', label: 'BIT'},
                 {value: 'BOOLEAN', label: 'BOOLEAN'},

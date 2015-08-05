@@ -34,7 +34,7 @@
     },
     {
       "label": "Metadata for",
-      "type": "dropdown",
+      "type": "select",
       "model": "kind",
       "items": "kinds",
       "tip": [
@@ -204,7 +204,6 @@
       "label": "Database type",
       "type": "select",
       "model": "rdbms",
-      "placeholder": "Choose database",
       "items": "databases",
       "tip": [
         "Select database type to connect for loading tables metadata."

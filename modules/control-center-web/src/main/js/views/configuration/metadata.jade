@@ -38,8 +38,8 @@ block content
         .padding-top-dflt
             button.btn.btn-primary(event-focus='click' event-focus-id='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
             label(style='margin-left: 6px; margin-right: 10px') For:
-            button.btn.btn-default(ng-model='template' data-template='/select' data-placeholder='Choose metadata type' bs-options='item.value as item.label for item in templates' bs-select)
-            i.tiplabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
+            select.form-control.line-control(ng-model='template' ng-options='item.value as item.label for item in templates')
+            i.tipLabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
         hr
         .panel-group(bs-collapse ng-model='panels.activePanel' data-allow-multiple='true')
             .panel.panel-default(ng-show='selectedItem || backupItem')
