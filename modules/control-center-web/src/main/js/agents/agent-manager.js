@@ -96,8 +96,8 @@ function Client(ws, manager) {
     this._ws = ws;
 
     ws.on('close', function() {
-        if (self.user) {
-            self._manager._removeClient(self.user._id, self);
+        if (self._user) {
+            self._manager._removeClient(self._user._id, self);
         }
     });
 
