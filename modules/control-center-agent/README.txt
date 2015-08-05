@@ -23,4 +23,4 @@ Main command line arguments:
 
 Ignite Control Center Agent Build Instructions
 ======================================
-    start mvn clean package -Pcontrol-center -pl modules/control-center-agent -am -DskipTests
+    mvn clean package -Pcontrol-center -pl modules/control-center-agent -am -DskipTests
