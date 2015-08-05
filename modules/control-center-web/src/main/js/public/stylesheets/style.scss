@@ -781,30 +781,6 @@ button .caret, .btn .caret {
     font-weight: bold;
 }
 
-.theme-line table.metadata {
-    th {
-        text-align: center;
-        padding: 3px 5px 3px 5px;
-    }
-
-    td {
-        label {
-            cursor: pointer;
-        }
-
-        input[type=checkbox] {
-            margin: 0 3px 3px 0;
-            vertical-align: middle;
-            cursor: pointer;
-        }
-
-        padding: 3px 10px 3px 5px;
-    }
-
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
 .theme-line table.admin {
     tr:hover {
         cursor: default;

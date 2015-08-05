@@ -202,7 +202,7 @@
     },
     {
       "label": "Database type",
-      "type": "dropdown",
+      "type": "select",
       "model": "rdbms",
       "placeholder": "Choose database",
       "items": "databases",
