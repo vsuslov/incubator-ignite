@@ -18,9 +18,10 @@
 $logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 $input-height: 28px;
 $ignite-red: #ec1c24;
-$ignite-block-callout-background: #f3f8f3;
-$ignite-block-callout: #50af51;
-$ignite-block-callout-header-left: #248fb2;
+$ignite-block-callout-left: #248fb2;
+$ignite-block-callout-left-background: #f4f8fa;
+$ignite-block-callout-right: #50af51;
+$ignite-block-callout-right-background: #f3f8f3;
 
 hr {
     margin: 20px 0;
@@ -1149,12 +1150,11 @@ a {
 }
 
 .block-callout-parent {
-    background-color: $ignite-block-callout-background;
     overflow: hidden;
 }
 
 .block-callout {
-    background-color: $ignite-block-callout-background;
+    border-left: 5px solid;
     display: inline-block;
     vertical-align: top;
     width: 50%;
@@ -1178,18 +1178,34 @@ a {
     }
 }
 
-.block-callout-header-left {
-    color: $ignite-block-callout-header-left;
+.block-callout-left {
+    @extend .block-callout;
+
+    background-color: $ignite-block-callout-left-background;
+    border-color: $ignite-block-callout-left;
+
+    i {
+        color: $ignite-block-callout-left;
+    }
+
+    label {
+        color: $ignite-block-callout-left;
+    }
 }
 
-.block-callout-header-right {
-    color: $ignite-block-callout;
-}
+.block-callout-right {
+    @extend .block-callout;
 
-.block-callout-border {
-    border-left: 5px solid;
-    border-right: 5px solid;
-    border-color: $ignite-block-callout;
+    background-color: $ignite-block-callout-right-background;
+    border-color: $ignite-block-callout-right;
+
+    i {
+        color: $ignite-block-callout-right;
+    }
+
+    label {
+        color: $ignite-block-callout-right;
+    }
 }
 
 .labelHeader {

@@ -15,12 +15,12 @@
     limitations under the License.
 
 mixin block-callout(titleWorkflow, contentWorkflow, whatsNextWorkflow, whatsNextContent)
-    .block-callout-parent.block-callout-border.margin-bottom-dflt
-        .block-callout
+    .block-callout-parent.margin-bottom-dflt
+        .block-callout-left
             i.fa.fa-check-square.block-callout-header-left
             label.block-callout-header-left #{titleWorkflow}
             p(ng-bind-html=contentWorkflow)
-        .block-callout
+        .block-callout-right
             i.fa.fa-check-square.block-callout-header-right
             label.block-callout-header-right #{whatsNextWorkflow}
             p(ng-bind-html=whatsNextContent)
