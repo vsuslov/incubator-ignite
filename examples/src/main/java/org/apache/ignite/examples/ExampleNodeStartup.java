@@ -30,8 +30,6 @@ public class ExampleNodeStartup {
      * @throws IgniteException If failed.
      */
     public static void main(String[] args) throws IgniteException {
-        Ignite start = Ignition.start("examples/config/example-ignite.xml");
-
-        start.createCache("ccc");
+        Ignition.start("examples/config/example-ignite.xml");
     }
 }
