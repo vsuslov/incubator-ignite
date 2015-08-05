@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
+
 /**
  * Creates an instance of server for Ignite
  *
@@ -36,9 +38,9 @@ function AgentServer(client) {
 AgentServer.prototype.runCommand = function(cmd, callback) {
     var params = {cmd: cmd.name()};
 
-    for (var p of cmd._params) {
+    _.forEach(cmd._params, function (p) {
         params[p.key] = p.value;
-    }
+    });
 
     var body = undefined;
 

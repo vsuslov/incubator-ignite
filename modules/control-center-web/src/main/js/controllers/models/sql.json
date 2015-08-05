@@ -3,6 +3,6 @@
     "Select cache and execute SQL queries."
   ],
   "missingClientTip": [
-    "Please download and install <a href='/agent/agent-1.2.1-SNAPSHOT.zip' target='_self'>client</a>."
+    "Please download and install <a href='/agent/agent.zip' target='_self'>client</a>."
   ]
 }
