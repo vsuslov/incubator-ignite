@@ -23,7 +23,7 @@ var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
 
 /* GET summary page. */
 router.post('/topology', function(req, res) {
-    var client = agentManager.getAgentManager().getOneClient();
+    var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
         return res.status(500).send("Client not found");
@@ -43,7 +43,7 @@ router.post('/topology', function(req, res) {
 
 /* GET summary page. */
 router.post('/query', function(req, res) {
-    var client = agentManager.getAgentManager().getOneClient();
+    var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
         return res.status(500).send("Client not found");
@@ -64,7 +64,7 @@ router.post('/query', function(req, res) {
 
 /* GET summary page. */
 router.post('/next_page', function(req, res) {
-    var client = agentManager.getAgentManager().getOneClient();
+    var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
     if (!client)
         return res.status(500).send("Client not found");

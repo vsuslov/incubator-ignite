@@ -78,29 +78,11 @@ AgentManager.prototype._addClient = function(userId, client) {
 AgentManager.prototype.findClient = function(userId) {
     var clientsList = this._clients[userId];
 
-    if (!clientsList)
+    if (!clientsList || clientsList.length == 0)
         return null;
 
     return clientsList[0];
 };
-
-/**
- * For tests only!!!
- * @return {Client}
- */
-AgentManager.prototype.getOneClient = function() {
-    for (var userId in this._clients) {
-        if (this._clients.hasOwnProperty(userId)) {
-            var m = this._clients[userId];
-
-            if (m.length > 0)
-                return m[0];
-        }
-    }
-
-    return null;
-};
-
 
 /**
  * @constructor
@@ -114,8 +96,8 @@ function Client(ws, manager) {
     this._ws = ws;
 
     ws.on('close', function() {
-        if (self.user) {
-            self._manager._removeClient(self.user._id, self);
+        if (self._user) {
+            self._manager._removeClient(self._user._id, self);
         }
     });
 
