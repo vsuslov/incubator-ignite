@@ -613,15 +613,23 @@ controlCenterModule.controller('auth', [
             $scope.userDropdown.push({text: 'Log Out', href: '/logout'});
         }
 
-        // Pre-fetch an external template populated with a custom scope
+        // Pre-fetch modal dialogs.
         var authModal = $modal({scope: $scope, templateUrl: '/login', show: false});
+        var resetModal = $modal({scope: $scope, templateUrl: '/resetModal', show: false});
 
         $scope.login = function () {
-            // Show when some event occurs (use $promise property to ensure the template has been loaded)
             authModal.$promise.then(function () {
                 authModal.show();
 
                 $focus('user_email');
+            });
+        };
+
+        $scope.reset = function () {
+            resetModal.$promise.then(function () {
+                resetModal.show();
+
+                $focus('user_password');
             });
         };
 

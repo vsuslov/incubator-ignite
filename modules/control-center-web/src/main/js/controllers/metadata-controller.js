@@ -61,7 +61,37 @@ controlCenterModule.controller('metadataController', [
                 {value: 'h2', label: 'H2 database'}
             ];
 
-            $scope.rdbms = 'oracle';
+            $scope.presets = {
+                oracle: {
+                    drvClass: 'oracle.jdbc.OracleDriver',
+                    drvUrl: 'jdbc:oracle:thin:@[host]:[port]:[database]',
+                    user: 'system'
+                },
+                db2: {
+                    drvClass: 'com.ibm.db2.jcc.DB2Driver',
+                    drvUrl: 'jdbc:db2://[host]:[port]/[database]',
+                    user: 'db2admin'
+                },
+                mssql: {
+                    drvClass: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+                    drvUrl: 'jdbc:sqlserver://[host]:[port][;databaseName=database]',
+                    user: 'sa'
+                },
+                postgre: {
+                    drvClass: 'org.postgresql.Driver', drvUrl: 'jdbc:postgresql://[host]:[port]/[database]',
+                    user: 'sa'
+                },
+                mysql: {
+                    drvClass: 'com.mysql.jdbc.Driver',
+                    drvUrl: 'jdbc:mysql://[host]:[port]/[database]', user: 'root'
+                },
+                h2: {drvClass: 'org.h2.Driver', drvUrl: 'jdbc:h2:[database]', user: 'sa'}
+            };
+
+            $scope.preset = {
+                rdbms: 'oracle'
+
+            };
 
             $scope.jdbcTypes = [
                 {value: 'BIT', label: 'BIT'},

@@ -97,7 +97,7 @@ block content
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
-                                +form-row-custom(['col-sm-3'], ['col-sm-3'])
+                                +form-row-custom(['col-sm-3'], ['col-sm-3'], 'backupItem')
                             div(bs-tabs style='margin-top: 0.65em')
                                 div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
                                     div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient')

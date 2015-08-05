@@ -898,6 +898,10 @@ label {
     overflow: hidden;
 }
 
+.labelHeader {
+    font-weight: bold;
+}
+
 .labelField {
     float: left;
     margin-right: 5px;
@@ -906,6 +910,10 @@ label {
 .labelFormField {
     float: left;
     line-height: $input-height;
+}
+
+.labelLogin {
+    margin-right: 10px;
 }
 
 .form-horizontal .form-group {
@@ -1210,10 +1218,6 @@ a {
     label {
         color: $ignite-block-callout-right;
     }
-}
-
-.labelHeader {
-    font-weight: bold;
 }
 
 .ace_editor, #ace_document {

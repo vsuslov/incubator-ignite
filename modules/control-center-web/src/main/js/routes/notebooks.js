@@ -1,20 +1,18 @@
 /*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  * contributor license agreements.  See the NOTICE file distributed with
- *  * this work for additional information regarding copyright ownership.
- *  * The ASF licenses this file to You under the Apache License, Version 2.0
- *  * (the "License"); you may not use this file except in compliance with
- *  * the License.  You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 var router = require('express').Router();
@@ -68,7 +66,7 @@ router.post('/get', function (req, res) {
         });
 
         // Get all metadata for spaces.
-        db.Notebook.findOne({$or : [{space: {$in: space_ids}}, {_id: req.body.noteId}]}).exec(function (err, notebook) {
+        db.Notebook.findOne({$or: [{space: {$in: space_ids}}, {_id: req.body.noteId}]}).exec(function (err, notebook) {
             if (err)
                 return res.status(500).send(err.message);
 
@@ -77,10 +75,10 @@ router.post('/get', function (req, res) {
     });
 });
 
-function _randomValueHex (len) {
-    return crypto.randomBytes(Math.ceil(len/2))
+function _randomValueHex(len) {
+    return crypto.randomBytes(Math.ceil(len / 2))
         .toString('hex') // convert to hexadecimal format
-        .slice(0,len);   // return required number of characters
+        .slice(0, len);  // return required number of characters
 }
 
 /**
@@ -97,7 +95,7 @@ router.get('/new', function (req, res) {
         if (err)
             return res.status(500).send(err.message);
 
-        var name =  'Notebook'  + ' ' + _randomValueHex(8);
+        var name = 'Notebook' + ' ' + _randomValueHex(8);
 
         (new db.Notebook({space: space.id, name: name, paragraph: []})).save(function (err, notebook) {
             if (err)

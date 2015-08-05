@@ -17,6 +17,8 @@
 
 var router = require('express').Router();
 var passport = require('passport');
+var crypto = require('crypto');
+var nodemailer = require('nodemailer');
 var db = require('../db');
 
 // GET dropdown-menu template.
@@ -39,9 +41,19 @@ router.get('/copy', function (req, res) {
     res.render('templates/copy', {});
 });
 
-/* GET login page. */
+/* GET login dialog. */
 router.get('/login', function (req, res) {
     res.render('login');
+});
+
+/* GET reset password page. */
+router.get('/reset', function (req, res) {
+    res.render('reset');
+});
+
+/* GET reset password page. */
+router.get('/resetModal', function (req, res) {
+    res.render('resetModal');
 });
 
 /**
@@ -68,6 +80,96 @@ router.post('/register', function (req, res) {
                     return res.status(401).send(err.message);
 
                 return res.redirect('/configuration/clusters');
+            });
+        });
+    });
+});
+
+router.post('/restore', function(req, res) {
+    var token = crypto.randomBytes(20).toString('hex');
+
+    db.Account.findOne({ email: req.body.email }, function(err, user) {
+        if (err)
+            return res.status(401).send('No account with that email address exists!');
+
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+        user.save(function(err) {
+            if (err)
+                return res.status(401).send('Failed to send e-mail with reset link!');
+
+            var transporter  = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: '!!! YOUR USERNAME !!!',
+                    pass: '!!! YOUR PASSWORD !!!'
+                }
+            });
+
+            var mailOptions = {
+                from: 'passwordreset@YOUR.DOMAIN',
+                to: user.email,
+                subject: 'Password Reset',
+                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                'If you did not request this, please ignore this email and your password will remain unchanged.\n' +
+                'Link will be valid for one hour.\n'
+            };
+
+            transporter.sendMail(mailOptions, function(err, info){
+                if (err)
+                    return res.status(401).send('Failed to send e-mail with reset link!');
+
+                console.log('Message sent: ' + info.response);
+
+                return res.status(500).send('An e-mail has been sent with further instructions.');
+            });
+        });
+    });
+});
+
+router.post('/reset/:token', function(req, res) {
+    db.Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+        if (err)
+            return res.status(500).send(err);
+
+        user.setPassword(newPassword, function (err, updatedUser) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+
+            updatedUser.save(function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                var transporter  = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: '!!! YOUR USERNAME !!!',
+                        pass: '!!! YOUR PASSWORD !!!'
+                    }
+                });
+
+                var mailOptions = {
+                    from: 'passwordreset@YOUR.DOMAIN',
+                    to: user.email,
+                    subject: 'Your password has been changed',
+                    text: 'Hello,\n\n' +
+                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+                };
+
+                transporter.sendMail(mailOptions, function(err, info){
+                    if (err)
+                        return res.status(401).send('Failed to send e-mail with reset link!');
+
+                    console.log('Message sent: ' + info.response);
+
+                    res.redirect('/login');
+                });
             });
         });
     });
@@ -109,15 +211,5 @@ router.get('/', function (req, res) {
     else
         res.render('index');
 });
-
-///* GET sql page. */
-//router.get('/sql', function(req, res) {
-//    res.render('sql', { user: req.user });
-//});
-//
-///* GET clients page. */
-//router.get('/clients', function(req, res) {
-//    res.render('clients', { user: req.user });
-//});
 
 module.exports = router;

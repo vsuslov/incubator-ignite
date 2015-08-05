@@ -196,43 +196,40 @@
   ],
   "metadataDb": [
     {
-      "label": "Name",
-      "type": "text",
-      "model": "name"
-    },
-    {
-      "label": "Database type",
+      "label": "Database preset",
       "type": "select",
-      "model": "rdbms",
+      "model": "preset",
       "items": "databases",
       "tip": [
         "Select database type to connect for loading tables metadata."
       ]
     },
     {
-      "label": "Database name",
+      "label": "Driver JAR",
       "type": "text",
-      "model": "dbName",
+      "model": "drvJar",
+      "placeholder": "JAR with JDBC driver",
       "tip": [
-        "Database name to connect for loading tables metadata."
+        "Select appropriate JAR with JDBC driver."
       ]
     },
     {
-      "label": "Host",
+      "label": "JDBC Driver",
       "type": "text",
-      "model": "host",
-      "placeholder": "IP address or host",
+      "model": "drvClass",
+      "placeholder": "Full class name of JDBC driver",
       "tip": [
-        "IP address or host name where database server deployed."
+        "Full class name of JDBC driver that will be used to connect to database."
       ]
     },
     {
-      "label": "Port",
-      "type": "number",
-      "model": "port",
-      "max": 65535,
+      "label": "JDBC URL",
+      "type": "text",
+      "model": "jdbcUrl",
+      "placeholder": "JDBC URL",
       "tip": [
-        "Port number for connecting to database."
+        "JDBC URL for connecting to database.",
+        "Refer to your database documentation for details."
       ]
     },
     {
@@ -250,6 +247,15 @@
       "tip": [
         "Password for connecting to database.",
         "Note, password would not be saved."
+      ]
+    },
+    {
+      "label": "Tables only",
+      "type": "check",
+      "model": "tablesOnly",
+      "tip": [
+        "If selected then only tables metadata will be parsed.",
+        "Otherwise table and view metadata will be parsed."
       ]
     }
   ]
