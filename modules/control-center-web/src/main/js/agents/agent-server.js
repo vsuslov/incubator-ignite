@@ -53,7 +53,7 @@ AgentServer.prototype.runCommand = function(cmd, callback) {
 
         method = 'POST';
 
-        headers = {'Content-Length': body.length, 'JSONObject': 'application/json'};
+        headers = {'JSONObject': 'application/json'};
     }
 
     this._client.executeRest("ignite", params, method, headers, body, function(error, code, message) {
