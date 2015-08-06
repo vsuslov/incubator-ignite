@@ -17,7 +17,7 @@ mixin header-item(active, ref, txt)
     li
         a(ng-class='{active: isActive("#{active}")}' href='#{ref}') #{txt}
 
-header.header(id='header')
+header#header.header
     .viewedUser(ng-show='becomeUsed') Currently assuming "
         strong {{user.username}}
         | ",&nbsp;&nbsp;
@@ -39,4 +39,4 @@ header.header(id='header')
                     a.dropdown-toggle(data-toggle='dropdown' bs-dropdown='userDropdown' data-placement='bottom-right' data-ng-bind='::user.username')
                         span.caret
                 li.nav-login(ng-if='!user')
-                    a(ng-click='login()' href='#') Log In
+                    a(ng-click='login()') Log In

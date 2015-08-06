@@ -36,20 +36,20 @@ mixin lbl(txt)
                         .details-row
                             +lbl('Email:')
                             .col-sm-9
-                                input#user_email.form-control(enter-focus-next enter-focus-next-id='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required)
-                        .details-row(ng-show='action != "restore"')
+                                input#user_email.form-control(enter-focus-next enter-focus-next-id='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required on-enter='action == "request_password_reset" && loginForm.$valid && auth(action, user_info)')
+                        .details-row(ng-show='action != "request_password_reset"')
                             +lbl('Password:')
                             .col-sm-9
-                                input#user_password.form-control(enter-focus-next enter-focus-next-id='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' ng-required='action != "restore"' on-enter='action == "login" && auth(action, user_info)')
+                                input#user_password.form-control(enter-focus-next enter-focus-next-id='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' ng-required='action != "request_password_reset"' on-enter='action == "login" && loginForm.$valid && auth(action, user_info)')
                         .details-row(ng-if='action == "register"')
                             +lbl('Confirm:')
                             .col-sm-9
-                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='auth(action, user_info)')
+                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='loginForm.$valid && auth(action, user_info)')
             .modal-footer
-                a.labelField(ng-show='action != "restore"' ng-click='action = "restore"' event-focus='click' event-focus-id='user_email') Forgot password?
-                a.labelField(ng-show='action == "restore"' ng-click='action = "login"' event-focus='click' event-focus-id='user_email') Log In
+                a.labelField(ng-show='action != "request_password_reset"' ng-click='action = "request_password_reset"' event-focus='click' event-focus-id='user_email') Forgot password?
+                a.labelField(ng-show='action == "request_password_reset"' ng-click='action = "login"' event-focus='click' event-focus-id='user_email') Log In
                 a.labelLogin(ng-show='action == "register"' event-focus='click' event-focus-id='user_email' ng-click='action = "login";') Log In
                 a.labelLogin(ng-show='action == "login"' event-focus='click' event-focus-id='user_name' ng-click='action = "register"') Sign Up
                 button.btn.btn-primary(ng-show='action == "login"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Log In
                 button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Sign Up
-                button.btn.btn-primary(ng-show='action == "restore"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Reset Password
+                button.btn.btn-primary(ng-show='action == "request_password_reset"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Reset Password

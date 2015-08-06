@@ -18,5 +18,6 @@ extends templates/layout
 
 block container
     .row
-        .text-center(ng-controller='auth')
+        .text-center(ng-controller='auth' ng-init='showResetModal=true')
+            p Further instructions for password reset have been sent to your e-mail address.
             button.btn.btn-primary(ng-click='reset()' href='#') Reset Password

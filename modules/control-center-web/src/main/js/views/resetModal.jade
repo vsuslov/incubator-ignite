@@ -14,13 +14,17 @@
 
 .modal.center(role='dialog')
     .modal-dialog
-        .modal-content
-            #errors-container.modal-header.header
+        #errors-container.modal-content
+            .modal-header.header
                 button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h4.modal-title(style='padding-right: 55px') Reset password
-            form.form-horizontal(name='loginForm' ng-init='action == "login"')
+            form.form-horizontal(name='resetForm' ng-init='action == "login"')
                 .modal-body.row
                     .col-sm-9.col-sm-offset-1
+                        .details-row
+                            label.col-sm-4.required Token:
+                            .col-sm-8
+                                input#user_token.form-control(enter-focus-next enter-focus-next-id='user_password' type='text' ng-model='user_info.token' placeholder='Reset token' required)
                         .details-row
                             label.col-sm-4.required New password:
                             .col-sm-8
@@ -28,7 +32,7 @@
                         .details-row
                             label.col-sm-4.required Confirm:
                             .col-sm-8
-                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm new password' ng-required='action == "register"' on-enter='resetPassword(user_info)')
+                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm new password' required on-enter='resetPassword(user_info)')
             .modal-footer
                 button.btn.btn-primary(ng-disabled='resetForm.$invalid' ng-click='resetPassword(user_info)') Reset Password
 

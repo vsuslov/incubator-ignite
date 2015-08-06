@@ -100,8 +100,14 @@ app.all('/configuration/*', mustAuthenticated);
 app.all('*', function(req, res, next) {
     var becomeUsed = req.session.viewedUser && req.user.admin;
 
-    res.locals.user = becomeUsed ? req.session.viewedUser : req.user;
-    res.locals.becomeUsed = becomeUsed;
+    if (req.url == '/reset') {
+        res.locals.user = null;
+        res.locals.becomeUsed = false;
+    }
+    else {
+        res.locals.user = becomeUsed ? req.session.viewedUser : req.user;
+        res.locals.becomeUsed = becomeUsed;
+    }
 
     req.currentUserId = function() {
         if (!req.user)

@@ -82,11 +82,11 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
         return errMsg ? errMsg : 'Internal server error.';
     }
 
-    function showError(msg) {
+    function showError(msg, placement, container) {
         if (msgModal)
             msgModal.hide();
 
-        msgModal = $alert({title: errorMessage(msg)});
+        msgModal = $alert({title: errorMessage(msg), placement: placement ? placement : 'top-right', container: container ? container : 'body'});
 
         return false;
     }
@@ -596,13 +596,10 @@ controlCenterModule.controller('activeLink', [
 
 // Login popup controller.
 controlCenterModule.controller('auth', [
-    '$scope', '$modal', '$alert', '$http', '$window', '$common', '$focus',
-    function ($scope, $modal, $alert, $http, $window, $common, $focus) {
-        $scope.errorMessage = $common.errorMessage;
-
+    '$scope', '$modal', '$http', '$window', '$timeout', '$common', '$focus',
+    function ($scope, $modal, $http, $window, $timeout, $common, $focus) {
+        $scope.showResetModal = false;
         $scope.action = 'login';
-
-        $scope.valid = false;
 
         $scope.userDropdown = [{text: 'Profile', href: '/profile'}];
 
@@ -614,36 +611,65 @@ controlCenterModule.controller('auth', [
         }
 
         // Pre-fetch modal dialogs.
-        var authModal = $modal({scope: $scope, templateUrl: '/login', show: false});
+        var loginModal = $modal({scope: $scope, templateUrl: '/loginModal', show: false});
         var resetModal = $modal({scope: $scope, templateUrl: '/resetModal', show: false});
 
+        // Show reset modal if needed.
+        $timeout(function () {
+            if ($scope.showResetModal)
+                $scope.reset()
+        });
+
+        // Show login modal.
         $scope.login = function () {
-            authModal.$promise.then(function () {
-                authModal.show();
+            loginModal.$promise.then(function () {
+                loginModal.show();
 
                 $focus('user_email');
             });
         };
 
+        // Show reset password modal.
         $scope.reset = function () {
             resetModal.$promise.then(function () {
                 resetModal.show();
 
-                $focus('user_password');
+                $focus('user_token');
             });
         };
 
+        // Try to authorize user with provided credentials.
         $scope.auth = function (action, user_info) {
             $http.post('/' + action, user_info)
                 .success(function () {
-                    authModal.hide();
+                    loginModal.hide();
 
                     $window.location = '/configuration/clusters';
                 })
-                .error(function (data) {
-                    $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
+                .error(function (data, status) {
+                    if (status == 403) {
+                        loginModal.hide();
+
+                        $window.location = '/reset';
+                    }
+                    else
+                        $common.showError(data, 'top', '#errors-container');
                 });
         };
+
+        // Try to reset user password for provided token.
+        $scope.resetPassword = function (user_info) {
+            $http.post('/reset_password', user_info)
+                .success(function (data) {
+                    resetModal.hide();
+
+                    $scope.user_info = {email: data};
+                    $scope.login();
+                })
+                .error(function (data) {
+                    $common.showError(data, 'top', '#errors-container');
+                });
+        }
     }]);
 
 // Navigation bar controller.

@@ -42,8 +42,8 @@ router.get('/copy', function (req, res) {
 });
 
 /* GET login dialog. */
-router.get('/login', function (req, res) {
-    res.render('login');
+router.get('/loginModal', function (req, res) {
+    res.render('loginModal');
 });
 
 /* GET reset password page. */
@@ -85,96 +85,6 @@ router.post('/register', function (req, res) {
     });
 });
 
-router.post('/restore', function(req, res) {
-    var token = crypto.randomBytes(20).toString('hex');
-
-    db.Account.findOne({ email: req.body.email }, function(err, user) {
-        if (err)
-            return res.status(401).send('No account with that email address exists!');
-
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-
-        user.save(function(err) {
-            if (err)
-                return res.status(401).send('Failed to send e-mail with reset link!');
-
-            var transporter  = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: '!!! YOUR USERNAME !!!',
-                    pass: '!!! YOUR PASSWORD !!!'
-                }
-            });
-
-            var mailOptions = {
-                from: 'passwordreset@YOUR.DOMAIN',
-                to: user.email,
-                subject: 'Password Reset',
-                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-                'If you did not request this, please ignore this email and your password will remain unchanged.\n' +
-                'Link will be valid for one hour.\n'
-            };
-
-            transporter.sendMail(mailOptions, function(err, info){
-                if (err)
-                    return res.status(401).send('Failed to send e-mail with reset link!');
-
-                console.log('Message sent: ' + info.response);
-
-                return res.status(500).send('An e-mail has been sent with further instructions.');
-            });
-        });
-    });
-});
-
-router.post('/reset/:token', function(req, res) {
-    db.Account.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
-        if (err)
-            return res.status(500).send(err);
-
-        user.setPassword(newPassword, function (err, updatedUser) {
-            if (err)
-                return res.status(500).send(err.message);
-
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-
-            updatedUser.save(function (err) {
-                if (err)
-                    return res.status(500).send(err.message);
-
-                var transporter  = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: '!!! YOUR USERNAME !!!',
-                        pass: '!!! YOUR PASSWORD !!!'
-                    }
-                });
-
-                var mailOptions = {
-                    from: 'passwordreset@YOUR.DOMAIN',
-                    to: user.email,
-                    subject: 'Your password has been changed',
-                    text: 'Hello,\n\n' +
-                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
-                };
-
-                transporter.sendMail(mailOptions, function(err, info){
-                    if (err)
-                        return res.status(401).send('Failed to send e-mail with reset link!');
-
-                    console.log('Message sent: ' + info.response);
-
-                    res.redirect('/login');
-                });
-            });
-        });
-    });
-});
-
 /**
  * Login in exist account.
  */
@@ -202,6 +112,106 @@ router.get('/logout', function (req, res) {
     req.logout();
 
     res.redirect('/');
+});
+
+/**
+ * Request for password reset and send e-mail to user with reset token. */
+router.post('/request_password_reset', function(req, res) {
+    var token = crypto.randomBytes(20).toString('hex');
+
+    db.Account.findOne({ email: req.body.email }, function(err, user) {
+        if (!user)
+            return res.status(401).send('No account with that email address exists!');
+
+        if (err)
+            return res.status(401).send(err);
+
+        user.resetPasswordToken = token;
+
+        user.save(function(err) {
+            if (err)
+                return res.status(401).send(err);
+
+            var transporter  = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: '!!! YOUR USERNAME !!!',
+                    pass: '!!! YOUR PASSWORD !!!'
+                }
+            });
+
+            var mailOptions = {
+                from: '!!! YOUR USERNAME !!!',
+                to: user.email,
+                subject: 'Password Reset',
+                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                'http://' + req.headers.host + '/reset\n' +
+                'And enter this reset token: ' + token + '\n\n' +
+                'If you did not request this, please ignore this email and your password will remain unchanged.\n\n' +
+                '--------------\n' +
+                'Apache Ignite Web Control Center\n'
+            };
+
+            transporter.sendMail(mailOptions, function(err){
+                if (err)
+                    return res.status(401).send('Failed to send e-mail with reset link!');
+
+                return res.status(403).send('An e-mail has been sent with further instructions.');
+            });
+        });
+    });
+});
+
+/**
+ * Reset password with given token.
+ */
+router.post('/reset_password', function(req, res) {
+    db.Account.findOne({ resetPasswordToken: req.body.token }, function(err, user) {
+        if (!user)
+            return res.status(500).send('Invalid token for password reset!');
+
+        if (err)
+            return res.status(500).send(err);
+
+        user.setPassword(req.body.password, function (err, updatedUser) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            updatedUser.resetPasswordToken = undefined;
+
+            updatedUser.save(function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                var transporter  = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: '!!! YOUR USERNAME !!!',
+                        pass: '!!! YOUR PASSWORD !!!'
+                    }
+                });
+
+                var mailOptions = {
+                    from: '!!! YOUR USERNAME !!!',
+                    to: user.email,
+                    subject: 'Your password has been changed',
+                    text: 'Hello,\n\n' +
+                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\n' +
+                    'Now you can login: http://' + req.headers.host + '\n\n' +
+                    '--------------\n' +
+                    'Apache Ignite Web Control Center\n'
+                };
+
+                transporter.sendMail(mailOptions, function(err){
+                    if (err)
+                        return res.status(401).send('Failed to send password reset confirmation e-mail!');
+
+                    return res.status(200).send(user.email);
+                });
+            });
+        });
+    });
 });
 
 /* GET home page. */
