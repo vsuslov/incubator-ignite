@@ -65,6 +65,9 @@ import static org.apache.ignite.internal.processors.affinity.AffinityTopologyVer
  * Reduce query executor.
  */
 public class GridReduceQueryExecutor {
+    /** Thread pool to process query messages. */
+    public static final byte QUERY_POOL = GridIoPolicy.SYSTEM_POOL;
+
     /** */
     private GridKernalContext ctx;
 
@@ -150,8 +153,7 @@ public class GridReduceQueryExecutor {
                 for (QueryRun r : runs.values()) {
                     for (GridMergeTable tbl : r.tbls) {
                         if (tbl.getScanIndex(null).hasSource(nodeId)) {
-                            // Will attempt to retry. If reduce query was started it will fail on next page fetching.
-                            retry(r, h2.readyTopologyVersion(), nodeId);
+                            handleNodeLeft(r, nodeId);
 
                             break;
                         }
@@ -159,6 +161,15 @@ public class GridReduceQueryExecutor {
                 }
             }
         }, EventType.EVT_NODE_FAILED, EventType.EVT_NODE_LEFT);
+    }
+
+    /**
+     * @param r Query run.
+     * @param nodeId Left node ID.
+     */
+    private void handleNodeLeft(QueryRun r, UUID nodeId) {
+        // Will attempt to retry. If reduce query was started it will fail on next page fetching.
+        retry(r, h2.readyTopologyVersion(), nodeId);
     }
 
     /**
@@ -255,7 +266,7 @@ public class GridReduceQueryExecutor {
                         if (node.isLocal())
                             h2.mapQueryExecutor().onMessage(ctx.localNodeId(), msg0);
                         else
-                            ctx.io().send(node, GridTopic.TOPIC_QUERY, msg0, GridIoPolicy.PUBLIC_POOL);
+                            ctx.io().send(node, GridTopic.TOPIC_QUERY, msg0, QUERY_POOL);
                     }
                     catch (IgniteCheckedException e) {
                         throw new CacheException("Failed to fetch data from node: " + node.id(), e);
@@ -515,7 +526,7 @@ public class GridReduceQueryExecutor {
 
                 if (send(nodes,
                     new GridQueryRequest(qryReqId, r.pageSize, space, mapQrys, topVer, extraSpaces, null), partsMap)) {
-                    U.await(r.latch);
+                    awaitAllReplies(r, nodes);
 
                     Object state = r.state.get();
 
@@ -590,6 +601,26 @@ public class GridReduceQueryExecutor {
                     U.warn(log, "Query run was already removed: " + qryReqId);
 
                 curFunTbl.remove();
+            }
+        }
+    }
+
+    /**
+     * @param r Query run.
+     * @param nodes Nodes to check periodically if they alive.
+     * @throws IgniteInterruptedCheckedException If interrupted.
+     */
+    private void awaitAllReplies(QueryRun r, Collection<ClusterNode> nodes)
+        throws IgniteInterruptedCheckedException {
+        while (!U.await(r.latch, 500, TimeUnit.MILLISECONDS)) {
+            for (ClusterNode node : nodes) {
+                if (!ctx.discovery().alive(node)) {
+                    handleNodeLeft(r, node.id());
+
+                    assert r.latch.getCount() == 0;
+
+                    return;
+                }
             }
         }
     }
@@ -888,7 +919,7 @@ public class GridReduceQueryExecutor {
             }
 
             try {
-                ctx.io().send(node, GridTopic.TOPIC_QUERY, copy(msg, node, partsMap), GridIoPolicy.PUBLIC_POOL);
+                ctx.io().send(node, GridTopic.TOPIC_QUERY, copy(msg, node, partsMap), QUERY_POOL);
             }
             catch (IgniteCheckedException e) {
                 ok = false;
@@ -1068,7 +1099,7 @@ public class GridReduceQueryExecutor {
             else
                 data.columns = planColumns();
 
-            return new GridMergeTable(data);
+            return new GridMergeTable(data, ctx);
         }
         catch (Exception e) {
             U.closeQuiet(conn);
@@ -1086,32 +1117,6 @@ public class GridReduceQueryExecutor {
         res.add(new Column("PLAN", Value.STRING));
 
         return res;
-    }
-
-    /**
-     * @param conn Connection.
-     * @param qry Query.
-     * @return Table.
-     * @throws IgniteCheckedException If failed.
-     */
-    private GridMergeTable createTable(Connection conn, GridCacheSqlQuery qry) throws IgniteCheckedException {
-        try {
-            try (PreparedStatement s = conn.prepareStatement(
-                "CREATE LOCAL TEMPORARY TABLE " + qry.alias() +
-                " ENGINE \"" + GridMergeTable.Engine.class.getName() + "\" " +
-                " AS SELECT * FROM (" + qry.query() + ") WHERE FALSE")) {
-                h2.bindParameters(s, F.asList(qry.parameters()));
-
-                s.execute();
-            }
-
-            return GridMergeTable.Engine.getCreated();
-        }
-        catch (SQLException e) {
-            U.closeQuiet(conn);
-
-            throw new IgniteCheckedException(e);
-        }
     }
 
     /**
