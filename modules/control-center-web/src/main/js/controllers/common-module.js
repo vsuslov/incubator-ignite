@@ -507,29 +507,33 @@ controlCenterModule.directive('onEscape', function () {
 // Directive to retain selection. To fix angular-strap typeahead bug with setting cursor to the end of text.
 controlCenterModule.directive('retainSelection', function ($timeout) {
     return function (scope, elem, attr) {
-        elem.on('keydown', function (event) {
-            var key = event.which;
+        elem.on('keydown', function (evt) {
+            var key = evt.which;
+            var ctrlDown = evt.ctrlKey || evt.metaKey;
             var input = this;
             var start = input.selectionStart;
 
             $timeout(function() {
                 var setCursor = false;
 
-                // Handle Backspace.
+                // Handle Backspace[8].
                 if (key == 8 && start > 0) {
                     start -= 1;
 
                     setCursor = true;
                 }
-                // Handle Del.
+                // Handle Del[46].
                 else if (key == 46)
                     setCursor = true;
-                // Handle: Caps Lock, Tab, Shift, Ctrl, Alt, Esc, Enter, Arrows, Home, End, PgUp, PgDown, F1..F12, Num Lock, Scroll Lock.
+                // Handle: Caps Lock[20], Tab[9], Shift[16], Ctrl[17], Alt[18], Esc[27], Enter[13], Arrows[37..40], Home[36], End[35], Ins[45], PgUp[33], PgDown[34], F1..F12[111..124], Num Lock[], Scroll Lock[145].
                 else  if (!(key == 9 || key == 13 || (key > 15 && key < 20) || key == 27 ||
-                    (key > 32 && key < 41) || (key > 111 && key < 124) || key == 144 || key == 145)) {
-                    start += 1;
+                    (key > 32 && key < 41) || key == 45 || (key > 111 && key < 124) || key == 144 || key == 145)) {
+                    // Handle: Ctrl + [A[65], C[67], V[86]].
+                    if (!(ctrlDown && (key = 65 || key == 67 || key == 86))) {
+                        start += 1;
 
-                    setCursor = true;
+                        setCursor = true;
+                    }
                 }
 
                 if (setCursor)
