@@ -643,8 +643,8 @@ controlCenterModule.controller('auth', ['$scope', '$modal', '$http', '$window', 
         };
 
         // Try to reset user password for provided token.
-        $scope.resetPassword = function (user_info) {
-            $http.post('/reset_password', user_info)
+        $scope.resetPassword = function (reset_info) {
+            $http.post('/reset_password', reset_info)
                 .success(function (data) {
                     $scope.user_info = {email: data};
                     $scope.login();
