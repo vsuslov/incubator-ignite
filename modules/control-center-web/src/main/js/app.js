@@ -17,6 +17,7 @@
 
 var flash = require('connect-flash');
 var express = require('express');
+var compress = require('compression');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -41,6 +42,8 @@ var passport = require('passport');
 var db = require('./db');
 
 var app = express();
+
+app.use(compress());
 
 // Views engine setup.
 app.set('views', path.join(__dirname, 'views'));
