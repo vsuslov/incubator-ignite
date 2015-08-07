@@ -164,19 +164,24 @@ mixin details-row
                 input.form-control(id='new{{::detail.focusId}}' name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
-mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, index)
+mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusId, index)
+    -var databaseNameId = databaseName + focusId
+    -var databaseTypeId = databaseType + focusId
+    -var javaNameId = javaName + focusId
+    -var javaTypeId = javaType + focusId
+
     .col-sm-3
         label.fieldSep /
         .input-tip
-            input.form-control(id=databaseName enter-focus-next enter-focus-next-id=databaseType type='text' ng-model=databaseName placeholder='DB name' on-escape='tableReset()')
+            input.form-control(id=databaseNameId enter-focus-next enter-focus-next-id=databaseTypeId type='text' ng-model=databaseName placeholder='DB name' on-escape='tableReset()')
     .col-sm-3
         label.fieldSep /
         .input-tip
-            select.form-control(id=databaseType enter-focus-next enter-focus-next-id=javaName ng-model=databaseType ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
+            select.form-control(id=databaseTypeId enter-focus-next enter-focus-next-id=javaNameId ng-model=databaseType ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
     .col-sm-3
         label.fieldSep /
         .input-tip
-            input.form-control(id=javaName enter-focus-next enter-focus-next-id=javaType type='text' ng-model=javaName placeholder='Java name' on-escape='tableReset()')
+            input.form-control(id=javaNameId enter-focus-next enter-focus-next-id=javaTypeId type='text' ng-model=javaName placeholder='Java name' on-escape='tableReset()')
     .col-sm-3
         -var args = databaseName + ', ' + databaseType + ', ' + javaName + ', ' + javaType
         -var btnVisible = 'tableDbFieldSaveVisible(' + args + ')'
@@ -185,7 +190,7 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, index)
 
         +btn-save(btnVisible, btnSave)
         .input-tip
-            select.form-control(id=javaType ng-model=javaType ng-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
+            select.form-control(id=javaTypeId ng-model=javaType ng-options='item.value as item.label for item in {{javaTypes}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin table-group-item-edit(fieldName, className, direction, index)
     -var args = fieldName + ', ' + className
@@ -326,14 +331,14 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                 tr(ng-repeat='item in #{fieldMdl}')
                                     td.col-sm-12
                                         div(ng-show='!tableEditing(field, $index)')
-                                            a.labelFormField(event-focus='click' event-focus-id='curDatabaseName' ng-click='curField = tableStartEdit(backupItem, field, $index); curDatabaseName = curField.databaseName; curDatabaseType = curField.databaseType; curJavaName = curField.javaName; curJavaType = curField.javaType') {{$index + 1}}) {{item.databaseName}} / {{item.databaseType}} / {{item.javaName}} / {{item.javaType}}
+                                            a.labelFormField(event-focus='click' event-focus-id='curDatabaseName{{::field.focusId}}' ng-click='curField = tableStartEdit(backupItem, field, $index); curDatabaseName = curField.databaseName; curDatabaseType = curField.databaseType; curJavaName = curField.javaName; curJavaType = curField.javaType') {{$index + 1}}) {{item.databaseName}} / {{item.databaseType}} / {{item.javaName}} / {{item.javaType}}
                                             +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                         div(ng-if='tableEditing(field, $index)')
-                                            +table-db-field-edit('curDatabaseName', 'curDatabaseType', 'curJavaName', 'curJavaType', '$index')
+                                            +table-db-field-edit('curDatabaseName', 'curDatabaseType', 'curJavaName', 'curJavaType', '{{::field.focusId}}', '$index')
                             tfoot(ng-show='tableNewItemActive(field)')
                                 tr
                                     td.col-sm-12(ng-init='newDatabaseType="INTEGER"; newJavaType="Integer"')
-                                        +table-db-field-edit('newDatabaseName', 'newDatabaseType', 'newJavaName', 'newJavaType', '-1')
+                                        +table-db-field-edit('newDatabaseName', 'newDatabaseType', 'newJavaName', 'newJavaType', '{{::field.focusId}}', '-1')
         div(ng-switch-when='queryGroups' ng-hide=fieldHide)
             .col-sm-7
                 label.table-header {{::field.label}}:
