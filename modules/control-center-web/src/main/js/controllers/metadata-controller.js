@@ -564,7 +564,7 @@ controlCenterModule.controller('metadataController', [
 
                 if (pairField) {
                     if (!$common.isValidJavaClass(pairField.msg, clsName, true))
-                        return focusInvalidField(index, pairField.id + 'Next');
+                        return focusInvalidField(index, 'Value' + pairField.id);
 
                     var model = item[field.model];
 
@@ -577,7 +577,7 @@ controlCenterModule.controller('metadataController', [
                         if (idx >= 0 && idx != index) {
                             $common.showError('Field with such name already exists!');
 
-                            return focusInvalidField(index, pairField.id);
+                            return focusInvalidField(index, 'Key' + pairField.id);
                         }
                     }
                 }
@@ -611,7 +611,7 @@ controlCenterModule.controller('metadataController', [
                     };
 
                     if (!$common.isValidJavaIdentifier(dbField.msg + ' java name', newJavaName))
-                        return focusInvalidField(index, dbField.id + 'Next');
+                        return focusInvalidField(index, 'JavaName' + dbField.id);
 
                     if ($common.isDefined(model)) {
                         var idx = _.findIndex(model, function (dbMeta) {
@@ -620,9 +620,20 @@ controlCenterModule.controller('metadataController', [
 
                         // Found duplicate.
                         if (idx >= 0 && index != idx) {
-                            $common.showError('DB field with such name already exists!');
+                            $common.showError('Field with such database name already exists!');
 
-                            return focusInvalidField(index, dbField.id);
+                            return focusInvalidField(index, 'DatabaseName' + dbField.id);
+                        }
+
+                        idx = _.findIndex(model, function (dbMeta) {
+                            return dbMeta.javaName == newJavaName
+                        });
+
+                        // Found duplicate.
+                        if (idx >= 0 && index != idx) {
+                            $common.showError('Field with such java name already exists!');
+
+                            return focusInvalidField(index, 'JavaName' + dbField.id);
                         }
 
                         if (index < 0) {
@@ -738,7 +749,7 @@ controlCenterModule.controller('metadataController', [
 
             function tableGroupItemValid(fieldName, className, groupIndex, index) {
                 if (!$common.isValidJavaClass('Group field', className, true))
-                    return focusInvalidField(index, 'FieldNameNext');
+                    return focusInvalidField(index, 'FieldClassName');
 
                 var fields = $scope.backupItem.groups[groupIndex].fields;
 

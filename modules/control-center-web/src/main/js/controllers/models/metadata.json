@@ -95,8 +95,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'query' || isJavaBuildInClass()",
-      "focusNewItemId": "newKeyField",
-      "focusCurItemId": "curKeyField",
+      "focusId": "KeyField",
       "addTip": "Add key field.",
       "removeTip": "Remove key field.",
       "tip": [
@@ -110,8 +109,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "focusNewItemId": "newValueField",
-      "focusCurItemId": "curValueField",
+      "focusId": "ValueField",
       "addTip": "Add value field.",
       "removeTip": "Remove value field.",
       "tip": [
@@ -125,8 +123,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newQryField",
-      "focusCurItemId": "curQryField",
+      "focusId": "QryField",
       "addTip": "Add field to query.",
       "removeTip": "Remove field.",
       "tip": [
@@ -140,8 +137,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newAscField",
-      "focusCurItemId": "curAscField",
+      "focusId": "AscField",
       "addTip": "Add field to index in ascending order.",
       "removeTip": "Remove field.",
       "tip": [
@@ -155,8 +151,7 @@
       "keyName": "name",
       "valueName": "className",
       "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newDescField",
-      "focusCurItemId": "curDescField",
+      "focusId": "DescField",
       "addTip": "Add field to index in descending order.",
       "removeTip": "Remove field.",
       "tip": [
@@ -169,8 +164,7 @@
       "model": "textFields",
       "hide": "backupItem.kind == 'store'",
       "placeholder": "Field name",
-      "focusNewItemId": "newTextField",
-      "focusCurItemId": "curTextField",
+      "focusId": "TextField",
       "addTip": "Add field to index as text.",
       "removeTip": "Remove field.",
       "tableTip": [

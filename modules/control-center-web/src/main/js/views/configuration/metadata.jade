@@ -33,7 +33,7 @@ block content
                 table.links(st-table='metadatas')
                     tbody
                         tr(ng-repeat='row in metadatas track by row._id')
-                            td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                            td(ng-class='{active: row._id == selectedItem._id}')
                                 a(event-focus='click' event-focus-id='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         .padding-top-dflt
             button.btn.btn-primary(event-focus='click' event-focus-id='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
@@ -50,7 +50,7 @@ block content
                     .panel-body
                         form.form-horizontal(name='manualForm' ng-if='backupItem' novalidate)
                             .settings-row(ng-repeat='field in metadataManual')
-                                +form-row
+                                +form-row('backupItem')
                             button.btn.btn-primary(ng-disabled='manualForm.$invalid' ng-click='saveItem()') Save
                             button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
                             button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
@@ -62,12 +62,12 @@ block content
                     .panel-body
                         form.form-horizontal(name='dbForm' novalidate)
                             .settings-row(ng-repeat='field in metadataDb')
-                                +form-row
+                                +form-row('backupItem')
                         div(ng-hide='tables.length == 0')
                             table.links(st-table='tables')
                                 tbody
                                     tr(ng-repeat='row in tables')
-                                        td.col-sm-6
+                                        td
                                             a {{$index + 1}}) {{::row.schemaName}} / {{::row.tableName}}
                         button.btn.btn-primary(ng-disabled='dbForm.$invalid' ng-click='saveItem()') Save
                         button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove

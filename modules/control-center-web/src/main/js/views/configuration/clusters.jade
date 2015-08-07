@@ -33,7 +33,7 @@ block content
                 table.links(st-table='clusters')
                     tbody
                         tr(ng-repeat='row in clusters track by row._id')
-                            td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                            td(ng-class='{active: row._id == selectedItem._id}')
                                 a(event-focus='click' event-focus-id='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}, {{row.discovery.kind | displayValue:discoveries:'Discovery not set'}}
         .padding-top-dflt
             button.btn.btn-primary(event-focus='click' event-focus-id='defaultFocusId' ng-click='createItem()') &nbspAdd cluster
@@ -50,7 +50,7 @@ block content
                     .panel-collapse(bs-collapse-target)
                         .panel-body
                             .settings-row(ng-repeat='field in general')
-                                +form-row
+                                +form-row('backupItem')
             .panel-group(bs-collapse data-allow-multiple='true')
                 div(bs-collapse data-start-collapsed='true')
                     .panel-title(ng-show='expanded')
@@ -68,7 +68,7 @@ block content
                                 .panel-collapse(bs-collapse-target)
                                     .panel-body
                                         .settings-row(ng-repeat='field in group.fields')
-                                            +form-row
+                                            +form-row('backupItem')
                     .panel-title
                         h3
                             i.fa.fa-chevron-circle-up(ng-show='expanded' ng-click='expanded = !expanded')
