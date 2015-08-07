@@ -17,7 +17,22 @@
 extends templates/layout
 
 block container
-    .row
-        .text-center(ng-controller='auth' ng-init='showResetModal=true')
+    .row(ng-init='token = #{JSON.stringify(token)}; error=#{JSON.stringify(error)}')
+        .text-center(ng-if='!token')
             p Further instructions for password reset have been sent to your e-mail address.
-            button.btn.btn-primary(ng-click='reset()' href='#') Reset Password
+        .text-center(ng-if='error')
+            p {{::error}}
+        div(ng-controller='auth' ng-if='token && !error')
+            form.form-horizontal(name='resetForm' ng-init='user_info.token = token')
+                .settings-row
+                    label.col-sm-1 Token:
+                    label {{::token}}
+                .settings-row
+                    label.col-sm-1.required Password:
+                    .col-sm-3
+                        input#user_password.form-control(enter-focus-next enter-focus-next-id='user_confirm' type='password' ng-model='user_info.password' placeholder='New password' required)
+                .settings-row
+                    label.col-sm-1.required Confirm:
+                    .col-sm-3
+                        input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm new password' required on-enter='resetForm.$valid && resetPassword(user_info)')
+            button.btn.btn-primary(ng-disabled='resetForm.$invalid' ng-click='resetPassword(user_info)') Reset Password

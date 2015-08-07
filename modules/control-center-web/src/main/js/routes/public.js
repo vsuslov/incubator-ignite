@@ -42,18 +42,8 @@ router.get('/copy', function (req, res) {
 });
 
 /* GET login dialog. */
-router.get('/loginModal', function (req, res) {
-    res.render('loginModal');
-});
-
-/* GET reset password page. */
-router.get('/reset', function (req, res) {
-    res.render('reset');
-});
-
-/* GET reset password page. */
-router.get('/resetModal', function (req, res) {
-    res.render('resetModal');
+router.get('/login', function (req, res) {
+    res.render('login');
 });
 
 /**
@@ -146,8 +136,7 @@ router.post('/request_password_reset', function(req, res) {
                 subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                'http://' + req.headers.host + '/reset\n' +
-                'And enter this reset token: ' + token + '\n\n' +
+                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
                 'If you did not request this, please ignore this email and your password will remain unchanged.\n\n' +
                 '--------------\n' +
                 'Apache Ignite Web Control Center\n'
@@ -160,6 +149,26 @@ router.post('/request_password_reset', function(req, res) {
                 return res.status(403).send('An e-mail has been sent with further instructions.');
             });
         });
+    });
+});
+
+router.get('/reset', function (req, res) {
+    res.render('reset', {});
+});
+
+/* GET reset password page. */
+router.get('/reset/:token', function (req, res) {
+    var token = req.params.token;
+
+    var data = {token: token};
+
+    db.Account.findOne({resetPasswordToken: token}, function (err, user) {
+        if (!user)
+            data.error = 'Invalid token for password reset!';
+        else if (err)
+            data.error = err;
+
+        res.render('reset', data);
     });
 });
 
@@ -205,7 +214,7 @@ router.post('/reset_password', function(req, res) {
 
                 transporter.sendMail(mailOptions, function(err){
                     if (err)
-                        return res.status(401).send('Failed to send password reset confirmation e-mail!');
+                        return res.status(503).send('Password was changed, but failed to send confirmation e-mail!<br />' + err);
 
                     return res.status(200).send(user.email);
                 });

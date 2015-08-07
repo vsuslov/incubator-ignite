@@ -595,10 +595,8 @@ controlCenterModule.controller('activeLink', [
     }]);
 
 // Login popup controller.
-controlCenterModule.controller('auth', [
-    '$scope', '$modal', '$http', '$window', '$timeout', '$common', '$focus',
-    function ($scope, $modal, $http, $window, $timeout, $common, $focus) {
-        $scope.showResetModal = false;
+controlCenterModule.controller('auth', ['$scope', '$modal', '$http', '$window', '$common', '$focus',
+    function ($scope, $modal, $http, $window, $common, $focus) {
         $scope.action = 'login';
 
         $scope.userDropdown = [{text: 'Profile', href: '/profile'}];
@@ -610,15 +608,11 @@ controlCenterModule.controller('auth', [
             $scope.userDropdown.push({text: 'Log Out', href: '/logout'});
         }
 
-        // Pre-fetch modal dialogs.
-        var loginModal = $modal({scope: $scope, templateUrl: '/loginModal', show: false});
-        var resetModal = $modal({scope: $scope, templateUrl: '/resetModal', show: false});
+        if ($scope.token && !$scope.error)
+            $focus('user_password');
 
-        // Show reset modal if needed.
-        $timeout(function () {
-            if ($scope.showResetModal)
-                $scope.reset()
-        });
+        // Pre-fetch modal dialogs.
+        var loginModal = $modal({scope: $scope, templateUrl: '/login', show: false});
 
         // Show login modal.
         $scope.login = function () {
@@ -626,15 +620,6 @@ controlCenterModule.controller('auth', [
                 loginModal.show();
 
                 $focus('user_email');
-            });
-        };
-
-        // Show reset password modal.
-        $scope.reset = function () {
-            resetModal.$promise.then(function () {
-                resetModal.show();
-
-                $focus('user_token');
             });
         };
 
@@ -661,13 +646,16 @@ controlCenterModule.controller('auth', [
         $scope.resetPassword = function (user_info) {
             $http.post('/reset_password', user_info)
                 .success(function (data) {
-                    resetModal.hide();
-
                     $scope.user_info = {email: data};
                     $scope.login();
                 })
-                .error(function (data) {
-                    $common.showError(data, 'top', '#errors-container');
+                .error(function (data, state) {
+                    $common.showError(data);
+
+                    if (state == 503) {
+                        $scope.user_info = {};
+                        $scope.login();
+                    }
                 });
         }
     }]);
