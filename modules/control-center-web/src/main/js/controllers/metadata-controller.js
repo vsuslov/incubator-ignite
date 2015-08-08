@@ -342,8 +342,23 @@ controlCenterModule.controller('metadataController', [
                                 return metadata._id == restoredItem._id;
                             });
 
-                            if (idx >= 0)
+                            if (idx >= 0) {
+                                // Remove deleted metadata.
+                                restoredItem.queryMetadata = _.filter(restoredItem.queryMetadata, function (metaId) {
+                                    return _.findIndex($scope.metadatas, function (scopeMeta) {
+                                            return scopeMeta.value == metaId;
+                                        }) >= 0;
+                                });
+
+                                // Remove deleted metadata.
+                                restoredItem.storeMetadata = _.filter(restoredItem.storeMetadata, function (metaId) {
+                                    return _.findIndex($scope.metadatas, function (scopeMeta) {
+                                            return scopeMeta.value == metaId;
+                                        }) >= 0;
+                                });
+
                                 setSelectedAndBackupItem($scope.metadatas[idx], restoredItem);
+                            }
                             else {
                                 sessionStorage.removeItem('metadataBackupItem');
 
