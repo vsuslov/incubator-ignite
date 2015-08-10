@@ -16,7 +16,7 @@
  */
 
 controlCenterModule.controller('metadataController', [
-        '$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus,
+        '$scope', '$http', '$modal', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $modal, $common, $focus,
             $confirm, $copy, $table) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
@@ -299,6 +299,24 @@ controlCenterModule.controller('metadataController', [
                 $scope.selectedItem = sel;
                 $scope.backupItem = bak;
             }
+
+            // Pre-fetch modal dialogs.
+            var loadMetaModal = $modal({scope: $scope, templateUrl: 'metadata/metadata-load', show: false});
+
+            // Show load metadata modal.
+            $scope.loadFromDb = function () {
+                loadMetaModal.$promise.then(function () {
+                    loadMetaModal.show();
+
+                    //$focus('user_email');
+                });
+            };
+
+            $scope.loadMetadataFromDb = function(fb_info) {
+                loadMetaModal.hide();
+
+                $common.showError("Load metadata from DB not ready yet!");
+            };
 
             // When landing on the page, get metadatas and show them.
             $http.post('metadata/list')

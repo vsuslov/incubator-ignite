@@ -1,0 +1,30 @@
+//-
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+include ../includes/controls
+
+.modal.center(role='dialog')
+    .modal-dialog
+        .modal-content
+            #errors-container.modal-header.header
+                button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
+                h4.modal-title Load metadata from database
+            form.form-horizontal(name='loadForm' novalidate)
+                .modal-body
+                    .settings-row(ng-repeat='field in metadataDb')
+                        +form-row-custom(['col-xs-4 col-sm-3 col-md-3'], ['col-xs-8 col-sm-7 col-md-7'], db_info)
+            .modal-footer
+                button.btn.btn-primary(ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb(db_info)') Load metadata
