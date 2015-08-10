@@ -214,7 +214,7 @@
             },
             {
               "label": "Regions",
-              "type": "table-simple",
+              "type": "table-simple-with-border",
               "path": "discovery.Cloud",
               "model": "regions",
               "placeholder": "Region name",
@@ -232,7 +232,7 @@
             },
             {
               "label": "Zones",
-              "type": "table-simple",
+              "type": "table-simple-with-border",
               "path": "discovery.Cloud",
               "model": "zones",
               "placeholder": "Zone name",

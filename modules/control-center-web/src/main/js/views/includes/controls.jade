@@ -143,7 +143,7 @@ mixin details-row
                 +tipField('detail.tip')
                 .input-tip
                     button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
-        .section(ng-switch-when='table-simple')&attributes(detailCommon)
+        div(ng-switch-when='table-simple')&attributes(detailCommon)
             div(ng-if='detail.label')
                 label {{::detail.label}}:
                 +tipLabel('detail.tableTip')
@@ -167,6 +167,32 @@ mixin details-row
             .input-tip.form-group.has-feedback
                 input.form-control(id='new{{::detail.focusId}}' name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
                 +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
+        div(ng-switch-when='table-simple-with-border')&attributes(detailCommon)
+            .fieldset
+                .legend
+                    label {{::detail.label}}:
+                    +tipLabel('detail.tableTip')
+                .fieldset-content
+                    table.col-sm-12.links-edit-details(st-table='#{detailMdl}')
+                        tbody
+                            tr(ng-repeat='item in #{detailMdl} track by $index')
+                                td
+                                    div(ng-show='!tableEditing(detail, $index)')
+                                        a.labelFormField(event-focus='cur{{::detail.focusId}}' ng-click='curValue = tableStartEdit(backupItem, detail, $index)') {{$index + 1}}) {{item}}
+                                        +btn-remove('tableRemove(backupItem, detail, $index)', 'detail.removeTip')
+                                        +btn-down('detail.reordering && tableSimpleDownVisible(backupItem, detail, $index)', 'tableSimpleDown(backupItem, detail, $index)')
+                                        +btn-up('detail.reordering && $index > 0', 'tableSimpleUp(backupItem, detail, $index)')
+                                    div(ng-if='tableEditing(detail, $index)')
+                                        label.labelField {{$index + 1}})
+                                        +btn-save('tableSimpleSaveVisible(curValue)', 'tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)')
+                                        .input-tip.form-group.has-feedback
+                                            input.form-control(id='cur{{::detail.focusId}}' name='{{detail.model}}.edit' type='text' ng-model='curValue' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, curValue, $index)' on-escape='tableReset()')&attributes(customValidators)
+                                            +ico-exclamation('{{detail.model}}.edit', 'ipaddress', 'Invalid address, see help for format description.')
+                    button.btn.btn-primary.fieldButton(ng-disabled='!newValue' ng-click='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)') Add
+                    +tipField('detail.tip')
+                    .input-tip.form-group.has-feedback
+                        input.form-control(id='new{{::detail.focusId}}' name='{{detail.model}}' type='text' ng-model='newValue' ng-focus='tableNewItem(detail)' placeholder='{{::detail.placeholder}}' on-enter='tableSimpleSave(tableSimpleValid, backupItem, detail, newValue, -1)' on-escape='tableReset()')&attributes(customValidators)
+                        +ico-exclamation('{{detail.model}}', 'ipaddress', 'Invalid address, see help for format description.')
 
 mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusId, index)
     -var databaseNameId = databaseName + focusId

@@ -876,9 +876,12 @@ button .caret, .btn .caret {
     top: -10px;
     margin-left: 10px;
     margin-right: 10px;
-    background: white;
     overflow: visible;
     position: relative;
+
+    label {
+        background: white;
+    }
 }
 
 .legend-btn {
