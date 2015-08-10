@@ -38,20 +38,6 @@ controlCenterModule.controller('metadataController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-            $scope.templates = [
-                {value: {kind: 'query'}, label: 'query'},
-                {value: {kind: 'store'}, label: 'store'},
-                {value: {kind: 'both'}, label: 'both'}
-            ];
-
-            $scope.template = $scope.templates[0].value;
-
-            $scope.kinds = [
-                {value: 'query', label: 'query'},
-                {value: 'store', label: 'store'},
-                {value: 'both', label: 'both'}
-            ];
-
             $scope.databases = [
                 {value: 'oracle', label: 'Oracle database'},
                 {value: 'db2', label: 'IBM DB2'},
@@ -282,18 +268,6 @@ controlCenterModule.controller('metadataController', [
 
             $scope.metadatas = [];
 
-            $scope.required = function (field) {
-                var model = $common.isDefined(field.path) ? field.path + '.' + field.model : field.model;
-
-                var item = $scope.backupItem;
-
-                if (item && item.kind && item.kind != 'query') {
-                    return model == 'databaseSchema' || model == 'databaseTable';
-                }
-
-                return false;
-            };
-
             $scope.isJavaBuildInClass = function () {
                 var item = $scope.backupItem;
 
@@ -388,14 +362,12 @@ controlCenterModule.controller('metadataController', [
 
                 $scope.selectedItem = undefined;
 
-                $scope.backupItem = angular.copy($scope.template);
-                $scope.backupItem.space = $scope.spaces[0]._id;
+                $scope.backupItem = {space: $scope.spaces[0]._id};
             };
 
             // Check metadata logical consistency.
             function validate(item) {
-                var kind = item.kind;
-
+                /*
                 if (!$common.isValidJavaClass('Key type', item.keyType, true)) {
                     $focus('keyType');
 
@@ -408,49 +380,45 @@ controlCenterModule.controller('metadataController', [
                     return false;
                 }
 
-                if (kind == 'query' || kind == 'both') {
-                    if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
-                        $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
-                        $common.isEmptyArray(item.groups)) {
-                        $common.showError('SQL fields are not specified!');
+                if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
+                    $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
+                    $common.isEmptyArray(item.groups)) {
+                    $common.showError('SQL fields are not specified!');
 
-                        return false;
-                    }
+                    return false;
+                }
 
-                    var groups = item.groups;
-                    if (groups && groups.length > 0) {
-                        for (var i = 0; i < groups.length; i++) {
-                            var group = groups[i];
-                            var fields = group.fields;
+                var groups = item.groups;
+                if (groups && groups.length > 0) {
+                    for (var i = 0; i < groups.length; i++) {
+                        var group = groups[i];
+                        var fields = group.fields;
 
-                            if ($common.isEmptyArray(fields)) {
-                                $common.showError('Group "' + group.name + '" has no fields.');
+                        if ($common.isEmptyArray(fields)) {
+                            $common.showError('Group "' + group.name + '" has no fields.');
 
-                                return false;
-                            }
+                            return false;
+                        }
 
-                            if (fields.length == 1) {
-                                $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
+                        if (fields.length == 1) {
+                            $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
 
-                                return false;
-                            }
+                            return false;
                         }
                     }
                 }
 
-                if (kind == 'store' || kind == 'both') {
-                    if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
-                        $common.showError('Key fields are not specified!');
+                if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
+                    $common.showError('Key fields are not specified!');
 
-                        return false;
-                    }
-
-                    if ($common.isEmptyArray(item.valueFields)) {
-                        $common.showError('Value fields are not specified!');
-
-                        return false;
-                    }
+                    return false;
                 }
+                if ($common.isEmptyArray(item.valueFields)) {
+                    $common.showError('Value fields are not specified!');
+
+                    return false;
+                }
+                */
 
                 return true;
             }

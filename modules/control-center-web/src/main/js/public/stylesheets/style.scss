@@ -1093,14 +1093,6 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
     }
 }
 
-input.ng-untouched.ng-invalid, button.ng-untouched.ng-invalid {
-    border-color: $ignite-red;
-
-    :focus {
-        border-color: $ignite-red;
-    }
-}
-
 .form-control-feedback {
     display: inline-block;
     color: $ignite-red;
