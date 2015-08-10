@@ -33,11 +33,11 @@ block container
                     .col-sm-10(style='padding: 0')
                         .details-row
                             +lbl('User name:')
-                            .col-sm-4
+                            .col-xs-5.col-sm-4
                                 input.form-control(type='text' ng-model='profileUser.username' placeholder='Input name' required)
                         .details-row
                             +lbl('Email:')
-                            .col-sm-4
+                            .col-xs-5.col-sm-4
                                 input.form-control(type='email' ng-model='profileUser.email' placeholder='you@domain.com' required)
                         .details-row
                             .checkbox
@@ -47,12 +47,12 @@ block container
                         div(ng-if='profileUser.changePassword')
                             .details-row
                                 +lbl('New password:')
-                                .col-sm-4
+                                .col-xs-5.col-sm-4
                                     input.form-control(type='password' ng-model='profileUser.newPassword' placeholder='New password' ng-required='profileUser.changePassword')
                             .details-row
                                 +lbl('Confirm:')
-                                .col-sm-4
+                                .col-xs-5.col-sm-4
                                     input.form-control(type='password' ng-model='profileUser.confirmPassword' match='profileUser.newPassword' placeholder='Confirm new password' ng-required='profileUser.changePassword')
-                    .col-sm-12.details-row
+                    .col-xs-12.col-sm-12.details-row
                         button.btn.btn-primary(ng-disabled='profileForm.$invalid' ng-click='saveUser()') Save
 

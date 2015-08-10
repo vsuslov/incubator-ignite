@@ -64,9 +64,9 @@ block content
                                 div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlServer')
                             div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
                                 .details-row
-                                    .col-sm-1
+                                    .col-xs-2.col-sm-1
                                         label Generate:
-                                    .col-sm-3
+                                    .col-xs-4.col-sm-3
                                         button.form-control(type='button' ng-model='configServer.javaClassServer'  bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                                 div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaServer')
                             div(title='<img src="/images/docker.png" width="16px" height="16px"/> Dockerfile' bs-pane)
@@ -80,9 +80,9 @@ block content
                                         | . For more information about using Ignite with Docker please read&nbsp;
                                         +hard-link('http://apacheignite.readme.io/docs/docker-deployment', 'documentation')
                                         |.
-                                    .col-sm-2
+                                    .col-xs-3.col-sm-2
                                         label(for='os') Operation System:
-                                    .col-sm-4
+                                    .col-xs-5.col-sm-4
                                         input#os.form-control(type='text' ng-model='configServer.os' placeholder='debian:8' data-min-length='0' data-html='1' data-auto-select='true' bs-typeahead retain-selection bs-options='os for os in oss')
                                 div(ui-ace='{ onLoad: aceInit, mode: "dockerfile" }' ng-model='dockerServer')
             .padding-dflt(bs-collapse data-start-collapsed='false')
@@ -97,14 +97,14 @@ block content
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
-                                +form-row-custom(['col-sm-3'], ['col-sm-3'], 'backupItem')
+                                +form-row-custom(['col-xs-4 col-sm-3'], ['col-xs-4 col-sm-3'], 'backupItem')
                             div(bs-tabs style='margin-top: 0.65em')
                                 div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
                                     div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient')
                                 div(title='<img src="/images/java.png" width="16px" height="16px"/> Java' bs-pane)
                                     .details-row
-                                        .col-sm-1
+                                        .col-xs-2.col-sm-1
                                             label Generate:
-                                        .col-sm-4
+                                        .col-xs-5.col-sm-4
                                             button.form-control(type='button' ng-model='backupItem.javaClassClient' bs-select data-placeholder='{{detail.placeholder}}' bs-options='item.value as item.label for item in javaClassItems' data-sort='false')
                                     div(ui-ace='{ onLoad: aceInit, mode: "java" }' ng-model='javaClient')

@@ -42,12 +42,12 @@ block container
                         .tabs-below(bs-tabs bs-active-pane='tabs.activeIdx' data-template='/tab')
                             div(ng-repeat='tab in tabs' title='Query' bs-pane)
                         .row
-                            .col-sm-9(style='border-right: 1px solid #eee')
+                            .col-xs-8.col-sm-9(style='border-right: 1px solid #eee')
                                 div(style='height: 200px' ui-ace='{ theme: "chrome", mode: "sql",' +
                                     'require: ["ace/ext/language_tools"],' +
                                     'rendererOptions: {showPrintMargin: false, highlightGutterLine: false, fontSize: 14},' +
                                     'advanced: {enableSnippets: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true}}' ng-model='#{tab}.query')
-                            .col-sm-3
+                            .col-xs-4.col-sm-3
                                 div(ng-hide='caches.length == 0' style='margin-top: 0.65em')
                                     lable.labelHeader Caches:
                                     table.links(st-table='caches')

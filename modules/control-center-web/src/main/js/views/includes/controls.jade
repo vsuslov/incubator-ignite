@@ -59,14 +59,14 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJav
     -var focusIdKey = keyModel + focusId
     -var focusIdVal = valModel + focusId
 
-    .col-sm-6
+    .col-xs-6.col-sm-6.col-md-6
         label.fieldSep /
         .input-tip
             if keyJavaBuildInTypes
                 input.form-control(id=focusIdKey enter-focus-next=focusIdVal type='text' ng-model=keyModel placeholder=keyPlaceholder bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
             else
                 input.form-control(id=focusIdKey enter-focus-next=focusIdVal type='text' ng-model=keyModel placeholder=keyPlaceholder on-escape='tableReset()')
-    .col-sm-6
+    .col-xs-6.col-sm-6.col-md-6
         -var arg = keyModel + ', ' + valModel
         -var btnVisible = 'tablePairSaveVisible(' + arg + ')'
         -var btnSave = 'tablePairSave(tablePairValid, backupItem, field, '+ arg +', ' + index + ')'
@@ -174,19 +174,19 @@ mixin table-db-field-edit(databaseName, databaseType, javaName, javaType, focusI
     -var javaNameId = javaName + focusId
     -var javaTypeId = javaType + focusId
 
-    .col-sm-3
+    .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
             input.form-control(id=databaseNameId enter-focus-next=databaseTypeId type='text' ng-model=databaseName placeholder='DB name' on-escape='tableReset()')
-    .col-sm-3
+    .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
             select.form-control(id=databaseTypeId enter-focus-next=javaNameId ng-model=databaseType ng-options='item.value as item.label for item in {{jdbcTypes}}' on-escape='tableReset()')
-    .col-sm-3
+    .col-xs-3.col-sm-3.col-md-3
         label.fieldSep /
         .input-tip
             input.form-control(id=javaNameId enter-focus-next=javaTypeId type='text' ng-model=javaName placeholder='Java name' on-escape='tableReset()')
-    .col-sm-3
+    .col-xs-3.col-sm-3.col-md-3
         -var args = databaseName + ', ' + databaseType + ', ' + javaName + ', ' + javaType
         -var btnVisible = 'tableDbFieldSaveVisible(' + args + ')'
         -var btnSave = 'tableDbFieldSave(field, ' + args + ', ' + index +')'
@@ -202,21 +202,21 @@ mixin table-group-item-edit(fieldName, className, direction, index)
     -var btnSave = 'tableGroupItemSave(' + args + ', ' + direction + ', groupIndex, ' + index +')'
     -var btnVisibleAndSave = btnVisible + ' && ' + btnSave
 
-    .col-sm-4
+    .col-xs-4.col-sm-4.col-md-4
         label.fieldSep /
         .input-tip
             input.form-control(id=fieldName enter-focus-next=className type='text' ng-model=fieldName placeholder='Field name' on-escape='tableReset()')
-    .col-sm-5
+    .col-xs-5.col-sm-5.col-md-5
         label.fieldSep /
         .input-tip
             input.form-control(id=className enter-focus-next=direction type='text' ng-model=className placeholder='Class name' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses' on-escape='tableReset()')
-    .col-sm-3
+    .col-xs-3.col-sm-3.col-md-3
         +btn-save(btnVisible, btnSave)
         .input-tip
             select.form-control(id=direction ng-model=direction ng-options='item.value as item.label for item in {{sortDirections}}' on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin form-row(dataSource)
-    +form-row-custom(['col-sm-2'], ['col-sm-5'], dataSource)
+    +form-row-custom(['col-xs-3 col-sm-2 col-md-2'], ['col-xs-6 col-sm-5 col-md-5'], dataSource)
 
 mixin form-row-custom(lblClasses, fieldClasses, dataSource)
     - var fieldMdl = 'getModel('+ dataSource + ', field)[field.model]';
