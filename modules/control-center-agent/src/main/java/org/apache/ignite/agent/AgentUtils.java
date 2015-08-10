@@ -17,6 +17,8 @@
 
 package org.apache.ignite.agent;
 
+import com.google.gson.*;
+
 import java.io.*;
 import java.net.*;
 
@@ -24,6 +26,12 @@ import java.net.*;
  * Utility methods.
  */
 public class AgentUtils {
+    /** */
+    public static final Gson GSON = new Gson();
+
+    /** */
+    public static final JsonParser PARSER = new JsonParser();
+
     /**
      * Default constructor.
      */

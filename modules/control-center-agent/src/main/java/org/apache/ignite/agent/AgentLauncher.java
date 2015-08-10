@@ -124,4 +124,11 @@ public class AgentLauncher {
 
         agentLauncher.run();
     }
+
+    /**
+     * @return Config.
+     */
+    public AgentConfiguration config() {
+        return cfg;
+    }
 }

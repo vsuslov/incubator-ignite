@@ -37,12 +37,6 @@ public class AgentSocket implements WebSocketSender {
     private static final Logger log = Logger.getLogger(AgentSocket.class.getName());
 
     /** */
-    public static final Gson GSON = new Gson();
-
-    /** */
-    public static final JsonParser PARSER = new JsonParser();
-
-    /** */
     private final CountDownLatch closeLatch = new CountDownLatch(1);
 
     /** */
@@ -109,7 +103,7 @@ public class AgentSocket implements WebSocketSender {
      * @return Whether or not message was sent.
      */
     @Override public boolean send(JsonObject msg) {
-        return send(GSON.toJson(msg));
+        return send(AgentUtils.GSON.toJson(msg));
     }
 
     /**
@@ -151,7 +145,7 @@ public class AgentSocket implements WebSocketSender {
      */
     @OnWebSocketMessage
     public void onMessage(String msg) {
-        JsonElement jsonElement = PARSER.parse(msg);
+        JsonElement jsonElement = AgentUtils.PARSER.parse(msg);
 
         remote.onMessage((JsonObject)jsonElement);
     }
