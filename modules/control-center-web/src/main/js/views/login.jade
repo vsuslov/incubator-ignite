@@ -20,35 +20,36 @@ mixin lbl(txt)
 .modal.center(role='dialog')
     .modal-dialog
         .modal-content
-            .modal-header.header
-                div(id='errors-container')
+            #errors-container.modal-header.header
                 button.close(type='button' ng-click='$hide()' aria-hidden='true') &times;
                 h1.navbar-brand
                     a(href='/') Apache Ignite Web Configurator
                 h4.modal-title(style='padding-right: 55px') Authentication
                 p(style='padding-right: 55px') Log in or register in order to collaborate
-            form.form-horizontal(name='loginForm')
+            form.form-horizontal(name='loginForm' ng-init='action == "login"')
                 .modal-body.row
-                    .col-sm-9.login.col-sm-offset-1
+                    .col-sm-9.col-sm-offset-1
                         .details-row(ng-show='action == "register"')
                             +lbl('Full Name:')
                             .col-sm-9
-                                input#user_name.form-control(enter-focus-next enter-focus-next-id='user_email' type='text' ng-model='user_info.username' placeholder='John Smith' ng-required='action=="register"')
+                                input#user_name.form-control(enter-focus-next='user_email' type='text' ng-model='user_info.username' placeholder='John Smith' ng-required='action=="register"')
                         .details-row
                             +lbl('Email:')
                             .col-sm-9
-                                input#user_email.form-control(enter-focus-next enter-focus-next-id='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required)
-                        .details-row
+                                input#user_email.form-control(enter-focus-next='user_password' type='email' ng-model='user_info.email' placeholder='you@domain.com' required on-enter='action == "request_password_reset" && loginForm.$valid && auth(action, user_info)')
+                        .details-row(ng-show='action != "request_password_reset"')
                             +lbl('Password:')
                             .col-sm-9
-                                input#user_password.form-control(enter-focus-next enter-focus-next-id='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' required on-enter='action == "login" && auth(action, user_info)')
-                        .details-row(ng-show='action == "register"')
+                                input#user_password.form-control(enter-focus-next='user_confirm' type='password' ng-model='user_info.password' placeholder='Password' ng-required='action != "request_password_reset"' on-enter='action == "login" && loginForm.$valid && auth(action, user_info)')
+                        .details-row(ng-if='action == "register"')
                             +lbl('Confirm:')
-                            .col-sm-9.input-tip.has-feedback
-                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' required on-enter='auth(action, user_info)')
+                            .col-sm-9
+                                input#user_confirm.form-control(type='password' ng-model='user_info.confirm' match='user_info.password' placeholder='Confirm password' ng-required='action == "register"' on-enter='loginForm.$valid && auth(action, user_info)')
             .modal-footer
-                a.show-signup.ng-hide(event-focus='click' event-focus-id='user_email' ng-show='action != "login"' ng-click='action = "login";') log in
-                a.show-signup(event-focus='click' event-focus-id='user_name' ng-show='action != "register"' ng-click='action = "register"') sign up
-                | &nbsp;or&nbsp;
-                button.btn.btn-primary(ng-show='action == "login"' ng-click='auth(action, user_info)') Log In
-                button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid || user_info.password != user_info.confirm' ng-click='auth(action, user_info)') Sign Up
+                a.labelField(ng-show='action != "request_password_reset"' ng-click='action = "request_password_reset"' event-focus='user_email') Forgot password?
+                a.labelField(ng-show='action == "request_password_reset"' ng-click='action = "login"' event-focus='user_email') Log In
+                a.labelLogin(ng-show='action == "register"' event-focus='user_email' ng-click='action = "login";') Log In
+                a.labelLogin(ng-show='action == "login"' event-focus='user_name' ng-click='action = "register"') Sign Up
+                button.btn.btn-primary(ng-show='action == "login"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Log In
+                button.btn.btn-primary(ng-show='action == "register"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Sign Up
+                button.btn.btn-primary(ng-show='action == "request_password_reset"' ng-disabled='loginForm.$invalid' ng-click='auth(action, user_info)') Reset Password

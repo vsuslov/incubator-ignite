@@ -18,9 +18,10 @@
 $logo-path: "https://www.filepicker.io/api/file/QagunjDGRFul2JgNCAli";
 $input-height: 28px;
 $ignite-red: #ec1c24;
-$ignite-block-callout-background: #f3f8f3;
-$ignite-block-callout: #50af51;
-$ignite-block-callout-header-left: #248fb2;
+$ignite-block-callout-left: #248fb2;
+$ignite-block-callout-left-background: #f4f8fa;
+$ignite-block-callout-right: #50af51;
+$ignite-block-callout-right-background: #f3f8f3;
 
 hr {
     margin: 20px 0;
@@ -413,7 +414,7 @@ hr {
 }
 
 .theme-line .main-content a {
-    color: #666;
+    color: $ignite-red;
 }
 
 .theme-line .main-content a:hover {
@@ -687,6 +688,10 @@ button .caret, .btn .caret {
     }
 }
 
+.line-control {
+    width: auto;
+}
+
 .theme-line .panel-heading {
     padding: 10px 10px;
     margin: 0;
@@ -700,23 +705,12 @@ button .caret, .btn .caret {
     }
 }
 
-.theme-line .panel-title {
-    a {
-        color: $ignite-red;
-    }
-
-    h3 {
-        margin-bottom: 20px;
-    }
-}
-
 .theme-line .panel-body {
     padding: 10px 20px;
 }
 
 .theme-line .main-content a.customize {
     margin-left: 5px;
-    color: $ignite-red;
 }
 
 .theme-line .panel-collapse {
@@ -779,30 +773,6 @@ button .caret, .btn .caret {
 .zzz {
     color: $ignite-red;
     font-weight: bold;
-}
-
-.theme-line table.metadata {
-    th {
-        text-align: center;
-        padding: 3px 5px 3px 5px;
-    }
-
-    td {
-        label {
-            cursor: pointer;
-        }
-
-        input[type=checkbox] {
-            margin: 0 3px 3px 0;
-            vertical-align: middle;
-            cursor: pointer;
-        }
-
-        padding: 3px 10px 3px 5px;
-    }
-
-    margin-top: 10px;
-    margin-bottom: 20px;
 }
 
 .theme-line table.admin {
@@ -917,6 +887,10 @@ label {
     overflow: hidden;
 }
 
+.labelHeader {
+    font-weight: bold;
+}
+
 .labelField {
     float: left;
     margin-right: 5px;
@@ -925,6 +899,10 @@ label {
 .labelFormField {
     float: left;
     line-height: $input-height;
+}
+
+.labelLogin {
+    margin-right: 10px;
 }
 
 .form-horizontal .form-group {
@@ -1141,6 +1119,15 @@ a {
     margin-top: 20px;
 }
 
+.section {
+    margin-top: 20px;
+}
+
+.advanced-options {
+    @extend .section;
+    margin-bottom: 20px;
+}
+
 .margin-top-dflt {
     margin-top: 10px;
 }
@@ -1173,12 +1160,11 @@ a {
 }
 
 .block-callout-parent {
-    background-color: $ignite-block-callout-background;
     overflow: hidden;
 }
 
 .block-callout {
-    background-color: $ignite-block-callout-background;
+    border-left: 5px solid;
     display: inline-block;
     vertical-align: top;
     width: 50%;
@@ -1202,22 +1188,34 @@ a {
     }
 }
 
-.block-callout-header-left {
-    color: $ignite-block-callout-header-left;
+.block-callout-left {
+    @extend .block-callout;
+
+    background-color: $ignite-block-callout-left-background;
+    border-color: $ignite-block-callout-left;
+
+    i {
+        color: $ignite-block-callout-left;
+    }
+
+    label {
+        color: $ignite-block-callout-left;
+    }
 }
 
-.block-callout-header-right {
-    color: $ignite-block-callout;
-}
+.block-callout-right {
+    @extend .block-callout;
 
-.block-callout-border {
-    border-left: 5px solid;
-    border-right: 5px solid;
-    border-color: $ignite-block-callout;
-}
+    background-color: $ignite-block-callout-right-background;
+    border-color: $ignite-block-callout-right;
 
-.labelHeader {
-    font-weight: bold;
+    i {
+        color: $ignite-block-callout-right;
+    }
+
+    label {
+        color: $ignite-block-callout-right;
+    }
 }
 
 .ace_editor, #ace_document {

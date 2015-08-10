@@ -37,6 +37,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: {discovery: {kind: 'Vm', Vm: {addresses: ['127.0.0.1:47500..47510']}}}, label: 'local'}
         ];
 
+        $scope.template = $scope.templates[0].value;
+
         $scope.discoveries = [
             {value: 'Vm', label: 'static IPs'},
             {value: 'Multicast', label: 'multicast'},
@@ -94,6 +96,12 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: 'OptimizedMarshaller', label: 'OptimizedMarshaller'},
             {value: 'JdkMarshaller', label: 'JdkMarshaller'}
         ];
+
+        $scope.ui = {expanded: false};
+
+        $scope.toggleExpanded = function () {
+            $scope.ui.expanded = !$scope.ui.expanded;
+        };
 
         var simpleTables = {
             addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
@@ -158,6 +166,13 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
                         });
 
                         if (idx >= 0) {
+                            // Remove deleted caches.
+                            restoredItem.caches = _.filter(restoredItem.caches, function (cacheId) {
+                                return _.findIndex($scope.caches, function (scopeCache) {
+                                    return scopeCache.value == cacheId;
+                                }) >= 0;
+                            });
+
                             $scope.selectedItem = $scope.clusters[idx];
                             $scope.backupItem = restoredItem;
                         }
@@ -192,7 +207,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
 
             $scope.selectedItem = undefined;
 
-            $scope.backupItem = angular.copy($scope.create.template);
+            $scope.backupItem = angular.copy($scope.template);
             $scope.backupItem.caches = [];
             $scope.backupItem.space = $scope.spaces[0]._id;
         };

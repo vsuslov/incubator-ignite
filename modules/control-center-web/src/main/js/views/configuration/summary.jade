@@ -46,7 +46,7 @@ block content
             table.links(st-table='clusters')
                 tbody
                     tr(ng-repeat='row in clusters track by row._id')
-                        td.col-sm-6(ng-class='{active: row._id == selectedItem._id}')
+                        td(ng-class='{active: row._id == selectedItem._id}')
                             a(ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         div(ng-show='selectedItem' role='tab' method='post' action='summary/download')
             .padding-dflt(bs-collapse data-start-collapsed='false')
@@ -97,7 +97,7 @@ block content
                     .panel-collapse(role='tabpanel' bs-collapse-target)
                         div(ng-show='selectedItem')
                             .details-row(ng-repeat='field in clientFields')
-                                +form-row-custom(['col-sm-3'], ['col-sm-3'])
+                                +form-row-custom(['col-sm-3'], ['col-sm-3'], 'backupItem')
                             div(bs-tabs style='margin-top: 0.65em')
                                 div(title='<img src="/images/xml.png" width="16px" height="16px"/> XML' bs-pane)
                                     div(ui-ace='{ onLoad: aceInit, mode: "xml" }' ng-model='xmlClient')

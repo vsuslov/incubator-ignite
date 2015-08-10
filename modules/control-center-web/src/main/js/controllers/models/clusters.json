@@ -5,7 +5,7 @@
       "<ul>",
       "  <li>Configure clusters.</li>",
       "  <li>Associate clusters with caches.</li>",
-      "</ul>"
+      "</ul><br/>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
@@ -65,12 +65,10 @@
               "type": "table-simple",
               "path": "discovery.Vm",
               "model": "addresses",
-              "editIdx": -1,
               "reordering": true,
               "ipaddress": true,
               "placeholder": "IP address:port",
-              "focusNewItemId": "newIpAddress",
-              "focusCurItemId": "curIpAddress",
+              "focusId": "IpAddress",
               "addTip": "Add new address.",
               "removeTip": "Remove address.",
               "tip": [
@@ -219,9 +217,8 @@
               "type": "table-simple",
               "path": "discovery.Cloud",
               "model": "regions",
-              "editIdx": -1,
-              "focusNewItemId": "newRegion",
-              "focusCurItemId": "curRegion",
+              "placeholder": "Region name",
+              "focusId": "Region",
               "addTip": "Add new region.",
               "removeTip": "Remove region.",
               "tableTip": [
@@ -238,9 +235,8 @@
               "type": "table-simple",
               "path": "discovery.Cloud",
               "model": "zones",
-              "editIdx": -1,
-              "focusNewItemId": "newZone",
-              "focusCurItemId": "curZone",
+              "placeholder": "Zone name",
+              "focusId": "Zone",
               "addTip": "Add new zone.",
               "removeTip": "Remove zone.",
               "tableTip": [

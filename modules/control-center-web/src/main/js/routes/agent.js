@@ -72,7 +72,7 @@ router.post('/next_page', function(req, res) {
     var cache = client.ignite().cache(req.body.cacheName);
 
     var cmd = cache._createCommand("qryfetch").addParam("qryId", req.body.queryId).
-        addParam("psz", req.body.pageSize);
+        addParam("pageSize", req.body.pageSize);
 
     cache.__createPromise(cmd).then(function (page) {
         res.json({rows: page["items"], last: page === null || page["last"]});

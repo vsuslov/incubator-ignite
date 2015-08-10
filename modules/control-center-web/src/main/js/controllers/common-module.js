@@ -82,11 +82,11 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
         return errMsg ? errMsg : 'Internal server error.';
     }
 
-    function showError(msg) {
+    function showError(msg, placement, container) {
         if (msgModal)
             msgModal.hide();
 
-        msgModal = $alert({title: errorMessage(msg)});
+        msgModal = $alert({title: errorMessage(msg), placement: placement ? placement : 'top-right', container: container ? container : 'body'});
 
         return false;
     }
@@ -507,29 +507,33 @@ controlCenterModule.directive('onEscape', function () {
 // Directive to retain selection. To fix angular-strap typeahead bug with setting cursor to the end of text.
 controlCenterModule.directive('retainSelection', function ($timeout) {
     return function (scope, elem, attr) {
-        elem.on('keydown', function (event) {
-            var key = event.which;
+        elem.on('keydown', function (evt) {
+            var key = evt.which;
+            var ctrlDown = evt.ctrlKey || evt.metaKey;
             var input = this;
             var start = input.selectionStart;
 
             $timeout(function() {
                 var setCursor = false;
 
-                // Handle Backspace.
+                // Handle Backspace[8].
                 if (key == 8 && start > 0) {
                     start -= 1;
 
                     setCursor = true;
                 }
-                // Handle Del.
+                // Handle Del[46].
                 else if (key == 46)
                     setCursor = true;
-                // Handle: Caps Lock, Tab, Shift, Ctrl, Alt, Esc, Enter, Arrows, Home, End, PgUp, PgDown, F1..F12, Num Lock, Scroll Lock.
+                // Handle: Caps Lock[20], Tab[9], Shift[16], Ctrl[17], Alt[18], Esc[27], Enter[13], Arrows[37..40], Home[36], End[35], Ins[45], PgUp[33], PgDown[34], F1..F12[111..124], Num Lock[], Scroll Lock[145].
                 else  if (!(key == 9 || key == 13 || (key > 15 && key < 20) || key == 27 ||
-                    (key > 32 && key < 41) || (key > 111 && key < 124) || key == 144 || key == 145)) {
-                    start += 1;
+                    (key > 32 && key < 41) || key == 45 || (key > 111 && key < 124) || key == 144 || key == 145)) {
+                    // Handle: Ctrl + [A[65], C[67], V[86]].
+                    if (!(ctrlDown && (key = 65 || key == 67 || key == 86))) {
+                        start += 1;
 
-                    setCursor = true;
+                        setCursor = true;
+                    }
                 }
 
                 if (setCursor)
@@ -566,7 +570,7 @@ controlCenterModule.directive('enterFocusNext', function ($focus) {
             if (event.which === 13) {
                 event.preventDefault();
 
-                $focus(attrs.enterFocusNextId);
+                $focus(attrs.enterFocusNext);
             }
         });
     };
@@ -575,13 +579,13 @@ controlCenterModule.directive('enterFocusNext', function ($focus) {
 // Directive to mark elements to focus.
 controlCenterModule.directive('eventFocus', function ($focus) {
     return function (scope, elem, attr) {
-        elem.on(attr.eventFocus, function () {
-            $focus(attr.eventFocusId);
+        elem.on('click', function () {
+            $focus(attr.eventFocus);
         });
 
         // Removes bound events in the element itself when the scope is destroyed
         scope.$on('$destroy', function () {
-            elem.off(attr.eventFocus);
+            elem.off('click');
         });
     };
 });
@@ -595,14 +599,9 @@ controlCenterModule.controller('activeLink', [
     }]);
 
 // Login popup controller.
-controlCenterModule.controller('auth', [
-    '$scope', '$modal', '$alert', '$http', '$window', '$common', '$focus',
-    function ($scope, $modal, $alert, $http, $window, $common, $focus) {
-        $scope.errorMessage = $common.errorMessage;
-
+controlCenterModule.controller('auth', ['$scope', '$modal', '$http', '$window', '$common', '$focus',
+    function ($scope, $modal, $http, $window, $common, $focus) {
         $scope.action = 'login';
-
-        $scope.valid = false;
 
         $scope.userDropdown = [{text: 'Profile', href: '/profile'}];
 
@@ -613,29 +612,56 @@ controlCenterModule.controller('auth', [
             $scope.userDropdown.push({text: 'Log Out', href: '/logout'});
         }
 
-        // Pre-fetch an external template populated with a custom scope
-        var authModal = $modal({scope: $scope, templateUrl: '/login', show: false});
+        if ($scope.token && !$scope.error)
+            $focus('user_password');
 
+        // Pre-fetch modal dialogs.
+        var loginModal = $modal({scope: $scope, templateUrl: '/login', show: false});
+
+        // Show login modal.
         $scope.login = function () {
-            // Show when some event occurs (use $promise property to ensure the template has been loaded)
-            authModal.$promise.then(function () {
-                authModal.show();
+            loginModal.$promise.then(function () {
+                loginModal.show();
 
                 $focus('user_email');
             });
         };
 
+        // Try to authorize user with provided credentials.
         $scope.auth = function (action, user_info) {
             $http.post('/' + action, user_info)
                 .success(function () {
-                    authModal.hide();
+                    loginModal.hide();
 
                     $window.location = '/configuration/clusters';
                 })
-                .error(function (data) {
-                    $alert({placement: 'top', container: '#errors-container', title: $scope.errorMessage(data)});
+                .error(function (data, status) {
+                    if (status == 403) {
+                        loginModal.hide();
+
+                        $window.location = '/reset';
+                    }
+                    else
+                        $common.showError(data, 'top', '#errors-container');
                 });
         };
+
+        // Try to reset user password for provided token.
+        $scope.resetPassword = function (reset_info) {
+            $http.post('/reset_password', reset_info)
+                .success(function (data) {
+                    $scope.user_info = {email: data};
+                    $scope.login();
+                })
+                .error(function (data, state) {
+                    $common.showError(data);
+
+                    if (state == 503) {
+                        $scope.user_info = {};
+                        $scope.login();
+                    }
+                });
+        }
     }]);
 
 // Navigation bar controller.

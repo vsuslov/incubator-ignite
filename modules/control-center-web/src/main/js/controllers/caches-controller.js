@@ -88,6 +88,12 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             {value: 'H2', label: 'H2 database'}
         ];
 
+        $scope.ui = {expanded: false};
+
+        $scope.toggleExpanded = function () {
+            $scope.ui.expanded = !$scope.ui.expanded;
+        };
+
         $scope.general = [];
         $scope.advanced = [];
 
@@ -134,7 +140,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         $scope.tableSimpleValid = function (item, field, fx, index) {
             if (!$common.isValidJavaClass('SQL function', fx, false))
-                return focusInvalidField(index, 'SqlFxField');
+                return focusInvalidField(index, 'SqlFx');
 
             var model = item[field.model];
 
@@ -145,7 +151,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                 if (idx >= 0 && idx != index) {
                     $common.showError('SQL function with such class name already exists!');
 
-                    return focusInvalidField(index, 'SqlFxField');
+                    return focusInvalidField(index, 'SqlFx');
                 }
             }
 
@@ -154,10 +160,10 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         $scope.tablePairValid = function (item, field, keyCls, valCls, index) {
             if (!$common.isValidJavaClass('Indexed type key', keyCls, true))
-                return focusInvalidField(index, 'IndexedType');
+                return focusInvalidField(index, 'KeyIndexedType');
 
             if (!$common.isValidJavaClass('Indexed type value', valCls, true))
-                return focusInvalidField(index, 'IndexedTypeNext');
+                return focusInvalidField(index, 'ValueIndexedType');
 
             var model = item[field.model];
 
@@ -170,7 +176,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
                 if (idx >= 0 && idx != index) {
                     $common.showError('Indexed type with such key class already exists!');
 
-                    return focusInvalidField(index, 'IndexedType');
+                    return focusInvalidField(index, 'KeyIndexedType');
                 }
             }
 

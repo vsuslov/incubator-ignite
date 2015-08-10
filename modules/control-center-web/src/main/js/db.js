@@ -33,7 +33,8 @@ var AccountSchema = new Schema({
     username: String,
     email: String,
     lastLogin: Date,
-    admin: Boolean
+    admin: Boolean,
+    resetPasswordToken: String
 });
 
 AccountSchema.plugin(passportLocalMongoose, {usernameField: 'email', limitAttempts: true, lastLoginField: 'lastLogin',

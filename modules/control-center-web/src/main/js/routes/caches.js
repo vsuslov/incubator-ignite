@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
 var router = require('express').Router();
 var db = require('../db');
 
@@ -50,6 +51,21 @@ router.post('/list', function (req, res) {
             db.Cache.find({space: {$in: space_ids}}).sort('name').exec(function (err, caches) {
                 if (err)
                     return res.status(500).send(err.message);
+
+                // Remove deleted metadata.
+                _.forEach(caches, function (cache) {
+                    cache.queryMetadata = _.filter(cache.queryMetadata, function (metaId) {
+                        return _.findIndex(metadatas, function (meta) {
+                            return meta._id.equals(metaId);
+                        }) >= 0;
+                    });
+
+                    cache.storeMetadata = _.filter(cache.storeMetadata, function (metaId) {
+                        return _.findIndex(metadatas, function (meta) {
+                            return meta._id.equals(metaId);
+                        }) >= 0;
+                    });
+                });
 
                 var metadatasJson = metadatas.map(function (meta) {
                     return {value: meta._id, label: meta.name, kind: meta.kind};

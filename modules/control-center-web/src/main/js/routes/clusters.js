@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+var _ = require('lodash');
 var router = require('express').Router();
 var db = require('../db');
 
@@ -49,6 +50,15 @@ router.post('/list', function (req, res) {
             db.Cluster.find({space: {$in: space_ids}}).sort('name').exec(function (err, clusters) {
                 if (err)
                     return res.status(500).send(err.message);
+
+                // Remove deleted caches.
+                _.forEach(clusters, function (cluster) {
+                    cluster.caches = _.filter(cluster.caches, function (cacheId) {
+                        return _.findIndex(caches, function (cache) {
+                            return cache._id.equals(cacheId);
+                        }) >= 0;
+                    });
+                });
 
                 var cachesJson = caches.map(function (cache) {
                     return {value: cache._id, label: cache.name, swapEnabled: cache.swapEnabled};

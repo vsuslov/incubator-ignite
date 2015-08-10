@@ -5,7 +5,7 @@
       "<ul>",
       "  <li>Configure caches.</li>",
       "  <li>Associate metadata with cache queries and/or cache store.</li>",
-      "</ul>"
+      "</ul><br/>"
     ],
     "whatsNextTitle": "What's next:",
     "whatsNextContent": [
@@ -27,7 +27,7 @@
     },
     {
       "label": "Mode",
-      "type": "dropdown",
+      "type": "select",
       "model": "mode",
       "placeholder": "PARTITIONED",
       "items": "modes",
@@ -42,7 +42,7 @@
     },
     {
       "label": "Atomicity",
-      "type": "dropdown",
+      "type": "select",
       "model": "atomicityMode",
       "placeholder": "ATOMIC",
       "items": "atomicities",
@@ -387,8 +387,7 @@
           "model": "indexedTypes",
           "keyName": "keyClass",
           "valueName": "valueClass",
-          "focusNewItemId": "newIndexedType",
-          "focusCurItemId": "curIndexedType",
+          "focusId": "IndexedType",
           "addTip": "Add new key and value classes to indexed types.",
           "removeTip": "Remove item from indexed types.",
           "tip": [
@@ -399,10 +398,8 @@
           "label": "SQL functions",
           "type": "table-simple",
           "model": "sqlFunctionClasses",
-          "editIdx": -1,
           "placeholder": "SQL function full class name",
-          "focusNewItemId": "newSqlFxField",
-          "focusCurItemId": "curSqlFxField",
+          "focusId": "SqlFx",
           "addTip": "Add new user-defined functions for SQL queries.",
           "removeTip": "Remove user-defined function.",
           "tableTip": [
@@ -844,7 +841,6 @@
                   "type": "table-simple",
                   "path": "cacheStoreFactory.CacheHibernateBlobStoreFactory",
                   "model": "hibernateProperties",
-                  "editIdx": -1,
                   "placeholder": "key=value",
                   "addTip": "Add new Hibernate property.",
                   "removeTip": "Remove Hibernate property.",

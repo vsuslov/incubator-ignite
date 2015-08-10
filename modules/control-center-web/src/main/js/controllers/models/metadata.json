@@ -23,217 +23,213 @@
     "  <li>both - Create cache type metadata to use with query and store.</li>",
     "</ul>"
   ],
-  "metadataManual": [
+  "metadata": [
     {
-      "label": "Name",
-      "type": "text",
-      "model": "name",
-      "required": true,
-      "placeholder": "Input name",
-      "id": "defaultFocusId"
-    },
-    {
-      "label": "Metadata for",
-      "type": "dropdown",
-      "model": "kind",
-      "items": "kinds",
+      "label": "Metadata Common",
       "tip": [
-        "Use following template for metadata:",
-        "<ul>",
-        "  <li>query - Create cache type metadata to use with queries only.</li>",
-        "  <li>store - Create cache type metadata to use with JDBC POJO store only.</li>",
-        "  <li>both - Create cache type metadata to use with query and store.</li>",
-        "</ul>"
-      ]
-    },
-    {
-      "label": "Database schema",
-      "type": "text",
-      "model": "databaseSchema",
-      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "placeholder": "Input DB schema name",
-      "tip": [
-        "Schema name in database."
-      ]
-    },
-    {
-      "label": "Database table",
-      "type": "text",
-      "model": "databaseTable",
-      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "placeholder": "Input DB table name",
-      "tip": [
-        "Table name in database."
-      ]
-    },
-    {
-      "label": "Key type",
-      "type": "withJavaBuildInTypes",
-      "model": "keyType",
-      "id": "keyType",
-      "required": true,
-      "placeholder": "Full class name for Key",
-      "tip": [
-        "Key class used to store key in cache."
-      ]
-    },
-    {
-      "label": "Value type",
-      "type": "text",
-      "model": "valueType",
-      "id": "valueType",
-      "required": true,
-      "placeholder": "Full class name for Value",
-      "tip": [
-        "Value class used to store value in cache."
-      ]
-    },
-    {
-      "label": "Key fields",
-      "type": "dbFields",
-      "model": "keyFields",
-      "keyName": "name",
-      "valueName": "className",
-      "hide": "backupItem.kind == 'query' || isJavaBuildInClass()",
-      "focusNewItemId": "newKeyField",
-      "focusCurItemId": "curKeyField",
-      "addTip": "Add key field.",
-      "removeTip": "Remove key field.",
-      "tip": [
-        "Collection of key fields descriptions for CacheJdbcPojoStore."
-      ]
-    },
-    {
-      "label": "Value fields",
-      "type": "dbFields",
-      "model": "valueFields",
-      "keyName": "name",
-      "valueName": "className",
-      "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
-      "focusNewItemId": "newValueField",
-      "focusCurItemId": "curValueField",
-      "addTip": "Add value field.",
-      "removeTip": "Remove value field.",
-      "tip": [
-        "Collection of value fields descriptions for CacheJdbcPojoStore.."
-      ]
-    },
-    {
-      "label": "Query fields",
-      "type": "queryFields",
-      "model": "queryFields",
-      "keyName": "name",
-      "valueName": "className",
-      "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newQryField",
-      "focusCurItemId": "curQryField",
-      "addTip": "Add field to query.",
-      "removeTip": "Remove field.",
-      "tip": [
-        "Collection of name-to-type mappings to be queried, in addition to indexed fields."
-      ]
-    },
-    {
-      "label": "Ascending fields",
-      "type": "queryFields",
-      "model": "ascendingFields",
-      "keyName": "name",
-      "valueName": "className",
-      "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newAscField",
-      "focusCurItemId": "curAscField",
-      "addTip": "Add field to index in ascending order.",
-      "removeTip": "Remove field.",
-      "tip": [
-        "Collection of name-to-type mappings to index in ascending order."
-      ]
-    },
-    {
-      "label": "Descending fields",
-      "type": "queryFields",
-      "model": "descendingFields",
-      "keyName": "name",
-      "valueName": "className",
-      "hide": "backupItem.kind == 'store'",
-      "focusNewItemId": "newDescField",
-      "focusCurItemId": "curDescField",
-      "addTip": "Add field to index in descending order.",
-      "removeTip": "Remove field.",
-      "tip": [
-        "Collection of name-to-type mappings to index in descending order."
-      ]
-    },
-    {
-      "label": "Text fields",
-      "type": "table-simple",
-      "model": "textFields",
-      "hide": "backupItem.kind == 'store'",
-      "placeholder": "Field name",
-      "focusNewItemId": "newTextField",
-      "focusCurItemId": "curTextField",
-      "addTip": "Add field to index as text.",
-      "removeTip": "Remove field.",
-      "tableTip": [
-        "Fields to index as text."
+        "Metadata properties common to Query and Store."
       ],
-      "tip": [
-        "Field to index as text."
+      "fields": [
+        {
+          "label": "Name",
+          "type": "text",
+          "model": "name",
+          "required": true,
+          "placeholder": "Input name",
+          "id": "defaultFocusId"
+        },
+        {
+          "label": "Key type",
+          "type": "withJavaBuildInTypes",
+          "model": "keyType",
+          "id": "keyType",
+          "required": true,
+          "placeholder": "Full class name for Key",
+          "tip": [
+            "Key class used to store key in cache."
+          ]
+        },
+        {
+          "label": "Value type",
+          "type": "text",
+          "model": "valueType",
+          "id": "valueType",
+          "required": true,
+          "placeholder": "Full class name for Value",
+          "tip": [
+            "Value class used to store value in cache."
+          ]
+        }
       ]
     },
     {
-      "label": "Groups",
-      "type": "queryGroups",
-      "model": "groups",
-      "hide": "backupItem.kind == 'store'",
-      "addTip": "Add new group.",
-      "removeTip": "Remove group.",
-      "addItemTip": "Add new field to group.",
-      "removeItemTip": "Remove field from group.",
-      "tip": [
-        "Collection of group indexes."
+      "label": "Metadata for SQL query",
+      "tip": [],
+      "fields": [
+        {
+          "label": "Query fields",
+          "type": "queryFields",
+          "model": "queryFields",
+          "keyName": "name",
+          "valueName": "className",
+          "hide": "backupItem.kind == 'store'",
+          "focusId": "QryField",
+          "addTip": "Add field to query.",
+          "removeTip": "Remove field.",
+          "tip": [
+            "Collection of name-to-type mappings to be queried, in addition to indexed fields."
+          ]
+        },
+        {
+          "label": "Ascending fields",
+          "type": "queryFields",
+          "model": "ascendingFields",
+          "keyName": "name",
+          "valueName": "className",
+          "hide": "backupItem.kind == 'store'",
+          "focusId": "AscField",
+          "addTip": "Add field to index in ascending order.",
+          "removeTip": "Remove field.",
+          "tip": [
+            "Collection of name-to-type mappings to index in ascending order."
+          ]
+        },
+        {
+          "label": "Descending fields",
+          "type": "queryFields",
+          "model": "descendingFields",
+          "keyName": "name",
+          "valueName": "className",
+          "hide": "backupItem.kind == 'store'",
+          "focusId": "DescField",
+          "addTip": "Add field to index in descending order.",
+          "removeTip": "Remove field.",
+          "tip": [
+            "Collection of name-to-type mappings to index in descending order."
+          ]
+        },
+        {
+          "label": "Text fields",
+          "type": "table-simple",
+          "model": "textFields",
+          "hide": "backupItem.kind == 'store'",
+          "placeholder": "Field name",
+          "focusId": "TextField",
+          "addTip": "Add field to index as text.",
+          "removeTip": "Remove field.",
+          "tableTip": [
+            "Fields to index as text."
+          ],
+          "tip": [
+            "Field to index as text."
+          ]
+        },
+        {
+          "label": "Groups",
+          "type": "queryGroups",
+          "model": "groups",
+          "hide": "backupItem.kind == 'store'",
+          "addTip": "Add new group.",
+          "removeTip": "Remove group.",
+          "addItemTip": "Add new field to group.",
+          "removeItemTip": "Remove field from group.",
+          "tip": [
+            "Collection of group indexes."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Metadata for cache store",
+      "tip": [],
+      "fields": [
+        {
+          "label": "Database schema",
+          "type": "text",
+          "model": "databaseSchema",
+          "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+          "placeholder": "Input DB schema name",
+          "tip": [
+            "Schema name in database."
+          ]
+        },
+        {
+          "label": "Database table",
+          "type": "text",
+          "model": "databaseTable",
+          "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+          "placeholder": "Input DB table name",
+          "tip": [
+            "Table name in database."
+          ]
+        },
+        {
+          "label": "Key fields",
+          "type": "dbFields",
+          "model": "keyFields",
+          "keyName": "name",
+          "valueName": "className",
+          "hide": "backupItem.kind == 'query' || isJavaBuildInClass()",
+          "focusId": "KeyField",
+          "addTip": "Add key field.",
+          "removeTip": "Remove key field.",
+          "tip": [
+            "Collection of key fields descriptions for CacheJdbcPojoStore."
+          ]
+        },
+        {
+          "label": "Value fields",
+          "type": "dbFields",
+          "model": "valueFields",
+          "keyName": "name",
+          "valueName": "className",
+          "hide": "backupItem.kind != 'both' && backupItem.kind == 'query'",
+          "focusId": "ValueField",
+          "addTip": "Add value field.",
+          "removeTip": "Remove value field.",
+          "tip": [
+            "Collection of value fields descriptions for CacheJdbcPojoStore.."
+          ]
+        }
       ]
     }
   ],
   "metadataDb": [
     {
-      "label": "Name",
-      "type": "text",
-      "model": "name"
-    },
-    {
-      "label": "Database type",
-      "type": "dropdown",
-      "model": "rdbms",
-      "placeholder": "Choose database",
+      "label": "Database preset",
+      "type": "select",
+      "model": "preset",
       "items": "databases",
       "tip": [
         "Select database type to connect for loading tables metadata."
       ]
     },
     {
-      "label": "Database name",
+      "label": "Driver JAR",
       "type": "text",
-      "model": "dbName",
+      "model": "drvJar",
+      "placeholder": "JAR with JDBC driver",
       "tip": [
-        "Database name to connect for loading tables metadata."
+        "Select appropriate JAR with JDBC driver."
       ]
     },
     {
-      "label": "Host",
+      "label": "JDBC Driver",
       "type": "text",
-      "model": "host",
-      "placeholder": "IP address or host",
+      "model": "drvClass",
+      "placeholder": "Full class name of JDBC driver",
       "tip": [
-        "IP address or host name where database server deployed."
+        "Full class name of JDBC driver that will be used to connect to database."
       ]
     },
     {
-      "label": "Port",
-      "type": "number",
-      "model": "port",
-      "max": 65535,
+      "label": "JDBC URL",
+      "type": "text",
+      "model": "jdbcUrl",
+      "placeholder": "JDBC URL",
       "tip": [
-        "Port number for connecting to database."
+        "JDBC URL for connecting to database.",
+        "Refer to your database documentation for details."
       ]
     },
     {
@@ -251,6 +247,15 @@
       "tip": [
         "Password for connecting to database.",
         "Note, password would not be saved."
+      ]
+    },
+    {
+      "label": "Tables only",
+      "type": "check",
+      "model": "tablesOnly",
+      "tip": [
+        "If selected then only tables metadata will be parsed.",
+        "Otherwise table and view metadata will be parsed."
       ]
     }
   ]

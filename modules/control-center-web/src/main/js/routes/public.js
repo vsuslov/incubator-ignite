@@ -17,6 +17,8 @@
 
 var router = require('express').Router();
 var passport = require('passport');
+var crypto = require('crypto');
+var nodemailer = require('nodemailer');
 var db = require('../db');
 
 // GET dropdown-menu template.
@@ -39,7 +41,7 @@ router.get('/copy', function (req, res) {
     res.render('templates/copy', {});
 });
 
-/* GET login page. */
+/* GET login dialog. */
 router.get('/login', function (req, res) {
     res.render('login');
 });
@@ -102,6 +104,125 @@ router.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
+/**
+ * Request for password reset and send e-mail to user with reset token. */
+router.post('/request_password_reset', function(req, res) {
+    var token = crypto.randomBytes(20).toString('hex');
+
+    db.Account.findOne({ email: req.body.email }, function(err, user) {
+        if (!user)
+            return res.status(401).send('No account with that email address exists!');
+
+        if (err)
+            return res.status(401).send(err);
+
+        user.resetPasswordToken = token;
+
+        user.save(function(err) {
+            if (err)
+                return res.status(401).send(err);
+
+            var transporter  = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: '!!! YOUR USERNAME !!!',
+                    pass: '!!! YOUR PASSWORD !!!'
+                }
+            });
+
+            var mailOptions = {
+                from: '!!! YOUR USERNAME !!!',
+                to: user.email,
+                subject: 'Password Reset',
+                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                'If you did not request this, please ignore this email and your password will remain unchanged.\n\n' +
+                '--------------\n' +
+                'Apache Ignite Web Control Center\n'
+            };
+
+            transporter.sendMail(mailOptions, function(err){
+                if (err)
+                    return res.status(401).send('Failed to send e-mail with reset link!');
+
+                return res.status(403).send('An e-mail has been sent with further instructions.');
+            });
+        });
+    });
+});
+
+router.get('/reset', function (req, res) {
+    res.render('reset', {});
+});
+
+/* GET reset password page. */
+router.get('/reset/:token', function (req, res) {
+    var token = req.params.token;
+
+    var data = {token: token};
+
+    db.Account.findOne({resetPasswordToken: token}, function (err, user) {
+        if (!user)
+            data.error = 'Invalid token for password reset!';
+        else if (err)
+            data.error = err;
+
+        res.render('reset', data);
+    });
+});
+
+/**
+ * Reset password with given token.
+ */
+router.post('/reset_password', function(req, res) {
+    db.Account.findOne({ resetPasswordToken: req.body.token }, function(err, user) {
+        if (!user)
+            return res.status(500).send('Invalid token for password reset!');
+
+        if (err)
+            return res.status(500).send(err);
+
+        user.setPassword(req.body.password, function (err, updatedUser) {
+            if (err)
+                return res.status(500).send(err.message);
+
+            updatedUser.resetPasswordToken = undefined;
+
+            updatedUser.save(function (err) {
+                if (err)
+                    return res.status(500).send(err.message);
+
+                var transporter  = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: '!!! YOUR USERNAME !!!',
+                        pass: '!!! YOUR PASSWORD !!!'
+                    }
+                });
+
+                var mailOptions = {
+                    from: '!!! YOUR USERNAME !!!',
+                    to: user.email,
+                    subject: 'Your password has been changed',
+                    text: 'Hello,\n\n' +
+                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n\n' +
+                    'Now you can login: http://' + req.headers.host + '\n\n' +
+                    '--------------\n' +
+                    'Apache Ignite Web Control Center\n'
+                };
+
+                transporter.sendMail(mailOptions, function(err){
+                    if (err)
+                        return res.status(503).send('Password was changed, but failed to send confirmation e-mail!<br />' + err);
+
+                    return res.status(200).send(user.email);
+                });
+            });
+        });
+    });
+});
+
 /* GET home page. */
 router.get('/', function (req, res) {
     if (req.isAuthenticated())
@@ -109,15 +230,5 @@ router.get('/', function (req, res) {
     else
         res.render('index');
 });
-
-///* GET sql page. */
-//router.get('/sql', function(req, res) {
-//    res.render('sql', { user: req.user });
-//});
-//
-///* GET clients page. */
-//router.get('/clients', function(req, res) {
-//    res.render('clients', { user: req.user });
-//});
 
 module.exports = router;
