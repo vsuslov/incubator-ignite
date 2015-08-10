@@ -143,7 +143,7 @@ mixin details-row
                 +tipField('detail.tip')
                 .input-tip
                     button.form-control(bs-select data-multiple='1' data-placeholder='{{::detail.placeholder}}' bs-options='item.value as item.label for item in {{detail.items}}')&attributes(detailCommon)
-        div(ng-switch-when='table-simple')&attributes(detailCommon)
+        .section(ng-switch-when='table-simple')&attributes(detailCommon)
             div(ng-if='detail.label')
                 label {{::detail.label}}:
                 +tipLabel('detail.tableTip')
@@ -290,7 +290,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             .col-sm-7.panel-details(ng-show='#{expanded} && #{fieldMdl}')
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
-        div(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
+        .section(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
             .col-sm-7.fieldset
                 .legend
                     label {{::field.label}}:
@@ -317,11 +317,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                     +btn-save('tableSimpleSaveVisible(newValue)', 'tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)')
                                     .input-tip
                                         input.form-control(id='new{{::field.focusId}}' type='text' ng-model='newValue' placeholder='{{::field.placeholder}}' on-enter='tableSimpleSaveVisible(newValue) && tableSimpleSave(tableSimpleValid, backupItem, field, newValue, -1)' on-escape='tableReset()')
-        div(ng-switch-when='indexedTypes')
+        .section(ng-switch-when='indexedTypes')
             +table-pair('Index key-value type pairs', fieldMdl, 'keyClass', 'valueClass', 'Key class full name', 'Value class full name', true, false)
-        div(ng-switch-when='queryFields' ng-hide=fieldHide)
+        div(ng-switch-when='queryFieldsFirst' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
-        div(ng-switch-when='dbFields' ng-hide=fieldHide)
+        .section(ng-switch-when='queryFields' ng-hide=fieldHide)
+            +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
+        .section(ng-switch-when='dbFields' ng-hide=fieldHide)
             .col-sm-7.fieldset
                 .legend
                     label {{::field.label}}:
@@ -341,7 +343,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                             tr
                                 td.col-sm-12(ng-init='newDatabaseType="INTEGER"; newJavaType="Integer"')
                                     +table-db-field-edit('newDatabaseName', 'newDatabaseType', 'newJavaName', 'newJavaType', '{{::field.focusId}}', '-1')
-        div(ng-switch-when='queryGroups' ng-hide=fieldHide)
+        .section(ng-switch-when='queryGroups' ng-hide=fieldHide)
             .col-sm-7.fieldset
                 .legend
                     label {{::field.label}}:

@@ -68,7 +68,7 @@
       "fields": [
         {
           "label": "Query fields",
-          "type": "queryFields",
+          "type": "queryFieldsFirst",
           "model": "queryFields",
           "keyName": "name",
           "valueName": "className",
