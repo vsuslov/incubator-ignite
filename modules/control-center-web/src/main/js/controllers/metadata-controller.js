@@ -307,7 +307,7 @@ controlCenterModule.controller('metadataController', [
                 .success(function (data) {
                     $scope.screenTip = data.screenTip;
                     $scope.templateTip = data.templateTip;
-                    $scope.metadataManual = data.metadataManual;
+                    $scope.metadata = data.metadata;
                     $scope.metadataDb = data.metadataDb;
                 })
                 .error(function (errMsg) {
@@ -324,8 +324,6 @@ controlCenterModule.controller('metadataController', [
 
                 $scope.selectedItem = sel;
                 $scope.backupItem = bak;
-
-                $scope.panels.activePanel = [0];
             }
 
             // When landing on the page, get metadatas and show them.

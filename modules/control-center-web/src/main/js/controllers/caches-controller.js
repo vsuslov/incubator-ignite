@@ -88,6 +88,12 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             {value: 'H2', label: 'H2 database'}
         ];
 
+        $scope.ui = {expanded: false};
+
+        $scope.toggleExpanded = function () {
+            $scope.ui.expanded = !$scope.ui.expanded;
+        };
+
         $scope.general = [];
         $scope.advanced = [];
 

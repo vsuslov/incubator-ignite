@@ -414,7 +414,7 @@ hr {
 }
 
 .theme-line .main-content a {
-    color: #666;
+    color: $ignite-red;
 }
 
 .theme-line .main-content a:hover {
@@ -705,23 +705,12 @@ button .caret, .btn .caret {
     }
 }
 
-.theme-line .panel-title {
-    a {
-        color: $ignite-red;
-    }
-
-    h3 {
-        margin-bottom: 20px;
-    }
-}
-
 .theme-line .panel-body {
     padding: 10px 20px;
 }
 
 .theme-line .main-content a.customize {
     margin-left: 5px;
-    color: $ignite-red;
 }
 
 .theme-line .panel-collapse {
@@ -1128,6 +1117,15 @@ a {
 
 .panel-group .panel + .panel {
     margin-top: 20px;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+.advanced-options {
+    @extend .section;
+    margin-bottom: 20px;
 }
 
 .margin-top-dflt {

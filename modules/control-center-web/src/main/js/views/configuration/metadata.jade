@@ -36,39 +36,21 @@ block content
                             td(ng-class='{active: row._id == selectedItem._id}')
                                 a(event-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         .padding-top-dflt
-            button.btn.btn-primary(event-focus='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') &nbspAdd metadata
-            label(style='margin-left: 6px; margin-right: 10px') For:
-            select.form-control.line-control(ng-model='template' ng-options='item.value as item.label for item in templates')
-            i.tipLabel.fa.fa-question-circle(bs-tooltip data-title='{{joinTip(templateTip)}}' type='button')
+            button.btn.btn-primary(event-focus='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') Add metadata
+            button.btn.btn-primary(ng-click='loadFromDb()') Load from database
+
         hr
-        .panel-group(bs-collapse ng-model='panels.activePanel' data-allow-multiple='true')
-            .panel.panel-default(ng-show='selectedItem || backupItem')
-                .panel-heading
-                    h3
-                        a(bs-collapse-toggle) Configure metadata
-                .panel-collapse(role='tabpanel' bs-collapse-target)
-                    .panel-body
-                        form.form-horizontal(name='manualForm' ng-if='backupItem' novalidate)
-                            .settings-row(ng-repeat='field in metadataManual')
+        form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
+            .panel-group(bs-collapse data-allow-multiple='true')
+                .panel.panel-default(ng-repeat='group in metadata')
+                    .panel-heading
+                        h3
+                            a(bs-collapse-toggle) {{::group.label}}
+                    .panel-collapse(role='tabpanel' bs-collapse-target)
+                        .panel-body
+                            .settings-row(ng-repeat='field in group.fields')
                                 +form-row('backupItem')
-                            button.btn.btn-primary(ng-disabled='manualForm.$invalid' ng-click='saveItem()') Save
-                            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
-                            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
-            .panel.panel-default
-                .panel-heading
-                    h3
-                        a(bs-collapse-toggle) Load from database
-                .panel-collapse(bs-collapse-target)
-                    .panel-body
-                        form.form-horizontal(name='dbForm' novalidate)
-                            .settings-row(ng-repeat='field in metadataDb')
-                                +form-row('backupItem')
-                        div(ng-hide='tables.length == 0')
-                            table.links(st-table='tables')
-                                tbody
-                                    tr(ng-repeat='row in tables')
-                                        td
-                                            a {{$index + 1}}) {{::row.schemaName}} / {{::row.tableName}}
-                        button.btn.btn-primary(ng-disabled='dbForm.$invalid' ng-click='saveItem()') Save
-                        button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove
-                        button.btn.btn-primary.btn-second(ng-click='reloadMetadata()') Reload
+        .section
+            button.btn.btn-primary(ng-disabled='manualForm.$invalid' ng-click='saveItem()') Save
+            button.btn.btn-primary(ng-show='backupItem._id' ng-disabled='inputForm.$invalid' ng-click='saveItemAs()') Copy
+            button.btn.btn-primary.btn-second(ng-show='backupItem._id' ng-click='removeItem()') Remove

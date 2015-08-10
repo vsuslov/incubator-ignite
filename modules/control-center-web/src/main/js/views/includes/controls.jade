@@ -77,11 +77,11 @@ mixin table-pair-edit(keyModel, valModel, keyPlaceholder, valPlaceholder, keyJav
                 input.form-control(id=focusIdVal type='text' ng-model=valModel placeholder=valPlaceholder on-enter=btnVisibleAndSave on-escape='tableReset()')
 
 mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes)
-    .col-sm-7
+    .col-sm-7.table-details
         label.table-header #{header}:
         +tipLabel('field.tip')
         +btn-add('tableNewItem(field)', 'field.addTip', 'newKey{{::field.focusId}}')
-        .table-details(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
+        div(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
             table.links-edit.col-sm-12(st-table=tblMdl)
                 tbody
                     tr(ng-repeat='item in #{tblMdl}')
@@ -287,13 +287,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                 .details-row(ng-repeat='detail in field.details[#{fieldMdl}].fields')
                     +details-row
         div(ng-switch-when='table-simple' ng-hide=fieldHide)&attributes(fieldCommon)
-            .col-sm-7
+            .col-sm-7.table-details
                 label.table-header {{::field.label}}:
                 +tipLabel('field.tableTip')
                 +btn-add('tableNewItem(field)', 'field.addTip', 'new{{::field.focusId}}')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-7
-                    .table-details
+                    div
                         table.links-edit.col-sm-12(st-table='#{fieldMdl}')
                             tbody
                                 tr(ng-repeat='item in #{fieldMdl} track by $index')
@@ -319,13 +319,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
         div(ng-switch-when='queryFields' ng-hide=fieldHide)
             +table-pair('{{::field.label}}', fieldMdl, 'name', 'className', 'Field name', 'Field class full name', false, true)
         div(ng-switch-when='dbFields' ng-hide=fieldHide)
-            .col-sm-7
+            .col-sm-7.table-details
                 label.table-header {{::field.label}}:
                 +tipLabel('field.tip')
                 +btn-add('tableNewItem(field)', 'field.addTip', 'newDatabaseName{{::field.focusId}}')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-7
-                    .table-details
+                    div
                         table.links-edit.col-sm-12(st-table=fieldMdl)
                             tbody
                                 tr(ng-repeat='item in #{fieldMdl}')
@@ -340,13 +340,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                                     td.col-sm-12(ng-init='newDatabaseType="INTEGER"; newJavaType="Integer"')
                                         +table-db-field-edit('newDatabaseName', 'newDatabaseType', 'newJavaName', 'newJavaType', '{{::field.focusId}}', '-1')
         div(ng-switch-when='queryGroups' ng-hide=fieldHide)
-            .col-sm-7
+            .col-sm-7.table-details
                 label.table-header {{::field.label}}:
                 +tipLabel('field.tip')
                 +btn-add('tableNewItem(field)', 'field.addTip', 'newGroupName')
             .col-sm-12(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
                 .col-sm-7
-                    .table-details
+                    div
                         table.links-edit.col-sm-12(st-table=fieldMdl ng-init='newDirection = false')
                             tbody
                                 tr(ng-repeat='group in #{fieldMdl}')

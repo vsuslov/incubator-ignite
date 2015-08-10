@@ -97,6 +97,12 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             {value: 'JdkMarshaller', label: 'JdkMarshaller'}
         ];
 
+        $scope.ui = {expanded: false};
+
+        $scope.toggleExpanded = function () {
+            $scope.ui.expanded = !$scope.ui.expanded;
+        };
+
         var simpleTables = {
             addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
             regions: {msg: 'Such region already exists!', id: 'Region'},
