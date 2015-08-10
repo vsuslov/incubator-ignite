@@ -570,7 +570,7 @@ controlCenterModule.directive('enterFocusNext', function ($focus) {
             if (event.which === 13) {
                 event.preventDefault();
 
-                $focus(attrs.enterFocusNextId);
+                $focus(attrs.enterFocusNext);
             }
         });
     };
@@ -579,13 +579,13 @@ controlCenterModule.directive('enterFocusNext', function ($focus) {
 // Directive to mark elements to focus.
 controlCenterModule.directive('eventFocus', function ($focus) {
     return function (scope, elem, attr) {
-        elem.on(attr.eventFocus, function () {
-            $focus(attr.eventFocusId);
+        elem.on('click', function () {
+            $focus(attr.eventFocus);
         });
 
         // Removes bound events in the element itself when the scope is destroyed
         scope.$on('$destroy', function () {
-            elem.off(attr.eventFocus);
+            elem.off('click');
         });
     };
 });
