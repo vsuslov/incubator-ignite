@@ -614,10 +614,6 @@ h1.ignite-logo {
     display: block;
     margin: 10px 0;
 
-    label.table-header {
-        line-height: $input-height;
-    }
-
     [class*="col-"] {
         display: inline-block;
         vertical-align: middle;
@@ -735,20 +731,31 @@ button .caret, .btn .caret {
     }
 
     a {
-        color: #666;
+        color: black;
     }
 }
 
 .theme-line table.links-edit {
     @extend table.links;
 
-    margin-top: 5px;
+    margin-top: 0;
     margin-bottom: 5px;
 
     label {
         line-height: $input-height;
         color: #666;
     }
+
+    td {
+        padding-left: 0;
+    }
+}
+
+.theme-line table.links-edit-sub {
+    @extend table.links-edit;
+
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .theme-line table.links-edit-details {
@@ -768,11 +775,6 @@ button .caret, .btn .caret {
             padding: 0;
         }
     }
-}
-
-.zzz {
-    color: $ignite-red;
-    font-weight: bold;
 }
 
 .theme-line table.admin {
@@ -861,6 +863,31 @@ button .caret, .btn .caret {
 
     padding-left: 10px;
     padding-right: 5px;
+}
+
+.fieldset {
+    border-radius: 5px;
+    border: thin dotted lightgrey;
+
+    text-align: left;
+}
+
+.legend {
+    top: -10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background: white;
+    overflow: visible;
+    position: relative;
+}
+
+.legend-btn {
+    float: right;
+    line-height: 20px;
+}
+
+.fieldset-content {
+    margin: 0 10px 5px 10px;
 }
 
 .tooltip.right .tooltip-arrow {
@@ -1066,6 +1093,14 @@ input.ng-dirty.ng-invalid, button.ng-dirty.ng-invalid {
     }
 }
 
+input.ng-untouched.ng-invalid, button.ng-untouched.ng-invalid {
+    border-color: $ignite-red;
+
+    :focus {
+        border-color: $ignite-red;
+    }
+}
+
 .form-control-feedback {
     display: inline-block;
     color: $ignite-red;
@@ -1126,6 +1161,10 @@ a {
 .advanced-options {
     @extend .section;
     margin-bottom: 20px;
+}
+
+.margin-left-dflt {
+    margin-left: 10px;
 }
 
 .margin-top-dflt {

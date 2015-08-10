@@ -44,7 +44,7 @@ block container
                                 label
                                     input(type='checkbox' ng-model='profileUser.changePassword')
                                     | Change password
-                        div(ng-show='profileUser.changePassword')
+                        div(ng-if='profileUser.changePassword')
                             .details-row
                                 +lbl('New password:')
                                 .col-sm-4
