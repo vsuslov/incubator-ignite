@@ -38,6 +38,9 @@ controlCenterModule.controller('metadataController', [
             $scope.tablePairSave = $table.tablePairSave;
             $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
+            $scope.availableWidth = $common.availableWidth;
+            $scope.compactJavaName = $common.compactJavaName;
+
             $scope.databases = [
                 {value: 'oracle', label: 'Oracle database'},
                 {value: 'db2', label: 'IBM DB2'},
@@ -242,6 +245,19 @@ controlCenterModule.controller('metadataController', [
                         }
                     ]
                 }];
+
+            $scope.activePanels = [0, 1];
+
+            $scope.ensureActivePanel = function (pnlIdx) {
+                if (!$scope.activePanels || $scope.activePanels.length < 1)
+                    $scope.activePanels = [pnlIdx];
+                else if (!_.contains($scope.activePanels, pnlIdx)) {
+                    var newActivePanels = $scope.activePanels.slice();
+                    newActivePanels.push(pnlIdx);
+
+                    $scope.activePanels = newActivePanels;
+                }
+            };
 
             $scope.metadatas = [];
 

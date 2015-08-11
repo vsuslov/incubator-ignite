@@ -36,11 +36,11 @@ block content
                             td(ng-class='{active: row._id == selectedItem._id}')
                                 a(event-focus='defaultFocusId' ng-click='selectItem(row)') {{$index + 1}}) {{row.name}}
         .padding-top-dflt
-            button.btn.btn-primary(event-focus='defaultFocusId' ng-click='panels.activePanel = [0]; createItem()') Add metadata
+            button.btn.btn-primary(ng-click='ensureActivePanel(0); createItem();' event-focus='defaultFocusId') Add metadata
             button.btn.btn-primary(ng-click='loadFromDb()') Load from database
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
-            .panel-group(bs-collapse data-allow-multiple='true')
+            .panel-group(bs-collapse ng-model='activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
                 .panel.panel-default(ng-repeat='group in metadata')
                     .panel-heading
                         h3

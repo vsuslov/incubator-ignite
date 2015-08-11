@@ -22,6 +22,7 @@ $ignite-block-callout-left: #248fb2;
 $ignite-block-callout-left-background: #f4f8fa;
 $ignite-block-callout-right: #50af51;
 $ignite-block-callout-right-background: #f3f8f3;
+$ignite-block-callout-gradient-to: #ffffff;
 
 hr {
     margin: 20px 0;
@@ -1226,7 +1227,7 @@ a {
 .block-callout-left {
     @extend .block-callout;
 
-    background-color: $ignite-block-callout-left-background;
+    background: linear-gradient(to right, $ignite-block-callout-left-background, $ignite-block-callout-gradient-to);
     border-color: $ignite-block-callout-left;
 
     i {
@@ -1241,7 +1242,7 @@ a {
 .block-callout-right {
     @extend .block-callout;
 
-    background-color: $ignite-block-callout-right-background;
+    background: linear-gradient(to right, $ignite-block-callout-right-background, $ignite-block-callout-gradient-to);
     border-color: $ignite-block-callout-right;
 
     i {

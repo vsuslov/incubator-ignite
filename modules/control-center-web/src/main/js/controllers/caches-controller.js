@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
+controlCenterModule.controller('cachesController', ['$scope', '$http', '$common', '$focus', '$confirm', '$copy', '$table',
+        function ($scope, $http, $common, $focus, $confirm, $copy, $table) {
         $scope.joinTip = $common.joinTip;
         $scope.getModel = $common.getModel;
         $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -35,6 +36,9 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
 
         $scope.tablePairSave = $table.tablePairSave;
         $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
+
+        $scope.availableWidth = $common.availableWidth;
+        $scope.compactJavaName = $common.compactJavaName;
 
         $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 

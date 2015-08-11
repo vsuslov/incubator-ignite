@@ -86,12 +86,12 @@ mixin table-pair(header, tblMdl, keyFld, valFld, keyPlaceholder, valPlaceholder,
             +tipLabel('field.tip')
             +btn-add('tableNewItem(field)', 'field.addTip', 'newKey{{::field.focusId}}')
         .fieldset-content(ng-show='(#{tblMdl} && #{tblMdl}.length > 0) || tableNewItemActive(field)')
-            table.col-sm-12.links-edit(st-table=tblMdl)
+            table.col-sm-12.links-edit(id='{{::field.model}}' st-table=tblMdl)
                 tbody
                     tr(ng-repeat='item in #{tblMdl}')
                         td.col-sm-12
                             div(ng-show='!tableEditing(field, $index)')
-                                a.labelFormField(event-focus='curKey{{::field.focusId}}' ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{item.#{keyFld}}} / {{item.#{valFld}}}
+                                a.labelFormField(event-focus='curKey{{::field.focusId}}' ng-click='curPair = tableStartEdit(backupItem, field, $index); curKey = curPair.#{keyFld}; curValue = curPair.#{valFld}') {{$index + 1}}) {{compactJavaName(item.#{keyFld}, 25, availableWidth(field.model)[1])}} / {{compactJavaName(item.#{valFld}, 25, availableWidth(field.model)[1])}}
                                 +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                             div(ng-if='tableEditing(field, $index)')
                                 +table-pair-edit('curKey', 'curValue', keyPlaceholder, valPlaceholder, keyJavaBuildInTypes, valueJavaBuildInTypes, '{{::field.focusId}}', '$index')
@@ -323,12 +323,12 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
                     +tipLabel('field.tableTip')
                     +btn-add('tableNewItem(field)', 'field.addTip', 'new{{::field.focusId}}')
                 .fieldset-content(ng-show='(#{fieldMdl} && #{fieldMdl}.length > 0) || tableNewItemActive(field)')
-                    table.col-sm-12.links-edit(st-table='#{fieldMdl}')
+                    table.col-sm-12.links-edit(id='{{::field.model}}' st-table='#{fieldMdl}')
                         tbody
                             tr(ng-repeat='item in #{fieldMdl} track by $index')
                                 td
                                     div(ng-show='!tableEditing(field, $index)')
-                                        a.labelFormField(event-focus='cur{{::field.focusId}}' ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{item | compact}}
+                                        a.labelFormField(event-focus='cur{{::field.focusId}}' ng-click='curValue = tableStartEdit(backupItem, field, $index)') {{$index + 1}}) {{compactJavaName(item, 55, availableWidth(field.model)[0])}}
                                         +btn-remove('tableRemove(backupItem, field, $index)', 'field.removeTip')
                                         +btn-down('field.reordering && tableSimpleDownVisible(backupItem, field, $index)', 'tableSimpleDown(backupItem, field, $index)')
                                         +btn-up('field.reordering && $index > 0', 'tableSimpleUp(backupItem, field, $index)')

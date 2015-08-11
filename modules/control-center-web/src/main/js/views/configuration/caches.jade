@@ -52,7 +52,7 @@ block content
                 .advanced-options
                     i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
                     a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
-                .panel-group(bs-collapse data-allow-multiple='true' data-start-collapsed='true')
+                .panel-group(bs-collapse data-allow-multiple='true' data-start-collapsed='true' ng-click='triggerDigest = true')
                     .panel.panel-default(ng-repeat='group in advanced')
                         .panel-heading
                             h3

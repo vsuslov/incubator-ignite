@@ -67,7 +67,7 @@
       "tip": [],
       "fields": [
         {
-          "label": "Query fields",
+          "label": "Not indexed fields",
           "type": "queryFieldsFirst",
           "model": "queryFields",
           "keyName": "name",
@@ -80,7 +80,7 @@
           ]
         },
         {
-          "label": "Ascending fields",
+          "label": "Ascending indexed fields",
           "type": "queryFields",
           "model": "ascendingFields",
           "keyName": "name",
@@ -93,7 +93,7 @@
           ]
         },
         {
-          "label": "Descending fields",
+          "label": "Descending indexed fields",
           "type": "queryFields",
           "model": "descendingFields",
           "keyName": "name",
@@ -106,7 +106,7 @@
           ]
         },
         {
-          "label": "Text fields",
+          "label": "Text indexed fields",
           "type": "table-simple",
           "model": "textFields",
           "placeholder": "Field name",
@@ -121,7 +121,7 @@
           ]
         },
         {
-          "label": "Groups",
+          "label": "Group indexes",
           "type": "queryGroups",
           "model": "groups",
           "addTip": "Add new group.",

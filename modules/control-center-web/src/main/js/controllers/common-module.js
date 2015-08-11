@@ -143,6 +143,142 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
         return true;
     }
 
+    var context = null;
+
+    /**
+     * Calculate width of specified text in body's font.
+     *
+     * @param text Text to calculate width.
+     * @returns {Number} Width of text in pixels.
+     */
+    function measureText(text) {
+        if (!context) {
+            var canvas = document.createElement('canvas');
+
+            context = canvas.getContext('2d');
+
+            var style = window.getComputedStyle(document.getElementsByTagName('body')[0]);
+
+            context.font = style.fontSize + ' ' + style.fontFamily;
+        }
+
+        return context.measureText(text).width;
+    }
+
+    /**
+     * Compact java full class name by max number of characters.
+     *
+     * @param s Class name to cut.
+     * @param maxLength Max available width in characters.
+     * @returns {*} Compacted class name.
+     */
+    function compactByMaxCharts(s, maxLength) {
+        if (s.length <= maxLength)
+            return s;
+
+        var totalLength = s.length;
+
+        var packages = s.split('.');
+
+        var packageCnt = packages.length - 1;
+
+        for (var i = 0; i < packageCnt && totalLength > maxLength; i ++) {
+            if (packages[i].length > 0) {
+                totalLength -= packages[i].length - 1;
+
+                packages[i] = packages[i][0];
+            }
+        }
+
+        if (totalLength > maxLength) {
+            var className = packages[packageCnt];
+
+            var classNameLen = className.length;
+
+            var remains = Math.min(maxLength - totalLength + classNameLen, classNameLen);
+
+            if (remains < 3)
+                remains = Math.min(3, classNameLen);
+
+            packages[packageCnt] = className.substring(0, remains) + '...';
+        }
+
+        var result = packages[0];
+
+        for (i = 1; i < packages.length; i ++)
+            result += '.' + packages[i];
+
+        return result
+    }
+
+    /**
+     * Compact java full class name by max number of pixels.
+     *
+     * @param s Class name to cut.
+     * @param maxWidth Maximum available width in pixels.
+     * @returns {*} Compacted class name.
+     */
+    function compactByMaxPixels(s, maxWidth) {
+        var totalLength = measureText(s);
+
+        if (totalLength <= maxWidth)
+            return s;
+
+        var packages = s.split('.');
+
+        var packageCnt = packages.length - 1;
+
+        for (var i = 0; i < packageCnt && totalLength > maxWidth; i++) {
+            if (packages[i].length > 1) {
+                totalLength -= measureText(packages[i].substring(2, packages[i].length));
+
+                packages[i] = packages[i][0];
+            }
+        }
+
+        var shortPackage = '';
+
+        for (i = 0; i < packageCnt; i++)
+            shortPackage += packages[i] + '.';
+
+        var className = packages[packageCnt];
+
+        var classLen = className.length;
+
+        var minLen = Math.min(classLen, 3);
+
+        totalLength = measureText(shortPackage + className);
+
+        // Compact class name if shorten package path is very long.
+        if (totalLength > maxWidth) {
+            var maxLen = classLen;
+
+            var middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+
+            var minLenPx = measureText(shortPackage + className.substr(0, minLen) + '...');
+            var maxLenPx = totalLength;
+
+            while (middleLen != minLen && middleLen != maxLen) {
+                var middleLenPx = measureText(shortPackage + className.substr(0, middleLen) + '...');
+
+                if (middleLenPx > maxWidth) {
+                    maxLen = middleLen;
+                    maxLenPx = middleLenPx;
+                }
+                else {
+                    minLen = middleLen;
+                    minLenPx = middleLenPx;
+                }
+
+                middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+            }
+
+            return shortPackage + className.substring(0, middleLen) + '...';
+        }
+
+        return shortPackage + className;
+    }
+
     return {
         getModel: function (obj, field) {
             var path = field.path;
@@ -230,7 +366,49 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
 
             return true;
         },
-        JDBC_TYPES: JDBC_TYPES
+        JDBC_TYPES: JDBC_TYPES,
+        /**
+         * Calculate available width for text in link to edit element.
+         *
+         * @param id Id of contains link table.
+         * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
+         */
+        availableWidth: function (id) {
+            var div = $('#' + id).find('div')[0];
+            var width = div.clientWidth;
+
+            if (width > 0) {
+                var children = div.childNodes;
+
+                for (var i = 1; i < children.length; i++) {
+                    var child = children[i];
+
+                    if ('offsetWidth' in child)
+                        width -= children[i].offsetWidth;
+                }
+
+                width -= measureText('99) ');
+            }
+
+            return [ width | 0, (width > 0 ? (width - measureText(' / ')) / 2 | 0 : width) | 0 ];
+        },
+        /**
+         * Cut class name by width in pixel or width in symbol count.
+         *
+         * @param s Class name to cut.
+         * @param maxLength Maximum length in symbols.
+         * @param maxWidth Maximum length in pixels.
+         * @returns Cutted class name.
+         */
+        compactJavaName: function (s, maxLength, maxWidth) {
+            try {
+                // HTML5 calculation of showed message width.
+                return compactByMaxPixels(s, maxWidth)
+            }
+            catch (err) {
+                return compactByMaxCharts(s, maxLength)
+            }
+        }
     }
 }]);
 
