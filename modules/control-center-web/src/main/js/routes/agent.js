@@ -21,7 +21,7 @@ var agentManager = require('../agents/agent-manager');
 var apacheIgnite = require('apache-ignite');
 var SqlFieldsQuery = apacheIgnite.SqlFieldsQuery;
 
-/* GET summary page. */
+/* Get grid topology. */
 router.post('/topology', function(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
@@ -41,7 +41,7 @@ router.post('/topology', function(req, res) {
     });
 });
 
-/* GET summary page. */
+/* Execute query. */
 router.post('/query', function(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
@@ -62,7 +62,7 @@ router.post('/query', function(req, res) {
     });
 });
 
-/* GET summary page. */
+/* Get next query page. */
 router.post('/next_page', function(req, res) {
     var client = agentManager.getAgentManager().findClient(req.currentUserId());
 
@@ -79,6 +79,28 @@ router.post('/next_page', function(req, res) {
     }, function (err) {
         res.status(500).send(err);
     });
+});
+
+/* Get JDBC drivers list. */
+router.post('/drivers', function(req, res) {
+    res.json(['ojdbc6.jar', 'db2jcc4.jar', 'h2.jar']);
+
+    //var client = agentManager.getAgentManager().findClient(req.currentUserId());
+    //
+    //if (!client)
+    //    return res.status(500).send("Client not found");
+
+});
+
+/** Get database metadata. */
+router.post('/metadata', function(req, res) {
+    res.json(['TODO']);
+
+    //var client = agentManager.getAgentManager().findClient(req.currentUserId());
+    //
+    //if (!client)
+    //    return res.status(500).send("Client not found");
+
 });
 
 module.exports = router;

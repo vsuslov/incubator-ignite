@@ -47,82 +47,59 @@ controlCenterModule.controller('metadataController', [
                 {value: 'h2', label: 'H2 database'}
             ];
 
-            $scope.presets = {
+            var presets = {
                 oracle: {
+                    db: 'oracle',
                     drvClass: 'oracle.jdbc.OracleDriver',
                     drvUrl: 'jdbc:oracle:thin:@[host]:[port]:[database]',
                     user: 'system'
                 },
                 db2: {
+                    db: 'db2',
                     drvClass: 'com.ibm.db2.jcc.DB2Driver',
                     drvUrl: 'jdbc:db2://[host]:[port]/[database]',
                     user: 'db2admin'
                 },
                 mssql: {
+                    db: 'mssql',
                     drvClass: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
                     drvUrl: 'jdbc:sqlserver://[host]:[port][;databaseName=database]',
                     user: 'sa'
                 },
                 postgre: {
+                    db: 'postgre',
                     drvClass: 'org.postgresql.Driver', drvUrl: 'jdbc:postgresql://[host]:[port]/[database]',
                     user: 'sa'
                 },
                 mysql: {
+                    db: 'mysql',
                     drvClass: 'com.mysql.jdbc.Driver',
                     drvUrl: 'jdbc:mysql://[host]:[port]/[database]', user: 'root'
                 },
-                h2: {drvClass: 'org.h2.Driver', drvUrl: 'jdbc:h2:[database]', user: 'sa'}
+                h2: {
+                    db: 'h2,',
+                    drvClass: 'org.h2.Driver',
+                    drvUrl: 'jdbc:h2:[database]',
+                    user: 'sa'
+                }
             };
 
-            $scope.preset = {
-                rdbms: 'oracle'
+            $scope.preset = presets['oracle'];
 
-            };
+            $scope.$watch('preset.db', function (newDb) {
+                if (newDb) {
+                    var newPreset = presets[newDb];
+                    var curPreset = $scope.preset;
 
-            $scope.jdbcTypes = [
-                {value: 'BIT', label: 'BIT'},
-                {value: 'BOOLEAN', label: 'BOOLEAN'},
-                {value: 'TINYINT', label: 'TINYINT'},
-                {value: 'SMALLINT', label: 'SMALLINT'},
-                {value: 'INTEGER', label: 'INTEGER'},
-                {value: 'BIGINT', label: 'BIGINT'},
-                {value: 'REAL', label: 'REAL'},
-                {value: 'FLOAT', label: 'FLOAT'},
-                {value: 'DOUBLE', label: 'DOUBLE'},
-                {value: 'NUMERIC', label: 'NUMERIC'},
-                {value: 'DECIMAL', label: 'DECIMAL'},
-                {value: 'CHAR', label: 'CHAR'},
-                {value: 'VARCHAR', label: 'VARCHAR'},
-                {value: 'LONGVARCHAR', label: 'LONGVARCHAR'},
-                {value: 'NCHAR', label: 'NCHAR'},
-                {value: 'NVARCHAR', label: 'NVARCHAR'},
-                {value: 'LONGNVARCHAR', label: 'LONGNVARCHAR'},
-                {value: 'DATE', label: 'DATE'},
-                {value: 'TIME', label: 'TIME'},
-                {value: 'TIMESTAMP', label: 'TIMESTAMP'}
-            ];
+                    curPreset.drvClass = newPreset.drvClass;
+                    curPreset.drvUrl = newPreset.drvUrl;
+                    curPreset.user = newPreset.user;
+                }
+            }, true);
 
-            $scope.javaTypes = [
-                {value: 'boolean', label: 'boolean'},
-                {value: 'Boolean', label: 'Boolean'},
-                {value: 'byte', label: 'byte'},
-                {value: 'Byte', label: 'Byte'},
-                {value: 'short', label: 'short'},
-                {value: 'Short', label: 'Short'},
-                {value: 'int', label: 'int'},
-                {value: 'Integer', label: 'Integer'},
-                {value: 'long', label: 'long'},
-                {value: 'Long', label: 'Long'},
-                {value: 'float', label: 'float'},
-                {value: 'Float', label: 'Float'},
-                {value: 'double', label: 'double'},
-                {value: 'Double', label: 'Double'},
-                {value: 'BigDecimal', label: 'BigDecimal'},
-                {value: 'String', label: 'String'},
-                {value: 'Date', label: 'Date'},
-                {value: 'Time', label: 'Time'},
-                {value: 'Timestamp', label: 'Timestamp'}
-            ];
+            $scope.jdbcTypes = $common.mkOptions($common.JDBC_TYPES);
+
+            $scope.javaTypes = $common.mkOptions($common.javaBuildInClasses);
 
             $scope.sortDirections = [
                 {value: false, label: 'ASC'},
@@ -305,14 +282,30 @@ controlCenterModule.controller('metadataController', [
 
             // Show load metadata modal.
             $scope.loadFromDb = function () {
-                loadMetaModal.$promise.then(function () {
-                    loadMetaModal.show();
+                $http.post('/agent/drivers')
+                    .success(function (drivers) {
+                        if (drivers && drivers.length > 0) {
+                            $scope.drivers = _.map(drivers, function (driver) {
+                                return {value: driver, label: driver};
+                            });
 
-                    //$focus('user_email');
-                });
+                            $scope.preset.drvJar = drivers[0];
+
+                            loadMetaModal.$promise.then(function () {
+                                loadMetaModal.show();
+
+                                $focus('db');
+                            });
+                        }
+                        else
+                            $common.showError('JDBC drivers not found!');
+                    })
+                    .error(function (errMsg) {
+                        $common.showError(errMsg);
+                    });
             };
 
-            $scope.loadMetadataFromDb = function(fb_info) {
+            $scope.saveMetadataLoadedFromDb = function(preset) {
                 loadMetaModal.hide();
 
                 $common.showError("Load metadata from DB not ready yet!");

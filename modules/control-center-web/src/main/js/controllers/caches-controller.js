@@ -36,27 +36,13 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
         $scope.tablePairSave = $table.tablePairSave;
         $scope.tablePairSaveVisible = $table.tablePairSaveVisible;
 
-        $scope.atomicities = [
-            {value: 'ATOMIC', label: 'ATOMIC'},
-            {value: 'TRANSACTIONAL', label: 'TRANSACTIONAL'}
-        ];
+        $scope.atomicities = $common.mkOptions(['ATOMIC', 'TRANSACTIONAL']);
 
-        $scope.modes = [
-            {value: 'PARTITIONED', label: 'PARTITIONED'},
-            {value: 'REPLICATED', label: 'REPLICATED'},
-            {value: 'LOCAL', label: 'LOCAL'}
-        ];
+        $scope.modes = $common.mkOptions(['PARTITIONED', 'REPLICATED', 'LOCAL']);
 
-        $scope.atomicWriteOrderModes = [
-            {value: 'CLOCK', label: 'CLOCK'},
-            {value: 'PRIMARY', label: 'PRIMARY'}
-        ];
+        $scope.atomicWriteOrderModes = $common.mkOptions(['CLOCK', 'PRIMARY']);
 
-        $scope.memoryModes = [
-            {value: 'ONHEAP_TIERED', label: 'ONHEAP_TIERED'},
-            {value: 'OFFHEAP_TIERED', label: 'OFFHEAP_TIERED'},
-            {value: 'OFFHEAP_VALUES', label: 'OFFHEAP_VALUES'}
-        ];
+        $scope.memoryModes = $common.mkOptions(['ONHEAP_TIERED', 'OFFHEAP_TIERED', 'OFFHEAP_VALUES']);
 
         $scope.evictionPolicies = [
             {value: 'LRU', label: 'LRU'},
@@ -66,11 +52,7 @@ controlCenterModule.controller('cachesController', ['$scope', '$http', '$common'
             {value: undefined, label: 'Not set'}
         ];
 
-        $scope.rebalanceModes = [
-            {value: 'SYNC', label: 'SYNC'},
-            {value: 'ASYNC', label: 'ASYNC'},
-            {value: 'NONE', label: 'NONE'}
-        ];
+        $scope.rebalanceModes = $common.mkOptions(['SYNC', 'ASYNC', 'NONE']);
 
         $scope.cacheStoreFactories = [
             {value: 'CacheJdbcPojoStoreFactory', label: 'JDBC POJO store factory'},

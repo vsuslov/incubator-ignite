@@ -190,7 +190,7 @@
     {
       "label": "Database preset",
       "type": "select",
-      "model": "preset",
+      "model": "db",
       "items": "databases",
       "tip": [
         "Select database type to connect for loading tables metadata."
@@ -198,9 +198,9 @@
     },
     {
       "label": "Driver JAR",
-      "type": "text",
+      "type": "select",
       "model": "drvJar",
-      "placeholder": "JAR with JDBC driver",
+      "items": "drivers",
       "tip": [
         "Select appropriate JAR with JDBC driver."
       ]
@@ -217,7 +217,7 @@
     {
       "label": "JDBC URL",
       "type": "text",
-      "model": "jdbcUrl",
+      "model": "drvUrl",
       "placeholder": "JDBC URL",
       "tip": [
         "JDBC URL for connecting to database.",

@@ -25,6 +25,6 @@ include ../includes/controls
             form.form-horizontal(name='loadForm' novalidate)
                 .modal-body
                     .settings-row(ng-repeat='field in metadataDb')
-                        +form-row-custom(['col-xs-4 col-sm-3 col-md-3'], ['col-xs-8 col-sm-7 col-md-7'], db_info)
+                        +form-row-custom(['col-xs-4 col-sm-3 col-md-3'], ['col-xs-8 col-sm-9 col-md-9'], 'preset')
             .modal-footer
-                button.btn.btn-primary(ng-disabled='loadForm.$invalid' ng-click='loadMetadataFromDb(db_info)') Load metadata
+                button.btn.btn-primary(ng-disabled='loadForm.$invalid' ng-click='saveMetadataLoadedFromDb()') Load metadata

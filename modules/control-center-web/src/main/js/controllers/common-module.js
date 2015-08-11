@@ -108,7 +108,13 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
         return _.contains(javaBuildInClasses, cls) || _.contains(javaBuildInFullNameClasses, cls);
     }
 
-    var javaKeywords = [
+    var JDBC_TYPES = [
+        'BIT', 'BOOLEAN', 'TINYINT', 'SMALLINT', 'INTEGER', 'BIGINT', 'REAL', 'FLOAT', 'DOUBLE',
+        'NUMERIC', 'DECIMAL', 'CHAR', 'VARCHAR', 'LONGVARCHAR', 'NCHAR', 'NVARCHAR', 'LONGNVARCHAR',
+        'DATE', 'TIME', 'TIMESTAMP'
+    ];
+
+    var JAVA_KEYWORDS = [
         'abstract',     'assert',        'boolean',      'break',           'byte',
         'case',         'catch',         'char',         'class',           'const',
         'continue',     'default',       'do',           'double',          'else',
@@ -128,7 +134,7 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
         if (isEmptyString(ident))
             return showError(msg + ' could not be empty!');
 
-        if (_.contains(javaKeywords, ident))
+        if (_.contains(JAVA_KEYWORDS, ident))
             return showError(msg + ' could not contains reserved java keyword: "' + ident + '"!');
 
         if (!VALID_JAVA_IDENTIFIER.test(ident))
@@ -178,6 +184,11 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
 
             return lines.join('');
         },
+        mkOptions: function (options) {
+            return _.map(options, function (option) {
+                return {value: option, label: option};
+            });
+        },
         isDefined: isDefined,
         isEmptyArray: isEmptyArray,
         isEmptyString: isEmptyString,
@@ -218,7 +229,8 @@ controlCenterModule.service('$common', ['$alert', function ($alert) {
             }
 
             return true;
-        }
+        },
+        JDBC_TYPES: JDBC_TYPES
     }
 }]);
 
