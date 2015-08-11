@@ -263,13 +263,13 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' ng-focus='tableReset()')&attributes(fieldCommon)
         div(ng-switch-when='withJavaBuildInTypes' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses')&attributes(fieldCommon)
+                    input.form-control(id='{{::field.id}}' type='text' placeholder='{{::field.placeholder}}' ng-focus='tableReset()' bs-typeahead retain-selection data-min-length='1' bs-options='javaClass for javaClass in javaBuildInClasses')&attributes(fieldCommon)
         div(ng-switch-when='password' ng-hide=fieldHide)
             label(class=lblClasses ng-class=fieldRequiredClass) {{::field.label}}:
             div(class=fieldClasses)
@@ -281,7 +281,7 @@ mixin form-row-custom(lblClasses, fieldClasses, dataSource)
             div(class=fieldClasses)
                 +tipField('field.tip')
                 .input-tip
-                    input.form-control(name='{{field.model}}' type='number' placeholder='{{::field.placeholder}}' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
+                    input.form-control(name='{{field.model}}' type='number' placeholder='{{::field.placeholder}}' ng-focus='tableReset()' min='{{field.min ? field.min : 0}}' max='{{field.max ? field.max : Number.MAX_VALUE}}')&attributes(fieldCommon)
                     +ico-exclamation('{{field.model}}', 'min', 'Value is less than allowable minimum.')
                     +ico-exclamation('{{field.model}}', 'max', 'Value is more than allowable maximum.')
                     +ico-exclamation('{{field.model}}', 'number', 'Invalid value. Only numbers allowed.')
