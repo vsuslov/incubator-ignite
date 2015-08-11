@@ -379,7 +379,7 @@ controlCenterModule.service('$common', [
              * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
              */
             availableWidth: function (id) {
-                var div = $('#' + id).find('div')[0];
+                var div = $('#' + id).find('tr')[0];
                 var width = div.clientWidth;
 
                 if (width > 0) {
@@ -492,7 +492,7 @@ controlCenterModule.service('$copy', function ($modal, $rootScope, $q) {
 
 // Tables support service.
 controlCenterModule.service('$table', [
-    '$common', function ($common) {
+    '$common', '$focus', function ($common, $focus) {
         function _swapSimpleItems(a, ix1, ix2) {
             var tmp = a[ix1];
 
@@ -516,6 +516,16 @@ controlCenterModule.service('$table', [
             table.editIndex = editIndex;
         }
 
+        function _tableStartEdit(item, field, index) {
+            _tableState(field.model, index);
+
+            return _model(item, field)[field.model][index];
+        }
+
+        function _tableNewItem(field) {
+            _tableState(field.model, -1);
+        }
+
         return {
             tableState: function (name, editIndex) {
                 _tableState(name, editIndex);
@@ -523,20 +533,14 @@ controlCenterModule.service('$table', [
             tableReset: function () {
                 _tableReset();
             },
-            tableNewItem: function (field) {
-                _tableState(field.model, -1);
-            },
+            tableNewItem: _tableNewItem,
             tableNewItemActive: function (field) {
                 return table.name == field.model && table.editIndex < 0;
             },
             tableEditing: function (field, index) {
                 return table.name == field.model && table.editIndex == index;
             },
-            tableStartEdit: function (item, field, index) {
-                _tableState(field.model, index);
-
-                return _model(item, field)[field.model][index];
-            },
+            tableStartEdit: _tableStartEdit,
             tableRemove: function (item, field, index) {
                 _tableReset();
 
@@ -574,8 +578,6 @@ controlCenterModule.service('$table', [
             },
             tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
                 if (pairValid(item, field, newKey, newValue, index)) {
-                    _tableReset();
-
                     var pair = {};
 
                     if (index < 0) {
@@ -586,12 +588,28 @@ controlCenterModule.service('$table', [
                             item[field.model].push(pair);
                         else
                             item[field.model] = [pair];
+
+                        _tableNewItem(field);
+
+                        $focus('newKey' + field.focusId);
                     }
                     else {
                         pair = item[field.model][index];
 
                         pair[field.keyName] = newKey;
                         pair[field.valueName] = newValue;
+
+                        if (index < item[field.model].length - 1) {
+                            _tableReset();
+                            //_tableStartEdit(item, field, index + 1);
+
+                            //$focus('curKey' + field.focusId);
+                        }
+                        else {
+                            _tableNewItem(field);
+
+                            $focus('newKey' + field.focusId);
+                        }
                     }
                 }
             },
