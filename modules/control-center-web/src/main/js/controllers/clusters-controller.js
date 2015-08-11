@@ -103,6 +103,8 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
             $scope.ui.expanded = !$scope.ui.expanded;
         };
 
+        $scope.panels = {activePanels: [0]};
+
         var simpleTables = {
             addresses: {msg: 'Such IP address already exists!', id: 'IpAddress'},
             regions: {msg: 'Such region already exists!', id: 'Region'},
@@ -204,6 +206,7 @@ controlCenterModule.controller('clustersController', ['$scope', '$http', '$commo
         // Add new cluster.
         $scope.createItem = function () {
             $table.tableReset();
+            $common.ensureActivePanel($scope.panels, 0);
 
             $scope.selectedItem = undefined;
 

@@ -246,18 +246,7 @@ controlCenterModule.controller('metadataController', [
                     ]
                 }];
 
-            $scope.activePanels = [0, 1];
-
-            $scope.ensureActivePanel = function (pnlIdx) {
-                if (!$scope.activePanels || $scope.activePanels.length < 1)
-                    $scope.activePanels = [pnlIdx];
-                else if (!_.contains($scope.activePanels, pnlIdx)) {
-                    var newActivePanels = $scope.activePanels.slice();
-                    newActivePanels.push(pnlIdx);
-
-                    $scope.activePanels = newActivePanels;
-                }
-            };
+            $scope.panels = {activePanels: [0, 1]};
 
             $scope.metadatas = [];
 
@@ -386,6 +375,7 @@ controlCenterModule.controller('metadataController', [
             // Add new metadata.
             $scope.createItem = function () {
                 $table.tableReset();
+                $common.ensureActivePanel($scope.panels, 0);
 
                 $scope.selectedItem = undefined;
 

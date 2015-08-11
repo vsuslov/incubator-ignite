@@ -57,360 +57,380 @@ controlCenterModule.config(function ($alertProvider) {
 });
 
 // Common functions to be used in controllers.
-controlCenterModule.service('$common', ['$alert', function ($alert) {
-    function isDefined(v) {
-        return !(v === undefined || v === null);
-    }
-
-    function isEmptyArray(arr) {
-        if (isDefined(arr))
-            return arr.length == 0;
-
-        return true;
-    }
-
-    function isEmptyString(s) {
-        if (isDefined(s))
-            return s.trim().length == 0;
-
-        return true;
-    }
-
-    var msgModal = undefined;
-
-    function errorMessage(errMsg) {
-        return errMsg ? errMsg : 'Internal server error.';
-    }
-
-    function showError(msg, placement, container) {
-        if (msgModal)
-            msgModal.hide();
-
-        msgModal = $alert({title: errorMessage(msg), placement: placement ? placement : 'top-right', container: container ? container : 'body'});
-
-        return false;
-    }
-
-    var javaBuildInClasses = [
-        'BigDecimal', 'Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
-    ];
-
-    var javaBuildInFullNameClasses = [
-        'java.math.BigDecimal', 'java.lang.Boolean', 'java.lang.Byte', 'java.sql.Date', 'java.lang.Double',
-        'java.lang.Float', 'java.lang.Integer', 'java.lang.Long', 'java.lang.Short', 'java.lang.String',
-        'java.sql.Time', 'java.sql.Timestamp', 'java.util.UUID'
-    ];
-
-    function isJavaBuildInClass(cls) {
-        if (isEmptyString(cls))
-            return false;
-
-        return _.contains(javaBuildInClasses, cls) || _.contains(javaBuildInFullNameClasses, cls);
-    }
-
-    var JDBC_TYPES = [
-        'BIT', 'BOOLEAN', 'TINYINT', 'SMALLINT', 'INTEGER', 'BIGINT', 'REAL', 'FLOAT', 'DOUBLE',
-        'NUMERIC', 'DECIMAL', 'CHAR', 'VARCHAR', 'LONGVARCHAR', 'NCHAR', 'NVARCHAR', 'LONGNVARCHAR',
-        'DATE', 'TIME', 'TIMESTAMP'
-    ];
-
-    var JAVA_KEYWORDS = [
-        'abstract',     'assert',        'boolean',      'break',           'byte',
-        'case',         'catch',         'char',         'class',           'const',
-        'continue',     'default',       'do',           'double',          'else',
-        'enum',         'extends',       'false',        'final',           'finally',
-        'float',        'for',           'goto',         'if',              'implements',
-        'import',       'instanceof',    'int',          'interface',       'long',
-        'native',       'new',           'null',         'package',         'private',
-        'protected',    'public',        'return',       'short',           'static',
-        'strictfp',     'super',         'switch',       'synchronized',    'this',
-        'throw',        'throws',        'transient',    'true',            'try',
-        'void',         'volatile',      'while'
-    ];
-
-    var VALID_JAVA_IDENTIFIER = new RegExp('^[a-zA-Z_$][a-zA-Z\d_$]*');
-
-    function isValidJavaIdentifier(msg, ident) {
-        if (isEmptyString(ident))
-            return showError(msg + ' could not be empty!');
-
-        if (_.contains(JAVA_KEYWORDS, ident))
-            return showError(msg + ' could not contains reserved java keyword: "' + ident + '"!');
-
-        if (!VALID_JAVA_IDENTIFIER.test(ident))
-            return showError(msg + ' contains invalid identifier: "' + ident + '"!');
-
-        return true;
-    }
-
-    var context = null;
-
-    /**
-     * Calculate width of specified text in body's font.
-     *
-     * @param text Text to calculate width.
-     * @returns {Number} Width of text in pixels.
-     */
-    function measureText(text) {
-        if (!context) {
-            var canvas = document.createElement('canvas');
-
-            context = canvas.getContext('2d');
-
-            var style = window.getComputedStyle(document.getElementsByTagName('body')[0]);
-
-            context.font = style.fontSize + ' ' + style.fontFamily;
+controlCenterModule.service('$common', [
+    '$alert', function ($alert) {
+        function isDefined(v) {
+            return !(v === undefined || v === null);
         }
 
-        return context.measureText(text).width;
-    }
+        function isEmptyArray(arr) {
+            if (isDefined(arr))
+                return arr.length == 0;
 
-    /**
-     * Compact java full class name by max number of characters.
-     *
-     * @param s Class name to cut.
-     * @param maxLength Max available width in characters.
-     * @returns {*} Compacted class name.
-     */
-    function compactByMaxCharts(s, maxLength) {
-        if (s.length <= maxLength)
-            return s;
-
-        var totalLength = s.length;
-
-        var packages = s.split('.');
-
-        var packageCnt = packages.length - 1;
-
-        for (var i = 0; i < packageCnt && totalLength > maxLength; i ++) {
-            if (packages[i].length > 0) {
-                totalLength -= packages[i].length - 1;
-
-                packages[i] = packages[i][0];
-            }
+            return true;
         }
 
-        if (totalLength > maxLength) {
-            var className = packages[packageCnt];
+        function isEmptyString(s) {
+            if (isDefined(s))
+                return s.trim().length == 0;
 
-            var classNameLen = className.length;
-
-            var remains = Math.min(maxLength - totalLength + classNameLen, classNameLen);
-
-            if (remains < 3)
-                remains = Math.min(3, classNameLen);
-
-            packages[packageCnt] = className.substring(0, remains) + '...';
+            return true;
         }
 
-        var result = packages[0];
+        var msgModal = undefined;
 
-        for (i = 1; i < packages.length; i ++)
-            result += '.' + packages[i];
-
-        return result
-    }
-
-    /**
-     * Compact java full class name by max number of pixels.
-     *
-     * @param s Class name to cut.
-     * @param maxWidth Maximum available width in pixels.
-     * @returns {*} Compacted class name.
-     */
-    function compactByMaxPixels(s, maxWidth) {
-        var totalLength = measureText(s);
-
-        if (totalLength <= maxWidth)
-            return s;
-
-        var packages = s.split('.');
-
-        var packageCnt = packages.length - 1;
-
-        for (var i = 0; i < packageCnt && totalLength > maxWidth; i++) {
-            if (packages[i].length > 1) {
-                totalLength -= measureText(packages[i].substring(2, packages[i].length));
-
-                packages[i] = packages[i][0];
-            }
+        function errorMessage(errMsg) {
+            return errMsg ? errMsg : 'Internal server error.';
         }
 
-        var shortPackage = '';
-
-        for (i = 0; i < packageCnt; i++)
-            shortPackage += packages[i] + '.';
-
-        var className = packages[packageCnt];
-
-        var classLen = className.length;
-
-        var minLen = Math.min(classLen, 3);
-
-        totalLength = measureText(shortPackage + className);
-
-        // Compact class name if shorten package path is very long.
-        if (totalLength > maxWidth) {
-            var maxLen = classLen;
-
-            var middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
-
-            var minLenPx = measureText(shortPackage + className.substr(0, minLen) + '...');
-            var maxLenPx = totalLength;
-
-            while (middleLen != minLen && middleLen != maxLen) {
-                var middleLenPx = measureText(shortPackage + className.substr(0, middleLen) + '...');
-
-                if (middleLenPx > maxWidth) {
-                    maxLen = middleLen;
-                    maxLenPx = middleLenPx;
-                }
-                else {
-                    minLen = middleLen;
-                    minLenPx = middleLenPx;
-                }
-
-                middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
-            }
-
-            return shortPackage + className.substring(0, middleLen) + '...';
-        }
-
-        return shortPackage + className;
-    }
-
-    return {
-        getModel: function (obj, field) {
-            var path = field.path;
-
-            if (!isDefined(path))
-                return obj;
-
-            path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-            path = path.replace(/^\./, '');           // strip a leading dot
-
-            var segs = path.split('.');
-            var root = obj;
-
-            while (segs.length > 0) {
-                var pathStep = segs.shift();
-
-                if (typeof root[pathStep] === 'undefined')
-                    root[pathStep] = {};
-
-                root = root[pathStep];
-            }
-
-            return root;
-        },
-        joinTip: function (arr) {
-            if (!arr) {
-                return arr;
-            }
-
-            var lines = arr.map(function (line) {
-                var rtrimmed = line.replace(/\s+$/g, '');
-
-                if (rtrimmed.indexOf('>', this.length - 1) == -1) {
-                    rtrimmed = rtrimmed + '<br/>';
-                }
-
-                return rtrimmed;
-            });
-
-            return lines.join('');
-        },
-        mkOptions: function (options) {
-            return _.map(options, function (option) {
-                return {value: option, label: option};
-            });
-        },
-        isDefined: isDefined,
-        isEmptyArray: isEmptyArray,
-        isEmptyString: isEmptyString,
-        errorMessage: errorMessage,
-        showError: showError,
-        showInfo: function (msg) {
+        function showError(msg, placement, container) {
             if (msgModal)
                 msgModal.hide();
 
             msgModal = $alert({
-                type: 'success',
-                title: msg,
-                duration: 2
+                title: errorMessage(msg),
+                placement: placement ? placement : 'top-right',
+                container: container ? container : 'body'
             });
-        },
-        javaBuildInClasses: javaBuildInClasses,
-        isJavaBuildInClass: isJavaBuildInClass,
-        isValidJavaIdentifier: isValidJavaIdentifier,
-        isValidJavaClass: function (msg, ident, allowBuildInClass) {
+
+            return false;
+        }
+
+        var javaBuildInClasses = [
+            'BigDecimal', 'Boolean', 'Byte', 'Date', 'Double', 'Float', 'Integer', 'Long', 'Short', 'String', 'Time', 'Timestamp', 'UUID'
+        ];
+
+        var javaBuildInFullNameClasses = [
+            'java.math.BigDecimal', 'java.lang.Boolean', 'java.lang.Byte', 'java.sql.Date', 'java.lang.Double',
+            'java.lang.Float', 'java.lang.Integer', 'java.lang.Long', 'java.lang.Short', 'java.lang.String',
+            'java.sql.Time', 'java.sql.Timestamp', 'java.util.UUID'
+        ];
+
+        function isJavaBuildInClass(cls) {
+            if (isEmptyString(cls))
+                return false;
+
+            return _.contains(javaBuildInClasses, cls) || _.contains(javaBuildInFullNameClasses, cls);
+        }
+
+        var JDBC_TYPES = [
+            'BIT', 'BOOLEAN', 'TINYINT', 'SMALLINT', 'INTEGER', 'BIGINT', 'REAL', 'FLOAT', 'DOUBLE',
+            'NUMERIC', 'DECIMAL', 'CHAR', 'VARCHAR', 'LONGVARCHAR', 'NCHAR', 'NVARCHAR', 'LONGNVARCHAR',
+            'DATE', 'TIME', 'TIMESTAMP'
+        ];
+
+        var JAVA_KEYWORDS = [
+            'abstract',     'assert',        'boolean',      'break',           'byte',
+            'case',         'catch',         'char',         'class',           'const',
+            'continue',     'default',       'do',           'double',          'else',
+            'enum',         'extends',       'false',        'final',           'finally',
+            'float',        'for',           'goto',         'if',              'implements',
+            'import',       'instanceof',    'int',          'interface',       'long',
+            'native',       'new',           'null',         'package',         'private',
+            'protected',    'public',        'return',       'short',           'static',
+            'strictfp',     'super',         'switch',       'synchronized',    'this',
+            'throw',        'throws',        'transient',    'true',            'try',
+            'void',         'volatile',      'while'
+        ];
+
+        var VALID_JAVA_IDENTIFIER = new RegExp('^[a-zA-Z_$][a-zA-Z\d_$]*');
+
+        function isValidJavaIdentifier(msg, ident) {
             if (isEmptyString(ident))
                 return showError(msg + ' could not be empty!');
 
-            var parts = ident.split('.');
+            if (_.contains(JAVA_KEYWORDS, ident))
+                return showError(msg + ' could not contains reserved java keyword: "' + ident + '"!');
 
-            var len = parts.length;
-
-            if (!allowBuildInClass && isJavaBuildInClass(ident))
-                return showError(msg + ' should not be the Java build-in class!');
-
-            if (len < 2 && !isJavaBuildInClass(ident))
-                return showError(msg + ' does not have package specified!');
-
-            for (var i = 0; i < parts.length; i++) {
-                var part = parts[i];
-
-                if (!isValidJavaIdentifier(msg, part))
-                    return false;
-            }
+            if (!VALID_JAVA_IDENTIFIER.test(ident))
+                return showError(msg + ' contains invalid identifier: "' + ident + '"!');
 
             return true;
-        },
-        JDBC_TYPES: JDBC_TYPES,
+        }
+
+        var context = null;
+
         /**
-         * Calculate available width for text in link to edit element.
+         * Calculate width of specified text in body's font.
          *
-         * @param id Id of contains link table.
-         * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
+         * @param text Text to calculate width.
+         * @returns {Number} Width of text in pixels.
          */
-        availableWidth: function (id) {
-            var div = $('#' + id).find('div')[0];
-            var width = div.clientWidth;
+        function measureText(text) {
+            if (!context) {
+                var canvas = document.createElement('canvas');
 
-            if (width > 0) {
-                var children = div.childNodes;
+                context = canvas.getContext('2d');
 
-                for (var i = 1; i < children.length; i++) {
-                    var child = children[i];
+                var style = window.getComputedStyle(document.getElementsByTagName('body')[0]);
 
-                    if ('offsetWidth' in child)
-                        width -= children[i].offsetWidth;
-                }
-
-                width -= measureText('99) ');
+                context.font = style.fontSize + ' ' + style.fontFamily;
             }
 
-            return [ width | 0, (width > 0 ? (width - measureText(' / ')) / 2 | 0 : width) | 0 ];
-        },
+            return context.measureText(text).width;
+        }
+
         /**
-         * Cut class name by width in pixel or width in symbol count.
+         * Compact java full class name by max number of characters.
          *
          * @param s Class name to cut.
-         * @param maxLength Maximum length in symbols.
-         * @param maxWidth Maximum length in pixels.
-         * @returns Cutted class name.
+         * @param maxLength Max available width in characters.
+         * @returns {*} Compacted class name.
          */
-        compactJavaName: function (s, maxLength, maxWidth) {
-            try {
-                // HTML5 calculation of showed message width.
-                return compactByMaxPixels(s, maxWidth)
+        function compactByMaxCharts(s, maxLength) {
+            if (s.length <= maxLength)
+                return s;
+
+            var totalLength = s.length;
+
+            var packages = s.split('.');
+
+            var packageCnt = packages.length - 1;
+
+            for (var i = 0; i < packageCnt && totalLength > maxLength; i++) {
+                if (packages[i].length > 0) {
+                    totalLength -= packages[i].length - 1;
+
+                    packages[i] = packages[i][0];
+                }
             }
-            catch (err) {
-                return compactByMaxCharts(s, maxLength)
+
+            if (totalLength > maxLength) {
+                var className = packages[packageCnt];
+
+                var classNameLen = className.length;
+
+                var remains = Math.min(maxLength - totalLength + classNameLen, classNameLen);
+
+                if (remains < 3)
+                    remains = Math.min(3, classNameLen);
+
+                packages[packageCnt] = className.substring(0, remains) + '...';
+            }
+
+            var result = packages[0];
+
+            for (i = 1; i < packages.length; i++)
+                result += '.' + packages[i];
+
+            return result
+        }
+
+        /**
+         * Compact java full class name by max number of pixels.
+         *
+         * @param s Class name to cut.
+         * @param maxWidth Maximum available width in pixels.
+         * @returns {*} Compacted class name.
+         */
+        function compactByMaxPixels(s, maxWidth) {
+            var totalLength = measureText(s);
+
+            if (totalLength <= maxWidth)
+                return s;
+
+            var packages = s.split('.');
+
+            var packageCnt = packages.length - 1;
+
+            for (var i = 0; i < packageCnt && totalLength > maxWidth; i++) {
+                if (packages[i].length > 1) {
+                    totalLength -= measureText(packages[i].substring(2, packages[i].length));
+
+                    packages[i] = packages[i][0];
+                }
+            }
+
+            var shortPackage = '';
+
+            for (i = 0; i < packageCnt; i++)
+                shortPackage += packages[i] + '.';
+
+            var className = packages[packageCnt];
+
+            var classLen = className.length;
+
+            var minLen = Math.min(classLen, 3);
+
+            totalLength = measureText(shortPackage + className);
+
+            // Compact class name if shorten package path is very long.
+            if (totalLength > maxWidth) {
+                var maxLen = classLen;
+
+                var middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+
+                var minLenPx = measureText(shortPackage + className.substr(0, minLen) + '...');
+                var maxLenPx = totalLength;
+
+                while (middleLen != minLen && middleLen != maxLen) {
+                    var middleLenPx = measureText(shortPackage + className.substr(0, middleLen) + '...');
+
+                    if (middleLenPx > maxWidth) {
+                        maxLen = middleLen;
+                        maxLenPx = middleLenPx;
+                    }
+                    else {
+                        minLen = middleLen;
+                        minLenPx = middleLenPx;
+                    }
+
+                    middleLen = (minLen + (maxLen - minLen) / 2 ) | 0;
+                }
+
+                return shortPackage + className.substring(0, middleLen) + '...';
+            }
+
+            return shortPackage + className;
+        }
+
+        return {
+            getModel: function (obj, field) {
+                var path = field.path;
+
+                if (!isDefined(path))
+                    return obj;
+
+                path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+                path = path.replace(/^\./, '');           // strip a leading dot
+
+                var segs = path.split('.');
+                var root = obj;
+
+                while (segs.length > 0) {
+                    var pathStep = segs.shift();
+
+                    if (typeof root[pathStep] === 'undefined')
+                        root[pathStep] = {};
+
+                    root = root[pathStep];
+                }
+
+                return root;
+            },
+            joinTip: function (arr) {
+                if (!arr) {
+                    return arr;
+                }
+
+                var lines = arr.map(function (line) {
+                    var rtrimmed = line.replace(/\s+$/g, '');
+
+                    if (rtrimmed.indexOf('>', this.length - 1) == -1) {
+                        rtrimmed = rtrimmed + '<br/>';
+                    }
+
+                    return rtrimmed;
+                });
+
+                return lines.join('');
+            },
+            mkOptions: function (options) {
+                return _.map(options, function (option) {
+                    return {value: option, label: option};
+                });
+            },
+            isDefined: isDefined,
+            isEmptyArray: isEmptyArray,
+            isEmptyString: isEmptyString,
+            errorMessage: errorMessage,
+            showError: showError,
+            showInfo: function (msg) {
+                if (msgModal)
+                    msgModal.hide();
+
+                msgModal = $alert({
+                    type: 'success',
+                    title: msg,
+                    duration: 2
+                });
+            },
+            JDBC_TYPES: JDBC_TYPES,
+            javaBuildInClasses: javaBuildInClasses,
+            isJavaBuildInClass: isJavaBuildInClass,
+            isValidJavaIdentifier: isValidJavaIdentifier,
+            isValidJavaClass: function (msg, ident, allowBuildInClass) {
+                if (isEmptyString(ident))
+                    return showError(msg + ' could not be empty!');
+
+                var parts = ident.split('.');
+
+                var len = parts.length;
+
+                if (!allowBuildInClass && isJavaBuildInClass(ident))
+                    return showError(msg + ' should not be the Java build-in class!');
+
+                if (len < 2 && !isJavaBuildInClass(ident))
+                    return showError(msg + ' does not have package specified!');
+
+                for (var i = 0; i < parts.length; i++) {
+                    var part = parts[i];
+
+                    if (!isValidJavaIdentifier(msg, part))
+                        return false;
+                }
+
+                return true;
+            },
+            /**
+             * Calculate available width for text in link to edit element.
+             *
+             * @param id Id of contains link table.
+             * @returns {*[]} First element is length of class for single value, second element is length for pair vlaue.
+             */
+            availableWidth: function (id) {
+                var div = $('#' + id).find('div')[0];
+                var width = div.clientWidth;
+
+                if (width > 0) {
+                    var children = div.childNodes;
+
+                    for (var i = 1; i < children.length; i++) {
+                        var child = children[i];
+
+                        if ('offsetWidth' in child)
+                            width -= children[i].offsetWidth;
+                    }
+
+                    width -= measureText('99) ');
+                }
+
+                return [width | 0, (width > 0 ? (width - measureText(' / ')) / 2 | 0 : width) | 0];
+            },
+            /**
+             * Cut class name by width in pixel or width in symbol count.
+             *
+             * @param s Class name to cut.
+             * @param maxLength Maximum length in symbols.
+             * @param maxWidth Maximum length in pixels.
+             * @returns Cutted class name.
+             */
+            compactJavaName: function (s, maxLength, maxWidth) {
+                try {
+                    // HTML5 calculation of showed message width.
+                    return compactByMaxPixels(s, maxWidth)
+                }
+                catch (err) {
+                    return compactByMaxCharts(s, maxLength)
+                }
+            },
+            ensureActivePanel: function (panels, pnlIdx) {
+                if (panels) {
+                    var activePanels = panels.activePanels;
+
+                    if (!activePanels || activePanels.length < 1)
+                        panels.activePanels = [pnlIdx];
+                    else if (!_.contains(activePanels, pnlIdx)) {
+                        var newActivePanels = activePanels.slice();
+
+                        newActivePanels.push(pnlIdx);
+
+                        panels.activePanels = newActivePanels;
+                    }
+                }
             }
         }
-    }
-}]);
+    }]);
 
 // Confirm popup service.
 controlCenterModule.service('$confirm', function ($modal, $rootScope, $q) {
@@ -471,115 +491,115 @@ controlCenterModule.service('$copy', function ($modal, $rootScope, $q) {
 });
 
 // Tables support service.
-controlCenterModule.service('$table', ['$common', function ($common) {
-    function _swapSimpleItems(a, ix1, ix2) {
-        var tmp = a[ix1];
+controlCenterModule.service('$table', [
+    '$common', function ($common) {
+        function _swapSimpleItems(a, ix1, ix2) {
+            var tmp = a[ix1];
 
-        a[ix1] = a[ix2];
-        a[ix2] = tmp;
-    }
-
-    function _model(item, field) {
-        return $common.getModel(item, field);
-    }
-
-    var table = {name: 'none', editIndex: -1};
-
-    function _tableReset() {
-        table.name = 'none';
-        table.editIndex = -1;
-    }
-
-    function _tableState(name, editIndex) {
-        table.name = name;
-        table.editIndex = editIndex;
-    }
-
-    return {
-        tableState: function (name, editIndex) {
-            _tableState(name, editIndex);
-        },
-        tableReset: function () {
-            _tableReset();
-        },
-        tableNewItem: function (field) {
-            _tableState(field.model, -1);
-        },
-        tableNewItemActive: function (field) {
-            return table.name == field.model && table.editIndex < 0;
-        },
-        tableEditing: function (field, index) {
-            return table.name == field.model && table.editIndex == index;
-        },
-        tableStartEdit: function (item, field, index) {
-            _tableState(field.model, index);
-
-            return _model(item, field)[field.model][index];
-        },
-        tableRemove: function (item, field, index) {
-            _tableReset();
-
-            _model(item, field)[field.model].splice(index, 1);
-        },
-        tableSimpleSave: function (valueValid, item, field, newValue, index) {
-            if (valueValid(item, field, newValue, index)) {
-                _tableReset();
-
-                if (index < 0) {
-                    if (_model(item, field)[field.model])
-                        _model(item, field)[field.model].push(newValue);
-                    else
-                        _model(item, field)[field.model] = [newValue];
-                }
-                else
-                    _model(item, field)[field.model][index] = newValue;
-            }
-        },
-        tableSimpleSaveVisible: function (newValue) {
-            return !$common.isEmptyString(newValue);
-        },
-        tableSimpleUp: function (item, field, index) {
-            _tableReset();
-
-            _swapSimpleItems(_model(item, field)[field.model], index, index - 1);
-        },
-        tableSimpleDown: function (item, field, index) {
-            _tableReset();
-
-            _swapSimpleItems(_model(item, field)[field.model], index, index + 1);
-        },
-        tableSimpleDownVisible: function (item, field, index) {
-            return index < _model(item, field)[field.model].length - 1;
-        },
-        tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
-            if (pairValid(item, field, newKey, newValue, index)) {
-                _tableReset();
-
-                var pair = {};
-
-                if (index < 0) {
-                    pair[field.keyName] = newKey;
-                    pair[field.valueName] = newValue;
-
-                    if (item[field.model])
-                        item[field.model].push(pair);
-                    else
-                        item[field.model] = [pair];
-                }
-                else {
-                    pair = item[field.model][index];
-
-                    pair[field.keyName] = newKey;
-                    pair[field.valueName] = newValue;
-                }
-            }
-        },
-        tablePairSaveVisible: function (newKey, newValue) {
-            return !$common.isEmptyString(newKey) && !$common.isEmptyString(newValue);
+            a[ix1] = a[ix2];
+            a[ix2] = tmp;
         }
-    }
-}]);
 
+        function _model(item, field) {
+            return $common.getModel(item, field);
+        }
+
+        var table = {name: 'none', editIndex: -1};
+
+        function _tableReset() {
+            table.name = 'none';
+            table.editIndex = -1;
+        }
+
+        function _tableState(name, editIndex) {
+            table.name = name;
+            table.editIndex = editIndex;
+        }
+
+        return {
+            tableState: function (name, editIndex) {
+                _tableState(name, editIndex);
+            },
+            tableReset: function () {
+                _tableReset();
+            },
+            tableNewItem: function (field) {
+                _tableState(field.model, -1);
+            },
+            tableNewItemActive: function (field) {
+                return table.name == field.model && table.editIndex < 0;
+            },
+            tableEditing: function (field, index) {
+                return table.name == field.model && table.editIndex == index;
+            },
+            tableStartEdit: function (item, field, index) {
+                _tableState(field.model, index);
+
+                return _model(item, field)[field.model][index];
+            },
+            tableRemove: function (item, field, index) {
+                _tableReset();
+
+                _model(item, field)[field.model].splice(index, 1);
+            },
+            tableSimpleSave: function (valueValid, item, field, newValue, index) {
+                if (valueValid(item, field, newValue, index)) {
+                    _tableReset();
+
+                    if (index < 0) {
+                        if (_model(item, field)[field.model])
+                            _model(item, field)[field.model].push(newValue);
+                        else
+                            _model(item, field)[field.model] = [newValue];
+                    }
+                    else
+                        _model(item, field)[field.model][index] = newValue;
+                }
+            },
+            tableSimpleSaveVisible: function (newValue) {
+                return !$common.isEmptyString(newValue);
+            },
+            tableSimpleUp: function (item, field, index) {
+                _tableReset();
+
+                _swapSimpleItems(_model(item, field)[field.model], index, index - 1);
+            },
+            tableSimpleDown: function (item, field, index) {
+                _tableReset();
+
+                _swapSimpleItems(_model(item, field)[field.model], index, index + 1);
+            },
+            tableSimpleDownVisible: function (item, field, index) {
+                return index < _model(item, field)[field.model].length - 1;
+            },
+            tablePairSave: function (pairValid, item, field, newKey, newValue, index) {
+                if (pairValid(item, field, newKey, newValue, index)) {
+                    _tableReset();
+
+                    var pair = {};
+
+                    if (index < 0) {
+                        pair[field.keyName] = newKey;
+                        pair[field.valueName] = newValue;
+
+                        if (item[field.model])
+                            item[field.model].push(pair);
+                        else
+                            item[field.model] = [pair];
+                    }
+                    else {
+                        pair = item[field.model][index];
+
+                        pair[field.keyName] = newKey;
+                        pair[field.valueName] = newValue;
+                    }
+                }
+            },
+            tablePairSaveVisible: function (newKey, newValue) {
+                return !$common.isEmptyString(newKey) && !$common.isEmptyString(newValue);
+            }
+        }
+    }]);
 
 // Filter to decode name using map(value, label).
 controlCenterModule.filter('displayValue', function () {
@@ -597,24 +617,6 @@ controlCenterModule.filter('displayValue', function () {
         }
 
         return 'Unknown value';
-    }
-});
-
-/**
- * Filter for replacing all occurrences of {@code org.apache.ignite.} with {@code o.a.i.},
- * {@code org.apache.ignite.internal.} with {@code o.a.i.i.},
- * {@code org.apache.ignite.internal.visor.} with {@code o.a.i.i.v.} and
- * {@code org.apache.ignite.scalar.} with {@code o.a.i.s.}.
- *
- * @param s String to replace in.
- * @return Replaces string.
- */
-controlCenterModule.filter('compact', function () {
-    return function (s) {
-        return s.replace('org.apache.ignite.internal.visor.', 'o.a.i.i.v.').
-            replace('org.apache.ignite.internal.', 'o.a.i.i.').
-            replace('org.apache.ignite.scalar.', 'o.a.i.s.').
-            replace('org.apache.ignite.', 'o.a.i.');
     }
 });
 
@@ -703,7 +705,7 @@ controlCenterModule.directive('retainSelection', function ($timeout) {
             var input = this;
             var start = input.selectionStart;
 
-            $timeout(function() {
+            $timeout(function () {
                 var setCursor = false;
 
                 // Handle Backspace[8].
@@ -716,7 +718,7 @@ controlCenterModule.directive('retainSelection', function ($timeout) {
                 else if (key == 46)
                     setCursor = true;
                 // Handle: Caps Lock[20], Tab[9], Shift[16], Ctrl[17], Alt[18], Esc[27], Enter[13], Arrows[37..40], Home[36], End[35], Ins[45], PgUp[33], PgDown[34], F1..F12[111..124], Num Lock[], Scroll Lock[145].
-                else  if (!(key == 9 || key == 13 || (key > 15 && key < 20) || key == 27 ||
+                else if (!(key == 9 || key == 13 || (key > 15 && key < 20) || key == 27 ||
                     (key > 32 && key < 41) || key == 45 || (key > 111 && key < 124) || key == 144 || key == 145)) {
                     // Handle: Ctrl + [A[65], C[67], V[86]].
                     if (!(ctrlDown && (key = 65 || key == 67 || key == 86))) {
@@ -789,7 +791,8 @@ controlCenterModule.controller('activeLink', [
     }]);
 
 // Login popup controller.
-controlCenterModule.controller('auth', ['$scope', '$modal', '$http', '$window', '$common', '$focus',
+controlCenterModule.controller('auth', [
+    '$scope', '$modal', '$http', '$window', '$common', '$focus',
     function ($scope, $modal, $http, $window, $common, $focus) {
         $scope.action = 'login';
 
@@ -855,26 +858,31 @@ controlCenterModule.controller('auth', ['$scope', '$modal', '$http', '$window', 
     }]);
 
 // Navigation bar controller.
-controlCenterModule.controller('notebooks', ['$scope', '$http', '$common', function ($scope, $http, $common) {
-    $scope.notebooks = [];
+controlCenterModule.controller('notebooks', [
+    '$scope', '$http', '$common', function ($scope, $http, $common) {
+        $scope.notebooks = [];
 
-    // When landing on the page, get clusters and show them.
-    $http.post('/notebooks/list')
-        .success(function (data) {
-            $scope.notebooks = data;
+        // When landing on the page, get clusters and show them.
+        $http.post('/notebooks/list')
+            .success(function (data) {
+                $scope.notebooks = data;
 
-            if ($scope.notebooks.length > 0) {
-                $scope.notebookDropdown = [
-                    {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
-                    {divider: true}
-                ];
+                if ($scope.notebooks.length > 0) {
+                    $scope.notebookDropdown = [
+                        {text: 'Create new notebook', href: '/notebooks/new', target: '_self'},
+                        {divider: true}
+                    ];
 
-                _.forEach($scope.notebooks, function (notebook) {
-                    $scope.notebookDropdown.push({text: notebook.name, href: '/sql/' + notebook._id, target: '_self'});
-                });
-            }
-        })
-        .error(function (errMsg) {
-            $common.showError(errMsg);
-        });
-}]);
+                    _.forEach($scope.notebooks, function (notebook) {
+                        $scope.notebookDropdown.push({
+                            text: notebook.name,
+                            href: '/sql/' + notebook._id,
+                            target: '_self'
+                        });
+                    });
+                }
+            })
+            .error(function (errMsg) {
+                $common.showError(errMsg);
+            });
+    }]);

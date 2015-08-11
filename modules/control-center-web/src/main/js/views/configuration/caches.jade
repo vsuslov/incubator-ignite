@@ -39,7 +39,7 @@ block content
             button.btn.btn-primary(event-focus='defaultFocusId' ng-click='createItem()') Add cache
         hr
         form.form-horizontal(name='inputForm' ng-if='backupItem' novalidate)
-            div(bs-collapse data-start-collapsed='false')
+            .panel-group(bs-collapse ng-model='panels.activePanels' data-allow-multiple='true' ng-click='triggerDigest = true')
                 .panel.panel-default
                     .panel-heading
                         h3
@@ -48,12 +48,11 @@ block content
                         .panel-body
                             .settings-row(ng-repeat='field in general')
                                 +form-row('backupItem')
-            div(ng-show='ui.expanded')
-                .advanced-options
-                    i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
-                    a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
-                .panel-group(bs-collapse data-allow-multiple='true' data-start-collapsed='true' ng-click='triggerDigest = true')
-                    .panel.panel-default(ng-repeat='group in advanced')
+                div(ng-show='ui.expanded')
+                    .advanced-options
+                        i.fa.fa-chevron-circle-up(ng-click='toggleExpanded()')
+                        a(ng-click='toggleExpanded()') {{ui.expanded ? 'Hide advanced settings...' : 'Show advanced settings...'}}
+                    .panel.panel-default(ng-repeat='group in advanced' ng-click='triggerDigest = true')
                         .panel-heading
                             h3
                                 a(bs-collapse-toggle) {{::group.label}}
