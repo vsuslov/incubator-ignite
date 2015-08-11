@@ -16,8 +16,8 @@
  */
 
 controlCenterModule.controller('metadataController', [
-        '$scope', '$http', '$modal', '$common', '$focus', '$confirm', '$copy', '$table', function ($scope, $http, $modal, $common, $focus,
-            $confirm, $copy, $table) {
+        '$scope', '$http', '$modal', '$common', '$timeout', '$focus', '$confirm', '$copy', '$table',
+        function ($scope, $http, $modal, $common, $timeout, $focus, $confirm, $copy, $table) {
             $scope.joinTip = $common.joinTip;
             $scope.getModel = $common.getModel;
             $scope.javaBuildInClasses = $common.javaBuildInClasses;
@@ -310,7 +310,7 @@ controlCenterModule.controller('metadataController', [
                     });
             };
 
-            $scope.saveMetadataLoadedFromDb = function(preset) {
+            $scope.saveMetadataLoadedFromDb = function (preset) {
                 loadMetaModal.hide();
 
                 $common.showError("Load metadata from DB not ready yet!");
@@ -359,6 +359,10 @@ controlCenterModule.controller('metadataController', [
                     else
                         selectFirstItem();
 
+                    $timeout(function () {
+                        $scope.$apply();
+                    });
+
                     $scope.$watch('backupItem', function (val) {
                         if (val)
                             sessionStorage.metadataBackupItem = angular.toJson(val);
@@ -385,57 +389,57 @@ controlCenterModule.controller('metadataController', [
             // Check metadata logical consistency.
             function validate(item) {
                 /*
-                if (!$common.isValidJavaClass('Key type', item.keyType, true)) {
-                    $focus('keyType');
+                 if (!$common.isValidJavaClass('Key type', item.keyType, true)) {
+                 $focus('keyType');
 
-                    return false;
-                }
+                 return false;
+                 }
 
-                if (!$common.isValidJavaClass('Value type', item.valueType, false)) {
-                    $focus('valueType');
+                 if (!$common.isValidJavaClass('Value type', item.valueType, false)) {
+                 $focus('valueType');
 
-                    return false;
-                }
+                 return false;
+                 }
 
-                if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
-                    $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
-                    $common.isEmptyArray(item.groups)) {
-                    $common.showError('SQL fields are not specified!');
+                 if ($common.isEmptyArray(item.queryFields) && $common.isEmptyArray(item.ascendingFields) &&
+                 $common.isEmptyArray(item.descendingFields) && $common.isEmptyArray(item.textFields) &&
+                 $common.isEmptyArray(item.groups)) {
+                 $common.showError('SQL fields are not specified!');
 
-                    return false;
-                }
+                 return false;
+                 }
 
-                var groups = item.groups;
-                if (groups && groups.length > 0) {
-                    for (var i = 0; i < groups.length; i++) {
-                        var group = groups[i];
-                        var fields = group.fields;
+                 var groups = item.groups;
+                 if (groups && groups.length > 0) {
+                 for (var i = 0; i < groups.length; i++) {
+                 var group = groups[i];
+                 var fields = group.fields;
 
-                        if ($common.isEmptyArray(fields)) {
-                            $common.showError('Group "' + group.name + '" has no fields.');
+                 if ($common.isEmptyArray(fields)) {
+                 $common.showError('Group "' + group.name + '" has no fields.');
 
-                            return false;
-                        }
+                 return false;
+                 }
 
-                        if (fields.length == 1) {
-                            $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
+                 if (fields.length == 1) {
+                 $common.showError('Group "' + group.name + '" has only one field.<br/> Consider to use ascending or descending fields.');
 
-                            return false;
-                        }
-                    }
-                }
+                 return false;
+                 }
+                 }
+                 }
 
-                if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
-                    $common.showError('Key fields are not specified!');
+                 if ($common.isEmptyArray(item.keyFields) && !$common.isJavaBuildInClass(item.keyType)) {
+                 $common.showError('Key fields are not specified!');
 
-                    return false;
-                }
-                if ($common.isEmptyArray(item.valueFields)) {
-                    $common.showError('Value fields are not specified!');
+                 return false;
+                 }
+                 if ($common.isEmptyArray(item.valueFields)) {
+                 $common.showError('Value fields are not specified!');
 
-                    return false;
-                }
-                */
+                 return false;
+                 }
+                 */
 
                 return true;
             }
@@ -584,7 +588,8 @@ controlCenterModule.controller('metadataController', [
             };
 
             $scope.tableDbFieldSaveVisible = function (databaseName, databaseType, javaName, javaType) {
-                return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) && !$common.isEmptyString(javaName) && $common.isDefined(javaType);
+                return !$common.isEmptyString(databaseName) && $common.isDefined(databaseType) &&
+                    !$common.isEmptyString(javaName) && $common.isDefined(javaType);
             };
 
             var dbFields = {
@@ -592,8 +597,7 @@ controlCenterModule.controller('metadataController', [
                 valueFields: {msg: 'Value field', id: 'ValueField'}
             };
 
-            $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType,
-                index) {
+            $scope.tableDbFieldSave = function (field, newDatabaseName, newDatabaseType, newJavaName, newJavaType, index) {
                 var dbField = dbFields[field.model];
 
                 if (dbField) {
