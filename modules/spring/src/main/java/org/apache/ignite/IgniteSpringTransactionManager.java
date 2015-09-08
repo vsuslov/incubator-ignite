@@ -7,8 +7,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.apache.ignite.transactions.TransactionIsolation.*;
 
@@ -47,7 +50,19 @@ public class IgniteSpringTransactionManager extends AbstractPlatformTransactionM
      */
     @Override
     protected Object doGetTransaction() throws TransactionException {
-        return ignite.transactions().tx();
+        IgniteTxObject txObject=new IgniteTxObject();
+        Transaction tx=(Transaction) TransactionSynchronizationManager.getResource(ignite);
+        txObject.setTransaction(tx);
+        return txObject;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isExistingTransaction(Object transaction) throws TransactionException {
+        IgniteTxObject txObject=(IgniteTxObject) transaction;
+        return txObject.getTransaction()!=null;
     }
 
     /**
@@ -55,8 +70,11 @@ public class IgniteSpringTransactionManager extends AbstractPlatformTransactionM
      */
     @Override
     protected void doBegin(Object transaction, TransactionDefinition definition) throws TransactionException {
+        IgniteTxObject txObject=(IgniteTxObject) transaction;
         if(!isExistingTransaction(transaction)) {
-            createTransaction(definition);
+            Transaction tx=createTransaction(definition);
+            txObject.setTransaction(tx);
+            TransactionSynchronizationManager.bindResource(ignite, tx);
         } else throw new CannotCreateTransactionException("Ignite supports only one transaction per thread");
         //else do not create a transaction, just join a current one
     }
@@ -66,10 +84,13 @@ public class IgniteSpringTransactionManager extends AbstractPlatformTransactionM
      */
     @Override
     protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
-        Transaction transaction=(Transaction) status.getTransaction();
-        if(transaction!=null) {
+        IgniteTxObject txObject=(IgniteTxObject) status.getTransaction();
+        Transaction transaction= txObject.getTransaction();
+        try {
             transaction.commit();
-        } else throw new IllegalArgumentException("Couldn't commit a transaction, because it's null");
+        } catch(IgniteException ie) {
+            throw new TransactionSystemException("Couldn't commit Ignite transaction");
+        }
     }
 
     /**
@@ -77,18 +98,14 @@ public class IgniteSpringTransactionManager extends AbstractPlatformTransactionM
      */
     @Override
     protected void doRollback(DefaultTransactionStatus status) throws TransactionException {
-        Transaction transaction=(Transaction) status.getTransaction();
-        if(transaction!=null) {
-            transaction.rollback();
-        } else throw new IllegalArgumentException("Couldn't rollback a transaction, because it's null");
-    }
+        IgniteTxObject txObject=(IgniteTxObject) status.getTransaction();
+        Transaction tx=txObject.getTransaction();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isExistingTransaction(Object transaction) throws TransactionException {
-        return doGetTransaction()!=null;
+        try {
+            ignite.transactions().tx().rollback();
+        } catch(IgniteException ie) {
+            throw new TransactionSystemException("Couldn't rollback Ignite transaction");
+        }
     }
 
     /**
@@ -151,5 +168,17 @@ public class IgniteSpringTransactionManager extends AbstractPlatformTransactionM
 
     public void setConcurrency(TransactionConcurrency concurrency) {
         this.concurrency = concurrency;
+    }
+
+    class IgniteTxObject {
+        private Transaction transaction;
+
+        public Transaction getTransaction() {
+            return transaction;
+        }
+
+        public void setTransaction(Transaction transaction) {
+            this.transaction = transaction;
+        }
     }
 }
